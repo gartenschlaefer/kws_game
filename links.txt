@@ -2,6 +2,14 @@
 Links to important KWS stuff
 
 --
+Dataset
+
 Speech Commands:  A Dataset for Limited-Vocabulary SpeechRecognition
 https://arxiv.org/pdf/1804.03
 https://lionbridge.ai/datasets/best-speech-recognition-datasets-for-machine-learning/
+
+
+--
+godot
+
+git@github.com:chrisworld/godot-demo-projects.git
