@@ -54,31 +54,16 @@ def copy_wav_files(wav_files, label, data_percs, data_paths):
 		copyfile(wav, data_paths[p] + label + str(i) + '.wav')
 
 
-if __name__ == '__main__':
+def	create_datasets(n_examples, dataset_path, data_paths, data_percs):
 	"""
-	Main of audio dataset creator
+	copy wav - files from dataset_path to data_path with spliting
 	"""
-
-	# path to whole dataset
-	dataset_path = './ignore/speech_commands_v0.01/'
-
-	# path to training, test and eval set
-	data_paths = ['./ignore/train/', './ignore/test/', './ignore/eval/']
-
-	# wav folder
-	wav_folder = 'wav/'
-
-	# percent of data splitting [train, test], leftover is eval
-	data_percs = np.array([0.6, 0.2, 0.2])
-
-	# create folder
-	create_folder(data_paths, sub_folder=wav_folder)
-
-	# num examples per class
-	n_examples = 10
 
 	# get all class directories
-	class_dirs = glob(dataset_path + '*/')
+	class_dirs = glob(dataset_path + '[!_]*/')
+
+	# labels
+	labels = [] 
 
 	# run through all class directories
 	for class_dir in class_dirs:
@@ -86,6 +71,9 @@ if __name__ == '__main__':
 		# extract label
 		label = class_dir.split('/')[-2]
 		print("label: ", label)
+
+		# append to label list
+		labels.append(label)
 
 		# get all .wav files
 		wavs = glob(class_dir + '*.wav')
@@ -105,6 +93,40 @@ if __name__ == '__main__':
 
 		# copy wav files
 		copy_wav_files(wav_files, label, data_percs, [p + wav_folder for p in data_paths])
+
+	return labels
+
+
+if __name__ == '__main__':
+	"""
+	Main of audio dataset creator
+	"""
+
+	# path to whole dataset
+	dataset_path = './ignore/speech_commands_v0.01/'
+
+	# path to training, test and eval set
+	data_paths = ['./ignore/train/', './ignore/test/', './ignore/eval/']
+
+	# wav folder
+	wav_folder = 'wav/'
+
+	# percent of data splitting [train, test], leftover is eval
+	data_percs = np.array([0.6, 0.2, 0.2])
+
+	# num examples per class
+	n_examples = 10
+
+	# create folder
+	create_folder(data_paths, sub_folder=wav_folder)
+
+	# status message
+	print("--create datasets with [{}] examples at paths:\n{}\nwith splits: {}".format(n_examples, data_paths, data_percs))
+
+	# copy wav files to path
+	labels = create_datasets(n_examples, dataset_path, data_paths, data_percs)
+
+	print("labels: ", labels)
 
 
 		
