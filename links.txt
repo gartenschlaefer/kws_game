@@ -5,8 +5,25 @@ Links to important KWS stuff
 Dataset
 
 Speech Commands:  A Dataset for Limited-Vocabulary SpeechRecognition
-https://arxiv.org/pdf/1804.03
+https://arxiv.org/pdf/1804.03209.pdf
 https://lionbridge.ai/datasets/best-speech-recognition-datasets-for-machine-learning/
+
+--
+relevant papers
+
+Chen 2014 - SMALL-FOOTPRINT KEYWORD SPOTTING USING DEEP NEURAL NETWORKS
+
+Sainath 2015 - Convolutional Neural Networks for Small-footprint Keyword Spotting - https://www.isca-speech.org/archive/interspeech_2015/papers/i15_1478.pdf
+Sundar 2015 - Keyword spotting in multi-player voice driven games for children
+
+Tang 2017 - Deep Residual Learning for Small-Footprint Keyword Spotting - https://arxiv.org/abs/1710.10361
+Tang 2017 - An Experimental Analysis of the Power Consumption of Convolutional Neural Networks for Keyword Spotting - https://arxiv.org/abs/1711.00333
+Tang 2017 - Honk: A PyTorch Reimplementation of ConvolutionalNeural Networks for Keyword Spotting - https://arxiv.org/pdf/1710.06554.pdf
+Arik 2017- Convolutional Recurrent Neural Networks for Small-Footprint Keyword Spotting - https://arxiv.org/abs/1703.05390
+Lee 2017 - Raw Waveform-based Audio Classification UsingSample-level CNN Architectures - https://arxiv.org/pdf/1712.00866.pdf
+
+Lin 2018 - EdgeSpeechNets: Highly Efficient Deep Neural Networks for Speech Recognition on the Edge
+Andrade 2018 - A neural attention model for speech command recognition
 
 
 --
