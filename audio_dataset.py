@@ -70,7 +70,6 @@ def	create_datasets(n_examples, dataset_path, data_paths, data_percs):
 
 		# extract label
 		label = class_dir.split('/')[-2]
-		print("label: ", label)
 
 		# append to label list
 		labels.append(label)
@@ -126,7 +125,11 @@ if __name__ == '__main__':
 	# copy wav files to path
 	labels = create_datasets(n_examples, dataset_path, data_paths, data_percs)
 
+	# list labels
 	print("labels: ", labels)
 
+
+	# --
+	# extract mfcc features
 
 		

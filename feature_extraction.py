@@ -3,6 +3,7 @@ feature extraction tools
 """
 import numpy as np
 
+
 def calc_mfcc(x, fs, N=1024, hop=512, n_filter_bands=8):
   """
   mel-frequency cepstral coefficient
@@ -36,35 +37,68 @@ def dct(X, N):
   return np.dot(X, H)
 
 
-def triangle(M, N):
+def mel_to_f(m):
+  """
+  mel to frequency
+  """
+  return 700 * (np.power(10, m / 2595) - 1)
+
+
+def f_to_mel(f):
+  """
+  frequency to mel 
+  """
+  return 2595 * np.log10(1 + f / 700)
+
+
+def triangle(M, N, same=True):
   """
   create a triangle
   """
-  return np.concatenate((np.linspace(0, 1, M), np.linspace(1 - 1 / N, 0, N - 1)))
+
+  # triangle
+  tri = np.concatenate((np.linspace(0, 1, M), np.linspace(1 - 1 / N, 0, N - 1)))
+
+  # same amount of samples in M and N space -> use zero padding
+  if same:
+
+    # zeros to append
+    k = M - N
+
+    # zeros at beginning
+    if k < 0:
+      return np.pad(tri, (int(np.abs(k)), 0))
+
+    # zeros at end
+    else:
+      return np.pad(tri, (0, int(np.abs(k))))
+
+  return tri
 
 
-def mel_band_weights(n_bands, fs, N=1024, overlap=0.5):
+def mel_band_weights(n_bands, fs, N=1024):
   """
-  mel_band_weights create a weight matrix of triangluar mel band weights for a filter bank.
+  mel_band_weights create a weight matrix of triangular Mel band weights for a filter bank.
   This is used to compute MFCC.
   """
 
   # hop of samples
-  hop = N / (n_bands + 1)
+  hop = (N - 1) / (n_bands + 1)
 
   # calculating middle point of triangle
-  mel_samples = np.arange(hop, N, hop)
+  mel_samples = np.arange(hop, N + n_bands, hop) - 1
   f_samples = np.round(mel_to_f(mel_samples / N * f_to_mel(fs / 2)) * N / (fs / 2))
 
   # round mel samples too
   mel_samples = np.round(mel_samples)
 
-  # complicated hop sizes for frequency scale
-  hop_f = (f_samples - np.roll(f_samples, +1))
-  hop_f[0] = f_samples[0]
+  # last entry, account for rounding errors
+  mel_samples[-1] = N - 1
+  f_samples[-1] = N - 1
 
-  # triangle shape
-  tri = triangle(hop, hop+1)
+  # diff
+  hop_m = np.insert(np.diff(mel_samples), 0, mel_samples[0])
+  hop_f = np.insert(np.diff(f_samples), 0, f_samples[0])
 
   # weight init
   w_mel = np.zeros((n_bands, N))
@@ -74,18 +108,11 @@ def mel_band_weights(n_bands, fs, N=1024, overlap=0.5):
 
     # for equidistant mel scale
     w_mel[mi][int(mel_samples[mi])] = 1
-    w_mel[mi] = np.convolve(w_mel[mi, :], tri, mode='same')
+    w_mel[mi] = np.convolve(w_mel[mi, :], triangle(hop_m[mi]+1, hop_m[mi+1]+1), mode='same')
 
     # for frequency scale
     w_f[mi, int(f_samples[mi])] = 1
-    w_f[mi] = np.convolve(w_f[mi], triangle(hop_f[mi]+1, hop_f[mi]+1), mode='same')
-
-  # print("w_f: ", f_samples.shape)
-  # print("w_f: ", w_f.shape)
-
-  # plt.figure(1)
-  # plt.plot(w_f.T)
-  # plt.show()
+    w_f[mi] = np.convolve(w_f[mi], triangle(hop_f[mi]+1, hop_f[mi+1]+1), mode='same')
 
   return (w_f, w_mel, n_bands)
 
@@ -142,3 +169,38 @@ def create_frames(x, N, hop):
       windows[wi] = x[wi * hop : (wi * hop) + N]
 
   return windows
+
+
+if __name__ == '__main__':
+  """
+  main file of feature extraction and how to use it
+  """
+
+  import matplotlib.pyplot as plt
+
+  # sampling rate
+  fs = 22050
+
+  # mfcc bands
+  n_bands = 8
+
+  # create mel bands
+  w_f, w_mel, n_bands = mel_band_weights(n_bands, fs, N=256)
+
+  # plot f bands
+  plt.figure(1)
+  plt.plot(w_f.T)
+  plt.grid()
+
+  plt.figure(2)
+  plt.plot(w_mel.T)
+  plt.grid()
+
+  # plt.figure(3)
+  # plt.plot(triangle(120, 100, same=True))
+
+  plt.show()
+
+
+
+
