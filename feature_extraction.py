@@ -4,25 +4,68 @@ feature extraction tools
 import numpy as np
 
 
+def compute_deltas(x):
+  """
+  compute deltas for mfcc [feature x frames]
+  """
+
+  # init
+  d = np.zeros(x.shape)
+  
+  # zero-padding
+  x_pad = np.pad(x, ((0, 0), (1, 1)))
+
+  # for all time frames
+  for t in range(x.shape[1]):
+    
+    # calculate diff
+    d[:, t] = x_pad[:, t+2] - x_pad[:, t] / 2
+
+  # clean last entry
+  d[:, -1] = 0
+
+  return d
+
+
+def calc_mfcc39(x, fs, N=400, hop=160, n_filter_bands=32, n_ceps_coeff=12):
+  """
+  calculate mel-frequency 39 feature vector
+  """
+
+  # get mfcc coeffs [feature x frames]
+  mfcc = calc_mfcc(x, fs, N, hop, n_filter_bands)[:n_ceps_coeff]
+
+  # compute deltas [feature x frames]
+  deltas = compute_deltas(mfcc)
+
+  # compute double deltas [feature x frames]
+  double_deltas = compute_deltas(deltas)
+
+  # compute energies [1 x frames]
+  e_mfcc = np.vstack((np.sum(mfcc**2, axis=0), np.sum(deltas**2, axis=0), np.sum(double_deltas**2, axis=0)))
+
+  return np.vstack((mfcc, deltas, double_deltas, e_mfcc))
+
+
 def calc_mfcc(x, fs, N=1024, hop=512, n_filter_bands=8):
   """
   mel-frequency cepstral coefficient
   """
 
   # stft
-  X = custom_stft(x, 2*N, hop)
+  X = custom_stft(x, N, hop)
 
   # weights
-  w_f, w_mel, n_bands = mel_band_weights(n_filter_bands, fs, N)
+  w_f, w_mel, _, _ = mel_band_weights(n_filter_bands, fs, N//2)
 
-  # energy of fft
-  E = np.power(np.abs(X[:, 0:N]), 2)
+  # energy of fft (one-sided)
+  E = np.power(np.abs(X[:, :N//2]), 2)
 
   # sum the weighted energies
   u = np.inner(E, w_f)
 
   # discrete cosine transform of log
-  return dct(np.log(u), n_bands).T
+  return dct(np.log(u), n_filter_bands).T
 
 
 def dct(X, N):
@@ -85,6 +128,10 @@ def mel_band_weights(n_bands, fs, N=1024):
   # hop of samples
   hop = (N - 1) / (n_bands + 1)
 
+  # the scales
+  mel_scale = np.linspace(0, f_to_mel(fs / 2), N)
+  f_scale = mel_to_f(mel_scale)
+
   # calculating middle point of triangle
   mel_samples = np.arange(hop, N + n_bands, hop) - 1
   f_samples = np.round(mel_to_f(mel_samples / N * f_to_mel(fs / 2)) * N / (fs / 2))
@@ -114,7 +161,7 @@ def mel_band_weights(n_bands, fs, N=1024):
     w_f[mi, int(f_samples[mi])] = 1
     w_f[mi] = np.convolve(w_f[mi], triangle(hop_f[mi]+1, hop_f[mi+1]+1), mode='same')
 
-  return (w_f, w_mel, n_bands)
+  return (w_f, w_mel, f_scale, mel_scale)
 
 
 def custom_stft(x, N=1024, hop=512, norm=True):
@@ -179,21 +226,29 @@ if __name__ == '__main__':
   import matplotlib.pyplot as plt
 
   # sampling rate
-  fs = 22050
+  fs = 16000
 
   # mfcc bands
-  n_bands = 8
+  n_bands = 32
+
+  # amount of samples
+  N = 200
 
   # create mel bands
-  w_f, w_mel, n_bands = mel_band_weights(n_bands, fs, N=256)
+  w_f, w_mel, f, m = mel_band_weights(n_bands, fs, N=N)
 
   # plot f bands
-  plt.figure(1)
-  plt.plot(w_f.T)
+  #plt.figure(figsize=(8, 4))
+  plt.figure()
+  plt.plot(f, w_f.T)
+  plt.ylabel('magnitude')
+  plt.xlabel('frequency [Hz]')
   plt.grid()
 
-  plt.figure(2)
-  plt.plot(w_mel.T)
+  plt.figure()
+  plt.plot(m, w_mel.T)
+  plt.ylabel('magnitude')
+  plt.xlabel('mel [mel]')
   plt.grid()
 
   # plt.figure(3)

@@ -3,10 +3,15 @@ audio datasets set creation for kws
 """
 
 import os
+import re
 import numpy as np
+import matplotlib.pyplot as plt
+import librosa
 
 from glob import glob
 from shutil import copyfile
+
+from feature_extraction import calc_mfcc39
 
 
 def create_folder(paths, sub_folder=None):
@@ -59,7 +64,7 @@ def	create_datasets(n_examples, dataset_path, data_paths, data_percs):
 	copy wav - files from dataset_path to data_path with spliting
 	"""
 
-	# get all class directories
+	# get all class directories except the ones starting with _
 	class_dirs = glob(dataset_path + '[!_]*/')
 
 	# labels
@@ -131,5 +136,72 @@ if __name__ == '__main__':
 
 	# --
 	# extract mfcc features
+
+	# sampling rate
+	fs = 16000
+
+	# mfcc analytic window
+	N = int(0.025 * fs)
+	#N = 512
+	
+	# shift of analytic window
+	hop = int(0.010 * fs)
+
+	# amount of filter bands
+	n_filter_bands = 32
+
+	# amount of first n-th cepstral coeffs
+	n_ceps_coeff = 12
+
+	# print mfcc info
+	print("fs={}, mfcc: N={} is t={}, hop={} is t={}, n_f-bands={}, n_ceps_coeff={}".format(fs, N, N/fs, hop, hop/fs, n_filter_bands, n_ceps_coeff))
+
+	# get all wav files
+	#train_wavs = glob(data_paths[0] + wav_folder + '*.wav')
+
+	# debug find specific wavs
+	#train_wavs = glob(data_paths[0] + wav_folder + '*up[0-9]*.wav')
+	#train_wavs = glob(data_paths[0] + wav_folder + '*up[012].wav')
+	train_wavs = glob(data_paths[0] + wav_folder + '*up[0].wav')
+
+	# run through all wavs for processing
+	for wav in train_wavs:
+		
+		# extract label from filename
+		label = re.sub(r'([0-9]+\.wav)', '', re.findall(r'[\w+ 0-9]+\.wav', wav)[0])
+
+		# read audio from file
+		x, fs = librosa.load(wav, sr=fs)
+
+		# time vector
+		t = np.arange(0, len(x)/fs, 1/fs)
+
+		# print some info
+		print("wav: [{}] with label: [{}], samples=[{}], time=[{}]s".format(wav, label, len(x), np.max(t)))
+
+		plt.figure(), plt.plot(t, x), plt.grid()
+
+		# calculate feature vectors
+		mfcc = calc_mfcc39(x, fs, N=N, hop=hop, n_filter_bands=n_filter_bands, n_ceps_coeff=n_ceps_coeff)
+
+		print("mfcc: ", mfcc.shape)
+
+		plt.figure()
+		plt.imshow(mfcc[:36])
+		plt.colorbar()
+
+	
+	plt.show()
+
+
+
+
+
+
+
+#re.sub('\%|\.|\?|(\\\+\+?)|(\+\+?\\)|!|,|\*|(\\\\?)|((\#?<.*?>)?\$)|(\#?<.*?>)|#S#', '', line)
+
+
+
 
 		
