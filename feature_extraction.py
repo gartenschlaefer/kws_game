@@ -35,6 +35,10 @@ def calc_mfcc39(x, fs, N=400, hop=160, n_filter_bands=32, n_ceps_coeff=12):
   # get mfcc coeffs [feature x frames]
   mfcc = calc_mfcc(x, fs, N, hop, n_filter_bands)[:n_ceps_coeff]
 
+  # librosa test
+  #import librosa
+  #mfcc = librosa.feature.mfcc(x, fs, S=None, n_mfcc=32, dct_type=2, norm='ortho', lifter=0)[:n_ceps_coeff]
+
   # compute deltas [feature x frames]
   deltas = compute_deltas(mfcc)
 
@@ -42,7 +46,11 @@ def calc_mfcc39(x, fs, N=400, hop=160, n_filter_bands=32, n_ceps_coeff=12):
   double_deltas = compute_deltas(deltas)
 
   # compute energies [1 x frames]
-  e_mfcc = np.vstack((np.sum(mfcc**2, axis=0), np.sum(deltas**2, axis=0), np.sum(double_deltas**2, axis=0)))
+  e_mfcc = np.vstack((
+    np.sum(mfcc**2, axis=0) / np.max(np.sum(mfcc**2, axis=0)), 
+    np.sum(deltas**2, axis=0) / np.max(np.sum(deltas**2, axis=0)), 
+    np.sum(double_deltas**2, axis=0) / np.max(np.sum(double_deltas**2, axis=0))
+    ))
 
   return np.vstack((mfcc, deltas, double_deltas, e_mfcc))
 
@@ -98,6 +106,10 @@ def triangle(M, N, same=True):
   """
   create a triangle
   """
+
+  # ensure int
+  M = int(M)
+  N = int(N)
 
   # triangle
   tri = np.concatenate((np.linspace(0, 1, M), np.linspace(1 - 1 / N, 0, N - 1)))

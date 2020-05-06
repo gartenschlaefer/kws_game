@@ -14,9 +14,9 @@ from shutil import copyfile
 from feature_extraction import calc_mfcc39
 
 
-def create_folder(paths, sub_folder=None):
+def create_folder(paths):
 	"""
-	create train, test, eval folders
+	create folders in paths
 	"""
 
 	# get all folder path to create
@@ -28,12 +28,8 @@ def create_folder(paths, sub_folder=None):
 			# create path
 			os.makedirs(p)
 
-			# create a subfolder
-			if sub_folder is not None:
-				os.makedirs(p + sub_folder)
 
-
-def copy_wav_files(wav_files, label, data_percs, data_paths):
+def copy_wav_files(wav_files, label, data_paths, data_percs):
 	"""
 	copy wav files to paths with percentages
 	"""
@@ -96,14 +92,75 @@ def	create_datasets(n_examples, dataset_path, data_paths, data_percs):
 			wav_files.append(wav)
 
 		# copy wav files
-		copy_wav_files(wav_files, label, data_percs, [p + wav_folder for p in data_paths])
+		copy_wav_files(wav_files, label, data_paths, data_percs)
 
 	return labels
 
 
-if __name__ == '__main__':
+def plot_mfcc(x, t, mfcc, plot_path, name='None'):
 	"""
-	Main of audio dataset creator
+	plot mfcc extracted features from audio file
+	"""
+	import matplotlib.colors as colors
+
+	# setup figure
+	fig = plt.figure(figsize=(8, 8))
+
+	# make a grid
+	n_rows = 25
+	n_cols = 20
+	n_im_rows = 5
+	gs = plt.GridSpec(n_rows, n_cols, wspace=0.4, hspace=0.3)
+
+	# time series plot
+	ax = fig.add_subplot(gs[0:n_im_rows-1, :n_cols-2])
+	ax.plot(t, x)
+	ax.grid()
+	ax.set_title('time signal of ' + '"' + name + '"')
+	ax.set_ylabel("magnitude")
+	ax.set_xlim([0, t[-1]])
+
+	# select mfcc coeffs in arrays
+	sel_coefs = [np.arange(0, 12), np.arange(12, 24), np.arange(24, 36), np.arange(36, 39)]
+	titles = ['12 MFCCs', 'deltas', 'double deltas', 'energies']
+
+	# mfcc plots
+	for i, c in enumerate(sel_coefs):
+
+		# row start and stop
+		rs = (i+1) * n_im_rows + 2
+		re = (i+2) * n_im_rows
+
+		# specify grid pos
+		ax = fig.add_subplot(gs[rs:re, :n_cols-2])
+
+		#im = ax.imshow(mfcc[c], aspect='auto', extent = [0, mfcc[c].shape[1], c[-1], c[0]])
+		im = ax.imshow(mfcc[c], aspect='auto', extent = [0, t[-1], c[-1], c[0]])
+
+		# color limited
+		# if titles[i] != 'energies':
+		# 	im = ax.imshow(mfcc[c], aspect='auto', extent = [0, t[-1], c[-1], c[0]], vmin=-100, vmax=np.max(mfcc[c]))
+		#
+		# else:
+		# 	im = ax.imshow(mfcc[c], aspect='auto', extent = [0, t[-1], c[-1], c[0]])
+
+		# some labels
+		ax.set_title(titles[i])
+		ax.set_ylabel("cepstrum coeff")
+		if i == len(sel_coefs) - 1:
+			ax.set_xlabel("time [s]")
+		ax.set_xlim(left=0)
+
+		# add colorbar
+		ax = fig.add_subplot(gs[rs:re, n_cols-1])
+		fig.colorbar(im, cax=ax)
+
+	plt.savefig(plot_path + 'mfcc-' + name + '.png', dpi=150)
+
+
+def main():
+	"""
+	main function
 	"""
 
 	# path to whole dataset
@@ -115,6 +172,9 @@ if __name__ == '__main__':
 	# wav folder
 	wav_folder = 'wav/'
 
+	# plot path
+	plot_path = './ignore/plots/features/'
+
 	# percent of data splitting [train, test], leftover is eval
 	data_percs = np.array([0.6, 0.2, 0.2])
 
@@ -122,13 +182,13 @@ if __name__ == '__main__':
 	n_examples = 10
 
 	# create folder
-	create_folder(data_paths, sub_folder=wav_folder)
+	create_folder([p + wav_folder for p in data_paths] + [plot_path])
 
 	# status message
 	print("--create datasets with [{}] examples at paths:\n{}\nwith splits: {}".format(n_examples, data_paths, data_percs))
 
 	# copy wav files to path
-	labels = create_datasets(n_examples, dataset_path, data_paths, data_percs)
+	labels = create_datasets(n_examples, dataset_path, [p + wav_folder for p in data_paths], data_percs)
 
 	# list labels
 	print("labels: ", labels)
@@ -162,10 +222,11 @@ if __name__ == '__main__':
 	# debug find specific wavs
 	#train_wavs = glob(data_paths[0] + wav_folder + '*up[0-9]*.wav')
 	#train_wavs = glob(data_paths[0] + wav_folder + '*up[012].wav')
+	#train_wavs = glob(data_paths[0] + wav_folder + '*down[012].wav')
 	train_wavs = glob(data_paths[0] + wav_folder + '*up[0].wav')
 
 	# run through all wavs for processing
-	for wav in train_wavs:
+	for file_index, wav in enumerate(train_wavs):
 		
 		# extract label from filename
 		label = re.sub(r'([0-9]+\.wav)', '', re.findall(r'[\w+ 0-9]+\.wav', wav)[0])
@@ -179,29 +240,25 @@ if __name__ == '__main__':
 		# print some info
 		print("wav: [{}] with label: [{}], samples=[{}], time=[{}]s".format(wav, label, len(x), np.max(t)))
 
-		plt.figure(), plt.plot(t, x), plt.grid()
-
 		# calculate feature vectors
 		mfcc = calc_mfcc39(x, fs, N=N, hop=hop, n_filter_bands=n_filter_bands, n_ceps_coeff=n_ceps_coeff)
 
-		print("mfcc: ", mfcc.shape)
+		# plot mfcc features
+		plot_mfcc(x, t, mfcc, plot_path, name=label + str(file_index))
 
-		plt.figure()
-		plt.imshow(mfcc[:36])
-		plt.colorbar()
+		# TODO: save mfcc features as .npy data for compactness store them in one data matrix with labels 
 
-	
+
+	# show plots
 	plt.show()
 
 
+if __name__ == '__main__':
+	"""
+	main caller
+	"""
+
+	# call main function
+	main()
 
 
-
-
-
-#re.sub('\%|\.|\?|(\\\+\+?)|(\+\+?\\)|!|,|\*|(\\\\?)|((\#?<.*?>)?\$)|(\#?<.*?>)|#S#', '', line)
-
-
-
-
-		
