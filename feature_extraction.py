@@ -19,7 +19,7 @@ def compute_deltas(x):
   for t in range(x.shape[1]):
     
     # calculate diff
-    d[:, t] = x_pad[:, t+2] - x_pad[:, t] / 2
+    d[:, t] = (x_pad[:, t+2] - x_pad[:, t]) / 2
 
   # clean last entry
   d[:, -1] = 0

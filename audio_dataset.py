@@ -156,9 +156,57 @@ def plot_mfcc(x, t, mfcc, plot_path, name='None'):
 		fig.colorbar(im, cax=ax)
 
 	plt.savefig(plot_path + 'mfcc-' + name + '.png', dpi=150)
+	plt.close()
 
 
-def main():
+def extract_mfcc_data(wavs, fs, N, hop, n_filter_bands, n_ceps_coeff, plot_path, ext=None):
+	"""
+	extract mfcc data from wav-files
+	"""
+
+	# init mfcc_data: [n x m x t] n samples, m features, t frames
+	mfcc_data = np.empty(shape=(0, 39, 98), dtype=np.float64)
+
+	# init label list
+	label_data = []
+
+	# run through all wavs for processing
+	for wav in wavs:
+		
+		# extract filename
+		file_name = re.findall(r'[\w+ 0-9]+\.wav', wav)[0]
+
+		# extract file index from filename
+		file_index = re.sub(r'[a-z A-Z]|(\.wav)', '', file_name)
+
+		# extract label from filename
+		label = re.sub(r'([0-9]+\.wav)', '', file_name)
+
+		# append label
+		label_data.append(label)
+
+		# read audio from file
+		x, fs = librosa.load(wav, sr=fs)
+
+		# time vector
+		t = np.arange(0, len(x)/fs, 1/fs)
+
+		# print some info
+		print("wav: [{}] with label: [{}], samples=[{}], time=[{}]s".format(wav, label, len(x), np.max(t)))
+
+		# calculate feature vectors
+		mfcc = calc_mfcc39(x, fs, N=N, hop=hop, n_filter_bands=n_filter_bands, n_ceps_coeff=n_ceps_coeff)
+
+		# plot mfcc features
+		plot_mfcc(x, t, mfcc, plot_path, name=label + str(file_index) + '_' + ext)
+
+		# add to mfcc_data
+		mfcc_data = np.vstack((mfcc_data, mfcc[np.newaxis, :, :]))
+
+	return mfcc_data, label_data
+
+
+if __name__ == '__main__':
 	"""
 	main function
 	"""
@@ -175,20 +223,23 @@ def main():
 	# plot path
 	plot_path = './ignore/plots/features/'
 
+	# mfcc data file
+	mfcc_data_file = 'mfcc_data'
+
 	# percent of data splitting [train, test], leftover is eval
 	data_percs = np.array([0.6, 0.2, 0.2])
 
 	# num examples per class
-	n_examples = 10
+	n_max_examples = 10
 
 	# create folder
 	create_folder([p + wav_folder for p in data_paths] + [plot_path])
 
 	# status message
-	print("--create datasets with [{}] examples at paths:\n{}\nwith splits: {}".format(n_examples, data_paths, data_percs))
+	print("--create datasets with [{}] examples at paths:\n{}\nwith splits: {}".format(n_max_examples, data_paths, data_percs))
 
 	# copy wav files to path
-	labels = create_datasets(n_examples, dataset_path, [p + wav_folder for p in data_paths], data_percs)
+	labels = create_datasets(n_max_examples, dataset_path, [p + wav_folder for p in data_paths], data_percs)
 
 	# list labels
 	print("labels: ", labels)
@@ -214,51 +265,50 @@ def main():
 	n_ceps_coeff = 12
 
 	# print mfcc info
-	print("fs={}, mfcc: N={} is t={}, hop={} is t={}, n_f-bands={}, n_ceps_coeff={}".format(fs, N, N/fs, hop, hop/fs, n_filter_bands, n_ceps_coeff))
+	mfcc_info = "fs={}, mfcc: N={} is t={}, hop={} is t={}, n_f-bands={}, n_ceps_coeff={}".format(fs, N, N/fs, hop, hop/fs, n_filter_bands, n_ceps_coeff)
+	print(mfcc_info)
 
 	# get all wav files
-	#train_wavs = glob(data_paths[0] + wav_folder + '*.wav')
+	wav_name_re = '*.wav'
 
 	# debug find specific wavs
-	#train_wavs = glob(data_paths[0] + wav_folder + '*up[0-9]*.wav')
-	#train_wavs = glob(data_paths[0] + wav_folder + '*up[012].wav')
-	#train_wavs = glob(data_paths[0] + wav_folder + '*down[012].wav')
-	train_wavs = glob(data_paths[0] + wav_folder + '*up[0].wav')
+	#wav_name_re = '*up[0-9]*.wav'
 
-	# run through all wavs for processing
-	for file_index, wav in enumerate(train_wavs):
+	# for all data_paths
+	for data_path in data_paths:
+
+		print("\ndata_path: ", data_path)
+
+		# file extension e.g. train, test, etc.
+		ext = re.sub(r'(\./\w+/)|/', '', data_path)
+
+		# get wavs
+		wavs = glob(data_path + wav_folder + wav_name_re)
+
+		# extract data
+		mfcc_data, label_data = extract_mfcc_data(wavs, fs, N, hop, n_filter_bands, n_ceps_coeff, plot_path, ext)
+
+		# save file name
+		file_name = data_path + mfcc_data_file + '_' + ext + '.npz'
+
+		# save file
+		np.savez(file_name, x=mfcc_data, y=label_data, info=mfcc_info)
+
+		# print
+		print("--save data to: ", file_name)
+
+		# # load file
+		# data = np.load(file_name)
+
+		# print(data.files)
 		
-		# extract label from filename
-		label = re.sub(r'([0-9]+\.wav)', '', re.findall(r'[\w+ 0-9]+\.wav', wav)[0])
+		# x = data['x']
+		# y = data['y']
+		# info = data['info']
 
-		# read audio from file
-		x, fs = librosa.load(wav, sr=fs)
-
-		# time vector
-		t = np.arange(0, len(x)/fs, 1/fs)
-
-		# print some info
-		print("wav: [{}] with label: [{}], samples=[{}], time=[{}]s".format(wav, label, len(x), np.max(t)))
-
-		# calculate feature vectors
-		mfcc = calc_mfcc39(x, fs, N=N, hop=hop, n_filter_bands=n_filter_bands, n_ceps_coeff=n_ceps_coeff)
-
-		# plot mfcc features
-		plot_mfcc(x, t, mfcc, plot_path, name=label + str(file_index))
-
-		# TODO: save mfcc features as .npy data for compactness store them in one data matrix with labels 
-
+		# print("x: ", x.shape)
 
 	# show plots
-	plt.show()
-
-
-if __name__ == '__main__':
-	"""
-	main caller
-	"""
-
-	# call main function
-	main()
+	#plt.show()
 
 
