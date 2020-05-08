@@ -21,8 +21,9 @@ def compute_deltas(x):
     # calculate diff
     d[:, t] = (x_pad[:, t+2] - x_pad[:, t]) / 2
 
-  # clean last entry
-  d[:, -1] = 0
+  # clean first and last entry
+  d[:, -1] = d[:, -2]
+  d[:, 0] = d[:, 1]
 
   return d
 

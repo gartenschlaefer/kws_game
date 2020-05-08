@@ -159,7 +159,27 @@ def plot_mfcc(x, t, mfcc, plot_path, name='None'):
 	plt.close()
 
 
-def extract_mfcc_data(wavs, fs, N, hop, n_filter_bands, n_ceps_coeff, plot_path, ext=None):
+def audio_pre_processing(wav, fs):
+	"""
+	Audio pre-processing stage
+	"""
+
+	# read audio from file
+	x_raw, fs = librosa.load(wav, sr=fs)
+
+	# determine abs min value except from zero, for dithering
+	min_val = np.min(np.abs(x_raw[np.abs(x_raw)>0]))
+
+	# add some dither
+	x_raw += np.random.normal(0, 0.5, len(x_raw)) * min_val
+
+	# normalize input signal with infinity norm
+	x = librosa.util.normalize(x_raw)
+
+	return x, fs
+
+
+def extract_mfcc_data(wavs, fs, N, hop, n_filter_bands, n_ceps_coeff, plot_path, ext=None, min_samples=16000):
 	"""
 	extract mfcc data from wav-files
 	"""
@@ -185,8 +205,14 @@ def extract_mfcc_data(wavs, fs, N, hop, n_filter_bands, n_ceps_coeff, plot_path,
 		# append label
 		label_data.append(label)
 
-		# read audio from file
-		x, fs = librosa.load(wav, sr=fs)
+		# load and pre-process audio
+		x, fs = audio_pre_processing(wav, fs)
+
+		# check sample lengths
+		if len(x) < min_samples:
+
+			print("file: {} lengths is less than 1s".format(file_name))
+			continue
 
 		# time vector
 		t = np.arange(0, len(x)/fs, 1/fs)
@@ -236,7 +262,7 @@ if __name__ == '__main__':
 	create_folder([p + wav_folder for p in data_paths] + [plot_path])
 
 	# status message
-	print("--create datasets with [{}] examples at paths:\n{}\nwith splits: {}".format(n_max_examples, data_paths, data_percs))
+	print("--create datasets\n[{}] examples per class saved at paths: {} with splits: {}\n".format(n_max_examples, data_paths, data_percs))
 
 	# copy wav files to path
 	labels = create_datasets(n_max_examples, dataset_path, [p + wav_folder for p in data_paths], data_percs)
@@ -273,6 +299,9 @@ if __name__ == '__main__':
 
 	# debug find specific wavs
 	#wav_name_re = '*up[0-9]*.wav'
+	#wav_name_re = '*sheila[0-9]*.wav'
+	#wav_name_re = '*sheila[1]*.wav'
+	#wav_name_re = '*seven[4]*.wav'
 
 	# for all data_paths
 	for data_path in data_paths:
