@@ -159,13 +159,22 @@ def plot_mfcc(x, t, mfcc, plot_path, name='None'):
 	plt.close()
 
 
-def audio_pre_processing(wav, fs):
+def audio_pre_processing(wav, fs, min_samples):
 	"""
 	Audio pre-processing stage
 	"""
 
 	# read audio from file
 	x_raw, fs = librosa.load(wav, sr=fs)
+
+	# check sample lengths
+	if len(x_raw) < min_samples:
+
+		# print warning
+		print("lengths is less than 1s, append with zeros for:")
+
+		# append with zeros
+		x_raw = np.append(x_raw, np.zeros(min_samples - len(x_raw)))
 
 	# determine abs min value except from zero, for dithering
 	min_val = np.min(np.abs(x_raw[np.abs(x_raw)>0]))
@@ -179,7 +188,7 @@ def audio_pre_processing(wav, fs):
 	return x, fs
 
 
-def extract_mfcc_data(wavs, fs, N, hop, n_filter_bands, n_ceps_coeff, plot_path, ext=None, min_samples=16000):
+def extract_mfcc_data(wavs, fs, N, hop, n_filter_bands, n_ceps_coeff, plot_path, ext=None, min_samples=16000, plot=True):
 	"""
 	extract mfcc data from wav-files
 	"""
@@ -206,13 +215,7 @@ def extract_mfcc_data(wavs, fs, N, hop, n_filter_bands, n_ceps_coeff, plot_path,
 		label_data.append(label)
 
 		# load and pre-process audio
-		x, fs = audio_pre_processing(wav, fs)
-
-		# check sample lengths
-		if len(x) < min_samples:
-
-			print("file: {} lengths is less than 1s".format(file_name))
-			continue
+		x, fs = audio_pre_processing(wav, fs, min_samples)
 
 		# time vector
 		t = np.arange(0, len(x)/fs, 1/fs)
@@ -224,7 +227,8 @@ def extract_mfcc_data(wavs, fs, N, hop, n_filter_bands, n_ceps_coeff, plot_path,
 		mfcc = calc_mfcc39(x, fs, N=N, hop=hop, n_filter_bands=n_filter_bands, n_ceps_coeff=n_ceps_coeff)
 
 		# plot mfcc features
-		plot_mfcc(x, t, mfcc, plot_path, name=label + str(file_index) + '_' + ext)
+		if plot:
+			plot_mfcc(x, t, mfcc, plot_path, name=label + str(file_index) + '_' + ext)
 
 		# add to mfcc_data
 		mfcc_data = np.vstack((mfcc_data, mfcc[np.newaxis, :, :]))
@@ -256,19 +260,24 @@ if __name__ == '__main__':
 	data_percs = np.array([0.6, 0.2, 0.2])
 
 	# num examples per class
-	n_max_examples = 10
+	n_examples = 100
 
 	# create folder
 	create_folder([p + wav_folder for p in data_paths] + [plot_path])
 
 	# status message
-	print("--create datasets\n[{}] examples per class saved at paths: {} with splits: {}\n".format(n_max_examples, data_paths, data_percs))
+	print("\n--create datasets\n[{}] examples per class saved at paths: {} with splits: {}\n".format(n_examples, data_paths, data_percs))
 
 	# copy wav files to path
-	labels = create_datasets(n_max_examples, dataset_path, [p + wav_folder for p in data_paths], data_percs)
+	labels = create_datasets(n_examples, dataset_path, [p + wav_folder for p in data_paths], data_percs)
+
+	# select labels from
+	# ['eight', 'sheila', 'nine', 'yes', 'one', 'no', 'left', 'tree', 'bed', 'bird', 'go', 'wow', 'seven', 'marvin', 'dog', 'three', 'two', 'house', 'down', 'six', 'five', 'off', 'right', 'cat', 'zero', 'four', 'stop', 'up', 'on', 'happy']
+	sel_labels = ['left', 'right', 'up', 'down', 'go']
 
 	# list labels
 	print("labels: ", labels)
+	print("\nselected labels: ", sel_labels)
 
 
 	# --
@@ -290,18 +299,15 @@ if __name__ == '__main__':
 	# amount of first n-th cepstral coeffs
 	n_ceps_coeff = 12
 
-	# print mfcc info
-	mfcc_info = "fs={}, mfcc: N={} is t={}, hop={} is t={}, n_f-bands={}, n_ceps_coeff={}".format(fs, N, N/fs, hop, hop/fs, n_filter_bands, n_ceps_coeff)
+	# add params
+	audio_params = {'n_examples':n_examples, 'data_percs':data_percs, 'fs':fs, 'N':N, 'hop':hop, 'n_filter_bands':n_filter_bands, 'n_ceps_coeff':n_ceps_coeff}
+
+	# mfcc info
+	mfcc_info = "n_examples={} with data split {}, fs={}, mfcc: N={} is t={}, hop={} is t={}, n_f-bands={}, n_ceps_coeff={}".format(n_examples, data_percs, fs, N, N/fs, hop, hop/fs, n_filter_bands, n_ceps_coeff)
+	
+	# some prints
 	print(mfcc_info)
-
-	# get all wav files
-	wav_name_re = '*.wav'
-
-	# debug find specific wavs
-	#wav_name_re = '*up[0-9]*.wav'
-	#wav_name_re = '*sheila[0-9]*.wav'
-	#wav_name_re = '*sheila[1]*.wav'
-	#wav_name_re = '*seven[4]*.wav'
+	print("params: ", audio_params)
 
 	# for all data_paths
 	for data_path in data_paths:
@@ -311,17 +317,26 @@ if __name__ == '__main__':
 		# file extension e.g. train, test, etc.
 		ext = re.sub(r'(\./\w+/)|/', '', data_path)
 
-		# get wavs
-		wavs = glob(data_path + wav_folder + wav_name_re)
+		# init wavs
+		wavs = []
+
+		# get all wavs
+		for l in sel_labels:
+
+			# wav re
+			wav_name_re = '*' + l + '[0-9]*.wav'
+
+			# get wavs
+			wavs += glob(data_path + wav_folder + wav_name_re)
 
 		# extract data
-		mfcc_data, label_data = extract_mfcc_data(wavs, fs, N, hop, n_filter_bands, n_ceps_coeff, plot_path, ext)
+		mfcc_data, label_data = extract_mfcc_data(wavs, fs, N, hop, n_filter_bands, n_ceps_coeff, plot_path, ext, plot=False)
 
 		# save file name
 		file_name = data_path + mfcc_data_file + '_' + ext + '.npz'
 
 		# save file
-		np.savez(file_name, x=mfcc_data, y=label_data, info=mfcc_info)
+		np.savez(file_name, x=mfcc_data, y=label_data, info=mfcc_info, params=audio_params)
 
 		# print
 		print("--save data to: ", file_name)

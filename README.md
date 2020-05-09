@@ -17,7 +17,9 @@ Python 3.7 was used for coding and testing
 ## Files
 
 "kws_main.py" - main file of the project
-"feature_extraction.py" - feature extraction functions
+"audio_dataset.py" - creation of dataset for training with extracted features saved as .npz file
+"feature_extraction.py" - feature extraction functions like mfcc
+
 
 
 
@@ -29,7 +31,7 @@ The purpose of this project is to evaluate KWS in games.
 
 ## Usage of the framework:
 
-python file.py <input_file> <output_file>
+python audio_dataset.py <input_file>
 
 
 
