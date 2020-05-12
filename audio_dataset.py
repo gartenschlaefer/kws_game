@@ -2,7 +2,6 @@
 audio datasets set creation for kws
 """
 
-import os
 import re
 import numpy as np
 import matplotlib.pyplot as plt
@@ -11,22 +10,10 @@ import librosa
 from glob import glob
 from shutil import copyfile
 
+# my stuff
 from feature_extraction import calc_mfcc39
-
-
-def create_folder(paths):
-	"""
-	create folders in paths
-	"""
-
-	# get all folder path to create
-	for p in paths:
-
-		# if it does not exist
-		if not os.path.isdir(p):
-
-			# create path
-			os.makedirs(p)
+from common import create_folder
+from plots import plot_mfcc_profile
 
 
 def copy_wav_files(wav_files, label, data_paths, data_percs):
@@ -97,68 +84,6 @@ def	create_datasets(n_examples, dataset_path, data_paths, data_percs):
 	return labels
 
 
-def plot_mfcc(x, t, mfcc, plot_path, name='None'):
-	"""
-	plot mfcc extracted features from audio file
-	"""
-	import matplotlib.colors as colors
-
-	# setup figure
-	fig = plt.figure(figsize=(8, 8))
-
-	# make a grid
-	n_rows = 25
-	n_cols = 20
-	n_im_rows = 5
-	gs = plt.GridSpec(n_rows, n_cols, wspace=0.4, hspace=0.3)
-
-	# time series plot
-	ax = fig.add_subplot(gs[0:n_im_rows-1, :n_cols-2])
-	ax.plot(t, x)
-	ax.grid()
-	ax.set_title('time signal of ' + '"' + name + '"')
-	ax.set_ylabel("magnitude")
-	ax.set_xlim([0, t[-1]])
-
-	# select mfcc coeffs in arrays
-	sel_coefs = [np.arange(0, 12), np.arange(12, 24), np.arange(24, 36), np.arange(36, 39)]
-	titles = ['12 MFCCs', 'deltas', 'double deltas', 'energies']
-
-	# mfcc plots
-	for i, c in enumerate(sel_coefs):
-
-		# row start and stop
-		rs = (i+1) * n_im_rows + 2
-		re = (i+2) * n_im_rows
-
-		# specify grid pos
-		ax = fig.add_subplot(gs[rs:re, :n_cols-2])
-
-		#im = ax.imshow(mfcc[c], aspect='auto', extent = [0, mfcc[c].shape[1], c[-1], c[0]])
-		im = ax.imshow(mfcc[c], aspect='auto', extent = [0, t[-1], c[-1], c[0]])
-
-		# color limited
-		# if titles[i] != 'energies':
-		# 	im = ax.imshow(mfcc[c], aspect='auto', extent = [0, t[-1], c[-1], c[0]], vmin=-100, vmax=np.max(mfcc[c]))
-		#
-		# else:
-		# 	im = ax.imshow(mfcc[c], aspect='auto', extent = [0, t[-1], c[-1], c[0]])
-
-		# some labels
-		ax.set_title(titles[i])
-		ax.set_ylabel("cepstrum coeff")
-		if i == len(sel_coefs) - 1:
-			ax.set_xlabel("time [s]")
-		ax.set_xlim(left=0)
-
-		# add colorbar
-		ax = fig.add_subplot(gs[rs:re, n_cols-1])
-		fig.colorbar(im, cax=ax)
-
-	plt.savefig(plot_path + 'mfcc-' + name + '.png', dpi=150)
-	plt.close()
-
-
 def audio_pre_processing(wav, fs, min_samples):
 	"""
 	Audio pre-processing stage
@@ -193,11 +118,11 @@ def extract_mfcc_data(wavs, fs, N, hop, n_filter_bands, n_ceps_coeff, plot_path,
 	extract mfcc data from wav-files
 	"""
 
-	# init mfcc_data: [n x m x t] n samples, m features, t frames
+	# init mfcc_data: [n x m x l] n samples, m features, l frames
 	mfcc_data = np.empty(shape=(0, 39, 98), dtype=np.float64)
 
-	# init label list
-	label_data = []
+	# init label list and index data
+	label_data, index_data = [], []
 
 	# run through all wavs for processing
 	for wav in wavs:
@@ -211,34 +136,32 @@ def extract_mfcc_data(wavs, fs, N, hop, n_filter_bands, n_ceps_coeff, plot_path,
 		# extract label from filename
 		label = re.sub(r'([0-9]+\.wav)', '', file_name)
 
-		# append label
+		# append label and index data
 		label_data.append(label)
+		index_data.append(label + file_index)
 
 		# load and pre-process audio
 		x, fs = audio_pre_processing(wav, fs, min_samples)
 
-		# time vector
-		t = np.arange(0, len(x)/fs, 1/fs)
-
 		# print some info
-		print("wav: [{}] with label: [{}], samples=[{}], time=[{}]s".format(wav, label, len(x), np.max(t)))
+		print("wav: [{}] with label: [{}], samples=[{}], time=[{}]s".format(wav, label, len(x), len(x)/fs))
 
-		# calculate feature vectors
+		# calculate feature vectors [m x l]
 		mfcc = calc_mfcc39(x, fs, N=N, hop=hop, n_filter_bands=n_filter_bands, n_ceps_coeff=n_ceps_coeff)
 
 		# plot mfcc features
 		if plot:
-			plot_mfcc(x, t, mfcc, plot_path, name=label + str(file_index) + '_' + ext)
+			plot_mfcc_profile(x, fs, mfcc, plot_path, name=label + str(file_index) + '_' + ext)
 
 		# add to mfcc_data
 		mfcc_data = np.vstack((mfcc_data, mfcc[np.newaxis, :, :]))
 
-	return mfcc_data, label_data
+	return mfcc_data, label_data, index_data
 
 
 if __name__ == '__main__':
 	"""
-	main function
+	main function of audio dataset
 	"""
 
 	# path to whole dataset
@@ -310,7 +233,7 @@ if __name__ == '__main__':
 	print("params: ", audio_params)
 
 	# for all data_paths
-	for data_path in data_paths:
+	for dpi, data_path in enumerate(data_paths):
 
 		print("\ndata_path: ", data_path)
 
@@ -327,30 +250,21 @@ if __name__ == '__main__':
 			wav_name_re = '*' + l + '[0-9]*.wav'
 
 			# get wavs
-			wavs += glob(data_path + wav_folder + wav_name_re)
+			wavs += glob(data_path + wav_folder + wav_name_re)[:int(data_percs[dpi] * n_examples)]
 
 		# extract data
-		mfcc_data, label_data = extract_mfcc_data(wavs, fs, N, hop, n_filter_bands, n_ceps_coeff, plot_path, ext, plot=False)
+		mfcc_data, label_data, index_data = extract_mfcc_data(wavs, fs, N, hop, n_filter_bands, n_ceps_coeff, plot_path, ext, plot=False)
 
 		# save file name
-		file_name = data_path + mfcc_data_file + '_' + ext + '.npz'
+		file_name = data_path + mfcc_data_file + '_' + ext + '_n-' + str(n_examples) + '_c-' + str(len(sel_labels)) + '.npz'
 
 		# save file
-		np.savez(file_name, x=mfcc_data, y=label_data, info=mfcc_info, params=audio_params)
+		np.savez(file_name, x=mfcc_data, y=label_data, index=index_data, info=mfcc_info, params=audio_params)
 
 		# print
 		print("--save data to: ", file_name)
 
-		# # load file
-		# data = np.load(file_name)
 
-		# print(data.files)
-		
-		# x = data['x']
-		# y = data['y']
-		# info = data['info']
-
-		# print("x: ", x.shape)
 
 	# show plots
 	#plt.show()
