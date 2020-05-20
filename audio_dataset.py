@@ -252,6 +252,7 @@ if __name__ == '__main__':
 			# get wavs
 			wavs += glob(data_path + wav_folder + wav_name_re)[:int(data_percs[dpi] * n_examples)]
 
+		# TODO: Only use meaning full vectors not noise
 		# extract data
 		mfcc_data, label_data, index_data = extract_mfcc_data(wavs, fs, N, hop, n_filter_bands, n_ceps_coeff, plot_path, ext, plot=False)
 
