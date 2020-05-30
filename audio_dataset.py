@@ -15,6 +15,16 @@ from feature_extraction import calc_mfcc39
 from common import create_folder
 from plots import plot_mfcc_profile
 
+from torch.utils.data import Dataset, DataLoader
+
+# TODO: Pytorch stuff
+# class SpeechCommandDataset():
+# 	"""
+# 	Speech Command preparance for running with torch
+# 	"""
+
+# 	def __init__(self, )
+
 
 def copy_wav_files(wav_files, label, data_paths, data_percs):
 	"""
@@ -253,6 +263,7 @@ if __name__ == '__main__':
 			wavs += glob(data_path + wav_folder + wav_name_re)[:int(data_percs[dpi] * n_examples)]
 
 		# TODO: Only use meaning full vectors not noise
+
 		# extract data
 		mfcc_data, label_data, index_data = extract_mfcc_data(wavs, fs, N, hop, n_filter_bands, n_ceps_coeff, plot_path, ext, plot=False)
 

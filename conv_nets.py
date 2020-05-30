@@ -4,13 +4,107 @@ partly adapted from pytorch tutorial
 """
 
 import numpy as np
+import matplotlib.pyplot as plt
 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
 
-class ConvNet1(nn.Module):
+class ConvNetTrad(nn.Module):
+  """
+  Traditional Conv Net architecture presented in [Sainath 2015]
+  """
+
+  def __init__(self):
+    """
+    define neural network architecture
+    input: [m x f]
+    m - features (MFCC)
+    f - frames
+    """
+
+    # MRO check
+    super().__init__()
+
+    # 1. conv layer
+    self.conv1 = nn.Conv2d(1, 64, kernel_size=(8, 20), stride=(1, 1))
+
+    # max pool layer
+    self.pool = nn.MaxPool2d(kernel_size=(4, 1), stride=(4, 1))
+
+    # 2. conv layer
+    self.conv2 = nn.Conv2d(64, 64, kernel_size=(4, 10), stride=(1, 1))
+
+    # fully connected layers with affine transformations: y = Wx + b
+    self.fc1 = nn.Linear(1280, 32)
+    self.fc2 = nn.Linear(32, 128)
+    self.fc3 = nn.Linear(128, 5)
+
+
+  def forward(self, x):
+    """
+    forward pass
+    """
+
+    # 1. conv layer [1 x 64 x 32 x 13]
+    x = F.relu(self.conv1(x))
+
+    # max pooling layer [1 x 64 x 8 x 13]
+    x = self.pool(x)
+
+    # 2. conv layer [1 x 64 x 5 x 4]
+    x = F.relu(self.conv2(x))
+
+    # flatten output from 2. conv layer [1 x 1280]
+    x = x.view(-1, np.product(x.shape[1:]))
+
+    # 1. fully connected layers [1 x 32]
+    x = self.fc1(x)
+
+    # 2. fully connected layers [1 x 128]
+    x = F.relu(self.fc2(x))
+
+    # final fully connected layer [1 x 5]
+    x = self.fc3(x)
+
+    return x
+
+
+
+class ConvNetCifar(nn.Module):
+  """
+  Cifar Conv Network from pytorch tutorial
+  """
+
+  def __init__(self):
+    """
+    define network architecture
+    """
+
+    super().__init__()
+    self.conv1 = nn.Conv2d(3, 6, 5)
+    self.pool = nn.MaxPool2d(2, 2)
+    self.conv2 = nn.Conv2d(6, 16, 5)
+    self.fc1 = nn.Linear(16 * 5 * 5, 120)
+    self.fc2 = nn.Linear(120, 84)
+    self.fc3 = nn.Linear(84, 10)
+
+  def forward(self, x):
+    """
+    forward pass
+    """
+    x = self.pool(F.relu(self.conv1(x)))
+    x = self.pool(F.relu(self.conv2(x)))
+    x = x.view(-1, 16 * 5 * 5)
+    x = F.relu(self.fc1(x))
+    x = F.relu(self.fc2(x))
+    x = self.fc3(x)
+    return x
+
+
+
+class ConvNetTutorial(nn.Module):
   """
   Simple convolutional network adapted from the
   tutorial presented on the pytorch homepage
@@ -39,7 +133,7 @@ class ConvNet1(nn.Module):
 
   def forward(self, x):
     """
-    forward propagation through network
+    forward pass
     """
 
     # max pooling of 1. conv layer
@@ -49,7 +143,7 @@ class ConvNet1(nn.Module):
     x = F.max_pool2d( F.relu(self.conv2(x)), kernel_size=(2, 2) )
 
     # flatten output from 2. conv layer
-    x = x.view(-1, self.num_flat_features(x))
+    x = x.view(-1, np.product(x.shape[1:]))
 
     # fully connected layers
     x = F.relu(self.fc1(x))
@@ -61,125 +155,17 @@ class ConvNet1(nn.Module):
     return x
 
 
-  def num_flat_features(self, x):
-    """
-    get number of flat features without batch dimension
-    """
-
-    return np.product(x.shape[1:])
-
-
-
-def run_tutorial_net():
-  """
-  From pytorch tutorial
-  """
-
-  # convolutional network architecture 1
-  net = ConvNet1()
-
-  # params
-  params = list(net.parameters())
-
-  # input : [nSamples x nChannels x Height x Width]
-  x = torch.randn(1, 1, 32, 32)
-  
-  # output
-  y = net(x)
-
-  # zero gradient buffers of all params 
-  net.zero_grad()
-
-  # backprops with random gradients
-  y.backward(torch.randn(1, 10))
-
-  # print some infos
-  print("net: ", net)
-  print(len(params))
-  print("params[0] shape: ", params[0].shape)
-  print("out: \n", y)
-
-
-  # --
-  # compute Loss
-
-  # generate new output
-  y = net(x)
-
-  # target
-  t = torch.randn(10).view(1, -1)
-
-  # MSE Loss
-  criterion = nn.MSELoss()
-
-  # compute loss
-  loss = criterion(y, t)
-
-  # print loss
-  print("loss: ", loss)
-
-  # gradients
-  print("fn 1: ", loss.grad_fn)
-  print("fn 2: ", loss.grad_fn.next_functions[0][0])
-  print("fn 3: ", loss.grad_fn.next_functions[0][0].next_functions[0][0])
-
-
-  # --
-  # backprop
-
-  # zero gradient buffers of all params
-  net.zero_grad()
-
-  print("before backprop: \n", net.conv1.bias.grad)
-
-  # apply backprop
-  loss.backward()
-
-  print("after backprop: \n", net.conv1.bias.grad)
-
-
-  # --
-  # update the weights
-
-  # learning rate
-  lr = 0.01
-
-  # go through all parameters
-  for w in net.parameters():
-
-    # update parameters: w <- w - t * g
-    w.data.sub_(lr * w.grad.data)
-
-
-  # --
-  # using optimizers
-
-  # create optimizer
-  optimizer = torch.optim.SGD(net.parameters(), lr=lr)
-
-
-  # training loop --
-
-  # zero gradient buffer
-  optimizer.zero_grad()
-
-  # traverse data into network
-  y = net(x)
-
-  # loss
-  loss = criterion(y, t)
-
-  # backprop
-  loss.backward()
-
-  # optimizer update
-  optimizer.step()
-
 
 if __name__ == '__main__':
   """
   main function
   """
 
+  # tutorial stuff
+  from tutorial import run_tutorial_net, train_cifar10
+
   # run the tutorial net
-  run_tutorial_net()
+  run_tutorial_net(ConvNetTutorial())
+
+  # training example
+  train_cifar10(ConvNetCifar(), retrain=False)

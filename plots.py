@@ -69,7 +69,7 @@ def plot_mfcc_profile(x, fs, mfcc, plot_path, name='None'):
   plt.close()
 
 
-def plot_mfcc_only(mfcc, fs, hop, plot_path, name='None'):
+def plot_mfcc_only(mfcc, fs=16000, hop=160, plot_path=None, name='None'):
   """
   plot mfcc extracted features only (no time series)
   mfcc: [m x l]
@@ -116,5 +116,11 @@ def plot_mfcc_only(mfcc, fs, hop, plot_path, name='None'):
     ax = fig.add_subplot(gs[rs:re, n_cols-1])
     fig.colorbar(im, cax=ax)
 
-  plt.savefig(plot_path + 'mfcc-only-' + name + '.png', dpi=150)
-  plt.close()
+  # plot the fig
+  if plot_path is not None:
+    plt.savefig(plot_path + 'mfcc-only-' + name + '.png', dpi=150)
+    plt.close()
+
+  # just show it
+  else:
+    plt.show()
