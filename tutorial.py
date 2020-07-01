@@ -8,6 +8,8 @@ import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
 
+from conv_nets import *
+
 
 def run_tutorial_net(net):
   """
@@ -312,3 +314,10 @@ def cifar_imshow(img):
   plt.imshow(np.transpose(img.numpy(), (1, 2, 0)))
 
   plt.show()
+
+
+if __name__ == '__main__':
+
+  net = ConvNetTutorial()
+
+  run_tutorial_net(net)

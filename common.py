@@ -4,6 +4,7 @@ contains common fuctions
 
 import os
 
+
 def create_folder(paths):
   """
   create folders in paths
@@ -17,6 +18,17 @@ def create_folder(paths):
 
       # create path
       os.makedirs(p)
+
+
+def s_to_hms_str(x):
+  """
+  convert seconds to reasonable time format
+  """
+
+  m, s = divmod(x, 60)
+  h, m = divmod(m, 60)
+
+  return '[{:02d}:{:02d}:{:02d}]'.format(int(h), int(m), int(s))
 
 
 if __name__ == '__main__':

@@ -5,14 +5,18 @@ Machine Learning file for training and evaluating the model
 import numpy as np
 import matplotlib.pyplot as plt
 
+import os
 import torch
 
 from skimage.util.shape import view_as_windows
 
 # my stuff
-from common import create_folder
+from common import *
 from plots import plot_mfcc_only
 from conv_nets import ConvNetTrad
+
+import logging
+import time
 
 
 def create_batches(x_data, y_data, index, f, batch_size):
@@ -58,20 +62,14 @@ def create_batches(x_data, y_data, index, f, batch_size):
     #  plot_mfcc_only(x[i], fs, hop, plot_path, name=index[0] + str(i))
 
     # TODO: remove debug line later
-    i += 1
-    if i > 10:
-      break
+    # i += 1
+    # if i > 10:
+    #  break
 
   # randomize examples
   indices = np.random.permutation(x.shape[0])
   x = np.take(x, indices, axis=0)
   y = np.take(y, indices, axis=0)
-
-
-  # create batches
-
-  print("x: ", x.shape)
-  print("y: ", y.shape)
 
   return x, y
 
@@ -110,30 +108,24 @@ def get_index_of_class(y, classes, to_torch=False):
 
 
 
-def train_nn(x_batches, y_batches, nn_architecture, classes, num_epochs=2, lr=1e-3):
+def train_nn(model, x_batches, y_batches, classes, nn_arch, num_epochs=2, lr=1e-3, model_path='./'):
   """
-  train the neural network
+  train the neural network thing
   """
-
-  # select network architecture
-  if nn_architecture == 'conv-trad':
-
-    # traditional conv-net
-    net = ConvNetTrad()
-
-  else:
-
-    # traditional conv-net
-    net = ConvNetTrad()
-
 
   # MSE Loss
   criterion = torch.nn.CrossEntropyLoss()
 
   # create optimizer
-  optimizer = torch.optim.SGD(net.parameters(), lr=lr, momentum=0.5)
+  optimizer = torch.optim.SGD(model.parameters(), lr=lr, momentum=0.5)
 
   print("\n--Training starts:")
+
+  # collect losses over epochs
+  batch_loss = np.zeros(num_epochs)
+
+  # start time
+  start_time = time.time()
 
   # epochs
   for epoch in range(num_epochs):
@@ -151,11 +143,14 @@ def train_nn(x_batches, y_batches, nn_architecture, classes, num_epochs=2, lr=1e
       # prepare x
       x = torch.unsqueeze(torch.unsqueeze(torch.from_numpy(x.astype(np.float32)), 0), 0)
 
-      # forward pass
-      o = net(x)
-
       # get index of class
       y = get_index_of_class(y, classes, to_torch=True)
+
+      # forward pass
+      o = model(x)
+
+      print("o: ", o.shape)
+      print("y: ", y.shape)
 
       # loss
       loss = criterion(o, y)
@@ -169,19 +164,96 @@ def train_nn(x_batches, y_batches, nn_architecture, classes, num_epochs=2, lr=1e
       # loss update
       cum_loss += loss.item()
 
-      # print every 2000 mini-batches
-      if i % 10 == 9:
+      # batch loss
+      batch_loss[epoch] += cum_loss
+
+      # print loss
+      if i % 200 == 199:
 
         # print info
         print('epoch: {}, mini-batch: {}, loss: [{:.5f}]'.format(epoch + 1, i + 1, cum_loss / 10))
-        
+          
         # zero cum loss
         cum_loss = 0.0
     
   print('Training finished')
 
+  # log time
+  logging.info('Traning on arch: {} with examples: {}, n_classes: {}, num_epochs: {}, lr: {}, time: {}'.format(nn_arch, len(y_batches), len(classes), num_epochs, lr, s_to_hms_str(time.time() - start_time)))
+
   # save parameters of network
-  #torch.save(net.state_dict(), param_path)
+  torch.save(model.state_dict(), model_path)
+
+  return model, batch_loss
+
+
+def eval_nn(model, x_batches, y_batches, classes):
+  """
+  evaluation of nn
+  """
+
+  # metric init
+  correct, total = 0, 0
+
+  # no gradients for eval
+  with torch.no_grad():
+
+    # load data
+    for i, (x, y) in enumerate(zip(x_batches, y_batches)):
+
+      # prepare x
+      x = torch.unsqueeze(torch.unsqueeze(torch.from_numpy(x.astype(np.float32)), 0), 0)
+
+      # get index of class
+      y = get_index_of_class(y, classes, to_torch=True)
+
+      # classify
+      o = model(x)
+
+      # prediction
+      _, y_hat = torch.max(o.data, 1)
+
+      #print("pred: {}, actual: {}: ".format(y_hat, y))
+
+      # add total amount of prediction
+      total += y.size(0)
+
+      # check if correctly predicted
+      correct += (y_hat == y).sum().item()
+
+  # print accuracy
+  eval_log = 'Eval: correct: [{} / {}] acc: [{:.4f}]'.format(correct, total, 100 * correct / total)
+  print(eval_log), logging.info(eval_log)
+
+
+def get_nn_model(nn_arch):
+  """
+  simply get the desired nn model
+  """
+
+  # select network architecture
+  if nn_arch == 'conv-trad':
+
+    # traditional conv-net
+    model = ConvNetTrad()
+
+  else:
+
+    # traditional conv-net
+    model = ConvNetTrad()
+
+  return model
+
+
+def init_logging():
+  """
+  init logging stuff
+  """
+
+  logging.basicConfig(filename='./ignore/logs/ml.log', level=logging.DEBUG, format='%(asctime)s %(message)s')
+  #logging.debug('This message should go to the log file')
+  #logging.info('So should this')
+  #logging.warning('And this, too')
 
 
 if __name__ == '__main__':
@@ -191,23 +263,24 @@ if __name__ == '__main__':
 
   # path to train, test and eval set
   mfcc_data_files = ['./ignore/train/mfcc_data_train_n-100_c-5.npz', './ignore/test/mfcc_data_test_n-100_c-5.npz', './ignore/eval/mfcc_data_eval_n-100_c-5.npz']
+  #mfcc_data_files = ['./ignore/train/mfcc_data_train_n-500_c-5.npz', './ignore/test/mfcc_data_test_n-500_c-5.npz', './ignore/eval/mfcc_data_eval_n-500_c-5.npz']
 
-  # plot path
-  plot_path = './ignore/plots/ml/'
-
-  # model path
-  model_path = "./ignore/models"
+  # plot path and model path
+  plot_path, model_path = './ignore/plots/ml/',  './ignore/models/'
 
   # create folder
   create_folder([plot_path, model_path])
 
-  # load files
+  # other stuff
+  init_logging()
+
+  # load files [0]: train, etc.
   data = [np.load(file, allow_pickle=True) for file in mfcc_data_files]
 
-  # training data
-  train_data = data[0]
+  # extract data
+  train_data, eval_data = data[0], data[1]
 
-  print("train_data: ", train_data.files)
+  print("Container of train_data: ", train_data.files)
 
   # extract data from file
   x_data, y_data, index, info, params = train_data['x'], train_data['y'], train_data['index'], train_data['info'], train_data['params']
@@ -220,6 +293,7 @@ if __name__ == '__main__':
 
   # get classes
   classes = np.unique(y_data)
+  num_classes = len(classes)
   print("classes: ", classes)
 
   #print("x_data: ", x_data.shape)
@@ -259,21 +333,60 @@ if __name__ == '__main__':
   # --
   # actual training
 
-  # num epochs
-  num_epochs = 2
-  num_classes = len(classes)
+  # params for training
+  num_epochs, lr, retrain = 25, 1e-4, True
 
   # nn architecture
   nn_architectures = ['conv-trad']
 
   # select architecture
-  nn_architecture = nn_architectures[0]
+  nn_arch = nn_architectures[0]
 
-  # train
-  train_nn(x_batches, y_batches, nn_architecture, classes, num_epochs=num_epochs)
+  # model name
+  model_path = model_path + nn_arch + '_it-' + str(num_epochs) + '_lr-' + str(lr).replace('.', 'p') + '.pth'
+
+  model = get_nn_model(nn_arch)
+
+  # check if model already exists
+  if not os.path.exists(model_path) or retrain:
+
+    # train
+    model, loss = train_nn(model, x_batches, y_batches, classes, nn_arch, num_epochs=num_epochs, lr=lr, model_path=model_path)
+
+
+  # load model params from file
+  else:
+
+    # load
+    model.load_state_dict(torch.load(model_path))
 
 
 
+  # --
+  # evaluation
+
+  # extract data from file
+  x_data, y_data, index, info, params = eval_data['x'], eval_data['y'], eval_data['index'], eval_data['info'], eval_data['params']
+
+  # shape of things
+  n, m, l = x_data.shape
+
+  # get some params
+  fs, hop = params[()]['fs'], params[()]['hop']
+
+  # get classes
+  classes = np.unique(y_data)
+  num_classes = len(classes)
+  print("classes: ", classes)
+
+  # create batches
+  x_batches, y_batches = create_batches(x_data, y_data, index, f, batch_size)
+
+  print("x_batches: ", x_batches.shape)
+  print("y_batches: ", y_batches.shape)
+
+  # evaluation of model
+  eval_nn(model, x_batches, y_batches, classes)
 
 
 
