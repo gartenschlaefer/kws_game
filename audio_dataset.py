@@ -190,10 +190,11 @@ if __name__ == '__main__':
 	mfcc_data_file = 'mfcc_data'
 
 	# percent of data splitting [train, test], leftover is eval
-	data_percs = np.array([0.6, 0.2, 0.2])
+	data_percs = np.array([0.8, 0.1, 0.1])
 
 	# num examples per class
-	n_examples = 100
+	#n_examples = 100
+	n_examples = 500
 
 	# create folder
 	create_folder([p + wav_folder for p in data_paths] + [plot_path])
