@@ -34,16 +34,8 @@ def extract_to_batches(mfcc_data_files, f=32, batch_size=4, window_step=16):
   train_data, test_data, eval_data = data[0], data[1], data[2]
   #print("Container of train_data: ", train_data.files)
 
-  # extract data from file
-  index, info, params = train_data['index'], train_data['info'], train_data['params']
-
-  # show data
-  print("train: ", train_data['x'].shape), print("test: ", test_data['x'].shape), print("eval: ", eval_data['x'].shape)
-
-  # get some params
-  #fs, hop = params[()]['fs'], params[()]['hop']
-
   # print some infos about data
+  print("train: ", train_data['x'].shape), print("test: ", test_data['x'].shape), print("eval: ", eval_data['x'].shape)
   print("data info: ", train_data['info'])
 
   # get classes
@@ -54,9 +46,9 @@ def extract_to_batches(mfcc_data_files, f=32, batch_size=4, window_step=16):
   n_examples_class = (len(train_data['x']) + len(test_data['x']) + len(eval_data['x'])) // len(classes)
 
   # create batches
-  x_train, y_train = create_batches(train_data['x'], train_data['y'], train_data['index'], classes, f, batch_size=batch_size, window_step=window_step)
-  x_val, y_val = create_batches(eval_data['x'], eval_data['y'], eval_data['index'], classes, f, batch_size=4, window_step=window_step)
-  x_test, y_test = create_batches(test_data['x'], test_data['y'], test_data['index'], classes, f, batch_size=4, window_step=window_step)
+  x_train, y_train = create_batches(train_data, classes, f, batch_size=batch_size, window_step=window_step, plot_shift=False)
+  x_val, y_val = create_batches(eval_data, classes, f, batch_size=4, window_step=window_step)
+  x_test, y_test = create_batches(test_data, classes, f, batch_size=4, window_step=window_step)
 
   # print training batches
   print("x_train_batches: ", x_train.shape)
@@ -65,7 +57,7 @@ def extract_to_batches(mfcc_data_files, f=32, batch_size=4, window_step=16):
   return x_train, y_train, x_val, y_val, x_test, y_test, classes, n_examples_class
 
 
-def create_batches(x_data, y_data, index, classes, f=32, batch_size=1, window_step=1):
+def create_batches(data, classes, f=32, batch_size=1, window_step=1, plot_shift=False):
   """
   create batches for training N x [b x m x f]
   x: [n x m x l]
@@ -75,6 +67,9 @@ def create_batches(x_data, y_data, index, classes, f=32, batch_size=1, window_st
   m: feature size
   f: frame length
   """
+
+  # extract data
+  x_data, y_data, index, params = data['x'], data['y'], data['index'], data['params']
 
   # get shape of things
   n, m, l = x_data.shape
@@ -88,11 +83,8 @@ def create_batches(x_data, y_data, index, classes, f=32, batch_size=1, window_st
   x = np.empty(shape=(0, 39, f), dtype=x_data.dtype)
   y = np.empty(shape=(0), dtype=y_data.dtype)
 
-  # TODO: remove this
-  i = 0
-
   # stack windows
-  for x_n, y_n in zip(x_data, y_data):
+  for i, (x_n, y_n) in enumerate(zip(x_data, y_data)):
 
     # windowed [r x m x f]
     x_win = np.squeeze(view_as_windows(x_n, (m, f), step=window_step))
@@ -106,8 +98,23 @@ def create_batches(x_data, y_data, index, classes, f=32, batch_size=1, window_st
     # stack windowed [n+r x m x f]
     x = np.vstack((x, x_win))
 
-    #for i in range(r):
-    # plot_mfcc_only(x[i], fs, hop, plot_path, name=index[0] + str(i))
+    # for evaluation of shifting
+    if i < 2 and plot_shift:
+
+      # need params for plot
+      fs, hop = params[()]['fs'], params[()]['hop']
+      index = np.take(index, indices, axis=0)
+
+      print("shape: ", x_n.shape)
+
+      # plot example
+      plot_mfcc_only(x_n, fs, hop, shift_path, name='{}-{}'.format(index[i], i))
+
+      # plot some shifted mfcc
+      for ri in range(x_win.shape[0]):
+
+        # plot shifted mfcc
+        plot_mfcc_only(x[ri], fs, hop, shift_path, name='{}-{}-{}'.format(index[i], i, ri))
 
     # #TODO: remove debug line later
     # i += 1
@@ -256,21 +263,15 @@ def train_nn(model, x_train, y_train, x_val, y_val, classes, nn_arch, num_epochs
       # batch loss
       train_loss[epoch] += cum_loss
 
-      # print loss
-      if i % 100 == 99:
-
-        # print info
-        print('epoch: {}, mini-batch: {}, loss: [{:.5f}]'.format(epoch + 1, i + 1, cum_loss / 10))
-          
-        # zero cum loss
-        cum_loss = 0.0
+      # print some infos, reset cum_loss
+      cum_loss = print_train_info(epoch, i, cum_loss, k_print=10)
 
     # valdiation
     val_loss[epoch], val_acc[epoch] = eval_nn(model, x_val, y_val, classes, logging_enabled=False)
 
     # TODO: Early stopping if necessary
     
-  print('Training finished')
+  print('--Training finished')
 
   # log time
   logging.info('Traning on arch: {}  time: {}'.format(param_str, s_to_hms_str(time.time() - start_time)))
@@ -324,6 +325,23 @@ def eval_nn(model, x_batches, y_batches, classes, logging_enabled=True):
   return eval_loss, (correct / total)
 
 
+def print_train_info(epoch, mini_batch, cum_loss, k_print=10):
+  """
+  print some training info
+  """
+
+  # print loss
+  if mini_batch % k_print == k_print-1:
+
+    # print info
+    print('epoch: {}, mini-batch: {}, loss: [{:.5f}]'.format(epoch + 1, mini_batch + 1, cum_loss / k_print))
+
+    # zero cum loss
+    cum_loss = 0.0
+
+  return cum_loss
+
+
 
 def get_nn_model(nn_arch):
   """
@@ -365,14 +383,14 @@ if __name__ == '__main__':
   """
 
   # path to train, test and eval set
-  mfcc_data_files = ['./ignore/train/mfcc_data_train_n-100_c-5.npz', './ignore/test/mfcc_data_test_n-100_c-5.npz', './ignore/eval/mfcc_data_eval_n-100_c-5.npz']
-  #mfcc_data_files = ['./ignore/train/mfcc_data_train_n-500_c-5.npz', './ignore/test/mfcc_data_test_n-500_c-5.npz', './ignore/eval/mfcc_data_eval_n-500_c-5.npz']
+  #mfcc_data_files = ['./ignore/train/mfcc_data_train_n-100_c-5.npz', './ignore/test/mfcc_data_test_n-100_c-5.npz', './ignore/eval/mfcc_data_eval_n-100_c-5.npz']
+  mfcc_data_files = ['./ignore/train/mfcc_data_train_n-500_c-5.npz', './ignore/test/mfcc_data_test_n-500_c-5.npz', './ignore/eval/mfcc_data_eval_n-500_c-5.npz']
 
   # plot path and model path
-  plot_path, metric_path, model_path = './ignore/plots/ml/', './ignore/plots/ml/metrics/', './ignore/models/'
+  plot_path, shift_path, metric_path, model_path = './ignore/plots/ml/', './ignore/plots/ml/shift/', './ignore/plots/ml/metrics/', './ignore/models/'
 
   # create folder
-  create_folder([plot_path, metric_path, model_path])
+  create_folder([plot_path, shift_path, metric_path, model_path])
 
   # init logging
   init_logging()
@@ -381,7 +399,7 @@ if __name__ == '__main__':
   f, batch_size, window_step = 32, 32, 16
 
   # params for training
-  num_epochs, lr, retrain = 2, 1e-4, False
+  num_epochs, lr, retrain = 200, 1e-4, True
 
   # nn architecture
   nn_architectures = ['conv-trad']
@@ -445,6 +463,8 @@ if __name__ == '__main__':
 
   # --
   # evaluation
+
+  print("\n--Evaluation on Test Set:")
 
   # evaluation of model
   eval_loss, acc = eval_nn(model, x_test, y_test, classes)

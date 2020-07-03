@@ -180,9 +180,6 @@ if __name__ == '__main__':
 	# path to training, test and eval set
 	data_paths = ['./ignore/train/', './ignore/test/', './ignore/eval/']
 
-	# wav folder
-	wav_folder = 'wav/'
-
 	# plot path
 	plot_path = './ignore/plots/features/'
 
@@ -193,8 +190,12 @@ if __name__ == '__main__':
 	data_percs = np.array([0.8, 0.1, 0.1])
 
 	# num examples per class
+	#n_examples = 10
 	#n_examples = 100
 	n_examples = 500
+
+	# wav folder
+	wav_folder = 'wav_n-{}/'.format(n_examples)
 
 	# create folder
 	create_folder([p + wav_folder for p in data_paths] + [plot_path])
