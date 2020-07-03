@@ -167,6 +167,9 @@ def train_cifar10(net, retrain=False):
         # inputs and labels
         x, l = data
 
+        print("x: ", x.shape)
+        print("l: ", l.shape)
+
         # zero parameter gradients
         optimizer.zero_grad()
 
@@ -318,6 +321,8 @@ def cifar_imshow(img):
 
 if __name__ == '__main__':
 
-  net = ConvNetTutorial()
+  # net
+  #run_tutorial_net(ConvNetTutorial())
 
-  run_tutorial_net(net)
+  # cifar tutorial
+  train_cifar10(ConvNetCifar(), retrain=True)

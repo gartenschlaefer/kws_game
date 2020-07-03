@@ -5,6 +5,52 @@ plot some figures
 import numpy as np
 import matplotlib.pyplot as plt
 
+from glob import glob
+
+
+def plot_train_loss(train_loss, val_loss, plot_path=None, name='None'):
+  """
+  plot train vs. validation loss
+  """
+
+  # normalize
+  train_loss = train_loss / np.linalg.norm(train_loss, ord=np.infty)
+  val_loss = val_loss / np.linalg.norm(val_loss, ord=np.infty)
+
+  # setup figure
+  fig = plt.figure(figsize=(8, 5))
+  plt.plot(train_loss, label='train loss')
+  plt.plot(val_loss, label='val loss')
+  plt.ylabel("normalized loss")
+  plt.xlabel("iterations")
+  #plt.ylim([0, 1])
+  plt.legend()
+  plt.grid()
+
+  # plot the fig
+  if plot_path is not None:
+    plt.savefig(plot_path + name + '.png', dpi=150)
+    #plt.close()
+
+
+def plot_val_acc(val_acc, plot_path=None, name='None'):
+  """
+  plot train vs. validation loss
+  """
+
+  # setup figure
+  fig = plt.figure(figsize=(8, 5))
+  plt.plot(val_acc, label='val acc')
+  plt.ylabel("accuracy")
+  plt.xlabel("iterations")
+  plt.legend()
+  plt.grid()
+
+  # plot the fig
+  if plot_path is not None:
+    plt.savefig(plot_path + name + '.png', dpi=150)
+    #plt.close()
+
 
 def plot_mfcc_profile(x, fs, mfcc, plot_path, name='None'):
   """
@@ -124,3 +170,27 @@ def plot_mfcc_only(mfcc, fs=16000, hop=160, plot_path=None, name='None'):
   # just show it
   else:
     plt.show()
+
+
+if __name__ == '__main__':
+  
+  # metric path
+  metric_path = './ignore/plots/ml/metrics/'
+
+  # wav re
+  metrics_re = '*.npz'
+
+  # get wavs
+  metric_files = glob(metric_path + metrics_re)
+
+  # load files
+  data = [np.load(file) for file in metric_files]
+
+  train_loss = data[0]['train_loss'] 
+  val_loss = data[0]['val_loss'] 
+  val_acc = data[0]['val_acc'] 
+
+  plot_train_loss(train_loss, val_loss, plot_path=None, name='None')
+  plot_val_acc(val_acc, plot_path=None, name='None')
+
+  plt.show()

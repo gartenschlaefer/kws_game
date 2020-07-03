@@ -12,51 +12,60 @@ from skimage.util.shape import view_as_windows
 
 # my stuff
 from common import *
-from plots import plot_mfcc_only
-from conv_nets import ConvNetTrad
+from plots import *
+from conv_nets import *
 
 import logging
 import time
 
 
-def extract_to_batches(mfcc_data_files, f=32, batch_size=1, window_step=1):
+def extract_to_batches(mfcc_data_files, f=32, batch_size=4, window_step=16):
   """
-  extract data samples from file
+  extract data samples from files
   """
 
-    # load files [0]: train, etc.
+  # status message
+  print("\n--extract batches from data")
+
+  # load files [0]: train, etc.
   data = [np.load(file, allow_pickle=True) for file in mfcc_data_files]
 
   # extract data
   train_data, test_data, eval_data = data[0], data[1], data[2]
-
-  print("Container of train_data: ", train_data.files)
+  #print("Container of train_data: ", train_data.files)
 
   # extract data from file
   index, info, params = train_data['index'], train_data['info'], train_data['params']
 
-  # shape of things
-  n, m, l = train_data['x'].shape
+  # show data
+  print("train: ", train_data['x'].shape), print("test: ", test_data['x'].shape), print("eval: ", eval_data['x'].shape)
 
   # get some params
-  fs, hop = params[()]['fs'], params[()]['hop']
+  #fs, hop = params[()]['fs'], params[()]['hop']
+
+  # print some infos about data
+  print("data info: ", train_data['info'])
 
   # get classes
   classes = np.unique(train_data['y'])
   print("classes: ", classes)
 
+  # examples per class
+  n_examples_class = (len(train_data['x']) + len(test_data['x']) + len(eval_data['x'])) // len(classes)
+
   # create batches
-  x_train, y_train = create_batches(train_data['x'], train_data['y'], train_data['index'], f, batch_size, window_step)
-  x_val, y_val = create_batches(eval_data['x'], eval_data['y'], eval_data['index'], f, batch_size, window_step)
-  x_test, y_test = create_batches(test_data['x'], test_data['y'], test_data['index'], f, batch_size, window_step)
+  x_train, y_train = create_batches(train_data['x'], train_data['y'], train_data['index'], classes, f, batch_size=batch_size, window_step=window_step)
+  x_val, y_val = create_batches(eval_data['x'], eval_data['y'], eval_data['index'], classes, f, batch_size=4, window_step=window_step)
+  x_test, y_test = create_batches(test_data['x'], test_data['y'], test_data['index'], classes, f, batch_size=4, window_step=window_step)
 
-  print("x_batches: ", x_train.shape)
-  print("y_batches: ", y_train.shape)
+  # print training batches
+  print("x_train_batches: ", x_train.shape)
+  print("y_train_batches: ", y_train.shape)
 
-  return x_train, y_train, x_val, y_val, x_test, y_test, classes
+  return x_train, y_train, x_val, y_val, x_test, y_test, classes, n_examples_class
 
 
-def create_batches(x_data, y_data, index, f=32, batch_size=1, window_step=1):
+def create_batches(x_data, y_data, index, classes, f=32, batch_size=1, window_step=1):
   """
   create batches for training N x [b x m x f]
   x: [n x m x l]
@@ -79,8 +88,10 @@ def create_batches(x_data, y_data, index, f=32, batch_size=1, window_step=1):
   x = np.empty(shape=(0, 39, f), dtype=x_data.dtype)
   y = np.empty(shape=(0), dtype=y_data.dtype)
 
+  # TODO: remove this
   i = 0
-  # run through all samples
+
+  # stack windows
   for x_n, y_n in zip(x_data, y_data):
 
     # windowed [r x m x f]
@@ -96,19 +107,63 @@ def create_batches(x_data, y_data, index, f=32, batch_size=1, window_step=1):
     x = np.vstack((x, x_win))
 
     #for i in range(r):
-    #  plot_mfcc_only(x[i], fs, hop, plot_path, name=index[0] + str(i))
+    # plot_mfcc_only(x[i], fs, hop, plot_path, name=index[0] + str(i))
 
-    # TODO: remove debug line later
+    # #TODO: remove debug line later
     # i += 1
-    # if i > 10:
+    # if i > 5:
     #  break
+
 
   # randomize examples
   indices = np.random.permutation(x.shape[0])
   x = np.take(x, indices, axis=0)
   y = np.take(y, indices, axis=0)
 
-  return x, y
+  # number of windows
+  batch_nums = x.shape[0] // batch_size
+
+  # remaining samples
+  r = int(np.remainder(len(y), batch_size))
+  if r:
+    batch_nums += 1;
+
+  # init batches
+  x_batches = torch.empty((batch_nums, batch_size, 39, f))
+  y_batches = torch.empty((batch_nums, batch_size), dtype=torch.long)
+
+  # batching
+  for i in range(batch_nums):
+
+    # remainder handling
+    if i == batch_nums - 1 and r:
+
+      # remaining examples
+      r_x = x[i*batch_size:i*batch_size+r, :]
+      r_y = y[i*batch_size:i*batch_size+r]
+
+      # pick random samples for filler
+      random_samples = np.random.randint(0, high=len(y), size=batch_size-r)
+
+      # filling examples
+      f_x = x[random_samples, :]
+      f_y = y[random_samples]
+
+      # concatenate remainder with random examples
+      x_batches[i, :] = torch.from_numpy(np.concatenate((r_x, f_x)).astype(np.float32))
+      y_batches[i, :] = get_index_of_class(np.concatenate((r_y, f_y)), classes, to_torch=True)
+
+    # no remainder
+    else:
+
+      # get batches
+      x_batches[i, :] = torch.from_numpy(x[i*batch_size:i*batch_size+batch_size, :].astype(np.float32))
+      y_batches[i, :] = get_index_of_class(y[i*batch_size:i*batch_size+batch_size], classes, to_torch=True)
+
+  # prepare for training x: [num_batches x batch_size x channel x 39 x 32]
+  x_batches = torch.unsqueeze(x_batches, 2)
+
+  return x_batches, y_batches
 
 
 def one_hot_label(y, classes, to_torch=False):
@@ -134,23 +189,27 @@ def get_index_of_class(y, classes, to_torch=False):
   return index of class
   """
 
-  # get index
-  y_idx = np.where(np.array(classes) == y)[0]
+  # init labels
+  y_idx = torch.empty(y.shape, dtype=torch.long)
 
-  # transfer to torch
-  if to_torch:
-    y_idx = torch.from_numpy(y_idx)
+  for i, yi in enumerate(y):
+
+    # get index
+    idx = np.where(np.array(classes) == yi)[0]
+
+    # transfer to torch
+    if to_torch:
+      y_idx[i] = torch.from_numpy(idx)
 
   return y_idx
 
 
-
-def train_nn(model, x_train, y_train, x_val, y_val, classes, nn_arch, num_epochs=2, lr=1e-3, model_path='./'):
+def train_nn(model, x_train, y_train, x_val, y_val, classes, nn_arch, num_epochs=2, lr=1e-3, param_str='nope'):
   """
   train the neural network thing
   """
 
-  # MSE Loss
+  # Loss Criterion
   criterion = torch.nn.CrossEntropyLoss()
 
   # create optimizer
@@ -159,7 +218,9 @@ def train_nn(model, x_train, y_train, x_val, y_val, classes, nn_arch, num_epochs
   print("\n--Training starts:")
 
   # collect losses over epochs
-  batch_loss = np.zeros(num_epochs)
+  train_loss = np.zeros(num_epochs)
+  val_loss = np.zeros(num_epochs)
+  val_acc = np.zeros(num_epochs)
 
   # start time
   start_time = time.time()
@@ -170,19 +231,12 @@ def train_nn(model, x_train, y_train, x_val, y_val, classes, nn_arch, num_epochs
     # cumulated loss
     cum_loss = 0.0
 
-    # TODO: do this with loader function from pytorch
+    # TODO: do this with loader function from pytorch (maybe or not)
     # fetch data samples
     for i, (x, y) in enumerate(zip(x_train, y_train)):
 
       # zero parameter gradients
       optimizer.zero_grad()
-
-      # prepare x [1 x 1 x 39 x 32]
-      x = torch.unsqueeze(torch.unsqueeze(torch.from_numpy(x.astype(np.float32)), 0), 0)
-      #print("x: ", x.shape)
-
-      # get index of class [b]
-      y = get_index_of_class(y, classes, to_torch=True)
 
       # forward pass o:[b x c]
       o = model(x)
@@ -200,35 +254,40 @@ def train_nn(model, x_train, y_train, x_val, y_val, classes, nn_arch, num_epochs
       cum_loss += loss.item()
 
       # batch loss
-      batch_loss[epoch] += cum_loss
+      train_loss[epoch] += cum_loss
 
       # print loss
-      if i % 200 == 199:
+      if i % 100 == 99:
 
         # print info
         print('epoch: {}, mini-batch: {}, loss: [{:.5f}]'.format(epoch + 1, i + 1, cum_loss / 10))
           
         # zero cum loss
         cum_loss = 0.0
+
+    # valdiation
+    val_loss[epoch], val_acc[epoch] = eval_nn(model, x_val, y_val, classes, logging_enabled=False)
+
+    # TODO: Early stopping if necessary
     
   print('Training finished')
 
   # log time
-  logging.info('Traning on arch: {} with examples: {}, n_classes: {}, num_epochs: {}, lr: {}, time: {}'.format(nn_arch, len(y_train), len(classes), num_epochs, lr, s_to_hms_str(time.time() - start_time)))
+  logging.info('Traning on arch: {}  time: {}'.format(param_str, s_to_hms_str(time.time() - start_time)))
 
-  # save parameters of network
-  torch.save(model.state_dict(), model_path)
-
-  return model, batch_loss
+  return model, train_loss, val_loss, val_acc
 
 
-def eval_nn(model, x_batches, y_batches, classes):
+def eval_nn(model, x_batches, y_batches, classes, logging_enabled=True):
   """
   evaluation of nn
   """
 
-  # metric init
-  correct, total = 0, 0
+  # Loss Criterion
+  criterion = torch.nn.CrossEntropyLoss()
+
+  # init
+  correct, total, eval_loss = 0, 0, 0.0
 
   # no gradients for eval
   with torch.no_grad():
@@ -236,19 +295,14 @@ def eval_nn(model, x_batches, y_batches, classes):
     # load data
     for i, (x, y) in enumerate(zip(x_batches, y_batches)):
 
-      # prepare x
-      x = torch.unsqueeze(torch.unsqueeze(torch.from_numpy(x.astype(np.float32)), 0), 0)
-
-      # get index of class
-      y = get_index_of_class(y, classes, to_torch=True)
-
       # classify
       o = model(x)
 
+      # loss
+      eval_loss += criterion(o, y)
+
       # prediction
       _, y_hat = torch.max(o.data, 1)
-
-      #print("pred: {}, actual: {}: ".format(y_hat, y))
 
       # add total amount of prediction
       total += y.size(0)
@@ -256,9 +310,19 @@ def eval_nn(model, x_batches, y_batches, classes):
       # check if correctly predicted
       correct += (y_hat == y).sum().item()
 
+      # some prints
+      #print("\npred: {}\nactu: {}, \t corr: {} ".format(y_hat, y, (y_hat == y).sum().item()))
+
   # print accuracy
-  eval_log = 'Eval: correct: [{} / {}] acc: [{:.4f}]'.format(correct, total, 100 * correct / total)
-  print(eval_log), logging.info(eval_log)
+  eval_log = "Eval: correct: [{} / {}] acc: [{:.4f}] with loss: [{:.4f}]\n".format(correct, total, 100 * correct / total, eval_loss)
+  print(eval_log)
+
+  # log to file
+  if logging_enabled:
+    logging.info(eval_log)
+
+  return eval_loss, (correct / total)
+
 
 
 def get_nn_model(nn_arch):
@@ -286,6 +350,10 @@ def init_logging():
   """
 
   logging.basicConfig(filename='./ignore/logs/ml.log', level=logging.DEBUG, format='%(asctime)s %(message)s')
+
+  # disable unwanted logs
+  logging.getLogger('matplotlib.font_manager').disabled = True
+
   #logging.debug('This message should go to the log file')
   #logging.info('So should this')
   #logging.warning('And this, too')
@@ -301,21 +369,30 @@ if __name__ == '__main__':
   #mfcc_data_files = ['./ignore/train/mfcc_data_train_n-500_c-5.npz', './ignore/test/mfcc_data_test_n-500_c-5.npz', './ignore/eval/mfcc_data_eval_n-500_c-5.npz']
 
   # plot path and model path
-  plot_path, model_path = './ignore/plots/ml/',  './ignore/models/'
+  plot_path, metric_path, model_path = './ignore/plots/ml/', './ignore/plots/ml/metrics/', './ignore/models/'
 
   # create folder
-  create_folder([plot_path, model_path])
+  create_folder([plot_path, metric_path, model_path])
 
-  # other stuff
+  # init logging
   init_logging()
 
-  # frames for input
-  f = 32
-  batch_size = 1
-  window_step = 5
+  # batch stuff
+  f, batch_size, window_step = 32, 32, 16
+
+  # params for training
+  num_epochs, lr, retrain = 2, 1e-4, False
+
+  # nn architecture
+  nn_architectures = ['conv-trad']
+
+  # select architecture
+  nn_arch = nn_architectures[0]
+
+
 
   # extract all necessary data batches
-  x_train, y_train, x_val, y_val, x_test, y_test, classes = extract_to_batches(mfcc_data_files, f=f, batch_size=batch_size, window_step=window_step)
+  x_train, y_train, x_val, y_val, x_test, y_test, classes, n_examples_class = extract_to_batches(mfcc_data_files, f=f, batch_size=batch_size, window_step=window_step)
 
 
   # -- names:
@@ -330,31 +407,34 @@ if __name__ == '__main__':
   # xr: [n x m x r x f]
 
 
-  # --
-  # actual training
-
-  # params for training
-  num_epochs, lr, retrain = 1, 1e-4, True
-
-  # nn architecture
-  nn_architectures = ['conv-trad']
-
-  # select architecture
-  nn_arch = nn_architectures[0]
+  # param string
+  param_str = '{}_n-{}_ws-{}_bs-{}_it-{}_lr-{}'.format(nn_arch, n_examples_class, window_step, batch_size, num_epochs, str(lr).replace('.', 'p'))
 
   # model name
-  model_path = model_path + nn_arch + '_it-' + str(num_epochs) + '_lr-' + str(lr).replace('.', 'p') + '.pth'
+  model_path = model_path + param_str + '.pth'
 
   # init model
   model = get_nn_model(nn_arch)
 
 
+  # --
+  # training
+
   # check if model already exists
   if not os.path.exists(model_path) or retrain:
 
     # train
-    model, loss = train_nn(model, x_train, y_train, x_val, y_val, classes, nn_arch, num_epochs=num_epochs, lr=lr, model_path=model_path)
+    model, train_loss, val_loss, val_acc = train_nn(model, x_train, y_train, x_val, y_val, classes, nn_arch, num_epochs=num_epochs, lr=lr, param_str=param_str)
 
+    # save model
+    torch.save(model.state_dict(), model_path)
+
+    # save metrics
+    np.savez(metric_path + 'metrics_' + param_str + '.npz', train_loss=train_loss, val_loss=val_loss, val_acc=val_acc)
+
+    # plots
+    plot_train_loss(train_loss, val_loss, plot_path, name='train_loss_' + param_str)
+    plot_val_acc(val_acc, plot_path, name='val_acc_' + param_str)
 
   # load model params from file
   else:
@@ -363,12 +443,14 @@ if __name__ == '__main__':
     model.load_state_dict(torch.load(model_path))
 
 
-
   # --
   # evaluation
 
   # evaluation of model
-  eval_nn(model, x_test, y_test, classes)
+  eval_loss, acc = eval_nn(model, x_test, y_test, classes)
+
+
+  plt.show()
 
 
 
