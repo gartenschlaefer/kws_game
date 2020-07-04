@@ -105,8 +105,6 @@ def create_batches(data, classes, f=32, batch_size=1, window_step=1, plot_shift=
       fs, hop = params[()]['fs'], params[()]['hop']
       index = np.take(index, indices, axis=0)
 
-      print("shape: ", x_n.shape)
-
       # plot example
       plot_mfcc_only(x_n, fs, hop, shift_path, name='{}-{}'.format(index[i], i))
 
@@ -267,7 +265,7 @@ def train_nn(model, x_train, y_train, x_val, y_val, classes, nn_arch, num_epochs
       cum_loss = print_train_info(epoch, i, cum_loss, k_print=10)
 
     # valdiation
-    val_loss[epoch], val_acc[epoch] = eval_nn(model, x_val, y_val, classes, logging_enabled=False)
+    val_loss[epoch], val_acc[epoch], _ = eval_nn(model, x_val, y_val, classes, logging_enabled=False)
 
     # TODO: Early stopping if necessary
     
@@ -279,7 +277,7 @@ def train_nn(model, x_train, y_train, x_val, y_val, classes, nn_arch, num_epochs
   return model, train_loss, val_loss, val_acc
 
 
-def eval_nn(model, x_batches, y_batches, classes, logging_enabled=True):
+def eval_nn(model, x_batches, y_batches, classes, logging_enabled=True, calc_cm=False):
   """
   evaluation of nn
   """
@@ -288,7 +286,8 @@ def eval_nn(model, x_batches, y_batches, classes, logging_enabled=True):
   criterion = torch.nn.CrossEntropyLoss()
 
   # init
-  correct, total, eval_loss = 0, 0, 0.0
+  correct, total, eval_loss, cm = 0, 0, 0.0, None
+  y_all, y_hat_all = np.empty(shape=(0), dtype=y_batches.numpy().dtype), np.empty(shape=(0), dtype=y_batches.numpy().dtype)
 
   # no gradients for eval
   with torch.no_grad():
@@ -311,6 +310,11 @@ def eval_nn(model, x_batches, y_batches, classes, logging_enabled=True):
       # check if correctly predicted
       correct += (y_hat == y).sum().item()
 
+      # collect labels for confusion matrix
+      if calc_cm:
+        y_all = np.append(y_all, y)
+        y_hat_all = np.append(y_hat_all, y_hat)
+
       # some prints
       #print("\npred: {}\nactu: {}, \t corr: {} ".format(y_hat, y, (y_hat == y).sum().item()))
 
@@ -318,11 +322,15 @@ def eval_nn(model, x_batches, y_batches, classes, logging_enabled=True):
   eval_log = "Eval: correct: [{} / {}] acc: [{:.4f}] with loss: [{:.4f}]\n".format(correct, total, 100 * correct / total, eval_loss)
   print(eval_log)
 
+  # confusion matrix
+  if calc_cm:
+    cm = confusion_matrix(y_all, y_hat_all)
+
   # log to file
   if logging_enabled:
     logging.info(eval_log)
 
-  return eval_loss, (correct / total)
+  return eval_loss, (correct / total), cm
 
 
 def print_train_info(epoch, mini_batch, cum_loss, k_print=10):
@@ -383,8 +391,8 @@ if __name__ == '__main__':
   """
 
   # path to train, test and eval set
-  #mfcc_data_files = ['./ignore/train/mfcc_data_train_n-100_c-5.npz', './ignore/test/mfcc_data_test_n-100_c-5.npz', './ignore/eval/mfcc_data_eval_n-100_c-5.npz']
-  mfcc_data_files = ['./ignore/train/mfcc_data_train_n-500_c-5.npz', './ignore/test/mfcc_data_test_n-500_c-5.npz', './ignore/eval/mfcc_data_eval_n-500_c-5.npz']
+  mfcc_data_files = ['./ignore/train/mfcc_data_train_n-100_c-5.npz', './ignore/test/mfcc_data_test_n-100_c-5.npz', './ignore/eval/mfcc_data_eval_n-100_c-5.npz']
+  #mfcc_data_files = ['./ignore/train/mfcc_data_train_n-500_c-5.npz', './ignore/test/mfcc_data_test_n-500_c-5.npz', './ignore/eval/mfcc_data_eval_n-500_c-5.npz']
 
   # plot path and model path
   plot_path, shift_path, metric_path, model_path = './ignore/plots/ml/', './ignore/plots/ml/shift/', './ignore/plots/ml/metrics/', './ignore/models/'
@@ -399,7 +407,7 @@ if __name__ == '__main__':
   f, batch_size, window_step = 32, 32, 16
 
   # params for training
-  num_epochs, lr, retrain = 200, 1e-4, True
+  num_epochs, lr, retrain = 25, 1e-4, False
 
   # nn architecture
   nn_architectures = ['conv-trad']
@@ -467,7 +475,12 @@ if __name__ == '__main__':
   print("\n--Evaluation on Test Set:")
 
   # evaluation of model
-  eval_loss, acc = eval_nn(model, x_test, y_test, classes)
+  eval_loss, acc, cm = eval_nn(model, x_test, y_test, classes, calc_cm=True)
+
+  print("confusion matrix:\n", cm)
+
+  # plot confusion matrix
+  plot_confusion_matrix(cm, classes, plot_path=plot_path, name='confusion_' + param_str)
 
 
   plt.show()

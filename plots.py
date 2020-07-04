@@ -4,8 +4,44 @@ plot some figures
 
 import numpy as np
 import matplotlib.pyplot as plt
+from sklearn.metrics import confusion_matrix
 
 from glob import glob
+
+
+def plot_confusion_matrix(cm, classes, plot_path=None, name='None'):
+  """
+  plot confusion matrix
+  """
+
+  # init plot
+  fig, ax = plt.subplots( figsize=(8, 6) )
+  im = ax.imshow(cm, cmap=plt.cm.Blues)
+
+  # text handling
+  for predict in range(len(classes)):
+    for true in range(len(classes)):
+
+      # color handling
+      if predict != true:
+        font_color = 'black'
+      else:
+        font_color = 'white'
+
+      # write nums inside
+      text = ax.text(true, predict, cm[predict, true], ha='center', va='center', color=font_color)
+
+  # care about labels
+  ax.set_xticks(np.arange(len(classes)))
+  ax.set_yticks(np.arange(len(classes)))
+  ax.set_xticklabels(classes)
+  ax.set_yticklabels(classes)
+  plt.xlabel('predicted labels')
+  plt.ylabel('true labels')
+
+  # plot the fig
+  if plot_path is not None:
+    plt.savefig(plot_path + name + '.png', dpi=150)
 
 
 def plot_train_loss(train_loss, val_loss, plot_path=None, name='None'):
