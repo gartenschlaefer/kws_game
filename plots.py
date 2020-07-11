@@ -88,7 +88,7 @@ def plot_val_acc(val_acc, plot_path=None, name='None'):
     #plt.close()
 
 
-def plot_mfcc_profile(x, fs, mfcc, plot_path, name='None'):
+def plot_mfcc_profile(x, fs, mfcc, plot_path, onset_times=[], name='None'):
   """
   plot mfcc extracted features from audio file
   mfcc: [m x l]
@@ -107,6 +107,11 @@ def plot_mfcc_profile(x, fs, mfcc, plot_path, name='None'):
   # time series plot
   ax = fig.add_subplot(gs[0:n_im_rows-1, :n_cols-2])
   ax.plot(t, x)
+
+  # draw onsets
+  for onset in onset_times:
+    plt.axvline(x=float(onset), dashes=(5, 1), color='k')
+
   ax.grid()
   ax.set_title('time signal of ' + '"' + name + '"')
   ax.set_ylabel("magnitude")

@@ -177,10 +177,131 @@ def mel_band_weights(n_bands, fs, N=1024):
   return (w_f, w_mel, f_scale, mel_scale)
 
 
+def calc_onsets(x, fs, N=1024, hop=512, adapt_frames=5, adapt_alpha=0.1, adapt_beta=1):
+  """
+  calculate onsets with complex domain and adapt thresh
+  """
+
+  # stft
+  X = custom_stft(x, N=N, hop=hop, norm=True)
+
+  # complex domain
+  c = complex_domain_onset(X, N)
+
+  # adaptive threshold
+  thresh = adaptive_threshold(c, H=adapt_frames, alpha=adapt_alpha, beta=adapt_beta)
+
+  # get onsets from measure and threshold
+  onsets = thresholding_onset(c, thresh)
+
+  # calculate onset times
+  onset_times = (onsets * np.arange(0, len(onsets)) * hop + N / 2) / fs 
+  onset_times = onset_times[onset_times > N / 2 / fs]
+
+  return onsets, onset_times
+
+
+def thresholding_onset(x, thresh):
+  """
+  thresholding for onset events
+  params: 
+    x - input sequence
+    thresh - threshold vector
+  """
+
+  # init
+  onset = np.zeros(len(x))
+
+  # set to one if over threshold
+  onset[x > thresh] = 1
+
+  # get only single onset -> attention edge problems
+  onset = onset - np.logical_and(onset, np.roll(onset, 1))
+
+  return onset
+
+
+def adaptive_threshold(g, H=10, alpha=0.05, beta=1):
+  """
+  adaptive threshold with sliding window
+  """
+
+  # threshold
+  thresh = np.zeros(len(g))
+
+  # sliding window
+  for i in np.arange(H//2, len(g) - H//2):
+
+    # median thresh
+    thresh[i] = np.median(g[i - H//2 : i + H//2])
+
+  # linear mapping
+  thresh = alpha * np.max(thresh) + beta * thresh
+
+  return thresh
+
+
+def complex_domain_onset(X, N):
+  """
+  complex domain approach for onset detection
+  params:
+    X - fft
+    N - window size
+  """
+
+  # calculate phase deviation
+  d = phase_deviation(X, N)
+
+  # ampl target
+  R = np.abs(X[:, 0:N//2])
+
+  # ampl prediction
+  R_h = np.roll(R, 1, axis=0)
+
+  # complex measure
+  gamma = np.sqrt(np.power(R_h, 2) + np.power(R, 2) - 2 * R_h * R * np.cos(d))
+
+  # clean up first two indices
+  gamma[0] = np.zeros(gamma.shape[1])
+
+  # sum all frequency bins
+  eta = np.sum(gamma, axis=1)
+
+  return eta
+
+
+def phase_deviation(X, N):
+  """
+  phase_deviation of STFT
+  """
+
+  # get unwrapped phase
+  phi0 = np.unwrap(np.angle(X[:, 0:N//2]))
+  phi1 = np.roll(phi0, 1, axis=0)
+  phi2 = np.roll(phi0, 2, axis=0)
+
+  # calculate phase derivation
+  d = princarg(phi0 - 2 * phi1 + phi2)
+
+  # clean up first two indices
+  d[0:2] = np.zeros(d.shape[1])
+
+  return d
+
+
+def princarg(p):
+  """
+  principle argument
+  """
+
+  return np.mod(p + np.pi, -2 * np.pi) + np.pi
+
+
 def custom_stft(x, N=1024, hop=512, norm=True):
   """
   short time fourier transform
   """
+  
   # windowing
   w = np.hanning(N)
 

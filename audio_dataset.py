@@ -11,7 +11,7 @@ from glob import glob
 from shutil import copyfile
 
 # my stuff
-from feature_extraction import calc_mfcc39
+from feature_extraction import calc_mfcc39, calc_onsets
 from common import create_folder
 from plots import plot_mfcc_profile
 
@@ -159,9 +159,12 @@ def extract_mfcc_data(wavs, fs, N, hop, n_filter_bands, n_ceps_coeff, plot_path,
 		# calculate feature vectors [m x l]
 		mfcc = calc_mfcc39(x, fs, N=N, hop=hop, n_filter_bands=n_filter_bands, n_ceps_coeff=n_ceps_coeff)
 
+		# calc onsets
+		onsets, onset_times = calc_onsets(x, fs, N=N, hop=hop, adapt_frames=5, adapt_alpha=0.1, adapt_beta=1)
+
 		# plot mfcc features
 		if plot:
-			plot_mfcc_profile(x, fs, mfcc, plot_path, name=label + str(file_index) + '_' + ext)
+			plot_mfcc_profile(x, fs, mfcc, plot_path, onset_times, name=label + str(file_index) + '_' + ext)
 
 		# add to mfcc_data
 		mfcc_data = np.vstack((mfcc_data, mfcc[np.newaxis, :, :]))
@@ -183,16 +186,13 @@ if __name__ == '__main__':
 	# plot path
 	plot_path = './ignore/plots/features/'
 
-	# mfcc data file
-	mfcc_data_file = 'mfcc_data'
-
 	# percent of data splitting [train, test], leftover is eval
 	data_percs = np.array([0.8, 0.1, 0.1])
 
 	# num examples per class
-	#n_examples = 10
+	n_examples = 10
 	#n_examples = 100
-	n_examples = 500
+	#n_examples = 500
 
 	# wav folder
 	wav_folder = 'wav_n-{}/'.format(n_examples)
@@ -221,18 +221,11 @@ if __name__ == '__main__':
 	# sampling rate
 	fs = 16000
 
-	# mfcc analytic window
-	N = int(0.025 * fs)
-	#N = 512
-	
-	# shift of analytic window
-	hop = int(0.010 * fs)
+	# mfcc window and hop size
+	N, hop = int(0.025 * fs), int(0.010 * fs)
 
-	# amount of filter bands
-	n_filter_bands = 32
-
-	# amount of first n-th cepstral coeffs
-	n_ceps_coeff = 12
+	# amount of filter bands and cepstral coeffs
+	n_filter_bands, n_ceps_coeff = 32, 12
 
 	# add params
 	audio_params = {'n_examples':n_examples, 'data_percs':data_percs, 'fs':fs, 'N':N, 'hop':hop, 'n_filter_bands':n_filter_bands, 'n_ceps_coeff':n_ceps_coeff}
@@ -267,12 +260,12 @@ if __name__ == '__main__':
 		# TODO: Only use meaning full vectors not noise
 
 		# extract data
-		mfcc_data, label_data, index_data = extract_mfcc_data(wavs, fs, N, hop, n_filter_bands, n_ceps_coeff, plot_path, ext, plot=False)
+		mfcc_data, label_data, index_data = extract_mfcc_data(wavs, fs, N, hop, n_filter_bands, n_ceps_coeff, plot_path, ext, plot=True)
 
-		# save file name
-		file_name = data_path + mfcc_data_file + '_' + ext + '_n-' + str(n_examples) + '_c-' + str(len(sel_labels)) + '.npz'
+		# set file name
+		file_name = '{}mfcc_data_{}_n-{}_c-{}_hop-{}.npz'.format(data_path, ext, n_examples, len(sel_labels), hop)
 
-		# save file
+		# save mfcc data file
 		np.savez(file_name, x=mfcc_data, y=label_data, index=index_data, info=mfcc_info, params=audio_params)
 
 		# print
