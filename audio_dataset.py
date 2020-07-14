@@ -16,6 +16,7 @@ from common import create_folder
 from plots import plot_mfcc_profile
 
 from torch.utils.data import Dataset, DataLoader
+from skimage.util.shape import view_as_windows
 
 # TODO: Pytorch stuff
 # class SpeechCommandDataset():
@@ -123,7 +124,7 @@ def audio_pre_processing(wav, fs, min_samples):
 	return x, fs
 
 
-def extract_mfcc_data(wavs, fs, N, hop, n_filter_bands, n_ceps_coeff, plot_path, ext=None, min_samples=16000, plot=True):
+def extract_mfcc_data(wavs, fs, N, hop, n_filter_bands, n_ceps_coeff, plot_path, frame_size=32, ext=None, min_samples=16000, plot=True):
 	"""
 	extract mfcc data from wav-files
 	"""
@@ -160,16 +161,58 @@ def extract_mfcc_data(wavs, fs, N, hop, n_filter_bands, n_ceps_coeff, plot_path,
 		mfcc = calc_mfcc39(x, fs, N=N, hop=hop, n_filter_bands=n_filter_bands, n_ceps_coeff=n_ceps_coeff)
 
 		# calc onsets
-		onsets, onset_times = calc_onsets(x, fs, N=N, hop=hop, adapt_frames=5, adapt_alpha=0.1, adapt_beta=1)
+		#onsets = calc_onsets(x, fs, N=N, hop=hop, adapt_frames=5, adapt_alpha=0.1, adapt_beta=1)
+		onsets = calc_onsets(x, fs, N=N, hop=hop, adapt_frames=5, adapt_alpha=0.05, adapt_beta=0.9)
+
+		# find best onset
+		best_onset = find_best_onset(onsets)
 
 		# plot mfcc features
 		if plot:
-			plot_mfcc_profile(x, fs, mfcc, plot_path, onset_times, name=label + str(file_index) + '_' + ext)
+			plot_mfcc_profile(x, fs, N, hop, mfcc, plot_path, onsets, best_onset, frame_size, name=label + str(file_index) + '_' + ext)
 
 		# add to mfcc_data
 		mfcc_data = np.vstack((mfcc_data, mfcc[np.newaxis, :, :]))
 
 	return mfcc_data, label_data, index_data
+
+
+def find_best_onset(onsets, frame_length=32, pre_frames=1):
+	"""
+	find the best onset with highest propability of spoken word
+	"""
+
+	# handle only one onset
+	if int(np.sum(onsets)) == 1:
+		return onsets
+
+	# init
+	best_onset = np.zeros(onsets.shape)
+
+	# determine onset positions
+	onset_pos = np.squeeze(np.argwhere(onsets))
+
+	# windowing
+	o_win = view_as_windows(np.pad(onsets, (0, frame_length-1)), window_shape=(frame_length), step=1)[onset_pos, :]
+
+	# get index of best onset
+	x_max = np.argmax(np.sum(o_win, axis=1))
+
+	# set single best onset
+	best_onset[onset_pos[x_max]] = 1
+
+	# pre frames before real onset
+	if onset_pos[x_max] - pre_frames > 0:
+		best_onset = np.roll(best_onset, -pre_frames)
+
+	# best onset on right egde, do something
+	if onset_pos[x_max] - pre_frames >= (onsets.shape[0] - frame_length):
+
+		# roll
+		r = frame_length - (onsets.shape[0] - (onset_pos[x_max] - pre_frames)) + 1
+		best_onset = np.roll(best_onset, -r)
+
+	return best_onset
 
 
 if __name__ == '__main__':
@@ -260,7 +303,7 @@ if __name__ == '__main__':
 		# TODO: Only use meaning full vectors not noise
 
 		# extract data
-		mfcc_data, label_data, index_data = extract_mfcc_data(wavs, fs, N, hop, n_filter_bands, n_ceps_coeff, plot_path, ext, plot=True)
+		mfcc_data, label_data, index_data = extract_mfcc_data(wavs, fs, N, hop, n_filter_bands, n_ceps_coeff, plot_path, frame_size=32, ext=ext, plot=True)
 
 		# set file name
 		file_name = '{}mfcc_data_{}_n-{}_c-{}_hop-{}.npz'.format(data_path, ext, n_examples, len(sel_labels), hop)

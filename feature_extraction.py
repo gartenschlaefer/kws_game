@@ -194,11 +194,17 @@ def calc_onsets(x, fs, N=1024, hop=512, adapt_frames=5, adapt_alpha=0.1, adapt_b
   # get onsets from measure and threshold
   onsets = thresholding_onset(c, thresh)
 
-  # calculate onset times
-  onset_times = (onsets * np.arange(0, len(onsets)) * hop + N / 2) / fs 
-  onset_times = onset_times[onset_times > N / 2 / fs]
+  return onsets
 
-  return onsets, onset_times
+
+def onsets_to_onset_times(onsets, fs, N, hop):
+  """
+  use onset vector [0, 0, 1, 0, 0, ...] and 
+  create time vector [0.25, ...]
+  """
+
+  onset_times = (onsets * np.arange(0, len(onsets)) * hop + N / 2) / fs 
+  return onset_times[onset_times > N / 2 / fs]
 
 
 def thresholding_onset(x, thresh):

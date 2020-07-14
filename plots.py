@@ -6,6 +6,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix
 
+from feature_extraction import onsets_to_onset_times
+
 from glob import glob
 
 
@@ -88,11 +90,17 @@ def plot_val_acc(val_acc, plot_path=None, name='None'):
     #plt.close()
 
 
-def plot_mfcc_profile(x, fs, mfcc, plot_path, onset_times=[], name='None'):
+def plot_mfcc_profile(x, fs, N, hop, mfcc, plot_path, onsets, best_onset, frame_size=32, name='None'):
   """
   plot mfcc extracted features from audio file
   mfcc: [m x l]
   """
+
+  # onsets to time
+  onset_times = onsets_to_onset_times(onsets, fs, N, hop)
+
+  # care for best onset
+  best_onset_times = onsets_to_onset_times(np.logical_or(best_onset, np.roll(best_onset, frame_size)), fs, N, hop) 
 
   # time vector
   t = np.arange(0, len(x)/fs, 1/fs)
@@ -111,6 +119,10 @@ def plot_mfcc_profile(x, fs, mfcc, plot_path, onset_times=[], name='None'):
   # draw onsets
   for onset in onset_times:
     plt.axvline(x=float(onset), dashes=(5, 1), color='k')
+
+  # best onset + frame
+  for onset in best_onset_times:
+    plt.axvline(x=float(onset), dashes=(2, 2), color='b')
 
   ax.grid()
   ax.set_title('time signal of ' + '"' + name + '"')
