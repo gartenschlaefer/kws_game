@@ -74,56 +74,16 @@ def create_batches(data, classes, f=32, batch_size=1, window_step=1, plot_shift=
   # get shape of things
   n, m, l = x_data.shape
 
-  # randomize data
-  indices = np.random.permutation(x_data.shape[0])
-  x_data = np.take(x_data, indices, axis=0)
-  y_data = np.take(y_data, indices, axis=0)
-
-  # x: [n x m x f]
-  x = np.empty(shape=(0, 39, f), dtype=x_data.dtype)
-  y = np.empty(shape=(0), dtype=y_data.dtype)
-
-  # stack windows
-  for i, (x_n, y_n) in enumerate(zip(x_data, y_data)):
-
-    # windowed [r x m x f]
-    x_win = np.squeeze(view_as_windows(x_n, (m, f), step=window_step))
-
-    # window length
-    l_win = x_win.shape[0]
-
-    # append y
-    y = np.append(y, [y_n] * l_win)
-
-    # stack windowed [n+r x m x f]
-    x = np.vstack((x, x_win))
-
-    # for evaluation of shifting
-    if i < 2 and plot_shift:
-
-      # need params for plot
-      fs, hop = params[()]['fs'], params[()]['hop']
-      index = np.take(index, indices, axis=0)
-
-      # plot example
-      plot_mfcc_only(x_n, fs, hop, shift_path, name='{}-{}'.format(index[i], i))
-
-      # plot some shifted mfcc
-      for ri in range(x_win.shape[0]):
-
-        # plot shifted mfcc
-        plot_mfcc_only(x[ri], fs, hop, shift_path, name='{}-{}-{}'.format(index[i], i, ri))
-
-    # #TODO: remove debug line later
-    # i += 1
-    # if i > 5:
-    #  break
-
+  print("x_data: ", x_data.shape)
 
   # randomize examples
-  indices = np.random.permutation(x.shape[0])
-  x = np.take(x, indices, axis=0)
-  y = np.take(y, indices, axis=0)
+  indices = np.random.permutation(x_data.shape[0])
+  x = np.take(x_data, indices, axis=0)
+  y = np.take(y_data, indices, axis=0)
+
+  # plot first example
+  #fs, hop, z = params[()]['fs'], params[()]['hop'], np.take(index, indices, axis=0)
+  #plot_mfcc_only(x[0], fs, hop, shift_path, name='{}-{}'.format(z[0], 0))
 
   # number of windows
   batch_nums = x.shape[0] // batch_size
@@ -169,6 +129,52 @@ def create_batches(data, classes, f=32, batch_size=1, window_step=1, plot_shift=
   x_batches = torch.unsqueeze(x_batches, 2)
 
   return x_batches, y_batches
+
+
+def force_windowing():
+  """
+  windowing of data (fromer used in batches)
+  """
+
+  # randomize data
+  indices = np.random.permutation(x_data.shape[0])
+  x_data = np.take(x_data, indices, axis=0)
+  y_data = np.take(y_data, indices, axis=0)
+
+  # x: [n x m x f]
+  x = np.empty(shape=(0, 39, f), dtype=x_data.dtype)
+  y = np.empty(shape=(0), dtype=y_data.dtype)
+
+  # stack windows
+  for i, (x_n, y_n) in enumerate(zip(x_data, y_data)):
+
+    # windowed [r x m x f]
+    x_win = np.squeeze(view_as_windows(x_n, (m, f), step=window_step))
+
+    # window length
+    l_win = x_win.shape[0]
+
+    # append y
+    y = np.append(y, [y_n] * l_win)
+
+    # stack windowed [n+r x m x f]
+    x = np.vstack((x, x_win))
+
+    # for evaluation of shifting
+    if i < 2 and plot_shift:
+
+      # need params for plot
+      fs, hop = params[()]['fs'], params[()]['hop']
+      index = np.take(index, indices, axis=0)
+
+      # plot example
+      plot_mfcc_only(x_n, fs, hop, shift_path, name='{}-{}'.format(index[i], i))
+
+      # plot some shifted mfcc
+      for ri in range(x_win.shape[0]):
+
+        # plot shifted mfcc
+        plot_mfcc_only(x[ri], fs, hop, shift_path, name='{}-{}-{}'.format(index[i], i, ri))
 
 
 def one_hot_label(y, classes, to_torch=False):
@@ -391,8 +397,11 @@ if __name__ == '__main__':
   """
 
   # path to train, test and eval set
-  mfcc_data_files = ['./ignore/train/mfcc_data_train_n-100_c-5.npz', './ignore/test/mfcc_data_test_n-100_c-5.npz', './ignore/eval/mfcc_data_eval_n-100_c-5.npz']
+  #mfcc_data_files = ['./ignore/train/mfcc_data_train_n-10_c-5_v1.npz', './ignore/test/mfcc_data_test_n-10_c-5_v1.npz', './ignore/eval/mfcc_data_eval_n-10_c-5_v1.npz']
+  #mfcc_data_files = ['./ignore/train/mfcc_data_train_n-100_c-5.npz', './ignore/test/mfcc_data_test_n-100_c-5.npz', './ignore/eval/mfcc_data_eval_n-100_c-5.npz']
   #mfcc_data_files = ['./ignore/train/mfcc_data_train_n-500_c-5.npz', './ignore/test/mfcc_data_test_n-500_c-5.npz', './ignore/eval/mfcc_data_eval_n-500_c-5.npz']
+  #mfcc_data_files = ['./ignore/train/mfcc_data_train_n-500_c-5_v1.npz', './ignore/test/mfcc_data_test_n-500_c-5_v1.npz', './ignore/eval/mfcc_data_eval_n-500_c-5_v1.npz']
+  mfcc_data_files = ['./ignore/train/mfcc_data_train_n-2000_c-5_v1.npz', './ignore/test/mfcc_data_test_n-2000_c-5_v1.npz', './ignore/eval/mfcc_data_eval_n-2000_c-5_v1.npz']
 
   # plot path and model path
   plot_path, shift_path, metric_path, model_path = './ignore/plots/ml/', './ignore/plots/ml/shift/', './ignore/plots/ml/metrics/', './ignore/models/'
@@ -407,7 +416,7 @@ if __name__ == '__main__':
   f, batch_size, window_step = 32, 32, 16
 
   # params for training
-  num_epochs, lr, retrain = 25, 1e-4, False
+  num_epochs, lr, retrain = 25, 1e-4, True
 
   # nn architecture
   nn_architectures = ['conv-trad']

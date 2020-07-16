@@ -47,7 +47,7 @@ def copy_wav_files(wav_files, label, data_paths, data_percs):
 
 		# stop if out of range (happens at rounding errors)
 		if p >= len(data_paths):
-			continue
+			break
 
 		# copy files to folder
 		copyfile(wav, data_paths[p] + label + str(i) + '.wav')
@@ -130,7 +130,7 @@ def extract_mfcc_data(wavs, fs, N, hop, n_filter_bands, n_ceps_coeff, plot_path,
 	"""
 
 	# init mfcc_data: [n x m x l] n samples, m features, l frames
-	mfcc_data = np.empty(shape=(0, 39, 98), dtype=np.float64)
+	mfcc_data = np.empty(shape=(0, 39, frame_size), dtype=np.float64)
 
 	# init label list and index data
 	label_data, index_data = [], []
@@ -163,56 +163,65 @@ def extract_mfcc_data(wavs, fs, N, hop, n_filter_bands, n_ceps_coeff, plot_path,
 		# calc onsets
 		#onsets = calc_onsets(x, fs, N=N, hop=hop, adapt_frames=5, adapt_alpha=0.1, adapt_beta=1)
 		onsets = calc_onsets(x, fs, N=N, hop=hop, adapt_frames=5, adapt_alpha=0.05, adapt_beta=0.9)
+		#print("onsets: ", onsets)
 
 		# find best onset
-		best_onset = find_best_onset(onsets)
+		best_onset, bon_pos = find_best_onset(onsets, frame_size=frame_size, pre_frames=1)
 
 		# plot mfcc features
 		if plot:
 			plot_mfcc_profile(x, fs, N, hop, mfcc, plot_path, onsets, best_onset, frame_size, name=label + str(file_index) + '_' + ext)
 
 		# add to mfcc_data
-		mfcc_data = np.vstack((mfcc_data, mfcc[np.newaxis, :, :]))
+		mfcc_data = np.vstack((mfcc_data, mfcc[np.newaxis, :, bon_pos:bon_pos+frame_size]))
 
 	return mfcc_data, label_data, index_data
 
 
-def find_best_onset(onsets, frame_length=32, pre_frames=1):
+def find_best_onset(onsets, frame_size=32, pre_frames=1):
 	"""
 	find the best onset with highest propability of spoken word
 	"""
 
-	# handle only one onset
-	if int(np.sum(onsets)) == 1:
-		return onsets
-
 	# init
-	best_onset = np.zeros(onsets.shape)
+	best_onset, bon_pos = np.zeros(onsets.shape), 0
 
 	# determine onset positions
 	onset_pos = np.squeeze(np.argwhere(onsets))
 
-	# windowing
-	o_win = view_as_windows(np.pad(onsets, (0, frame_length-1)), window_shape=(frame_length), step=1)[onset_pos, :]
+	# single onset handling
+	if int(np.sum(onsets)) == 1:
 
-	# get index of best onset
-	x_max = np.argmax(np.sum(o_win, axis=1))
+		#return onsets, int(np.where(onsets == 1)[0][0])
+		best_onset = onsets
+		bon_pos = onset_pos
 
-	# set single best onset
-	best_onset[onset_pos[x_max]] = 1
+	# multiple onsets handling
+	else: 
+
+		# windowing
+		o_win = view_as_windows(np.pad(onsets, (0, frame_size-1)), window_shape=(frame_size), step=1)[onset_pos, :]
+
+		# get index of best onset
+		x_max = np.argmax(np.sum(o_win, axis=1))
+
+		# set single best onset
+		bon_pos = onset_pos[x_max]
+		best_onset[bon_pos] = 1
 
 	# pre frames before real onset
-	if onset_pos[x_max] - pre_frames > 0:
+	if bon_pos - pre_frames > 0:
 		best_onset = np.roll(best_onset, -pre_frames)
 
-	# best onset on right egde, do something
-	if onset_pos[x_max] - pre_frames >= (onsets.shape[0] - frame_length):
-
-		# roll
-		r = frame_length - (onsets.shape[0] - (onset_pos[x_max] - pre_frames)) + 1
+	# best onset on right egde, do roll
+	if bon_pos - pre_frames >= (onsets.shape[0] - frame_size):
+		r = frame_size - (onsets.shape[0] - (bon_pos - pre_frames)) + 1
 		best_onset = np.roll(best_onset, -r)
 
-	return best_onset
+	#print("best_onset: ", best_onset)
+	#print("pos: ", int(np.where(best_onset == 1)[0][0]))
+
+	return best_onset, int(np.where(best_onset == 1)[0][0])
 
 
 if __name__ == '__main__':
@@ -232,10 +241,14 @@ if __name__ == '__main__':
 	# percent of data splitting [train, test], leftover is eval
 	data_percs = np.array([0.8, 0.1, 0.1])
 
+	# version number
+	version_nr = 1
+
 	# num examples per class
-	n_examples = 10
+	#n_examples = 10
 	#n_examples = 100
 	#n_examples = 500
+	n_examples = 2000
 
 	# wav folder
 	wav_folder = 'wav_n-{}/'.format(n_examples)
@@ -303,10 +316,10 @@ if __name__ == '__main__':
 		# TODO: Only use meaning full vectors not noise
 
 		# extract data
-		mfcc_data, label_data, index_data = extract_mfcc_data(wavs, fs, N, hop, n_filter_bands, n_ceps_coeff, plot_path, frame_size=32, ext=ext, plot=True)
+		mfcc_data, label_data, index_data = extract_mfcc_data(wavs, fs, N, hop, n_filter_bands, n_ceps_coeff, plot_path, frame_size=32, ext=ext, plot=False)
 
 		# set file name
-		file_name = '{}mfcc_data_{}_n-{}_c-{}_hop-{}.npz'.format(data_path, ext, n_examples, len(sel_labels), hop)
+		file_name = '{}mfcc_data_{}_n-{}_c-{}_v{}.npz'.format(data_path, ext, n_examples, len(sel_labels), version_nr)
 
 		# save mfcc data file
 		np.savez(file_name, x=mfcc_data, y=label_data, index=index_data, info=mfcc_info, params=audio_params)
