@@ -124,10 +124,13 @@ def audio_pre_processing(wav, fs, min_samples):
 	return x, fs
 
 
-def extract_mfcc_data(wavs, fs, N, hop, n_filter_bands, n_ceps_coeff, plot_path, frame_size=32, ext=None, min_samples=16000, plot=True):
+def extract_mfcc_data(wavs, params, frame_size=32, ext=None, min_samples=16000, plot_path=None):
 	"""
 	extract mfcc data from wav-files
 	"""
+
+	# extract params
+	fs, N, hop, n_filter_bands, n_ceps_coeff = params['fs'], params['N'], params['hop'], params['n_filter_bands'], params['n_ceps_coeff']
 
 	# init mfcc_data: [n x m x l] n samples, m features, l frames
 	mfcc_data = np.empty(shape=(0, 39, frame_size), dtype=np.float64)
@@ -169,8 +172,7 @@ def extract_mfcc_data(wavs, fs, N, hop, n_filter_bands, n_ceps_coeff, plot_path,
 		best_onset, bon_pos = find_best_onset(onsets, frame_size=frame_size, pre_frames=1)
 
 		# plot mfcc features
-		if plot:
-			plot_mfcc_profile(x, fs, N, hop, mfcc, plot_path, onsets, best_onset, frame_size, name=label + str(file_index) + '_' + ext)
+		plot_mfcc_profile(x, fs, N, hop, mfcc, onsets, best_onset, frame_size, plot_path, name=label + str(file_index) + '_' + ext)
 
 		# add to mfcc_data
 		mfcc_data = np.vstack((mfcc_data, mfcc[np.newaxis, :, bon_pos:bon_pos+frame_size]))
@@ -245,10 +247,10 @@ if __name__ == '__main__':
 	version_nr = 1
 
 	# num examples per class
-	#n_examples = 10
+	n_examples = 10
 	#n_examples = 100
 	#n_examples = 500
-	n_examples = 2000
+	#n_examples = 2000
 
 	# wav folder
 	wav_folder = 'wav_n-{}/'.format(n_examples)
@@ -316,7 +318,7 @@ if __name__ == '__main__':
 		# TODO: Only use meaning full vectors not noise
 
 		# extract data
-		mfcc_data, label_data, index_data = extract_mfcc_data(wavs, fs, N, hop, n_filter_bands, n_ceps_coeff, plot_path, frame_size=32, ext=ext, plot=False)
+		mfcc_data, label_data, index_data = extract_mfcc_data(wavs, audio_params, frame_size=32, ext=ext, plot_path=None)
 
 		# set file name
 		file_name = '{}mfcc_data_{}_n-{}_c-{}_v{}.npz'.format(data_path, ext, n_examples, len(sel_labels), version_nr)

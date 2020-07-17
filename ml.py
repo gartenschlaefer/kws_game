@@ -31,7 +31,7 @@ def extract_to_batches(mfcc_data_files, f=32, batch_size=4, window_step=16):
   data = [np.load(file, allow_pickle=True) for file in mfcc_data_files]
 
   # extract data
-  train_data, test_data, eval_data = data[0], data[1], data[2]
+  train_data, test_data, eval_data, my_data = data[0], data[1], data[2], data[3]
   #print("Container of train_data: ", train_data.files)
 
   # print some infos about data
@@ -49,12 +49,13 @@ def extract_to_batches(mfcc_data_files, f=32, batch_size=4, window_step=16):
   x_train, y_train = create_batches(train_data, classes, f, batch_size=batch_size, window_step=window_step, plot_shift=False)
   x_val, y_val = create_batches(eval_data, classes, f, batch_size=4, window_step=window_step)
   x_test, y_test = create_batches(test_data, classes, f, batch_size=4, window_step=window_step)
+  x_my, y_my = create_batches(my_data, classes, f, batch_size=1, window_step=window_step)
 
   # print training batches
   print("x_train_batches: ", x_train.shape)
   print("y_train_batches: ", y_train.shape)
 
-  return x_train, y_train, x_val, y_val, x_test, y_test, classes, n_examples_class
+  return x_train, y_train, x_val, y_val, x_test, y_test, x_my, y_my, classes, n_examples_class
 
 
 def create_batches(data, classes, f=32, batch_size=1, window_step=1, plot_shift=False):
@@ -401,7 +402,8 @@ if __name__ == '__main__':
   #mfcc_data_files = ['./ignore/train/mfcc_data_train_n-100_c-5.npz', './ignore/test/mfcc_data_test_n-100_c-5.npz', './ignore/eval/mfcc_data_eval_n-100_c-5.npz']
   #mfcc_data_files = ['./ignore/train/mfcc_data_train_n-500_c-5.npz', './ignore/test/mfcc_data_test_n-500_c-5.npz', './ignore/eval/mfcc_data_eval_n-500_c-5.npz']
   #mfcc_data_files = ['./ignore/train/mfcc_data_train_n-500_c-5_v1.npz', './ignore/test/mfcc_data_test_n-500_c-5_v1.npz', './ignore/eval/mfcc_data_eval_n-500_c-5_v1.npz']
-  mfcc_data_files = ['./ignore/train/mfcc_data_train_n-2000_c-5_v1.npz', './ignore/test/mfcc_data_test_n-2000_c-5_v1.npz', './ignore/eval/mfcc_data_eval_n-2000_c-5_v1.npz']
+  #mfcc_data_files = ['./ignore/train/mfcc_data_train_n-2000_c-5_v1.npz', './ignore/test/mfcc_data_test_n-2000_c-5_v1.npz', './ignore/eval/mfcc_data_eval_n-2000_c-5_v1.npz']
+  mfcc_data_files = ['./ignore/train/mfcc_data_train_n-2000_c-5_v1.npz', './ignore/test/mfcc_data_test_n-2000_c-5_v1.npz', './ignore/eval/mfcc_data_eval_n-2000_c-5_v1.npz', './ignore/my_recordings/mfcc_data_my_n-25_c-5_v1.npz']
 
   # plot path and model path
   plot_path, shift_path, metric_path, model_path = './ignore/plots/ml/', './ignore/plots/ml/shift/', './ignore/plots/ml/metrics/', './ignore/models/'
@@ -416,7 +418,7 @@ if __name__ == '__main__':
   f, batch_size, window_step = 32, 32, 16
 
   # params for training
-  num_epochs, lr, retrain = 25, 1e-4, True
+  num_epochs, lr, retrain = 200, 1e-4, False
 
   # nn architecture
   nn_architectures = ['conv-trad']
@@ -427,7 +429,7 @@ if __name__ == '__main__':
 
 
   # extract all necessary data batches
-  x_train, y_train, x_val, y_val, x_test, y_test, classes, n_examples_class = extract_to_batches(mfcc_data_files, f=f, batch_size=batch_size, window_step=window_step)
+  x_train, y_train, x_val, y_val, x_test, y_test, x_my, y_my, classes, n_examples_class = extract_to_batches(mfcc_data_files, f=f, batch_size=batch_size, window_step=window_step)
 
 
   # -- names:
@@ -479,17 +481,29 @@ if __name__ == '__main__':
 
 
   # --
-  # evaluation
+  # evaluation on test set
 
   print("\n--Evaluation on Test Set:")
 
   # evaluation of model
   eval_loss, acc, cm = eval_nn(model, x_test, y_test, classes, calc_cm=True)
-
   print("confusion matrix:\n", cm)
 
   # plot confusion matrix
-  plot_confusion_matrix(cm, classes, plot_path=plot_path, name='confusion_' + param_str)
+  plot_confusion_matrix(cm, classes, plot_path=plot_path, name='confusion_test' + param_str)
+
+
+  # --
+  # evaluation on my set
+
+  print("\n--Evaluation on My Set:")
+
+  # evaluation of model
+  eval_loss, acc, cm = eval_nn(model, x_my, y_my, classes, calc_cm=True)
+  print("confusion matrix:\n", cm)
+
+  # plot confusion matrix
+  plot_confusion_matrix(cm, classes, plot_path=plot_path, name='confusion_my' + param_str)
 
 
   plt.show()

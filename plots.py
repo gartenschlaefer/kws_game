@@ -11,6 +11,48 @@ from feature_extraction import onsets_to_onset_times
 from glob import glob
 
 
+def plot_waveform(x, fs, title='none', plot_path=None, name='None'):
+  """
+  just a simple waveform
+  """
+
+  # time vector
+  t = np.arange(0, len(x)/fs, 1/fs)
+
+  # setup figure
+  fig = plt.figure(figsize=(9, 5))
+  plt.plot(t, x)
+  plt.title(title)
+  plt.ylabel('magnitude')
+  plt.xlabel('time [s]')
+
+  # plot the fig
+  if plot_path is not None:
+    plt.savefig(plot_path + name + '.png', dpi=150)
+    plt.close()
+
+
+def plot_onsets(x, fs, N, hop, onsets, title='none', plot_path=None, name='None'):
+  """
+  plot waveform with onsets
+  """
+
+  # plot the waveform
+  plot_waveform(x, fs, title)
+  
+  # care for best onset
+  onset_times = onsets_to_onset_times(onsets, fs, N, hop) 
+
+  # draw onsets
+  for onset in onset_times:
+    plt.axvline(x=float(onset), dashes=(5, 1), color='k')
+
+  # plot the fig
+  if plot_path is not None:
+    plt.savefig(plot_path + name + '.png', dpi=150)
+    plt.close()
+
+
 def plot_confusion_matrix(cm, classes, plot_path=None, name='None'):
   """
   plot confusion matrix
@@ -90,7 +132,7 @@ def plot_val_acc(val_acc, plot_path=None, name='None'):
     #plt.close()
 
 
-def plot_mfcc_profile(x, fs, N, hop, mfcc, plot_path, onsets, best_onset, frame_size=32, name='None'):
+def plot_mfcc_profile(x, fs, N, hop, mfcc, onsets, best_onset, frame_size=32, plot_path=None, name='None'):
   """
   plot mfcc extracted features from audio file
   mfcc: [m x l]
@@ -164,7 +206,9 @@ def plot_mfcc_profile(x, fs, N, hop, mfcc, plot_path, onsets, best_onset, frame_
     ax = fig.add_subplot(gs[rs:re, n_cols-1])
     fig.colorbar(im, cax=ax)
 
-  plt.savefig(plot_path + 'mfcc-' + name + '.png', dpi=150)
+  # plot
+  if plot_path is not None:
+    plt.savefig(plot_path + 'mfcc-' + name + '.png', dpi=150)
   plt.close()
 
 
