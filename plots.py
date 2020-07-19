@@ -6,9 +6,27 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix
 
-from feature_extraction import onsets_to_onset_times
+from feature_extraction import onsets_to_onset_times, frames_to_time
 
 from glob import glob
+
+
+def plot_damaged_file_score(z, plot_path=None, name='z_score'):
+  """
+  damaged file score
+  """
+
+  # setup figure
+  fig = plt.figure(figsize=(9, 5))
+  plt.scatter(x=z, y=np.zeros(len(z)))
+  plt.ylabel('nothing')
+  plt.xlabel('score')
+  plt.grid()
+
+  # plot the fig
+  if plot_path is not None:
+    plt.savefig(plot_path + name + '.png', dpi=150)
+    plt.close()
 
 
 def plot_waveform(x, fs, title='none', plot_path=None, name='None'):
@@ -132,17 +150,22 @@ def plot_val_acc(val_acc, plot_path=None, name='None'):
     #plt.close()
 
 
-def plot_mfcc_profile(x, fs, N, hop, mfcc, onsets, best_onset, frame_size=32, plot_path=None, name='None'):
+def plot_mfcc_profile(x, fs, N, hop, mfcc, onsets, bon_pos, mient, minreg, frame_size=32, plot_path=None, name='None'):
   """
   plot mfcc extracted features from audio file
   mfcc: [m x l]
   """
 
+  # no plot generation
+  if plot_path is None:
+    return
+
   # onsets to time
   onset_times = onsets_to_onset_times(onsets, fs, N, hop)
 
   # care for best onset
-  best_onset_times = onsets_to_onset_times(np.logical_or(best_onset, np.roll(best_onset, frame_size)), fs, N, hop) 
+  #best_onset_times = onsets_to_onset_times(np.logical_or(best_onset, np.roll(best_onset, frame_size)), fs, N, hop) 
+  best_onset_times = frames_to_time(np.array([bon_pos, bon_pos+frame_size]), fs, hop)
 
   # time vector
   t = np.arange(0, len(x)/fs, 1/fs)
@@ -158,13 +181,17 @@ def plot_mfcc_profile(x, fs, N, hop, mfcc, onsets, best_onset, frame_size=32, pl
   ax = fig.add_subplot(gs[0:n_im_rows-1, :n_cols-2])
   ax.plot(t, x)
 
+  # min energy time
+  plt.axvline(x=mient, dashes=(5, 5), color='r', lw=2)
+  plt.axvline(x=minreg, dashes=(5, 5), color='g', lw=2)
+
   # draw onsets
   for onset in onset_times:
-    plt.axvline(x=float(onset), dashes=(5, 1), color='k')
+    plt.axvline(x=float(onset), dashes=(5, 1), color='k', lw=1)
 
   # best onset + frame
   for onset in best_onset_times:
-    plt.axvline(x=float(onset), dashes=(2, 2), color='b')
+    plt.axvline(x=float(onset), dashes=(3, 3), color='b')
 
   ax.grid()
   ax.set_title('time signal of ' + '"' + name + '"')

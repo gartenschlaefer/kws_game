@@ -19,7 +19,7 @@ import logging
 import time
 
 
-def extract_to_batches(mfcc_data_files, f=32, batch_size=4, window_step=16):
+def extract_to_batches(mfcc_data_files, f=32, batch_size=4):
   """
   extract data samples from files
   """
@@ -46,10 +46,10 @@ def extract_to_batches(mfcc_data_files, f=32, batch_size=4, window_step=16):
   n_examples_class = (len(train_data['x']) + len(test_data['x']) + len(eval_data['x'])) // len(classes)
 
   # create batches
-  x_train, y_train = create_batches(train_data, classes, f, batch_size=batch_size, window_step=window_step, plot_shift=False)
-  x_val, y_val = create_batches(eval_data, classes, f, batch_size=4, window_step=window_step)
-  x_test, y_test = create_batches(test_data, classes, f, batch_size=4, window_step=window_step)
-  x_my, y_my = create_batches(my_data, classes, f, batch_size=1, window_step=window_step)
+  x_train, y_train = create_batches(train_data, classes, f, batch_size=batch_size)
+  x_val, y_val = create_batches(eval_data, classes, f, batch_size=4)
+  x_test, y_test = create_batches(test_data, classes, f, batch_size=4)
+  x_my, y_my = create_batches(my_data, classes, f, batch_size=1)
 
   # print training batches
   print("x_train_batches: ", x_train.shape)
@@ -402,8 +402,9 @@ if __name__ == '__main__':
   #mfcc_data_files = ['./ignore/train/mfcc_data_train_n-100_c-5.npz', './ignore/test/mfcc_data_test_n-100_c-5.npz', './ignore/eval/mfcc_data_eval_n-100_c-5.npz']
   #mfcc_data_files = ['./ignore/train/mfcc_data_train_n-500_c-5.npz', './ignore/test/mfcc_data_test_n-500_c-5.npz', './ignore/eval/mfcc_data_eval_n-500_c-5.npz']
   #mfcc_data_files = ['./ignore/train/mfcc_data_train_n-500_c-5_v1.npz', './ignore/test/mfcc_data_test_n-500_c-5_v1.npz', './ignore/eval/mfcc_data_eval_n-500_c-5_v1.npz']
-  #mfcc_data_files = ['./ignore/train/mfcc_data_train_n-2000_c-5_v1.npz', './ignore/test/mfcc_data_test_n-2000_c-5_v1.npz', './ignore/eval/mfcc_data_eval_n-2000_c-5_v1.npz']
-  mfcc_data_files = ['./ignore/train/mfcc_data_train_n-2000_c-5_v1.npz', './ignore/test/mfcc_data_test_n-2000_c-5_v1.npz', './ignore/eval/mfcc_data_eval_n-2000_c-5_v1.npz', './ignore/my_recordings/mfcc_data_my_n-25_c-5_v1.npz']
+  #mfcc_data_files = ['./ignore/train/mfcc_data_train_n-500_c-5_v2.npz', './ignore/test/mfcc_data_test_n-500_c-5_v2.npz', './ignore/eval/mfcc_data_eval_n-500_c-5_v2.npz', './ignore/my_recordings/mfcc_data_my_n-25_c-5_v2.npz']
+  #mfcc_data_files = ['./ignore/train/mfcc_data_train_n-2000_c-5_v1.npz', './ignore/test/mfcc_data_test_n-2000_c-5_v1.npz', './ignore/eval/mfcc_data_eval_n-2000_c-5_v1.npz', './ignore/my_recordings/mfcc_data_my_n-25_c-5_v1.npz']
+  mfcc_data_files = ['./ignore/train/mfcc_data_train_n-2000_c-5_v2.npz', './ignore/test/mfcc_data_test_n-2000_c-5_v2.npz', './ignore/eval/mfcc_data_eval_n-2000_c-5_v2.npz', './ignore/my_recordings/mfcc_data_my_n-25_c-5_v2.npz']
 
   # plot path and model path
   plot_path, shift_path, metric_path, model_path = './ignore/plots/ml/', './ignore/plots/ml/shift/', './ignore/plots/ml/metrics/', './ignore/models/'
@@ -414,11 +415,19 @@ if __name__ == '__main__':
   # init logging
   init_logging()
 
+  # --
+  # version
+  # 1: better onset detection
+  # 2: energy frame onset detection
+
+  #version_id = 1
+  version_id = 2
+
   # batch stuff
-  f, batch_size, window_step = 32, 32, 16
+  f, batch_size = 32, 32
 
   # params for training
-  num_epochs, lr, retrain = 200, 1e-4, False
+  num_epochs, lr, retrain = 25, 1e-4, False
 
   # nn architecture
   nn_architectures = ['conv-trad']
@@ -429,7 +438,7 @@ if __name__ == '__main__':
 
 
   # extract all necessary data batches
-  x_train, y_train, x_val, y_val, x_test, y_test, x_my, y_my, classes, n_examples_class = extract_to_batches(mfcc_data_files, f=f, batch_size=batch_size, window_step=window_step)
+  x_train, y_train, x_val, y_val, x_test, y_test, x_my, y_my, classes, n_examples_class = extract_to_batches(mfcc_data_files, f=f, batch_size=batch_size)
 
 
   # -- names:
@@ -445,7 +454,7 @@ if __name__ == '__main__':
 
 
   # param string
-  param_str = '{}_n-{}_ws-{}_bs-{}_it-{}_lr-{}'.format(nn_arch, n_examples_class, window_step, batch_size, num_epochs, str(lr).replace('.', 'p'))
+  param_str = '{}_v{}_n-{}_bs-{}_it-{}_lr-{}'.format(nn_arch, version_id, n_examples_class, batch_size, num_epochs, str(lr).replace('.', 'p'))
 
   # model name
   model_path = model_path + param_str + '.pth'

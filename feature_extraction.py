@@ -4,6 +4,14 @@ feature extraction tools
 import numpy as np
 
 
+def frames_to_time(x, fs, hop):
+  """
+  transfer from frame space into time space (choose beginning of frame)
+  """
+
+  return x * hop / fs
+
+
 def compute_deltas(x):
   """
   compute deltas for mfcc [feature x frames]

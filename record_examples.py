@@ -139,7 +139,7 @@ if __name__ == '__main__':
 
   # extension for file name
   ext = 'my'
-  version_nr = 1
+  version_nr = 2
 
   # --
   # params
@@ -176,7 +176,7 @@ if __name__ == '__main__':
   info = "n_examples={} with data split {}, fs={}, mfcc: N={} is t={}, hop={} is t={}, n_f-bands={}, n_ceps_coeff={}".format(n_examples, [1], fs, N, N/fs, hop, hop/fs, n_filter_bands, n_ceps_coeff)
 
   # extract features
-  mfcc_data, label_data, index_data = extract_mfcc_data(wavs, params, frame_size=32, ext=ext, plot_path=None)
+  mfcc_data, label_data, index_data = extract_mfcc_data(wavs, params, frame_size=32, ext=ext, plot_path=plot_path)
 
   # set file name
   file_name = '{}mfcc_data_{}_n-{}_c-{}_v{}.npz'.format(root_path, ext, n_examples, len(labels), version_nr)
