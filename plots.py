@@ -29,7 +29,7 @@ def plot_damaged_file_score(z, plot_path=None, name='z_score'):
     plt.close()
 
 
-def plot_waveform(x, fs, title='none', plot_path=None, name='None'):
+def plot_waveform(x, fs, e=None, hop=None, onset_frames=None, title='none', xlim=None, ylim=None, plot_path=None, name='None'):
   """
   just a simple waveform
   """
@@ -40,9 +40,26 @@ def plot_waveform(x, fs, title='none', plot_path=None, name='None'):
   # setup figure
   fig = plt.figure(figsize=(9, 5))
   plt.plot(t, x)
+
+  # energy plot
+  if e is not None:
+    plt.plot(np.arange(0, len(x)/fs, 1/fs * hop), e)
+
+  # draw onsets
+  for onset in frames_to_time(onset_frames, fs, hop):
+    plt.axvline(x=float(onset), dashes=(5, 1), color='k')
+
   plt.title(title)
   plt.ylabel('magnitude')
   plt.xlabel('time [s]')
+
+  if xlim is not None:
+    plt.xlim(xlim)
+
+  if ylim is not None:
+    plt.ylim(ylim)
+
+  plt.grid()
 
   # plot the fig
   if plot_path is not None:

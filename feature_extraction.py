@@ -4,6 +4,25 @@ feature extraction tools
 import numpy as np
 
 
+def onset_energy_level(x, alpha=0.01):
+  """
+  onset detection with energy level
+  x: [n x c]
+  n: samples
+  c: channels
+  """
+
+  # x = x.copy()
+  # print("x: ", x.shape)
+  # print("x han: ", np.hanning(len(x)).shape)
+  # x = x * np.hanning(len(x))
+  # print("x: ", x.shape)
+
+  e = x.T @ x / len(x)
+
+  return e, e > alpha
+
+
 def frames_to_time(x, fs, hop):
   """
   transfer from frame space into time space (choose beginning of frame)
@@ -359,11 +378,28 @@ def create_frames(x, N, hop):
     if wi == win_num - 1 and r:
       windows[wi] = np.concatenate((x[wi * hop :], np.zeros(N - len(x[wi * hop :]))))
 
+      # add differ
+      #windows[wi] = add_dither(windows[wi])
+
     # no remainder
     else:
       windows[wi] = x[wi * hop : (wi * hop) + N]
 
   return windows
+
+
+def add_dither(x):
+  """
+  add a dither signal
+  """
+
+  # determine abs min value except from zero, for dithering
+  min_val = np.min(np.abs(x[np.abs(x)>0]))
+
+  # add some dither
+  x += np.random.normal(0, 0.5, len(x)) * min_val
+
+  return x
 
 
 if __name__ == '__main__':
