@@ -31,7 +31,7 @@ def extract_to_batches(mfcc_data_files, f=32, batch_size=4):
   data = [np.load(file, allow_pickle=True) for file in mfcc_data_files]
 
   # extract data
-  train_data, test_data, eval_data, my_data = data[0], data[1], data[2], data[3]
+  train_data, test_data, eval_data = data[0], data[1], data[2]
   #print("Container of train_data: ", train_data.files)
 
   # print some infos about data
@@ -46,16 +46,21 @@ def extract_to_batches(mfcc_data_files, f=32, batch_size=4):
   n_examples_class = (len(train_data['x']) + len(test_data['x']) + len(eval_data['x'])) // len(classes)
 
   # create batches
-  x_train, y_train = create_batches(train_data, classes, f, batch_size=batch_size)
-  x_val, y_val = create_batches(eval_data, classes, f, batch_size=4)
-  x_test, y_test = create_batches(test_data, classes, f, batch_size=4)
-  x_my, y_my = create_batches(my_data, classes, f, batch_size=1)
+  x_train, y_train, _ = create_batches(train_data, classes, f, batch_size=batch_size)
+  x_val, y_val, _ = create_batches(eval_data, classes, f, batch_size=4)
+  x_test, y_test, _ = create_batches(test_data, classes, f, batch_size=4)
+
+  # my data
+  if len(mfcc_data_files) == 4:
+    x_my, y_my, z_my = create_batches(data[3], classes, f, batch_size=1)
+  else:
+    x_my, y_my, z_my = None, None, None
 
   # print training batches
   print("x_train_batches: ", x_train.shape)
   print("y_train_batches: ", y_train.shape)
 
-  return x_train, y_train, x_val, y_val, x_test, y_test, x_my, y_my, classes, n_examples_class
+  return x_train, y_train, x_val, y_val, x_test, y_test, x_my, y_my, z_my, classes, n_examples_class
 
 
 def create_batches(data, classes, f=32, batch_size=1, window_step=1, plot_shift=False):
@@ -81,6 +86,7 @@ def create_batches(data, classes, f=32, batch_size=1, window_step=1, plot_shift=
   indices = np.random.permutation(x_data.shape[0])
   x = np.take(x_data, indices, axis=0)
   y = np.take(y_data, indices, axis=0)
+  z = np.take(index, indices, axis=0)
 
   # plot first example
   #fs, hop, z = params[()]['fs'], params[()]['hop'], np.take(index, indices, axis=0)
@@ -97,6 +103,7 @@ def create_batches(data, classes, f=32, batch_size=1, window_step=1, plot_shift=
   # init batches
   x_batches = torch.empty((batch_nums, batch_size, 39, f))
   y_batches = torch.empty((batch_nums, batch_size), dtype=torch.long)
+  z_batches = np.empty((batch_nums, batch_size), dtype=z.dtype)
 
   # batching
   for i in range(batch_nums):
@@ -107,6 +114,7 @@ def create_batches(data, classes, f=32, batch_size=1, window_step=1, plot_shift=
       # remaining examples
       r_x = x[i*batch_size:i*batch_size+r, :]
       r_y = y[i*batch_size:i*batch_size+r]
+      r_z = z[i*batch_size:i*batch_size+r]
 
       # pick random samples for filler
       random_samples = np.random.randint(0, high=len(y), size=batch_size-r)
@@ -114,10 +122,12 @@ def create_batches(data, classes, f=32, batch_size=1, window_step=1, plot_shift=
       # filling examples
       f_x = x[random_samples, :]
       f_y = y[random_samples]
+      f_z = z[random_samples]
 
       # concatenate remainder with random examples
       x_batches[i, :] = torch.from_numpy(np.concatenate((r_x, f_x)).astype(np.float32))
       y_batches[i, :] = get_index_of_class(np.concatenate((r_y, f_y)), classes, to_torch=True)
+      z_batches[i, :] = np.concatenate((r_z, f_z))
 
     # no remainder
     else:
@@ -125,11 +135,12 @@ def create_batches(data, classes, f=32, batch_size=1, window_step=1, plot_shift=
       # get batches
       x_batches[i, :] = torch.from_numpy(x[i*batch_size:i*batch_size+batch_size, :].astype(np.float32))
       y_batches[i, :] = get_index_of_class(y[i*batch_size:i*batch_size+batch_size], classes, to_torch=True)
+      z_batches[i, :] = z[i*batch_size:i*batch_size+batch_size]
 
   # prepare for training x: [num_batches x batch_size x channel x 39 x 32]
   x_batches = torch.unsqueeze(x_batches, 2)
 
-  return x_batches, y_batches
+  return x_batches, y_batches, z_batches
 
 
 def force_windowing():
@@ -284,7 +295,7 @@ def train_nn(model, x_train, y_train, x_val, y_val, classes, nn_arch, num_epochs
   return model, train_loss, val_loss, val_acc
 
 
-def eval_nn(model, x_batches, y_batches, classes, logging_enabled=True, calc_cm=False):
+def eval_nn(model, x_batches, y_batches, classes, z_batches=None, logging_enabled=True, calc_cm=False, verbose=False):
   """
   evaluation of nn
   """
@@ -323,7 +334,10 @@ def eval_nn(model, x_batches, y_batches, classes, logging_enabled=True, calc_cm=
         y_hat_all = np.append(y_hat_all, y_hat)
 
       # some prints
-      #print("\npred: {}\nactu: {}, \t corr: {} ".format(y_hat, y, (y_hat == y).sum().item()))
+      if verbose:
+        if z_batches is not None:
+          print("\nlabels: {}".format(z_batches[i]))
+        print("output: {}\npred: {}\nactu: {}, \t corr: {} ".format(o.data, y_hat, y, (y_hat == y).sum().item()))
 
   # print accuracy
   eval_log = "Eval: correct: [{} / {}] acc: [{:.4f}] with loss: [{:.4f}]\n".format(correct, total, 100 * correct / total, eval_loss)
@@ -369,20 +383,26 @@ def get_nn_model(nn_arch):
     # traditional conv-net
     model = ConvNetTrad()
 
+  elif nn_arch == 'conv-fstride':
+
+    # limited multipliers conv-net
+    model = ConvNetFstride4()
+
   else:
 
+    print("Network Architecture not found, uses: conf-trad")
     # traditional conv-net
     model = ConvNetTrad()
 
   return model
 
 
-def init_logging():
+def init_logging(log_path):
   """
   init logging stuff
   """
 
-  logging.basicConfig(filename='./ignore/logs/ml.log', level=logging.DEBUG, format='%(asctime)s %(message)s')
+  logging.basicConfig(filename=log_path + 'ml.log', level=logging.DEBUG, format='%(asctime)s %(message)s')
 
   # disable unwanted logs
   logging.getLogger('matplotlib.font_manager').disabled = True
@@ -405,15 +425,16 @@ if __name__ == '__main__':
   #mfcc_data_files = ['./ignore/train/mfcc_data_train_n-500_c-5_v2.npz', './ignore/test/mfcc_data_test_n-500_c-5_v2.npz', './ignore/eval/mfcc_data_eval_n-500_c-5_v2.npz', './ignore/my_recordings/mfcc_data_my_n-25_c-5_v2.npz']
   #mfcc_data_files = ['./ignore/train/mfcc_data_train_n-2000_c-5_v1.npz', './ignore/test/mfcc_data_test_n-2000_c-5_v1.npz', './ignore/eval/mfcc_data_eval_n-2000_c-5_v1.npz', './ignore/my_recordings/mfcc_data_my_n-25_c-5_v1.npz']
   mfcc_data_files = ['./ignore/train/mfcc_data_train_n-2000_c-5_v2.npz', './ignore/test/mfcc_data_test_n-2000_c-5_v2.npz', './ignore/eval/mfcc_data_eval_n-2000_c-5_v2.npz', './ignore/my_recordings/mfcc_data_my_n-25_c-5_v2.npz']
+  #mfcc_data_files = ['./ignore/train/mfcc_data_train_n-2000_c-5_v2.npz', './ignore/test/mfcc_data_test_n-2000_c-5_v2.npz', './ignore/eval/mfcc_data_eval_n-2000_c-5_v2.npz']
 
   # plot path and model path
-  plot_path, shift_path, metric_path, model_path = './ignore/plots/ml/', './ignore/plots/ml/shift/', './ignore/plots/ml/metrics/', './ignore/models/'
+  plot_path, shift_path, metric_path, model_path, log_path = './ignore/plots/ml/', './ignore/plots/ml/shift/', './ignore/plots/ml/metrics/', './ignore/models/', './ignore/logs/'
 
   # create folder
-  create_folder([plot_path, shift_path, metric_path, model_path])
+  create_folder([plot_path, shift_path, metric_path, model_path, log_path])
 
   # init logging
-  init_logging()
+  init_logging(log_path)
 
   # --
   # version
@@ -423,22 +444,27 @@ if __name__ == '__main__':
   #version_id = 1
   version_id = 2
 
-  # batch stuff
-  f, batch_size = 32, 32
+  # frame size and batch size
+  f, batch_size = 32, 16
 
   # params for training
-  num_epochs, lr, retrain = 25, 1e-4, False
+  num_epochs, lr, retrain = 1000, 1e-3, False
 
   # nn architecture
-  nn_architectures = ['conv-trad']
+  nn_architectures = ['conv-trad', 'conv-fstride']
 
   # select architecture
-  nn_arch = nn_architectures[0]
+  nn_arch = nn_architectures[1]
 
 
 
   # extract all necessary data batches
-  x_train, y_train, x_val, y_val, x_test, y_test, x_my, y_my, classes, n_examples_class = extract_to_batches(mfcc_data_files, f=f, batch_size=batch_size)
+  x_train, y_train, x_val, y_val, x_test, y_test, x_my, y_my, z_my, classes, n_examples_class = extract_to_batches(mfcc_data_files, f=f, batch_size=batch_size)
+
+  print("classes: ", classes)
+
+  # create class dict
+  class_dict = {name : i for i, name in enumerate(classes)}
 
 
   # -- names:
@@ -456,9 +482,6 @@ if __name__ == '__main__':
   # param string
   param_str = '{}_v{}_n-{}_bs-{}_it-{}_lr-{}'.format(nn_arch, version_id, n_examples_class, batch_size, num_epochs, str(lr).replace('.', 'p'))
 
-  # model name
-  model_path = model_path + param_str + '.pth'
-
   # init model
   model = get_nn_model(nn_arch)
 
@@ -467,15 +490,16 @@ if __name__ == '__main__':
   # training
 
   # check if model already exists
-  if not os.path.exists(model_path) or retrain:
+  if not os.path.exists(model_path + param_str + '.pth') or retrain:
 
     # train
     model, train_loss, val_loss, val_acc = train_nn(model, x_train, y_train, x_val, y_val, classes, nn_arch, num_epochs=num_epochs, lr=lr, param_str=param_str)
 
     # save model
-    torch.save(model.state_dict(), model_path)
+    torch.save(model.state_dict(), model_path + param_str + '.pth')
 
-    # save metrics
+    # save infos
+    np.savez(model_path + param_str + '.npz', param_str=param_str, class_dict=class_dict, model_file_path=model_path + param_str + '.npz')
     np.savez(metric_path + 'metrics_' + param_str + '.npz', train_loss=train_loss, val_loss=val_loss, val_acc=val_acc)
 
     # plots
@@ -486,7 +510,10 @@ if __name__ == '__main__':
   else:
 
     # load
-    model.load_state_dict(torch.load(model_path))
+    model.load_state_dict(torch.load(model_path + param_str + '.pth'))
+
+    # save infos
+    np.savez(model_path + param_str + '.npz', param_str=param_str, class_dict=class_dict)
 
 
   # --
@@ -499,21 +526,21 @@ if __name__ == '__main__':
   print("confusion matrix:\n", cm)
 
   # plot confusion matrix
-  plot_confusion_matrix(cm, classes, plot_path=plot_path, name='confusion_test' + param_str)
+  plot_confusion_matrix(cm, classes, plot_path=plot_path, name='confusion_test_' + param_str)
 
 
   # --
   # evaluation on my set
+  if x_my is not None:
 
-  print("\n--Evaluation on My Set:")
+    print("\n--Evaluation on My Set:")
 
-  # evaluation of model
-  eval_loss, acc, cm = eval_nn(model, x_my, y_my, classes, calc_cm=True)
-  print("confusion matrix:\n", cm)
+    # evaluation of model
+    eval_loss, acc, cm = eval_nn(model, x_my, y_my, classes, z_batches=z_my, calc_cm=True, verbose=True)
+    print("confusion matrix:\n", cm)
 
-  # plot confusion matrix
-  plot_confusion_matrix(cm, classes, plot_path=plot_path, name='confusion_my' + param_str)
-
+    # plot confusion matrix
+    plot_confusion_matrix(cm, classes, plot_path=plot_path, name='confusion_my_' + param_str)
 
   plt.show()
 

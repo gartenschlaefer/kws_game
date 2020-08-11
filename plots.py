@@ -46,8 +46,9 @@ def plot_waveform(x, fs, e=None, hop=None, onset_frames=None, title='none', xlim
     plt.plot(np.arange(0, len(x)/fs, 1/fs * hop), e)
 
   # draw onsets
-  for onset in frames_to_time(onset_frames, fs, hop):
-    plt.axvline(x=float(onset), dashes=(5, 1), color='k')
+  if onset_frames is not None:
+    for onset in frames_to_time(onset_frames, fs, hop):
+      plt.axvline(x=float(onset), dashes=(5, 1), color='k')
 
   plt.title(title)
   plt.ylabel('magnitude')
@@ -73,7 +74,7 @@ def plot_onsets(x, fs, N, hop, onsets, title='none', plot_path=None, name='None'
   """
 
   # plot the waveform
-  plot_waveform(x, fs, title)
+  plot_waveform(x, fs, title=title)
   
   # care for best onset
   onset_times = onsets_to_onset_times(onsets, fs, N, hop) 

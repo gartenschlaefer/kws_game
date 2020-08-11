@@ -1,5 +1,5 @@
 """
-Machine Learning file for training and evaluating the model
+extract examples from recorded files in .wav format
 """
 
 import numpy as np
@@ -97,6 +97,7 @@ def cut_and_copy_wavs(wavs, wav_path, plot_path, recut=True):
     label_list = np.append(label_list, label)
 
     if recut == False:
+      print("***recut disabled!!!")
       continue
 
     # read audio from file
@@ -104,7 +105,7 @@ def cut_and_copy_wavs(wavs, wav_path, plot_path, recut=True):
 
     # calc onsets
     onsets = calc_onsets(x, fs, N=N, hop=hop, adapt_frames=5, adapt_alpha=0.09, adapt_beta=0.8)
-    onsets = clean_onsets(onsets, frame_length=32*2)
+    onsets = clean_onsets(onsets, frame_length=32*5)
 
     # cut examples to one second
     x_cut = cut_signal(x, fs, onsets, hop, time=1, alpha=0.4)
@@ -161,7 +162,7 @@ if __name__ == '__main__':
   raw_wavs = glob(in_path + '*.wav')
 
   # cut them to single wavs
-  labels = cut_and_copy_wavs(raw_wavs, wav_path, plot_path, recut=False)
+  labels = cut_and_copy_wavs(raw_wavs, wav_path, plot_path, recut=True)
 
 
   # --
