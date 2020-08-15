@@ -20,7 +20,7 @@ class ConvNetTrad(nn.Module):
   presented in [Sainath 2015] - cnn-trad-fpool3
   """
 
-  def __init__(self):
+  def __init__(self, n_classes):
     """
     define neural network architecture
     input: [m x f]
@@ -43,7 +43,10 @@ class ConvNetTrad(nn.Module):
     # fully connected layers with affine transformations: y = Wx + b
     self.fc1 = nn.Linear(1280, 32)
     self.fc2 = nn.Linear(32, 128)
-    self.fc3 = nn.Linear(128, 5)
+    self.fc3 = nn.Linear(128, n_classes)
+
+    # softmax layer
+    self.softmax = nn.Softmax(dim=1)
 
 
   def forward(self, x):
@@ -69,8 +72,8 @@ class ConvNetTrad(nn.Module):
     # 2. fully connected layers [1 x 128]
     x = F.relu(self.fc2(x))
 
-    # final fully connected layer [1 x 5]
-    x = self.fc3(x)
+    # Softmax layer [1 x n_classes]
+    x = self.softmax(self.fc3(x))
 
     return x
 
@@ -82,7 +85,7 @@ class ConvNetFstride4(nn.Module):
   presented in [Sainath 2015] - cnn-one-fstride4
   """
 
-  def __init__(self):
+  def __init__(self, n_classes):
     """
     define neural network architecture
     input: [m x f]
@@ -100,7 +103,7 @@ class ConvNetFstride4(nn.Module):
     self.fc1 = nn.Linear(432, 32)
     self.fc2 = nn.Linear(32, 128)
     self.fc3 = nn.Linear(128, 128)
-    self.fc4 = nn.Linear(128, 5)
+    self.fc4 = nn.Linear(128, n_classes)
 
     # softmax layer
     self.softmax = nn.Softmax(dim=1)
@@ -126,7 +129,7 @@ class ConvNetFstride4(nn.Module):
     # 3. fully connected layers [1 x 128]
     x = F.relu(self.fc3(x))
 
-    # Softmax layer [1 x 5]
+    # Softmax layer [1 x n_classes]
     x = self.softmax(self.fc4(x))
 
     return x

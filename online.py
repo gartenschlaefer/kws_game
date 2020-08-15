@@ -51,22 +51,17 @@ def read_mic_data(collector):
     # get data
     x = q.get_nowait()
 
-    #print("data: ", x.shape)
-
-    # mean energy: 0.0002405075
-
-    # detect onset
-    e_onset, is_onset = onset_energy_level(x, alpha=0.001)
+    # detect onset - mean energy: 0.0002405075
+    #e_onset, is_onset = onset_energy_level(x, alpha=0.001)
+    e_onset, is_onset = onset_energy_level(x, alpha=0.0001)
     e = np.append(e, e_onset)
-    #print("energy: ", e)
 
     # collection update
-    collector.update_collect(x)
+    collector.update_collect(x.copy())
     
-
   # no data
   except queue.Empty:
-    return x, e, False
+    return x, e, is_onset
 
   return x, e, is_onset
 
@@ -80,7 +75,7 @@ def stop_mic_condition(x, fs, time_duration):
   return x.shape[0] < (time_duration * fs)
 
 
-def classify_sample(model, x):
+def classify_sample(model, x, class_dict, verbose=True):
   """
   classification by neural network
   """
@@ -97,7 +92,31 @@ def classify_sample(model, x):
     # prediction
     _, y_hat = torch.max(o.data, 1)
 
-    print("prediction: ", y_hat)
+    if verbose:
+      print("\nnew sample:\nprediction: {} - {}\noutput: {}".format(y_hat, list(class_dict.keys())[list(class_dict.values()).index(int(y_hat))], o.data))
+
+
+def extract_model(file):
+  """
+  extract model from info file
+  """
+
+  # data loading
+  data = np.load(file, allow_pickle=True)
+
+  # print info
+  print("\nextract model with params: {}\nand class dict: {}".format(data['param_str'], data['class_dict']))
+  
+  # extract data
+  nn_arch, class_dict, path_to_file = data['params'][()]['nn_arch'], data['class_dict'][()], str(data['model_file_path'])
+
+  # init model
+  model = get_nn_model(nn_arch, n_classes=len(class_dict))
+
+  # load model
+  model.load_state_dict(torch.load(path_to_file))
+
+  return model, class_dict
 
 
 if __name__ == '__main__':
@@ -107,28 +126,22 @@ if __name__ == '__main__':
 
   # path
   plot_path,  model_path = './ignore/plots/mic/', './ignore/models/'
-  
+
   # create folder
   create_folder([plot_path])
 
-  # var selection for model
-  nn_arch, version_id, n_examples_class, batch_size, num_epochs, lr = 'conv-trad', 2, 2000, 32, 200, 1e-4
+  # model name
+  model_name = 'best_model_c-5.npz'
 
-  # init model
-  model = get_nn_model(nn_arch)
-
-  # param string
-  param_str = '{}_v{}_n-{}_bs-{}_it-{}_lr-{}'.format(nn_arch, version_id, n_examples_class, batch_size, num_epochs, str(lr).replace('.', 'p'))
-
-  # load model
-  model.load_state_dict(torch.load(model_path + param_str + '.pth'))
+  # extract model from file data
+  model, class_dict = extract_model(model_path + model_name)
 
 
   # --
   # read mic input
 
   # params
-  fs, time_duration = 16000, 1
+  fs, time_duration = 16000, 5
 
   # window and hop size
   N, hop = int(0.025 * fs), int(0.010 * fs)
@@ -141,7 +154,6 @@ if __name__ == '__main__':
   # input collector class
   collector = Collector()
   
-
   # setup stream sounddevice
   stream = sd.InputStream(samplerate=fs, blocksize=hop, channels=1, callback=callback_mic)
 
@@ -156,8 +168,9 @@ if __name__ == '__main__':
     # sleep caller
     #sd.sleep(int(1 * 1000))
     
-    print("recording for {}s ...".format(time_duration))
-    # run forever
+    print("--recording for {}s ...".format(time_duration))
+
+    # loop
     while stop_mic_condition(x, fs, time_duration):
 
       # read chunk
@@ -183,26 +196,23 @@ if __name__ == '__main__':
 
       # collection is full
       if collector.is_full():
-        print("yey full collection")
 
         # read out collection
         x_onset = collector.read_collection()
 
         # mfcc
         mfcc = calc_mfcc39(x_onset, fs, N=N, hop=hop, n_filter_bands=32, n_ceps_coeff=12)
-        print("mfcc: ", mfcc.shape)
+
+        # plot profile
+        plot_mfcc_profile(x_onset, fs, N, hop, mfcc, frame_size=32, plot_path=plot_path, name='collect-{}'.format(collector.collection_counter))
 
         # classify collection
-        classify_sample(model, mfcc)
+        classify_sample(model, mfcc, class_dict)
 
 
 
-  
-  print("x: ", x.shape)
-  print("x: ", energy_list.shape)
-
-  print("mean energy: ", np.mean(energy_list))
-
+  # some more prints
+  print("\n--end of recording\nx: {}, x_energy: {}\ncollections: {}\nmean energy: {}".format(x.shape, energy_list.shape, collector.collection_counter, np.mean(energy_list)))
 
   plot_waveform(x, fs, energy_list * 10, hop, onset_frames, title='input stream', ylim=(-1, 1), plot_path=None, name='None')
   plt.show()

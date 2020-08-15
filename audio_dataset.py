@@ -113,7 +113,11 @@ def audio_pre_processing(wav, fs, min_samples):
 		x_raw = np.append(x_raw, np.zeros(min_samples - len(x_raw)))
 
 	# determine abs min value except from zero, for dithering
-	min_val = np.min(np.abs(x_raw[np.abs(x_raw)>0]))
+	try:
+		min_val = np.min(np.abs(x_raw[np.abs(x_raw)>0]))
+	except:
+		print("only zeros in this file")
+		min_val = 1e-4
 
 	# add some dither
 	x_raw += np.random.normal(0, 0.5, len(x_raw)) * min_val
@@ -338,7 +342,8 @@ if __name__ == '__main__':
 	#n_examples, n_data = 12, 10
 	#n_examples, n_data = 70, 50
 	#n_examples, n_data = 550, 500
-	n_examples, n_data = 2200, 2000
+	#n_examples, n_data = 2200, 2000
+	n_examples, n_data = 1700, 1500
 
 	# plot path
 	plot_path = './ignore/plots/features/n{}/'.format(n_examples)
@@ -357,7 +362,8 @@ if __name__ == '__main__':
 
 	# select labels from
 	# ['eight', 'sheila', 'nine', 'yes', 'one', 'no', 'left', 'tree', 'bed', 'bird', 'go', 'wow', 'seven', 'marvin', 'dog', 'three', 'two', 'house', 'down', 'six', 'five', 'off', 'right', 'cat', 'zero', 'four', 'stop', 'up', 'on', 'happy']
-	sel_labels = ['left', 'right', 'up', 'down', 'go']
+	#sel_labels = ['left', 'right', 'up', 'down', 'go']
+	sel_labels = ['eight', 'sheila', 'nine', 'yes', 'one', 'no', 'left', 'tree', 'bed', 'bird', 'go', 'wow', 'seven', 'marvin', 'dog', 'three', 'two', 'house', 'down', 'six', 'five', 'off', 'right', 'cat', 'zero', 'four', 'stop', 'up', 'on', 'happy']
 
 	# list labels
 	print("labels: ", labels)

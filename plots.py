@@ -95,7 +95,7 @@ def plot_confusion_matrix(cm, classes, plot_path=None, name='None'):
   """
 
   # init plot
-  fig, ax = plt.subplots( figsize=(8, 6) )
+  fig, ax = plt.subplots( figsize=(8, 8) )
   im = ax.imshow(cm, cmap=plt.cm.Blues)
 
   # text handling
@@ -116,6 +116,10 @@ def plot_confusion_matrix(cm, classes, plot_path=None, name='None'):
   ax.set_yticks(np.arange(len(classes)))
   ax.set_xticklabels(classes)
   ax.set_yticklabels(classes)
+
+  plt.xticks(fontsize=10, rotation=90)
+  plt.yticks(fontsize=10, rotation=0)
+
   plt.xlabel('predicted labels')
   plt.ylabel('true labels')
 
@@ -168,7 +172,7 @@ def plot_val_acc(val_acc, plot_path=None, name='None'):
     #plt.close()
 
 
-def plot_mfcc_profile(x, fs, N, hop, mfcc, onsets, bon_pos, mient, minreg, frame_size=32, plot_path=None, name='None'):
+def plot_mfcc_profile(x, fs, N, hop, mfcc, onsets=None, bon_pos=None, mient=None, minreg=None, frame_size=32, plot_path=None, name='None'):
   """
   plot mfcc extracted features from audio file
   mfcc: [m x l]
@@ -177,13 +181,6 @@ def plot_mfcc_profile(x, fs, N, hop, mfcc, onsets, bon_pos, mient, minreg, frame
   # no plot generation
   if plot_path is None:
     return
-
-  # onsets to time
-  onset_times = onsets_to_onset_times(onsets, fs, N, hop)
-
-  # care for best onset
-  #best_onset_times = onsets_to_onset_times(np.logical_or(best_onset, np.roll(best_onset, frame_size)), fs, N, hop) 
-  best_onset_times = frames_to_time(np.array([bon_pos, bon_pos+frame_size]), fs, hop)
 
   # time vector
   t = np.arange(0, len(x)/fs, 1/fs)
@@ -199,17 +196,27 @@ def plot_mfcc_profile(x, fs, N, hop, mfcc, onsets, bon_pos, mient, minreg, frame
   ax = fig.add_subplot(gs[0:n_im_rows-1, :n_cols-2])
   ax.plot(t, x)
 
-  # min energy time
-  plt.axvline(x=mient, dashes=(5, 5), color='r', lw=2)
-  plt.axvline(x=minreg, dashes=(5, 5), color='g', lw=2)
 
-  # draw onsets
-  for onset in onset_times:
-    plt.axvline(x=float(onset), dashes=(5, 1), color='k', lw=1)
+  # min energy time and region
+  if mient is not None:
+    plt.axvline(x=mient, dashes=(5, 5), color='r', lw=2)
+  if minreg is not None:
+    plt.axvline(x=minreg, dashes=(5, 5), color='g', lw=2)
 
-  # best onset + frame
-  for onset in best_onset_times:
-    plt.axvline(x=float(onset), dashes=(3, 3), color='b')
+  if onsets is not None:
+    # onsets to time
+    onset_times = onsets_to_onset_times(onsets, fs, N, hop)
+    # draw onsets
+    for onset in onset_times:
+      plt.axvline(x=float(onset), dashes=(5, 1), color='k', lw=1)
+
+  if bon_pos is not None:
+    # care for best onset
+    #best_onset_times = onsets_to_onset_times(np.logical_or(best_onset, np.roll(best_onset, frame_size)), fs, N, hop) 
+    best_onset_times = frames_to_time(np.array([bon_pos, bon_pos+frame_size]), fs, hop)
+    # best onset + frame
+    for onset in best_onset_times:
+      plt.axvline(x=float(onset), dashes=(3, 3), color='b')
 
   ax.grid()
   ax.set_title('time signal of ' + '"' + name + '"')

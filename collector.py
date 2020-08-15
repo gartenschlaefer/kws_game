@@ -31,6 +31,9 @@ class Collector:
     # size of pre frames for update
     self.update_size = update_size
 
+    # amount of full collections
+    self.collection_counter = 0
+
 
   def start_collecting(self):
     """
@@ -68,16 +71,17 @@ class Collector:
 
     self.is_collecting = False
 
+    # reset x
+    self.x = np.empty(shape=(0), dtype=np.float32)
+
     # read out elements
     while not self.qu.empty():
       self.x = np.concatenate((self.x, self.qu.get_nowait()))
 
-    y = self.x.copy()
+    # update collection counter
+    self.collection_counter += 1
 
-    # reset x
-    self.x = np.empty(shape=(0), dtype=np.float32)
-
-    return y
+    return self.x
 
 
   def is_full(self):
