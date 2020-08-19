@@ -5,7 +5,7 @@ building a simple grid world
 import pygame
 import numpy as np
 
-from wall import Wall
+from wall import Wall, MovableWall
 
 
 class GridWorld():
@@ -29,6 +29,11 @@ class GridWorld():
 		self.wall_grid = np.zeros(self.grid_size)
 		self.wall_sprites = pygame.sprite.Group()
 
+		# create empty movable wall grid
+		self.move_wall_grid = np.zeros(self.grid_size)
+		self.move_walls = []
+		self.move_wall_sprites = pygame.sprite.Group()
+
 		# some prints
 		print("grid size: ", self.grid_size)
 
@@ -41,19 +46,56 @@ class GridWorld():
 		# TODO: destroy all walls
 
 		for i, wall_row in enumerate(self.wall_grid):
-
 			for j, wall in enumerate(wall_row):
 
 				# wall found
 				if wall:
 
 					print("create wall at {}, {}".format(i, j))
+
 					# create wall element at pixel position
 					wall = Wall(position=np.array([i, j])*self.pixel_size, size=self.pixel_size)
 
 					# add to sprite groups
 					self.wall_sprites.add(wall)
 
+		# movable walls
+		for i, move_wall_row in enumerate(self.move_wall_grid):
+			for j, move_wall in enumerate(move_wall_row):
+
+				# movable wall found
+				if move_wall:
+
+					print("create move wall at {}, {}".format(i, j))
+
+					# create wall element at pixel position
+					move_wall = MovableWall(position=np.array([i, j])*self.pixel_size, color=(10, 100, 100), size=self.pixel_size)
+
+					self.move_walls.append(move_wall)
+
+					# move able wall sees wall
+					move_wall.walls = self.wall_sprites
+
+					# add to sprite groups
+					self.move_wall_sprites.add(move_wall)
+
+
+	def event_move_walls(self, event):
+		"""
+		event handling for move walls
+		"""
+
+		for wall in self.move_walls:
+			wall.input_handler.handle(event)
+
+
+	def event_update(self, event):
+		"""
+		event update of grid world
+		"""
+
+		# events of move walls
+		self.event_move_walls(event)
 
 
 if __name__ == '__main__':
@@ -82,8 +124,19 @@ if __name__ == '__main__':
 
 	# set walls
 	grid_world.wall_grid[:, 0] = 1
+	grid_world.wall_grid[5, 5] = 1
+	grid_world.move_wall_grid[8, 8] = 1
+	grid_world.move_wall_grid[10, 15] = 1
 	grid_world.create_walls()
-	all_sprites.add(grid_world.wall_sprites)
+
+	# set only one moveable_wall active
+	for w in grid_world.move_walls:
+		w.is_active = False
+
+	grid_world.move_walls[0].is_active = True
+
+
+	all_sprites.add(grid_world.wall_sprites, grid_world.move_wall_sprites)
 
 	# add clock
 	clock = pygame.time.Clock()
@@ -94,6 +147,12 @@ if __name__ == '__main__':
 			if event.type == pygame.QUIT: 
 				run_loop = False
 
+			# input handling of henry
+			grid_world.event_update(event)
+
+
+		# update sprites
+		all_sprites.update()
 
 		# fill screen
 		screen.fill(background_color)

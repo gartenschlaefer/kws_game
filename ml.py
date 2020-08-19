@@ -438,16 +438,15 @@ if __name__ == '__main__':
   """
 
   # path to train, test and eval set
-  #mfcc_data_files = ['./ignore/train/mfcc_data_train_n-10_c-5_v1.npz', './ignore/test/mfcc_data_test_n-10_c-5_v1.npz', './ignore/eval/mfcc_data_eval_n-10_c-5_v1.npz']
-  #mfcc_data_files = ['./ignore/train/mfcc_data_train_n-100_c-5.npz', './ignore/test/mfcc_data_test_n-100_c-5.npz', './ignore/eval/mfcc_data_eval_n-100_c-5.npz']
-  #mfcc_data_files = ['./ignore/train/mfcc_data_train_n-500_c-5.npz', './ignore/test/mfcc_data_test_n-500_c-5.npz', './ignore/eval/mfcc_data_eval_n-500_c-5.npz']
-  #mfcc_data_files = ['./ignore/train/mfcc_data_train_n-500_c-5_v1.npz', './ignore/test/mfcc_data_test_n-500_c-5_v1.npz', './ignore/eval/mfcc_data_eval_n-500_c-5_v1.npz']
-  #mfcc_data_files = ['./ignore/train/mfcc_data_train_n-500_c-5_v2.npz', './ignore/test/mfcc_data_test_n-500_c-5_v2.npz', './ignore/eval/mfcc_data_eval_n-500_c-5_v2.npz', './ignore/my_recordings/mfcc_data_my_n-25_c-5_v2.npz']
-  #mfcc_data_files = ['./ignore/train/mfcc_data_train_n-2000_c-5_v1.npz', './ignore/test/mfcc_data_test_n-2000_c-5_v1.npz', './ignore/eval/mfcc_data_eval_n-2000_c-5_v1.npz', './ignore/my_recordings/mfcc_data_my_n-25_c-5_v1.npz']
+
+  # c=5, with my stuff
+  mfcc_data_files = ['./ignore/train/mfcc_data_train_n-2000_c-5_v2.npz', './ignore/test/mfcc_data_test_n-2000_c-5_v2.npz', './ignore/eval/mfcc_data_eval_n-2000_c-5_v2.npz', './ignore/my_recordings/mfcc_data_my_n-25_c-5_v2.npz']
   
-  #mfcc_data_files = ['./ignore/train/mfcc_data_train_n-2000_c-5_v2.npz', './ignore/test/mfcc_data_test_n-2000_c-5_v2.npz', './ignore/eval/mfcc_data_eval_n-2000_c-5_v2.npz', './ignore/my_recordings/mfcc_data_my_n-25_c-5_v2.npz']
   #mfcc_data_files = ['./ignore/train/mfcc_data_train_n-2000_c-5_v2.npz', './ignore/test/mfcc_data_test_n-2000_c-5_v2.npz', './ignore/eval/mfcc_data_eval_n-2000_c-5_v2.npz']
-  mfcc_data_files = ['./ignore/train/mfcc_data_train_n-1500_c-30_v2.npz', './ignore/test/mfcc_data_test_n-1500_c-30_v2.npz', './ignore/eval/mfcc_data_eval_n-1500_c-30_v2.npz']
+  
+  # c=30
+  #mfcc_data_files = ['./ignore/train/mfcc_data_train_n-1500_c-30_v2.npz', './ignore/test/mfcc_data_test_n-1500_c-30_v2.npz', './ignore/eval/mfcc_data_eval_n-1500_c-30_v2.npz']
+
 
   # plot path and model path
   plot_path, shift_path, metric_path, model_path, model_pre_path, log_path = './ignore/plots/ml/', './ignore/plots/ml/shift/', './ignore/plots/ml/metrics/', './ignore/models/', './ignore/models/pre/', './ignore/logs/'
@@ -467,10 +466,10 @@ if __name__ == '__main__':
   version_id = 2
 
   # frame size and batch size
-  f, batch_size = 32, 128
+  f, batch_size = 32, 32
 
   # params for training
-  num_epochs, lr, retrain = 1000, 1e-5, False
+  num_epochs, lr, retrain = 2000, 1e-4, False
 
   # nn architecture
   nn_architectures = ['conv-trad', 'conv-fstride']
@@ -479,10 +478,10 @@ if __name__ == '__main__':
   nn_arch = nn_architectures[1]
 
   # pretrained model
-  #pre_trained_model_path = None
   #pre_trained_model_path = model_path + 'conv-fstride_v2_c-30_n-1500_bs-128_it-2000_lr-0p001.pth'
   #pre_trained_model_path = model_path + 'conv-fstride_v2_c-30_n-1500_bs-32_it-1000_lr-0p001_pre.pth'
-  pre_trained_model_path = model_pre_path + 'conv-fstride_c-30.pth'
+  #pre_trained_model_path = model_pre_path + 'conv-fstride_c-30.pth'
+  pre_trained_model_path = None
 
 
 
@@ -543,8 +542,8 @@ if __name__ == '__main__':
     np.savez(metric_path + 'metrics_' + param_str + '.npz', train_loss=train_loss, val_loss=val_loss, val_acc=val_acc)
 
     # plots
-    plot_train_loss(train_loss, val_loss, plot_path, name='train_loss_' + param_str)
-    plot_val_acc(val_acc, plot_path, name='val_acc_' + param_str)
+    plot_train_loss(train_loss, val_loss, plot_path, name=param_str + '_train_loss')
+    plot_val_acc(val_acc, plot_path, name=param_str + '_val_acc')
 
   # load model params from file
   else:
@@ -566,7 +565,7 @@ if __name__ == '__main__':
   print("confusion matrix:\n", cm)
 
   # plot confusion matrix
-  plot_confusion_matrix(cm, classes, plot_path=plot_path, name='confusion_test_' + param_str)
+  plot_confusion_matrix(cm, classes, plot_path=plot_path, name=param_str + '_confusion_test')
 
 
   # --
@@ -580,7 +579,7 @@ if __name__ == '__main__':
     print("confusion matrix:\n", cm)
 
     # plot confusion matrix
-    plot_confusion_matrix(cm, classes, plot_path=plot_path, name='confusion_my_' + param_str)
+    plot_confusion_matrix(cm, classes, plot_path=plot_path, name=param_str + '_confusion_my')
 
   plt.show()
 

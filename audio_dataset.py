@@ -180,7 +180,7 @@ def extract_mfcc_data(wavs, params, frame_size=32, ext=None, min_samples=16000, 
 		z_score_list = np.append(z_score_list, z_score)
 
 		# plot mfcc features
-		plot_mfcc_profile(x, fs, N, hop, mfcc, onsets, bon_pos, mient, minreg, frame_size, plot_path, name=label + str(file_index) + '_' + ext)
+		plot_mfcc_profile(x, fs, N, hop, mfcc, onsets=None, bon_pos=bon_pos, mient=mient, minreg=None, frame_size=frame_size, plot_path=plot_path, name=label + str(file_index) + '_' + ext)
 
 		# handled damaged files
 		if z_damaged:

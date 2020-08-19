@@ -108,8 +108,13 @@ def plot_confusion_matrix(cm, classes, plot_path=None, name='None'):
       else:
         font_color = 'white'
 
+      if len(classes) > 10:
+        fontsize = 7
+      else:
+        fontsize = 10
+
       # write nums inside
-      text = ax.text(true, predict, cm[predict, true], ha='center', va='center', color=font_color)
+      text = ax.text(true, predict, cm[predict, true], ha='center', va='center', color=font_color, fontsize=fontsize)
 
   # care about labels
   ax.set_xticks(np.arange(len(classes)))
@@ -212,11 +217,10 @@ def plot_mfcc_profile(x, fs, N, hop, mfcc, onsets=None, bon_pos=None, mient=None
 
   if bon_pos is not None:
     # care for best onset
-    #best_onset_times = onsets_to_onset_times(np.logical_or(best_onset, np.roll(best_onset, frame_size)), fs, N, hop) 
     best_onset_times = frames_to_time(np.array([bon_pos, bon_pos+frame_size]), fs, hop)
     # best onset + frame
     for onset in best_onset_times:
-      plt.axvline(x=float(onset), dashes=(3, 3), color='b')
+      plt.axvline(x=float(onset), dashes=(3, 3), color='b', lw=2)
 
   ax.grid()
   ax.set_title('time signal of ' + '"' + name + '"')

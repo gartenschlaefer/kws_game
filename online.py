@@ -125,7 +125,7 @@ if __name__ == '__main__':
   """
 
   # path
-  plot_path,  model_path = './ignore/plots/mic/', './ignore/models/'
+  plot_path,  model_path = './ignore/plots/mic/', './ignore/models/best_models/'
 
   # create folder
   create_folder([plot_path])
