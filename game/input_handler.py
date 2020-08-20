@@ -10,13 +10,16 @@ class InputHandler():
 	Input Handler class
 	"""
 
-	def __init__(self, obj, handler_type='key_stroke_dir'):
+	def __init__(self, obj, handler_type='key_stroke_dir', is_grid=False):
 
 		# handler type
 		self.handler_type = handler_type;
 		
 		# object to be handled
 		self.obj = obj
+
+		# grid handling
+		self.is_grid = is_grid
 
 
 	def key_stroke_direction(self, event):
@@ -64,8 +67,15 @@ class InputHandler():
 		update object
 		"""
 
+		# key stroke down handling
 		if self.handler_type == 'key_stroke_dir':
+
+			# direction
 			self.key_stroke_direction(event)
+
+			# grid handling
+			#if self.is_grid:
+			#	self.o
 
 		try:
 			self.set_active(event)

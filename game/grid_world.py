@@ -85,8 +85,8 @@ class GridWorld():
 		event handling for move walls
 		"""
 
-		for wall in self.move_walls:
-			wall.input_handler.handle(event)
+		for move_wall in self.move_walls:
+			move_wall.input_handler.handle(event)
 
 
 	def event_update(self, event):
@@ -133,9 +133,10 @@ if __name__ == '__main__':
 	for w in grid_world.move_walls:
 		w.is_active = False
 
+	# set one active
 	grid_world.move_walls[0].is_active = True
 
-
+	# add sprites
 	all_sprites.add(grid_world.wall_sprites, grid_world.move_wall_sprites)
 
 	# add clock

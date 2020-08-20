@@ -34,7 +34,7 @@ class MovableWall(Wall):
 	a movable wall
 	"""
 
-	def __init__(self, position, color=(10, 200, 200), size=(20, 20)):
+	def __init__(self, position, color=(10, 200, 200), size=(20, 20), grid_move=False):
 
 		# MRO check
 		super().__init__(position, color, size)
@@ -49,6 +49,8 @@ class MovableWall(Wall):
 		# interactions
 		self.walls = None
 		self.is_active = True
+		self.grid_move = grid_move
+		self.grid_position = [self.rect.x, self.rect.y]
 
 
 	def direction_change(self, direction):
@@ -61,7 +63,7 @@ class MovableWall(Wall):
 		self.move_dir[1] += direction[1]
 
 
-	def move(self):
+	def move_const(self):
 		"""
 		update character
 		"""
@@ -83,7 +85,6 @@ class MovableWall(Wall):
 			else:
 				self.rect.left = wall.rect.right
 
-
 		# y movement
 		self.rect.y += self.move_dir[1] * self.move_speed
 
@@ -98,12 +99,31 @@ class MovableWall(Wall):
 				self.rect.top = wall.rect.bottom
 
 
+	def move_grid(self):
+		"""
+		move in grid to position
+		"""
+
+		# update position if changed
+		if self.rect.x != self.grid_position:
+			self.rect.x = self.grid_position[0]
+			self.rect.y = self.grid_position[1]
+
+
 	def update(self):
 		"""
 		update character
 		"""
 
-		self.move()
+		if self.grid_move:
+
+			# perform a grid move
+			self.move_grid()
+
+		else:
+			
+			# move constantly
+			self.move_const()
 
 
 if __name__ == '__main__':

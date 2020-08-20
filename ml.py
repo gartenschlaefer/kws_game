@@ -439,13 +439,14 @@ if __name__ == '__main__':
 
   # path to train, test and eval set
 
-  # c=5, with my stuff
-  mfcc_data_files = ['./ignore/train/mfcc_data_train_n-2000_c-5_v2.npz', './ignore/test/mfcc_data_test_n-2000_c-5_v2.npz', './ignore/eval/mfcc_data_eval_n-2000_c-5_v2.npz', './ignore/my_recordings/mfcc_data_my_n-25_c-5_v2.npz']
+  # c-5, with my stuff
+  #mfcc_data_files = ['./ignore/train/mfcc_data_train_n-2000_c-5_v2.npz', './ignore/test/mfcc_data_test_n-2000_c-5_v2.npz', './ignore/eval/mfcc_data_eval_n-2000_c-5_v2.npz', './ignore/my_recordings/mfcc_data_my_n-25_c-5_v2.npz']
   
+  # c-5
   #mfcc_data_files = ['./ignore/train/mfcc_data_train_n-2000_c-5_v2.npz', './ignore/test/mfcc_data_test_n-2000_c-5_v2.npz', './ignore/eval/mfcc_data_eval_n-2000_c-5_v2.npz']
   
-  # c=30
-  #mfcc_data_files = ['./ignore/train/mfcc_data_train_n-1500_c-30_v2.npz', './ignore/test/mfcc_data_test_n-1500_c-30_v2.npz', './ignore/eval/mfcc_data_eval_n-1500_c-30_v2.npz']
+  # c-30
+  mfcc_data_files = ['./ignore/train/mfcc_data_train_n-1500_c-30_v2.npz', './ignore/test/mfcc_data_test_n-1500_c-30_v2.npz', './ignore/eval/mfcc_data_eval_n-1500_c-30_v2.npz']
 
 
   # plot path and model path
@@ -469,7 +470,7 @@ if __name__ == '__main__':
   f, batch_size = 32, 32
 
   # params for training
-  num_epochs, lr, retrain = 2000, 1e-4, False
+  num_epochs, lr, retrain = 9, 1e-4, False
 
   # nn architecture
   nn_architectures = ['conv-trad', 'conv-fstride']
@@ -480,8 +481,8 @@ if __name__ == '__main__':
   # pretrained model
   #pre_trained_model_path = model_path + 'conv-fstride_v2_c-30_n-1500_bs-128_it-2000_lr-0p001.pth'
   #pre_trained_model_path = model_path + 'conv-fstride_v2_c-30_n-1500_bs-32_it-1000_lr-0p001_pre.pth'
-  #pre_trained_model_path = model_pre_path + 'conv-fstride_c-30.pth'
-  pre_trained_model_path = None
+  pre_trained_model_path = model_pre_path + 'conv-fstride_c-30.pth'
+  #pre_trained_model_path = None
 
 
 
