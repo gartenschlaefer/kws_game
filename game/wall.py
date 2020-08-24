@@ -34,13 +34,18 @@ class MovableWall(Wall):
 	a movable wall
 	"""
 
-	def __init__(self, position, color=(10, 200, 200), size=(20, 20), grid_move=False):
+	def __init__(self, grid_pos, color=(10, 200, 200), size=(20, 20), grid_move=False):
+
+		# vars
+		self.grid_pos = grid_pos
+		self.size = size
+		self.grid_move = grid_move
 
 		# MRO check
-		super().__init__(position, color, size)
+		super().__init__(np.array(grid_pos)*size, color, size)
 
 		# input handler
-		self.input_handler = InputHandler(self, handler_type='key_stroke_dir')
+		self.input_handler = InputHandler(self, handler_type='key_stroke_dir', grid_move=grid_move)
 
 		# speed and move dir
 		self.move_speed = 2
@@ -49,8 +54,18 @@ class MovableWall(Wall):
 		# interactions
 		self.walls = None
 		self.is_active = True
-		self.grid_move = grid_move
-		self.grid_position = [self.rect.x, self.rect.y]
+		self.position = [self.rect.x, self.rect.y]
+
+		# the grid
+		self.move_wall_grid = None
+
+
+	def set_move_wall_grid(self, grid):
+		"""
+		let the moveable grid
+		"""
+
+		self.move_wall_grid = grid
 
 
 	def direction_change(self, direction):
@@ -58,9 +73,15 @@ class MovableWall(Wall):
 		move character to position
 		"""
 
-		# apply direction change
-		self.move_dir[0] += direction[0]
-		self.move_dir[1] += direction[1]
+		# single movement
+		if self.grid_move:
+			self.move_dir[0] = direction[0]
+			self.move_dir[1] = direction[1]
+
+		# constant movement change
+		else:
+			self.move_dir[0] += direction[0]
+			self.move_dir[1] += direction[1]
 
 
 	def move_const(self):
@@ -104,15 +125,35 @@ class MovableWall(Wall):
 		move in grid to position
 		"""
 
+		# not active
+		if not self.is_active:
+			return
+
 		# update position if changed
-		if self.rect.x != self.grid_position:
-			self.rect.x = self.grid_position[0]
-			self.rect.y = self.grid_position[1]
+		if np.any(self.move_dir):
+
+			# handle move wall grids
+			try:
+				self.move_wall_grid[self.grid_pos[0], self.grid_pos[1]] = 0
+				self.move_wall_grid[self.grid_pos[0]+self.move_dir[0], self.grid_pos[1]+self.move_dir[1]] = 1
+			except:
+				print("no grid stuff")
+
+			# new pos
+			self.grid_pos[0] += self.move_dir[0]  
+			self.grid_pos[1] += self.move_dir[1]
+
+			# reset move dir
+			self.move_dir = [0, 0]
+
+			# update actual pos
+			self.rect.x = self.grid_pos[0] * self.size[0]
+			self.rect.y = self.grid_pos[1] * self.size[1]
 
 
 	def update(self):
 		"""
-		update character
+		update movable wall moves
 		"""
 
 		if self.grid_move:
@@ -138,6 +179,9 @@ if __name__ == '__main__':
 	run_loop = True
 	background_color = 255, 255, 255
 
+	# grid move
+	grid_move = True
+
 	# init pygame
 	pygame.init()
 
@@ -149,7 +193,7 @@ if __name__ == '__main__':
 	wall_sprites = pygame.sprite.Group()
 
 	# create the character
-	move_wall = MovableWall(position=(width//2, height//2), color=(10, 100, 100))
+	move_wall = MovableWall(grid_pos=[2, 2], color=(10, 100, 100), grid_move=grid_move)
 
 	wall = Wall(position=(width//2, height//4))
 

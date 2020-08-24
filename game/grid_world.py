@@ -69,7 +69,10 @@ class GridWorld():
 					print("create move wall at {}, {}".format(i, j))
 
 					# create wall element at pixel position
-					move_wall = MovableWall(position=np.array([i, j])*self.pixel_size, color=(10, 100, 100), size=self.pixel_size)
+					move_wall = MovableWall(grid_pos=[i, j], color=(10, 100, 100), size=self.pixel_size, grid_move=True)
+
+					# set grid
+					move_wall.set_move_wall_grid(self.move_wall_grid)
 
 					self.move_walls.append(move_wall)
 
@@ -86,6 +89,8 @@ class GridWorld():
 		"""
 
 		for move_wall in self.move_walls:
+
+			# TODO: Handle only one wall
 			move_wall.input_handler.handle(event)
 
 
@@ -127,6 +132,7 @@ if __name__ == '__main__':
 	grid_world.wall_grid[5, 5] = 1
 	grid_world.move_wall_grid[8, 8] = 1
 	grid_world.move_wall_grid[10, 15] = 1
+	grid_world.move_wall_grid[12, 20] = 1
 	grid_world.create_walls()
 
 	# set only one moveable_wall active
@@ -150,7 +156,6 @@ if __name__ == '__main__':
 
 			# input handling of henry
 			grid_world.event_update(event)
-
 
 		# update sprites
 		all_sprites.update()

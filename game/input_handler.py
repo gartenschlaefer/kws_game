@@ -10,7 +10,7 @@ class InputHandler():
 	Input Handler class
 	"""
 
-	def __init__(self, obj, handler_type='key_stroke_dir', is_grid=False):
+	def __init__(self, obj, handler_type='key_stroke_dir', grid_move=False):
 
 		# handler type
 		self.handler_type = handler_type;
@@ -19,7 +19,7 @@ class InputHandler():
 		self.obj = obj
 
 		# grid handling
-		self.is_grid = is_grid
+		self.grid_move = grid_move
 
 
 	def key_stroke_direction(self, event):
@@ -28,6 +28,7 @@ class InputHandler():
 		must have implemented direction_change
 		"""
 
+		# in direction
 		if event.type == pygame.KEYDOWN:
 
 			if event.key == pygame.K_LEFT:
@@ -39,7 +40,8 @@ class InputHandler():
 			elif event.key == pygame.K_DOWN:
 				self.obj.direction_change([0, 1])
 
-		elif event.type == pygame.KEYUP:
+		# counter direction
+		elif event.type == pygame.KEYUP and not self.grid_move:
 
 			if event.key == pygame.K_LEFT:
 				self.obj.direction_change([1, 0])
@@ -72,10 +74,6 @@ class InputHandler():
 
 			# direction
 			self.key_stroke_direction(event)
-
-			# grid handling
-			#if self.is_grid:
-			#	self.o
 
 		try:
 			self.set_active(event)
