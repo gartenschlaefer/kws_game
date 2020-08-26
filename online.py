@@ -30,7 +30,7 @@ def callback_mic(indata, frames, time, status):
     print(status)
 
   # put into queue
-  q.put(indata[:, 0])
+  q.put(indata[::downsample, 0])
 
 
 def read_mic_data(collector):
@@ -116,7 +116,30 @@ def extract_model(file):
   # load model
   model.load_state_dict(torch.load(path_to_file))
 
+  # activate eval mode (no dropout layers)
+  model.eval()
+
   return model, class_dict
+
+
+def sd_setup(fs, hop, fs_device=48000, channels=1):
+  """
+  init sound device
+  """
+
+  # determine downsample
+  downsample = fs_device // fs
+
+  # select microphone
+  sd.default.device = 7
+
+  # show devices
+  print("device list: \n", sd.query_devices())
+
+  # setup stream sounddevice
+  stream = sd.InputStream(samplerate=fs*downsample, blocksize=hop*downsample, channels=channels, callback=callback_mic)
+
+  return stream, downsample
 
 
 if __name__ == '__main__':
@@ -146,16 +169,17 @@ if __name__ == '__main__':
   # window and hop size
   N, hop = int(0.025 * fs), int(0.010 * fs)
 
-  global q
+  global q, downsample
 
   # queue for audio samples
   q = queue.Queue()
 
   # input collector class
   collector = Collector()
+
+  # sound device
+  stream, downsample = sd_setup(fs, hop)
   
-  # setup stream sounddevice
-  stream = sd.InputStream(samplerate=fs, blocksize=hop, channels=1, callback=callback_mic)
 
   # data collection
   x = np.empty(shape=(0), dtype=np.float32)

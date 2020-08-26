@@ -199,7 +199,7 @@ def plot_mfcc_profile(x, fs, N, hop, mfcc, onsets=None, bon_pos=None, mient=None
 
   # time series plot
   ax = fig.add_subplot(gs[0:n_im_rows-1, :n_cols-2])
-  ax.plot(t, x)
+  ax.plot(t[:len(x)], x)
 
 
   # min energy time and region

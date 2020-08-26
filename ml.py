@@ -236,7 +236,8 @@ def train_nn(model, x_train, y_train, x_val, y_val, classes, nn_arch, num_epochs
   criterion = torch.nn.CrossEntropyLoss()
 
   # create optimizer
-  optimizer = torch.optim.SGD(model.parameters(), lr=lr, momentum=0.5)
+  #optimizer = torch.optim.SGD(model.parameters(), lr=lr, momentum=0.5)
+  optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
   print("\n--Training starts:")
 
@@ -467,10 +468,10 @@ if __name__ == '__main__':
   version_id = 2
 
   # frame size and batch size
-  f, batch_size = 32, 32
+  f, batch_size = 32, 256
 
   # params for training
-  num_epochs, lr, retrain = 9, 1e-4, False
+  num_epochs, lr, retrain = 500, 1e-4, True
 
   # nn architecture
   nn_architectures = ['conv-trad', 'conv-fstride']
@@ -560,6 +561,9 @@ if __name__ == '__main__':
   # evaluation on test set
 
   print("\n--Evaluation on Test Set:")
+
+  # activate eval mode (no dropout layers)
+  model.eval()
 
   # evaluation of model
   eval_loss, acc, cm = eval_nn(model, x_test, y_test, classes, calc_cm=True)

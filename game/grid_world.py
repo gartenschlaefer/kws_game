@@ -34,17 +34,21 @@ class GridWorld():
 		self.move_walls = []
 		self.move_wall_sprites = pygame.sprite.Group()
 
+		# active move wall
+		self.act_wall = 0
+
 		# some prints
 		print("grid size: ", self.grid_size)
 
 
-	def create_walls(self):
+	def create_walls(self, color_wall=(10, 200, 200), color_move_wall=(10, 100, 100)):
 		"""
 		create walls
 		"""
 
 		# TODO: destroy all walls
 
+		# normal walls
 		for i, wall_row in enumerate(self.wall_grid):
 			for j, wall in enumerate(wall_row):
 
@@ -54,7 +58,7 @@ class GridWorld():
 					print("create wall at {}, {}".format(i, j))
 
 					# create wall element at pixel position
-					wall = Wall(position=np.array([i, j])*self.pixel_size, size=self.pixel_size)
+					wall = Wall(position=np.array([i, j])*self.pixel_size, color=color_wall, size=self.pixel_size)
 
 					# add to sprite groups
 					self.wall_sprites.add(wall)
@@ -69,18 +73,37 @@ class GridWorld():
 					print("create move wall at {}, {}".format(i, j))
 
 					# create wall element at pixel position
-					move_wall = MovableWall(grid_pos=[i, j], color=(10, 100, 100), size=self.pixel_size, grid_move=True)
+					move_wall = MovableWall(grid_pos=[i, j], color=color_move_wall, size=self.pixel_size, grid_move=True)
 
 					# set grid
 					move_wall.set_move_wall_grid(self.move_wall_grid)
 
-					self.move_walls.append(move_wall)
+					# deactivate move wall
+					move_wall.is_active = False
 
-					# move able wall sees wall
-					move_wall.walls = self.wall_sprites
+					# wall container
+					self.move_walls.append(move_wall)
 
 					# add to sprite groups
 					self.move_wall_sprites.add(move_wall)
+
+		# collision grouping for movable walls
+		for i, mw in enumerate(self.move_walls):
+
+			# move able wall sees wall
+			mw.obstacle_sprites.add(self.wall_sprites)
+
+			# sees also moving walls
+			sp = self.move_walls.copy()
+			sp.pop(i)
+			mw.obstacle_sprites.add(sp)
+
+		# set one move_wall active
+		try:
+			self.move_walls[self.act_wall].is_active = True
+			self.move_walls[self.act_wall].set_color(active_wall_color)
+		except:
+			print("no moving walls")
 
 
 	def event_move_walls(self, event):
@@ -90,8 +113,30 @@ class GridWorld():
 
 		for move_wall in self.move_walls:
 
-			# TODO: Handle only one wall
-			move_wall.input_handler.handle(event)
+			# handle only active wall
+			if move_wall.is_active:
+
+				# handle event
+				move_wall.input_handler.handle(event)
+
+				# event disabled wall
+				if not move_wall.is_active:
+
+
+					# increase index
+					self.act_wall += 1
+
+					# check if last wall
+					if self.act_wall >= len(self.move_walls):
+						self.act_wall = 0
+
+					# set new active wall
+					self.move_walls[self.act_wall].is_active = True
+
+					# set colors
+					self.move_walls[self.act_wall].set_color(active_wall_color)
+					move_wall.set_color(default_wall_color)
+					break
 
 
 	def event_update(self, event):
@@ -101,6 +146,25 @@ class GridWorld():
 
 		# events of move walls
 		self.event_move_walls(event)
+
+
+
+def setup_level(grid_world):
+	"""
+	setup level
+	"""
+
+	# set walls
+	grid_world.wall_grid[:, 0] = 1
+	grid_world.wall_grid[5, 5] = 1
+
+	# move walls
+	grid_world.move_wall_grid[8, 8] = 1
+	grid_world.move_wall_grid[10, 15] = 1
+	grid_world.move_wall_grid[12, 20] = 1
+
+	# create walls
+	grid_world.create_walls(color_move_wall=default_wall_color)
 
 
 if __name__ == '__main__':
@@ -113,7 +177,9 @@ if __name__ == '__main__':
 
 	# some vars
 	run_loop = True
-	background_color = 255, 255, 255
+	background_color = (255, 255, 255)
+	active_wall_color = (200, 100, 100)
+	default_wall_color = (10, 100, 100)
 
 	# init pygame
 	pygame.init()
@@ -126,21 +192,7 @@ if __name__ == '__main__':
 
 	# create gridworld
 	grid_world = GridWorld(size)
-
-	# set walls
-	grid_world.wall_grid[:, 0] = 1
-	grid_world.wall_grid[5, 5] = 1
-	grid_world.move_wall_grid[8, 8] = 1
-	grid_world.move_wall_grid[10, 15] = 1
-	grid_world.move_wall_grid[12, 20] = 1
-	grid_world.create_walls()
-
-	# set only one moveable_wall active
-	for w in grid_world.move_walls:
-		w.is_active = False
-
-	# set one active
-	grid_world.move_walls[0].is_active = True
+	setup_level(grid_world)
 
 	# add sprites
 	all_sprites.add(grid_world.wall_sprites, grid_world.move_wall_sprites)

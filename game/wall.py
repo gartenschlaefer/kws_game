@@ -29,6 +29,15 @@ class Wall(pygame.sprite.Sprite):
 		self.image.fill(color)
 
 
+	def set_color(self, color):
+		"""
+		set the color
+		"""
+
+		self.image.fill(color)
+
+
+
 class MovableWall(Wall):
 	"""
 	a movable wall
@@ -52,7 +61,8 @@ class MovableWall(Wall):
 		self.move_dir = [0, 0]
 
 		# interactions
-		self.walls = None
+		#self.obstacle_sprites = None
+		self.obstacle_sprites = pygame.sprite.Group()
 		self.is_active = True
 		self.position = [self.rect.x, self.rect.y]
 
@@ -62,7 +72,7 @@ class MovableWall(Wall):
 
 	def set_move_wall_grid(self, grid):
 		"""
-		let the moveable grid
+		let the movable grid
 		"""
 
 		self.move_wall_grid = grid
@@ -96,28 +106,28 @@ class MovableWall(Wall):
 		# x movement
 		self.rect.x += self.move_dir[0] * self.move_speed
 
-		# colide issue
-		for wall in pygame.sprite.spritecollide(self, self.walls, False):
+		# collide issue
+		for obst in pygame.sprite.spritecollide(self, self.obstacle_sprites, False):
 
 			# stand at wall
 			if self.move_dir[0] > 0:
-				self.rect.right = wall.rect.left
+				self.rect.right = obst.rect.left
 
 			else:
-				self.rect.left = wall.rect.right
+				self.rect.left = obst.rect.right
 
 		# y movement
 		self.rect.y += self.move_dir[1] * self.move_speed
 
-		# colide issue
-		for wall in pygame.sprite.spritecollide(self, self.walls, False):
+		# collide issue
+		for obst in pygame.sprite.spritecollide(self, self.obstacle_sprites, False):
 
 			# stand at wall
 			if self.move_dir[1] > 0:
-				self.rect.bottom = wall.rect.top
+				self.rect.bottom = obst.rect.top
 
 			else:
-				self.rect.top = wall.rect.bottom
+				self.rect.top = obst.rect.bottom
 
 
 	def move_grid(self):
@@ -132,23 +142,40 @@ class MovableWall(Wall):
 		# update position if changed
 		if np.any(self.move_dir):
 
-			# handle move wall grids
-			try:
-				self.move_wall_grid[self.grid_pos[0], self.grid_pos[1]] = 0
-				self.move_wall_grid[self.grid_pos[0]+self.move_dir[0], self.grid_pos[1]+self.move_dir[1]] = 1
-			except:
-				print("no grid stuff")
+			# save old pos
+			old_pos = self.grid_pos.copy()
 
 			# new pos
 			self.grid_pos[0] += self.move_dir[0]  
 			self.grid_pos[1] += self.move_dir[1]
 
-			# reset move dir
-			self.move_dir = [0, 0]
-
 			# update actual pos
 			self.rect.x = self.grid_pos[0] * self.size[0]
 			self.rect.y = self.grid_pos[1] * self.size[1]
+
+			try:
+				#collide issue
+				for obst in pygame.sprite.spritecollide(self, self.obstacle_sprites, False):
+
+					# hit an obstacle
+					if obst:
+						print("obst: ", obst)
+						# old position again
+						self.grid_pos = old_pos
+						self.rect.x = self.grid_pos[0] * self.size[0]
+						self.rect.y = self.grid_pos[1] * self.size[1]
+			except:
+				print("no collisions implemented")
+
+			# handle move wall grids
+			try:
+				self.move_wall_grid[old_pos[0], old_pos[1]] = 0
+				self.move_wall_grid[self.grid_pos[0], self.grid_pos[1]] = 1
+			except:
+				print("no grid stuff implemented")
+
+			# reset move direction
+			self.move_dir = [0, 0]
 
 
 	def update(self):
@@ -202,7 +229,7 @@ if __name__ == '__main__':
 	wall_sprites.add(wall)
 
 	# henry sees walls
-	move_wall.walls = wall_sprites
+	move_wall.obstacle_sprites = wall_sprites
 
 	# add clock
 	clock = pygame.time.Clock()

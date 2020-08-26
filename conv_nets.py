@@ -105,6 +105,10 @@ class ConvNetFstride4(nn.Module):
     self.fc3 = nn.Linear(128, 128)
     self.fc4 = nn.Linear(128, n_classes)
 
+    # dropout layer
+    self.dropout_layer1 = nn.Dropout(p=0.2)
+    self.dropout_layer2 = nn.Dropout(p=0.5)
+
     # softmax layer
     self.softmax = nn.Softmax(dim=1)
 
@@ -122,12 +126,15 @@ class ConvNetFstride4(nn.Module):
 
     # 1. fully connected layers [1 x 32]
     x = self.fc1(x)
+    x = self.dropout_layer1(x)
 
     # 2. fully connected layers [1 x 128]
     x = F.relu(self.fc2(x))
+    x = self.dropout_layer2(x)
 
     # 3. fully connected layers [1 x 128]
     x = F.relu(self.fc3(x))
+    x = self.dropout_layer2(x)
 
     # Softmax layer [1 x n_classes]
     x = self.softmax(self.fc4(x))
