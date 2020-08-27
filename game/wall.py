@@ -5,7 +5,10 @@ character class
 import pygame
 import numpy as np
 
-from input_handler import InputHandler
+from input_handler import InputKeyHandler, InputMicHandler
+
+from classifier import Classifier
+from mic import Mic
 
 
 class Wall(pygame.sprite.Sprite):
@@ -43,7 +46,7 @@ class MovableWall(Wall):
 	a movable wall
 	"""
 
-	def __init__(self, grid_pos, color=(10, 200, 200), size=(20, 20), grid_move=False):
+	def __init__(self, grid_pos, color=(10, 200, 200), size=(20, 20), grid_move=False, mic_control=False, mic=None):
 
 		# vars
 		self.grid_pos = grid_pos
@@ -54,7 +57,11 @@ class MovableWall(Wall):
 		super().__init__(np.array(grid_pos)*size, color, size)
 
 		# input handler
-		self.input_handler = InputHandler(self, handler_type='key_stroke_dir', grid_move=grid_move)
+		if mic_control:
+			self.input_handler = InputMicHandler(self, mic=mic, grid_move=grid_move)
+
+		else:
+			self.input_handler = InputKeyHandler(self, grid_move=grid_move)
 
 		# speed and move dir
 		self.move_speed = 2
@@ -159,7 +166,7 @@ class MovableWall(Wall):
 
 					# hit an obstacle
 					if obst:
-						print("obst: ", obst)
+
 						# old position again
 						self.grid_pos = old_pos
 						self.rect.x = self.grid_pos[0] * self.size[0]
@@ -219,44 +226,66 @@ if __name__ == '__main__':
 	all_sprites = pygame.sprite.Group()
 	wall_sprites = pygame.sprite.Group()
 
-	# create the character
-	move_wall = MovableWall(grid_pos=[2, 2], color=(10, 100, 100), grid_move=grid_move)
+	# params
+	fs = 16000
 
+	# window and hop size
+	N, hop = int(0.025 * fs), int(0.010 * fs)
+
+	# create classifier
+	classifier = Classifier(file='../ignore/models/best_models/best_model_c-5.npz', root_dir='.')  
+
+	# create mic instance
+	mic = Mic(fs=fs, N=N, hop=hop, classifier=classifier)
+
+
+	# create normal wall
 	wall = Wall(position=(width//2, height//4))
 
+	# create movable walls
+	move_wall = MovableWall(grid_pos=[10, 10], color=(10, 100, 100), grid_move=grid_move, mic_control=False)
+	move_wall_mic = MovableWall(grid_pos=[12, 12], color=(10, 100, 100), grid_move=grid_move, mic_control=True, mic=mic)
+
 	# add to sprite groups
-	all_sprites.add(move_wall, wall)
+	all_sprites.add(wall, move_wall, move_wall_mic)
 	wall_sprites.add(wall)
 
 	# henry sees walls
-	move_wall.obstacle_sprites = wall_sprites
+	move_wall.obstacle_sprites.add(wall_sprites, move_wall_mic)
+	move_wall_mic.obstacle_sprites.add(wall_sprites, move_wall)
 
-	# add clock
-	clock = pygame.time.Clock()
 
-	# game loop
-	while run_loop:
-		for event in pygame.event.get():
-			if event.type == pygame.QUIT: 
-				run_loop = False
+	# stream and update
+	with mic.stream:
 
-			# input handling of movable wall
-			move_wall.input_handler.handle(event)
+		# add clock
+		clock = pygame.time.Clock()
 
-		# update sprites
-		all_sprites.update()
+		# game loop
+		while run_loop:
+			for event in pygame.event.get():
+				if event.type == pygame.QUIT: 
+					run_loop = False
 
-		# fill screen
-		screen.fill(background_color)
+				# input handling of movable wall
+				move_wall.input_handler.handle(event)
+			
+			move_wall_mic.input_handler.handle(event)
 
-		# draw sprites
-		all_sprites.draw(screen)
+			# update sprites
+			all_sprites.update()
 
-		# update display
-		pygame.display.flip()
+			# fill screen
+			screen.fill(background_color)
 
-		# reduce framerate
-		clock.tick(60)
+			# draw sprites
+			all_sprites.draw(screen)
+
+			# update display
+			pygame.display.flip()
+
+			# reduce framerate
+			clock.tick(60)
 
 
 	# end pygame

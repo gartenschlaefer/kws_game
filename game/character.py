@@ -6,7 +6,7 @@ import pygame
 import numpy as np
 
 from wall import Wall
-from input_handler import InputHandler
+from input_handler import InputKeyHandler
 
 
 class Character(pygame.sprite.Sprite):
@@ -40,7 +40,7 @@ class Character(pygame.sprite.Sprite):
 		self.is_active = True
 
 		# input handler
-		self.input_handler = InputHandler(self, handler_type='key_stroke_dir')
+		self.input_handler = InputKeyHandler(self)
 
 
 	def direction_change(self, direction):
@@ -57,6 +57,10 @@ class Character(pygame.sprite.Sprite):
 		"""
 		update character
 		"""
+
+		# not active
+		if not self.is_active:
+			return
 
 		# x movement
 		self.rect.x += self.move_dir[0] * self.move_speed

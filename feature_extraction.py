@@ -12,12 +12,6 @@ def onset_energy_level(x, alpha=0.01):
   c: channels
   """
 
-  # x = x.copy()
-  # print("x: ", x.shape)
-  # print("x han: ", np.hanning(len(x)).shape)
-  # x = x * np.hanning(len(x))
-  # print("x: ", x.shape)
-
   e = x.T @ x / len(x)
 
   return e, e > alpha

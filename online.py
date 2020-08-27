@@ -19,6 +19,7 @@ from conv_nets import *
 from ml import get_nn_model
 from feature_extraction import calc_mfcc39, calc_onsets, onset_energy_level
 from collector import Collector
+from mic import Mic
 
 
 def callback_mic(indata, frames, time, status):
@@ -164,7 +165,7 @@ if __name__ == '__main__':
   # read mic input
 
   # params
-  fs, time_duration = 16000, 5
+  fs, time_duration = 16000, 10
 
   # window and hop size
   N, hop = int(0.025 * fs), int(0.010 * fs)
