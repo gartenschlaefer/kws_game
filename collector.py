@@ -11,21 +11,21 @@ class Collector:
   collector class for audio processing
   """
 
-  def __init__(self, N=400, hop=160, frame_size=32, update_size=2):
+  def __init__(self, N=400, hop=160, frame_size=32, update_size=10, frames_post=10):
     """
     constructor
     """
 
     # determine data size
-    data_size = int((frame_size * hop + N ) /  hop)
+    self.data_size = int((frame_size * hop + N ) /  hop) + frames_post
 
-    print("Collector init with datasize: ", data_size)
+    print("Collector init with datasize: ", self.data_size)
 
     # flags
     self.is_collecting = False
 
     # data containers
-    self.qu = queue.Queue(maxsize=data_size)
+    self.qu = queue.Queue(maxsize=self.data_size)
     self.x = np.empty(shape=(0), dtype=np.float32)
 
     # size of pre frames for update

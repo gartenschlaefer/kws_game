@@ -442,12 +442,13 @@ if __name__ == '__main__':
 
   # c-5, with my stuff
   #mfcc_data_files = ['./ignore/train/mfcc_data_train_n-2000_c-5_v2.npz', './ignore/test/mfcc_data_test_n-2000_c-5_v2.npz', './ignore/eval/mfcc_data_eval_n-2000_c-5_v2.npz', './ignore/my_recordings/mfcc_data_my_n-25_c-5_v2.npz']
+  mfcc_data_files = ['./ignore/train/mfcc_data_train_n-2000_c-5_v3.npz', './ignore/test/mfcc_data_test_n-2000_c-5_v3.npz', './ignore/eval/mfcc_data_eval_n-2000_c-5_v3.npz', './ignore/my_recordings/mfcc_data_my_n-25_c-5_v2.npz']
   
   # c-5
   #mfcc_data_files = ['./ignore/train/mfcc_data_train_n-2000_c-5_v2.npz', './ignore/test/mfcc_data_test_n-2000_c-5_v2.npz', './ignore/eval/mfcc_data_eval_n-2000_c-5_v2.npz']
   
   # c-30
-  mfcc_data_files = ['./ignore/train/mfcc_data_train_n-1500_c-30_v2.npz', './ignore/test/mfcc_data_test_n-1500_c-30_v2.npz', './ignore/eval/mfcc_data_eval_n-1500_c-30_v2.npz']
+  #mfcc_data_files = ['./ignore/train/mfcc_data_train_n-1500_c-30_v2.npz', './ignore/test/mfcc_data_test_n-1500_c-30_v2.npz', './ignore/eval/mfcc_data_eval_n-1500_c-30_v2.npz']
 
 
   # plot path and model path
@@ -465,13 +466,13 @@ if __name__ == '__main__':
   # 2: energy frame onset detection
 
   #version_id = 1
-  version_id = 2
+  version_id = 3
 
   # frame size and batch size
-  f, batch_size = 32, 256
+  f, batch_size = 32, 32
 
   # params for training
-  num_epochs, lr, retrain = 500, 1e-4, True
+  num_epochs, lr, retrain = 500, 1e-5, True
 
   # nn architecture
   nn_architectures = ['conv-trad', 'conv-fstride']
@@ -482,8 +483,8 @@ if __name__ == '__main__':
   # pretrained model
   #pre_trained_model_path = model_path + 'conv-fstride_v2_c-30_n-1500_bs-128_it-2000_lr-0p001.pth'
   #pre_trained_model_path = model_path + 'conv-fstride_v2_c-30_n-1500_bs-32_it-1000_lr-0p001_pre.pth'
-  pre_trained_model_path = model_pre_path + 'conv-fstride_c-30.pth'
-  #pre_trained_model_path = None
+  #pre_trained_model_path = model_pre_path + 'conv-fstride_c-30.pth'
+  pre_trained_model_path = None
 
 
 
@@ -535,9 +536,9 @@ if __name__ == '__main__':
     model, train_loss, val_loss, val_acc = train_nn(model, x_train, y_train, x_val, y_val, classes, nn_arch, num_epochs=num_epochs, lr=lr, param_str=param_str)
 
     # save model
-    torch.save(model.state_dict(), '{}{}_c-{}{}'.format(model_pre_path, nn_arch, len(classes), '.pth'))
+    torch.save(model.state_dict(), model_path + param_str + '.pth')
     if pre_trained_model_path is not None:
-      torch.save(model.state_dict(), model_path + param_str + '.pth')
+      torch.save(model.state_dict(), '{}{}_c-{}{}'.format(model_pre_path, nn_arch, len(classes), '.pth'))
 
     # save infos
     np.savez(model_path + param_str + '.npz', params=params, param_str=param_str, class_dict=class_dict, model_file_path=model_path + param_str + '.pth')

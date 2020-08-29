@@ -14,7 +14,7 @@ class GridWorld():
 	grid world class
 	"""
 
-	def __init__(self, screen_size, color_bag, pixel_size=(20, 20)):
+	def __init__(self, screen_size, color_bag, mic=None, pixel_size=(20, 20)):
 		"""
 		create the grid world
 		"""
@@ -23,6 +23,7 @@ class GridWorld():
 		self.screen_size = np.array(screen_size)
 		self.pixel_size = np.array(pixel_size)
 		self.color_bag = color_bag
+		self.mic = mic
 		
 		# pixel spacing
 		self.grid_size = self.screen_size // self.pixel_size
@@ -54,10 +55,8 @@ class GridWorld():
 		for i, wall_row in enumerate(self.wall_grid):
 			for j, wall in enumerate(wall_row):
 
-				# wall found
+				# normal wall found
 				if wall:
-
-					#print("create wall at {}, {}".format(i, j))
 
 					# create wall element at pixel position
 					wall = Wall(position=np.array([i, j])*self.pixel_size, color=self.color_bag.wall, size=self.pixel_size)
@@ -72,10 +71,8 @@ class GridWorld():
 				# movable wall found
 				if move_wall:
 
-					#print("create move wall at {}, {}".format(i, j))
-
 					# create wall element at pixel position
-					move_wall = MovableWall(grid_pos=[i, j], color=self.color_bag.default_move_wall, size=self.pixel_size, grid_move=True)
+					move_wall = MovableWall(grid_pos=[i, j], color=self.color_bag.default_move_wall, size=self.pixel_size, grid_move=True, mic_control=True, mic=self.mic)
 
 					# set grid
 					move_wall.set_move_wall_grid(self.move_wall_grid)
@@ -108,7 +105,7 @@ class GridWorld():
 			print("no moving walls")
 
 
-	def event_move_walls(self, event):
+	def move_walls_update(self, event=None):
 		"""
 		event handling for move walls
 		"""
@@ -124,7 +121,6 @@ class GridWorld():
 				# event disabled wall
 				if not move_wall.is_active:
 
-
 					# increase index
 					self.act_wall += 1
 
@@ -137,7 +133,7 @@ class GridWorld():
 
 					# set colors
 					self.move_walls[self.act_wall].set_color(self.color_bag.active_move_wall)
-					move_wall.set_color(default_wall_color)
+					move_wall.set_color(self.color_bag.default_move_wall)
 					break
 
 
@@ -155,34 +151,34 @@ class GridWorld():
 				run_loop = False
 
 		# events of move walls
-		self.event_move_walls(event)
+		if self.mic is None:
+			self.move_walls_update(event)
 
 		return run_loop
 
 
+	def frame_update(self):
+		"""
+		frame update
+		"""
 
-def setup_level(grid_world):
-	"""
-	setup level
-	"""
-
-	# set walls
-	grid_world.wall_grid[:, 0] = 1
-	grid_world.wall_grid[5, 5] = 1
-
-	# move walls
-	grid_world.move_wall_grid[8, 8] = 1
-	grid_world.move_wall_grid[10, 15] = 1
-	grid_world.move_wall_grid[12, 20] = 1
-
-	# create walls
-	grid_world.create_walls()
+		if self.mic is not None:
+			self.move_walls_update()
 
 
 if __name__ == '__main__':
 	"""
 	Main Gridworld
 	"""
+
+	# append paths
+	import sys
+	sys.path.append("../")
+
+	from classifier import Classifier
+	from mic import Mic
+	from levels import setup_level_move_wall
+
 
 	# size of display
 	screen_size = width, height = 640, 480
@@ -192,7 +188,6 @@ if __name__ == '__main__':
 
 	# collection of game colors
 	color_bag = ColorBag()
-	default_wall_color = (10, 100, 100)
 
 	# init pygame
 	pygame.init()
@@ -203,9 +198,26 @@ if __name__ == '__main__':
 	# sprite groups
 	all_sprites = pygame.sprite.Group()
 
+
+	# --
+	# mic
+
+	# params
+	fs = 16000
+
+	# window and hop size
+	N, hop = int(0.025 * fs), int(0.010 * fs)
+
+	# create classifier
+	classifier = Classifier(file='../ignore/models/best_models/fstride_c-5.npz', root_dir='.')  
+
+	# create mic instance
+	mic = Mic(fs=fs, N=N, hop=hop, classifier=classifier)
+
+
 	# create gridworld
-	grid_world = GridWorld(screen_size, color_bag)
-	setup_level(grid_world)
+	grid_world = GridWorld(screen_size, color_bag, mic)
+	setup_level_move_wall(grid_world)
 
 	# add sprites
 	all_sprites.add(grid_world.wall_sprites, grid_world.move_wall_sprites)
@@ -213,27 +225,33 @@ if __name__ == '__main__':
 	# add clock
 	clock = pygame.time.Clock()
 
-	# game loop
-	while run_loop:
-		for event in pygame.event.get():
+	# mic stream and update
+	with mic.stream:
 
-			# input handling in grid world
-			run_loop = grid_world.event_update(event, run_loop)
+		# game loop
+		while run_loop:
+			for event in pygame.event.get():
 
-		# update sprites
-		all_sprites.update()
+				# input handling in grid world
+				run_loop = grid_world.event_update(event, run_loop)
 
-		# fill screen
-		screen.fill(color_bag.background)
+			# frame update
+			grid_world.frame_update()
 
-		# draw sprites
-		all_sprites.draw(screen)
+			# update sprites
+			all_sprites.update()
 
-		# update display
-		pygame.display.flip()
+			# fill screen
+			screen.fill(color_bag.background)
 
-		# reduce framerate
-		clock.tick(60)
+			# draw sprites
+			all_sprites.draw(screen)
+
+			# update display
+			pygame.display.flip()
+
+			# reduce framerate
+			clock.tick(60)
 
 	# end pygame
 	pygame.quit()

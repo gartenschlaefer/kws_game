@@ -3,9 +3,6 @@ character class
 """
 
 import pygame
-import numpy as np
-
-from wall import Wall
 from input_handler import InputKeyHandler
 
 
@@ -53,6 +50,13 @@ class Character(pygame.sprite.Sprite):
 		self.move_dir[1] += direction[1]
 
 
+	def action_key(self):
+		"""
+		if action key is pressed
+		"""
+		pass
+
+
 	def update(self):
 		"""
 		update character
@@ -90,39 +94,49 @@ class Character(pygame.sprite.Sprite):
 				self.rect.top = wall.rect.bottom
 
 
+
 if __name__ == '__main__':
 	"""
 	test character
 	"""
 
+	from wall import Wall
+	from grid_world import GridWorld
+	from color_bag import ColorBag
+	from levels import setup_level_square
+
+
 	# size of display
-	size = width, height = 640, 480
+	screen_size = width, height = 640, 480
 
 	# some vars
 	run_loop = True
-	background_color = 255, 255, 255
+
+	# collection of game colors
+	color_bag = ColorBag()
 
 	# init pygame
 	pygame.init()
 
 	# init display
-	screen = pygame.display.set_mode(size)
+	screen = pygame.display.set_mode(screen_size)
 
 	# sprite groups
 	all_sprites = pygame.sprite.Group()
 	wall_sprites = pygame.sprite.Group()
 
 	# create the character
-	henry = Character(position=(width//2, height//2))
+	henry = Character(position=(width//2, height//2), scale=(2, 2))
 
-	wall = Wall(position=(width//2, height//4))
+	# create gridworld
+	grid_world = GridWorld(screen_size, color_bag)
+	setup_level_square(grid_world)
 
 	# add to sprite groups
-	all_sprites.add(henry, wall)
-	wall_sprites.add(wall)
+	all_sprites.add(henry, grid_world.wall_sprites)
 
 	# henry sees walls
-	henry.walls = wall_sprites
+	henry.walls = grid_world.wall_sprites
 
 	# add clock
 	clock = pygame.time.Clock()
@@ -140,7 +154,7 @@ if __name__ == '__main__':
 		all_sprites.update()
 
 		# fill screen
-		screen.fill(background_color)
+		screen.fill(color_bag.background)
 
 		# draw sprites
 		all_sprites.draw(screen)

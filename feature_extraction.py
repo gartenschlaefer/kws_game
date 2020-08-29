@@ -1,7 +1,86 @@
 """
 feature extraction tools
 """
+
 import numpy as np
+
+from skimage.util.shape import view_as_windows
+
+
+def find_min_energy_region(mfcc, fs, hop, frame_size=32, randomize=True, rand_frame=10):
+  """
+  find frame with least amount of energy
+  """
+
+  # windowed [r x m x f]
+  x_win = np.squeeze(view_as_windows(mfcc[36, :], frame_size, step=1))
+
+  # best onset position
+  bon_pos = np.argmin(np.sum(x_win, axis=1))
+
+  # randomize a bit
+  if randomize:
+    bon_pos += np.random.randint(-rand_frame, rand_frame)
+    if bon_pos > x_win.shape[0]-1:
+      bon_pos = x_win.shape[0]-1
+    elif bon_pos < 0:
+      bon_pos = 0
+
+  return frames_to_time(bon_pos, fs, hop), bon_pos
+
+
+def find_min_energy_time(mfcc, fs, hop):
+  """
+  find min  energy time position
+  """
+
+  return frames_to_time(np.argmin(mfcc[36, :]), fs, hop)
+
+
+def find_best_onset(onsets, frame_size=32, pre_frames=1):
+  """
+  find the best onset with highest propability of spoken word
+  """
+
+  # init
+  best_onset, bon_pos = np.zeros(onsets.shape), 0
+
+  # determine onset positions
+  onset_pos = np.squeeze(np.argwhere(onsets))
+
+  # single onset handling
+  if int(np.sum(onsets)) == 1:
+
+    #return onsets, int(np.where(onsets == 1)[0][0])
+    best_onset = onsets
+    bon_pos = onset_pos
+
+  # multiple onsets handling
+  else: 
+
+    # windowing
+    o_win = view_as_windows(np.pad(onsets, (0, frame_size-1)), window_shape=(frame_size), step=1)[onset_pos, :]
+
+    # get index of best onset
+    x_max = np.argmax(np.sum(o_win, axis=1))
+
+    # set single best onset
+    bon_pos = onset_pos[x_max]
+    best_onset[bon_pos] = 1
+
+  # pre frames before real onset
+  if bon_pos - pre_frames > 0:
+    best_onset = np.roll(best_onset, -pre_frames)
+
+  # best onset on right egde, do roll
+  if bon_pos - pre_frames >= (onsets.shape[0] - frame_size):
+    r = frame_size - (onsets.shape[0] - (bon_pos - pre_frames)) + 1
+    best_onset = np.roll(best_onset, -r)
+
+  #print("best_onset: ", best_onset)
+  #print("pos: ", int(np.where(best_onset == 1)[0][0]))
+
+  return best_onset, int(np.where(best_onset == 1)[0][0])
 
 
 def onset_energy_level(x, alpha=0.01):
@@ -23,6 +102,33 @@ def frames_to_time(x, fs, hop):
   """
 
   return x * hop / fs
+
+
+def frames_to_sample(x, fs, hop):
+  """
+  frame to sample space
+  """
+
+  return x * hop
+
+
+def pre_processing(x):
+  """
+  actual preprocessing with dithering and normalization
+  """
+  
+  import librosa
+
+  # make a copy
+  x = x.copy()
+
+  # dither
+  x = add_dither(x)
+
+  # normalize input signal with infinity norm
+  x = librosa.util.normalize(x)
+
+  return x
 
 
 def compute_deltas(x):
@@ -388,7 +494,11 @@ def add_dither(x):
   """
 
   # determine abs min value except from zero, for dithering
-  min_val = np.min(np.abs(x[np.abs(x)>0]))
+  try:
+    min_val = np.min(np.abs(x[np.abs(x)>0]))
+  except:
+    print("only zeros in this signal")
+    min_val = 1e-4
 
   # add some dither
   x += np.random.normal(0, 0.5, len(x)) * min_val

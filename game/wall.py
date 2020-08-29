@@ -7,9 +7,6 @@ import numpy as np
 
 from input_handler import InputKeyHandler, InputMicHandler
 
-from classifier import Classifier
-from mic import Mic
-
 
 class Wall(pygame.sprite.Sprite):
 	"""
@@ -99,6 +96,14 @@ class MovableWall(Wall):
 		else:
 			self.move_dir[0] += direction[0]
 			self.move_dir[1] += direction[1]
+
+
+	def action_key(self):
+		"""
+		if action key is pressed
+		"""
+
+		self.is_active = self.is_active
 
 
 	def move_const(self):
@@ -206,6 +211,13 @@ if __name__ == '__main__':
 	test character
 	"""
 
+	# append paths
+	import sys
+	sys.path.append("../")
+
+	from classifier import Classifier
+	from mic import Mic
+
 	# size of display
 	size = width, height = 640, 480
 
@@ -233,7 +245,7 @@ if __name__ == '__main__':
 	N, hop = int(0.025 * fs), int(0.010 * fs)
 
 	# create classifier
-	classifier = Classifier(file='../ignore/models/best_models/best_model_c-5.npz', root_dir='.')  
+	classifier = Classifier(file='../ignore/models/best_models/fstride_c-5.npz', root_dir='.')  
 
 	# create mic instance
 	mic = Mic(fs=fs, N=N, hop=hop, classifier=classifier)
@@ -270,7 +282,7 @@ if __name__ == '__main__':
 				# input handling of movable wall
 				move_wall.input_handler.handle(event)
 			
-			move_wall_mic.input_handler.handle(event)
+			move_wall_mic.input_handler.handle(None)
 
 			# update sprites
 			all_sprites.update()

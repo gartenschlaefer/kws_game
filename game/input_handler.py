@@ -4,13 +4,6 @@ input handler class
 
 import pygame
 
-# append paths
-import sys
-sys.path.append("../")
-
-from classifier import Classifier
-from mic import Mic
-
 
 class InputHandler():
 	"""
@@ -64,12 +57,7 @@ class InputKeyHandler(InputHandler):
 
 			# jump button
 			if event.key == pygame.K_SPACE:
-
-				# toggle activeness
-				try:
-					self.obj.is_active = not self.obj.is_active
-				except:
-					print("no active var: .is_active")
+				self.obj.action_key()
 
 		# key up
 		elif event.type == pygame.KEYUP and not self.grid_move:
@@ -95,8 +83,6 @@ class InputMicHandler(InputHandler):
 		# init of father class
 		super().__init__(obj, grid_move)
 
-		# create mic instance
-		#self.mic = Mic(fs=self.fs, hop=self.hop, classifier=self.classifier)
 		self.mic = mic
 
 
@@ -104,11 +90,6 @@ class InputMicHandler(InputHandler):
 		"""
 		handle keyboard inputs
 		"""
-
-		#print("stream: ", self.mic.stream)
-
-		# stream and update
-		#with self.mic.stream:
 
 		# get command
 		command = self.mic.update_read_command()

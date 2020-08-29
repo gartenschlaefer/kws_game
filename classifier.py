@@ -67,14 +67,8 @@ if __name__ == '__main__':
   main of classifier
   """
 
-  # path to file
-  model_path = './ignore/models/best_models/'
-
-  # model name
-  model_name = 'best_model_c-5.npz'
-
   # create classifier
-  classifier = Classifier(file=model_path + model_name)
+  classifier = Classifier(file='./ignore/models/best_models/fstride_c-5.npz')
 
   # random sample
   x = np.random.randn(39, 32)

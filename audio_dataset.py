@@ -11,12 +11,12 @@ from glob import glob
 from shutil import copyfile
 
 # my stuff
-from feature_extraction import calc_mfcc39, calc_onsets, frames_to_time
+from feature_extraction import *
 from common import create_folder
 from plots import *
 
 from torch.utils.data import Dataset, DataLoader
-from skimage.util.shape import view_as_windows
+
 
 # TODO: Pytorch stuff
 # class SpeechCommandDataset():
@@ -95,7 +95,7 @@ def	create_datasets(n_examples, dataset_path, data_paths, data_percs):
 	return labels
 
 
-def audio_pre_processing(wav, fs, min_samples):
+def wav_pre_processing(wav, fs, min_samples):
 	"""
 	Audio pre-processing stage
 	"""
@@ -112,18 +112,8 @@ def audio_pre_processing(wav, fs, min_samples):
 		# append with zeros
 		x_raw = np.append(x_raw, np.zeros(min_samples - len(x_raw)))
 
-	# determine abs min value except from zero, for dithering
-	try:
-		min_val = np.min(np.abs(x_raw[np.abs(x_raw)>0]))
-	except:
-		print("only zeros in this file")
-		min_val = 1e-4
-
-	# add some dither
-	x_raw += np.random.normal(0, 0.5, len(x_raw)) * min_val
-
-	# normalize input signal with infinity norm
-	x = librosa.util.normalize(x_raw)
+	# pre processing
+	x = pre_processing(x_raw)
 
 	return x, fs
 
@@ -158,7 +148,7 @@ def extract_mfcc_data(wavs, params, frame_size=32, ext=None, min_samples=16000, 
 		label = re.sub(r'([0-9]+\.wav)', '', file_name)
 
 		# load and pre-process audio
-		x, fs = audio_pre_processing(wav, fs, min_samples)
+		x, fs = wav_pre_processing(wav, fs, min_samples)
 
 		# print some info
 		print("wav: [{}] with label: [{}], samples=[{}], time=[{}]s".format(wav, label, len(x), len(x)/fs))
@@ -173,7 +163,7 @@ def extract_mfcc_data(wavs, params, frame_size=32, ext=None, min_samples=16000, 
 		# find best onset
 		#best_onset, bon_pos = find_best_onset(onsets, frame_size=frame_size, pre_frames=1)
 		mient = find_min_energy_time(mfcc, fs, hop)
-		minreg, bon_pos = find_min_energy_region(mfcc, fs, hop)
+		minreg, bon_pos = find_min_energy_region(mfcc, fs, hop, frame_size=frame_size, randomize=True)
 
 		# damaged file things
 		z_score, z_damaged = detect_damaged_file(mfcc)
@@ -210,74 +200,6 @@ def detect_damaged_file(mfcc, z_lim=60):
 
 	# return score and damaged indicator
 	return z_est, z_est > z_lim
-
-
-def find_min_energy_region(mfcc, fs, hop, frame_size=32):
-	"""
-	find frame with least amount of energy
-	"""
-
-	# windowed [r x m x f]
-	x_win = np.squeeze(view_as_windows(mfcc[36, :], frame_size, step=1))
-
-	# best onset position
-	bon_pos = np.argmin(np.sum(x_win, axis=1))
-
-	return frames_to_time(bon_pos, fs, hop), bon_pos
-
-
-def find_min_energy_time(mfcc, fs, hop):
-	"""
-	find min  energy time position
-	"""
-
-	return frames_to_time(np.argmin(mfcc[36, :]), fs, hop)
-
-
-def find_best_onset(onsets, frame_size=32, pre_frames=1):
-	"""
-	find the best onset with highest propability of spoken word
-	"""
-
-	# init
-	best_onset, bon_pos = np.zeros(onsets.shape), 0
-
-	# determine onset positions
-	onset_pos = np.squeeze(np.argwhere(onsets))
-
-	# single onset handling
-	if int(np.sum(onsets)) == 1:
-
-		#return onsets, int(np.where(onsets == 1)[0][0])
-		best_onset = onsets
-		bon_pos = onset_pos
-
-	# multiple onsets handling
-	else: 
-
-		# windowing
-		o_win = view_as_windows(np.pad(onsets, (0, frame_size-1)), window_shape=(frame_size), step=1)[onset_pos, :]
-
-		# get index of best onset
-		x_max = np.argmax(np.sum(o_win, axis=1))
-
-		# set single best onset
-		bon_pos = onset_pos[x_max]
-		best_onset[bon_pos] = 1
-
-	# pre frames before real onset
-	if bon_pos - pre_frames > 0:
-		best_onset = np.roll(best_onset, -pre_frames)
-
-	# best onset on right egde, do roll
-	if bon_pos - pre_frames >= (onsets.shape[0] - frame_size):
-		r = frame_size - (onsets.shape[0] - (bon_pos - pre_frames)) + 1
-		best_onset = np.roll(best_onset, -r)
-
-	#print("best_onset: ", best_onset)
-	#print("pos: ", int(np.where(best_onset == 1)[0][0]))
-
-	return best_onset, int(np.where(best_onset == 1)[0][0])
 
 
 def label_stats(y):
@@ -336,14 +258,14 @@ if __name__ == '__main__':
 	data_percs = np.array([0.8, 0.1, 0.1])
 
 	# version number
-	version_nr = 2
+	version_nr = 3
 
 	# num examples per class for ml 
 	#n_examples, n_data = 12, 10
 	#n_examples, n_data = 70, 50
 	#n_examples, n_data = 550, 500
-	#n_examples, n_data = 2200, 2000
-	n_examples, n_data = 1700, 1500
+	n_examples, n_data = 2200, 2000
+	#n_examples, n_data = 1700, 1500
 
 	# plot path
 	plot_path = './ignore/plots/features/n{}/'.format(n_examples)
@@ -362,8 +284,8 @@ if __name__ == '__main__':
 
 	# select labels from
 	# ['eight', 'sheila', 'nine', 'yes', 'one', 'no', 'left', 'tree', 'bed', 'bird', 'go', 'wow', 'seven', 'marvin', 'dog', 'three', 'two', 'house', 'down', 'six', 'five', 'off', 'right', 'cat', 'zero', 'four', 'stop', 'up', 'on', 'happy']
-	#sel_labels = ['left', 'right', 'up', 'down', 'go']
-	sel_labels = ['eight', 'sheila', 'nine', 'yes', 'one', 'no', 'left', 'tree', 'bed', 'bird', 'go', 'wow', 'seven', 'marvin', 'dog', 'three', 'two', 'house', 'down', 'six', 'five', 'off', 'right', 'cat', 'zero', 'four', 'stop', 'up', 'on', 'happy']
+	sel_labels = ['left', 'right', 'up', 'down', 'go']
+	#sel_labels = ['eight', 'sheila', 'nine', 'yes', 'one', 'no', 'left', 'tree', 'bed', 'bird', 'go', 'wow', 'seven', 'marvin', 'dog', 'three', 'two', 'house', 'down', 'six', 'five', 'off', 'right', 'cat', 'zero', 'four', 'stop', 'up', 'on', 'happy']
 
 	# list labels
 	print("labels: ", labels)
