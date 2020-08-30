@@ -19,7 +19,7 @@ class Mic():
   Mic class
   """
 
-  def __init__(self, fs, N, hop, classifier, fs_device=48000, channels=1, energy_thres=5e-5, frame_size=32):
+  def __init__(self, fs, N, hop, classifier, fs_device=48000, channels=1, energy_thres=1e-4, frame_size=32):
 
     # vars
     self.fs = fs
@@ -96,6 +96,7 @@ class Mic():
   def update_read_command(self):
     """
     update mic
+    32ms classification
     """
 
     # read chunk
@@ -123,7 +124,9 @@ class Mic():
       mfcc_bon = mfcc[:, bon_pos:bon_pos+self.frame_size]
 
       # classify collection
-      return self.classifier.classify_sample(mfcc_bon)
+      y_hat = self.classifier.classify_sample(mfcc_bon)
+
+      return y_hat
 
     return None
 
@@ -141,6 +144,7 @@ if __name__ == '__main__':
 
   # create classifier
   classifier = Classifier(file='./ignore/models/best_models/fstride_c-5.npz')  
+  #classifier = Classifier(file='./ignore/models/best_models/trad_c-5.npz')  
 
   # create mic instance
   mic = Mic(fs=fs, N=N, hop=hop, classifier=classifier)

@@ -6,6 +6,7 @@ import pygame
 import numpy as np
 
 from input_handler import InputKeyHandler, InputMicHandler
+from interactable import Interactable
 
 
 class Wall(pygame.sprite.Sprite):
@@ -38,7 +39,7 @@ class Wall(pygame.sprite.Sprite):
 
 
 
-class MovableWall(Wall):
+class MovableWall(Wall, Interactable):
 	"""
 	a movable wall
 	"""
@@ -65,7 +66,6 @@ class MovableWall(Wall):
 		self.move_dir = [0, 0]
 
 		# interactions
-		#self.obstacle_sprites = None
 		self.obstacle_sprites = pygame.sprite.Group()
 		self.is_active = True
 		self.position = [self.rect.x, self.rect.y]
@@ -76,7 +76,7 @@ class MovableWall(Wall):
 
 	def set_move_wall_grid(self, grid):
 		"""
-		let the movable grid
+		set grid
 		"""
 
 		self.move_wall_grid = grid

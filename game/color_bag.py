@@ -22,4 +22,7 @@ class ColorBag():
     self.active_move_wall = (200, 100, 100)
     self.default_move_wall = (10, 100, 100)
 
+    # text color
+    self.win = (50, 100, 100)
+
 

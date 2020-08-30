@@ -157,7 +157,7 @@ class GridWorld():
 		return run_loop
 
 
-	def frame_update(self):
+	def update(self):
 		"""
 		frame update
 		"""
@@ -236,7 +236,7 @@ if __name__ == '__main__':
 				run_loop = grid_world.event_update(event, run_loop)
 
 			# frame update
-			grid_world.frame_update()
+			grid_world.update()
 
 			# update sprites
 			all_sprites.update()

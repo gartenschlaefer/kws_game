@@ -1,9 +1,9 @@
 """
-character class
+things class
 """
 
 import pygame
-
+from text import Text
 
 
 class Thing(pygame.sprite.Sprite):
@@ -11,13 +11,13 @@ class Thing(pygame.sprite.Sprite):
   character class
   """
 
-  def __init__(self, position, scale=(3, 3)):
+  def __init__(self, position, scale=(2, 2)):
 
     # MRO check
     super().__init__()
 
     # load image and create rect
-    self.image = pygame.image.load("./art/henry_front.png").convert_alpha()
+    self.image = pygame.image.load("./art/thing.png").convert_alpha()
     self.rect = self.image.get_rect()
 
     # proper scaling
@@ -29,12 +29,7 @@ class Thing(pygame.sprite.Sprite):
     self.rect.y = position[1]
 
     # interactions
-    self.walls = None
     self.is_active = True
-
-
-
-
 
 
 if __name__ == '__main__':
@@ -46,15 +41,15 @@ if __name__ == '__main__':
   from levels import setup_level_square
   from character import Character
   from grid_world import GridWorld
+  from text import Text
+
+  from game_logic import ThingsGameLogic
 
   # size of display
   screen_size = width, height = 640, 480
 
-  # some vars
-  run_loop = True
-
-  # collection of game colors
-  color_bag = ColorBag()
+  # grid
+  pixel_size = (20, 20)
 
   # init pygame
   pygame.init()
@@ -62,36 +57,53 @@ if __name__ == '__main__':
   # init display
   screen = pygame.display.set_mode(screen_size)
 
+  # collection of game colors
+  color_bag = ColorBag()
+  text = Text(screen, color_bag)
+
   # sprite groups
   all_sprites = pygame.sprite.Group()
   wall_sprites = pygame.sprite.Group()
+  thing_sprites = pygame.sprite.Group()
 
-  # create the character
+  # create game objects
   henry = Character(position=(width//2, height//2), scale=(2, 2))
+  thing = Thing(position=(10*pixel_size[0], 10*pixel_size[1]), scale=(2, 2))
+  grid_world = GridWorld(screen_size, color_bag, pixel_size=pixel_size)
 
-  # create gridworld
-  grid_world = GridWorld(screen_size, color_bag)
+  # game logic with dependencies
+  game_logic = ThingsGameLogic(henry, text)
+
+  # setup stuff
   setup_level_square(grid_world)
 
   # add to sprite groups
-  all_sprites.add(henry, grid_world.wall_sprites)
+  all_sprites.add(henry, thing, grid_world.wall_sprites)
+  thing_sprites.add(thing)
 
-  # henry sees walls
+  # henry sees walls and things
   henry.walls = grid_world.wall_sprites
+  henry.things = thing_sprites
 
   # add clock
   clock = pygame.time.Clock()
 
+
   # game loop
-  while run_loop:
+  while game_logic.run_loop:
     for event in pygame.event.get():
       if event.type == pygame.QUIT: 
         run_loop = False
 
       # input handling of henry
       henry.input_handler.handle(event)
+      game_logic.event_update(event)
 
-    # update sprites
+    # game logic
+    game_logic.update()
+    
+
+    # update without drawing
     all_sprites.update()
 
     # fill screen
@@ -99,6 +111,7 @@ if __name__ == '__main__':
 
     # draw sprites
     all_sprites.draw(screen)
+    text.update()
 
     # update display
     pygame.display.flip()

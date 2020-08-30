@@ -38,6 +38,9 @@ class Classifier():
     # activate eval mode (no dropout layers)
     self.model.eval()
 
+    # init to be faster
+    self.classify_sample(np.random.randn(39, 32))
+
 
   def classify_sample(self, x):
     """

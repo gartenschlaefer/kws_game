@@ -4,9 +4,10 @@ character class
 
 import pygame
 from input_handler import InputKeyHandler
+from interactable import Interactable
 
 
-class Character(pygame.sprite.Sprite):
+class Character(pygame.sprite.Sprite, Interactable):
 	"""
 	character class
 	"""
@@ -24,20 +25,26 @@ class Character(pygame.sprite.Sprite):
 		self.image = pygame.transform.scale(self.image, (self.rect.width * scale[0], self.rect.height * scale[1]))
 		self.rect = self.image.get_rect()
 
+		# save init pos
+		self.init_pos = position
+
 		# set rect position
 		self.rect.x = position[0]
 		self.rect.y = position[1]
+
 
 		# speed and move dir
 		self.move_speed = 2
 		self.move_dir = [0, 0]
 
+		# input handler
+		self.input_handler = InputKeyHandler(self)
+
 		# interactions
 		self.walls = None
 		self.is_active = True
-
-		# input handler
-		self.input_handler = InputKeyHandler(self)
+		self.things = None
+		self.things_collected = 0
 
 
 	def direction_change(self, direction):
@@ -50,11 +57,17 @@ class Character(pygame.sprite.Sprite):
 		self.move_dir[1] += direction[1]
 
 
-	def action_key(self):
+	def reset(self):
 		"""
-		if action key is pressed
+		reset stuff
 		"""
-		pass
+
+		self.is_active = True
+		self.things = None
+		self.things_collected = 0
+
+		self.rect.x = self.init_pos[0]
+		self.rect.y = self.init_pos[1]
 
 
 	def update(self):
@@ -92,6 +105,12 @@ class Character(pygame.sprite.Sprite):
 
 			else:
 				self.rect.top = wall.rect.bottom
+
+
+		# interaction with things
+		if self.things is not None:
+			for thing in pygame.sprite.spritecollide(self, self.things, True):
+				self.things_collected += 1
 
 
 

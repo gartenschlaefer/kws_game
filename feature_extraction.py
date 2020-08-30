@@ -7,7 +7,73 @@ import numpy as np
 from skimage.util.shape import view_as_windows
 
 
-def find_min_energy_region(mfcc, fs, hop, frame_size=32, randomize=True, rand_frame=10):
+class FeatureExtractor():
+  """
+  feature extractor class with MFCC features
+  """
+
+  def __init__(self, fs, N=400, hop=160, n_filter_bands=32, n_ceps_coeff=12, frame_size=32):
+
+    # vars
+    self.fs = fs
+    self.N = N
+    self.hop = hop
+    self.n_filter_bands = n_filter_bands
+    self.n_ceps_coeff = n_ceps_coeff
+    self.frame_size = frame_size
+
+    # calculate weights
+    self.w_f, _, _, _ = mel_band_weights(self.n_filter_bands, fs, N//2)
+
+    # extract random to be fast
+    self.extract_mfcc39(np.random.randn(self.N * self.frame_size))
+
+
+  def extract_mfcc39(self, x):
+    """
+    extract mfcc features
+    """
+
+    # pre processing
+    x_pre = pre_processing(x)
+
+    # stft
+    X = custom_stft(x_pre, self.N, self.hop)
+
+    # energy of fft (one-sided)
+    E = np.power(np.abs(X[:, :self.N//2]), 2)
+
+    # sum the weighted energies
+    u = np.inner(E, self.w_f)
+
+    # mfcc
+    mfcc = (dct(np.log(u), self.n_filter_bands).T)[:self.n_ceps_coeff]
+
+    # compute deltas [feature x frames]
+    deltas = compute_deltas(mfcc)
+
+    # compute double deltas [feature x frames]
+    double_deltas = compute_deltas(deltas)
+
+    # compute energies [1 x frames]
+    e_mfcc = np.vstack((
+      np.sum(mfcc**2, axis=0) / np.max(np.sum(mfcc**2, axis=0)), 
+      np.sum(deltas**2, axis=0) / np.max(np.sum(deltas**2, axis=0)), 
+      np.sum(double_deltas**2, axis=0) / np.max(np.sum(double_deltas**2, axis=0))
+      ))
+
+    # stack and get best onset
+    mfcc_all = np.vstack((mfcc, deltas, double_deltas, e_mfcc))
+
+    # find best onset
+    _, bon_pos = find_min_energy_region(mfcc_all, self.fs, self.hop)
+
+    # return best onset
+    return mfcc_all[:, bon_pos:bon_pos+self.frame_size], bon_pos
+
+
+
+def find_min_energy_region(mfcc, fs, hop, frame_size=32, randomize=False, rand_frame=5):
   """
   find frame with least amount of energy
   """

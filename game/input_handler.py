@@ -59,6 +59,12 @@ class InputKeyHandler(InputHandler):
 			if event.key == pygame.K_SPACE:
 				self.obj.action_key()
 
+			if event.key == pygame.K_RETURN:
+				self.obj.enter_key()
+
+			if event.key == pygame.K_ESCAPE:
+				self.obj.esc_key()
+
 		# key up
 		elif event.type == pygame.KEYUP and not self.grid_move:
 
