@@ -3,10 +3,12 @@ character class
 """
 
 import pygame
+
 from color_bag import ColorBag
+from interactable import Interactable
 
 
-class Text():
+class Text(Interactable):
   """
   character class
   """
@@ -44,7 +46,7 @@ class Text():
     self.small_pos = small_pos
 
 
-  def reset_messages(self):
+  def reset(self):
     """
     reset message
     """
@@ -70,11 +72,10 @@ if __name__ == '__main__':
   test character
   """
 
+  from game_logic import GameLogic
+  
   # size of display
   screen_size = width, height = 640, 480
-
-  # some vars
-  run_loop = True
 
   # collection of game colors
   color_bag = ColorBag()
@@ -90,14 +91,21 @@ if __name__ == '__main__':
   text.win_message()
  
 
+  # game logic
+  game_logic = GameLogic()
+
   # add clock
   clock = pygame.time.Clock()
 
   # game loop
-  while run_loop:
+  while game_logic.run_loop:
     for event in pygame.event.get():
-      if event.type == pygame.QUIT: 
-        run_loop = False
+
+      # input handling
+      game_logic.event_update(event)
+
+    # frame update
+    game_logic.update()
 
     # fill screen
     screen.fill(color_bag.background)

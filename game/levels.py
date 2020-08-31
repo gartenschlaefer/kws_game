@@ -4,8 +4,10 @@ levels
 
 import pygame
 
+from interactable import Interactable
 
-class Level():
+
+class Level(Interactable):
   """
   level class
   """
@@ -24,13 +26,6 @@ class Level():
   def setup_level(self):
     """
     setup level
-    """
-    pass
-
-
-  def event_update(self):
-    """
-    event update
     """
     pass
 
@@ -91,6 +86,14 @@ class LevelGrid(Level):
     self.grid_world.create_walls()
 
 
+  def reset(self):
+    """
+    reset level
+    """
+
+    self.grid_world.reset()
+
+
   def event_update(self, event):
     """
     event update
@@ -116,7 +119,6 @@ class LevelGrid(Level):
 
     # draw sprites
     self.all_sprites.draw(self.screen)
-
 
 
 
@@ -203,6 +205,15 @@ class LevelCharacter(LevelGrid):
     self.all_sprites.add(self.henry)
 
 
+  def reset(self):
+    """
+    reset level
+    """
+
+    self.grid_world.reset()
+    self.henry.reset()
+
+
   def event_update(self, event):
     """
     event update
@@ -228,6 +239,19 @@ class LevelThings(LevelCharacter):
 
     # create thing
     self.thing = Thing(position=(100, 100), scale=(2, 2))
+
+    # add to sprites
+    self.all_sprites.add(self.thing)
+    self.henry.thing_sprites.add(self.thing)
+
+
+  def reset(self):
+    """
+    reset level
+    """
+
+    self.grid_world.reset()
+    self.henry.reset()
 
     # add to sprites
     self.all_sprites.add(self.thing)

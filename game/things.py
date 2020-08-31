@@ -64,7 +64,7 @@ if __name__ == '__main__':
   level = LevelThings(screen, screen_size, color_bag)
 
   # game logic with dependencies
-  game_logic = ThingsGameLogic(level.henry, text)
+  game_logic = ThingsGameLogic(level, text)
 
 
   # add clock

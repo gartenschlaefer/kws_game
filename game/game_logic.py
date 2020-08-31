@@ -15,8 +15,12 @@ class GameLogic(Interactable):
 
   def __init__(self):
 
+    # variables
     self.end_game = False
     self.run_loop = True
+
+    # add input handler
+    self.input_handler = InputKeyHandler(self)
 
 
   def check_win_condition(self):
@@ -40,11 +44,13 @@ class GameLogic(Interactable):
     pass
 
 
-  def update(self):
+  def esc_key(self):
     """
-    update game logic
+    if esc is pressed
     """
-    pass
+
+    # end loop
+    self.run_loop = False
 
 
   def event_update(self, event):
@@ -55,11 +61,9 @@ class GameLogic(Interactable):
     # quit game
     if event.type == pygame.QUIT: 
       self.run_loop = False
-
-    # end game
-    elif event.type == pygame.KEYDOWN:
-      if event.key == pygame.K_ESCAPE:
-        self.run_loop = False
+    
+    # input handling
+    self.input_handler.handle(event)
 
 
 
@@ -68,16 +72,14 @@ class ThingsGameLogic(GameLogic):
   Game Logic for things.py
   """
 
-  def __init__(self, henry, text):
+  def __init__(self, level, text):
 
     # parent init
     super().__init__()
 
-    # add input handler
-    self.input_handler = InputKeyHandler(self)
-
     # game objects
-    self.henry = henry
+    self.level = level
+    self.henry = self.level.henry
     self.text = text
 
 
@@ -107,8 +109,8 @@ class ThingsGameLogic(GameLogic):
     self.end_game = False
 
     # reset game objects
-    self.text.reset_messages()
-    self.henry.reset()
+    self.text.reset()
+    self.level.reset()
 
 
   def enter_key(self):
@@ -120,13 +122,17 @@ class ThingsGameLogic(GameLogic):
       self.restart_game()
 
 
-  def esc_key(self):
+  def event_update(self, event):
     """
-    if esc is pressed
+    event update game logic
     """
 
-    # end loop
-    self.run_loop = False
+    # quit game
+    if event.type == pygame.QUIT: 
+      self.run_loop = False
+    
+    # input handling
+    self.input_handler.handle(event)
 
 
   def update(self):
@@ -136,12 +142,3 @@ class ThingsGameLogic(GameLogic):
 
     # check win condition
     self.check_win_condition()
-
-
-  def event_update(self, event):
-    """
-    update game logic
-    """
-    
-    # input handling
-    self.input_handler.handle(event)

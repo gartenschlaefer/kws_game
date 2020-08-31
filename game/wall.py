@@ -19,6 +19,11 @@ class Wall(pygame.sprite.Sprite):
 		# MRO check
 		super().__init__()
 
+		# vars
+		self.position = position
+		self.color = color
+		self.size = size
+
 		# ball init
 		self.image = pygame.surface.Surface(size)
 		self.rect = self.image.get_rect()
@@ -48,7 +53,6 @@ class MovableWall(Wall, Interactable):
 
 		# vars
 		self.grid_pos = grid_pos
-		self.size = size
 		self.grid_move = grid_move
 
 		# MRO check
@@ -68,7 +72,9 @@ class MovableWall(Wall, Interactable):
 		# interactions
 		self.obstacle_sprites = pygame.sprite.Group()
 		self.is_active = True
-		self.position = [self.rect.x, self.rect.y]
+		
+		# save init pos
+		self.init_pos = self.position
 
 		# the grid
 		self.move_wall_grid = None
@@ -188,6 +194,16 @@ class MovableWall(Wall, Interactable):
 
 			# reset move direction
 			self.move_dir = [0, 0]
+
+
+	def reset(self):
+		"""
+		reset move wall
+		"""
+
+		self.is_active = True
+		self.rect.x = self.init_pos[0]
+		self.rect.y = self.init_pos[1]
 
 
 	def update(self):

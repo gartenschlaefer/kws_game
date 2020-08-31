@@ -7,9 +7,9 @@ import numpy as np
 
 from wall import Wall, MovableWall
 from color_bag import ColorBag
+from interactable import Interactable
 
-
-class GridWorld():
+class GridWorld(Interactable):
 	"""
 	grid world class
 	"""
@@ -140,6 +140,18 @@ class GridWorld():
 					self.move_walls[self.act_wall].set_color(self.color_bag.active_move_wall)
 					move_wall.set_color(self.color_bag.default_move_wall)
 					break
+
+
+	def reset(self):
+		"""
+		reset grid world
+		"""
+
+		for move_wall in self.move_walls:
+
+			# reset moving walls
+			move_wall.reset()
+
 
 
 	def event_update(self, event):

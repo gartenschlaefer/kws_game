@@ -35,6 +35,13 @@ class Interactable():
     pass
 
 
+  def reset(self):
+    """
+    reset stuff
+    """
+    pass
+    
+
   def event_update(self, event):
     """
     update
