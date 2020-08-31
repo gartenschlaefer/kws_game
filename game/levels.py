@@ -77,13 +77,22 @@ class LevelGrid(Level):
     """
 
     # set walls
+    self.setup_wall_edge(self.grid_world)
+
+    # create walls
+    self.grid_world.create_walls()
+
+
+  def setup_wall_edge(self, grid_world):
+    """
+    limit edges
+    """
+
+    # set walls
     self.grid_world.wall_grid[:, 0] = 1
     self.grid_world.wall_grid[:, -1] = 1
     self.grid_world.wall_grid[0, :] = 1
     self.grid_world.wall_grid[-1, :] = 1
-
-    # create walls
-    self.grid_world.create_walls()
 
 
   def reset(self):
@@ -139,10 +148,7 @@ class LevelSquare(LevelGrid):
     """
 
     # set walls
-    self.grid_world.wall_grid[:, 0] = 1
-    self.grid_world.wall_grid[:, -1] = 1
-    self.grid_world.wall_grid[0, :] = 1
-    self.grid_world.wall_grid[-1, :] = 1
+    self.setup_wall_edge(self.grid_world)
 
     # wall in the middle
     self.grid_world.wall_grid[7, 7] = 1
@@ -169,10 +175,8 @@ class LevelMoveWalls(LevelGrid):
     """
 
     # set walls
-    self.grid_world.wall_grid[:, 0] = 1
-    self.grid_world.wall_grid[:, -1] = 1
-    self.grid_world.wall_grid[0, :] = 1
-    self.grid_world.wall_grid[-1, :] = 1
+    self.setup_wall_edge(self.grid_world)
+
     self.grid_world.wall_grid[5, 5] = 1
 
     # move walls
@@ -198,11 +202,27 @@ class LevelCharacter(LevelGrid):
     from character import Character
 
     # create the character
-    self.henry = Character(position=(self.screen_size[0]//2, self.screen_size[1]//2), scale=(2, 2))
+    self.henry = Character(position=(self.screen_size[0]//2, self.screen_size[1]//2), scale=(2, 2), is_gravity=True)
     self.henry.obstacle_sprites.add(self.grid_world.wall_sprites, self.grid_world.move_wall_sprites)
 
     # add to sprites
     self.all_sprites.add(self.henry)
+
+
+  def setup_level(self, grid_world):
+    """
+    setup level
+    """
+
+    # set walls
+    self.setup_wall_edge(self.grid_world)
+
+    # wall in the middle
+    self.grid_world.wall_grid[20:25, 20:24] = 1
+    self.grid_world.wall_grid[10:15, 20] = 1
+
+    # create walls
+    self.grid_world.create_walls()
 
 
   def reset(self):
@@ -238,11 +258,14 @@ class LevelThings(LevelCharacter):
     from things import Thing
 
     # create thing
-    self.thing = Thing(position=(100, 100), scale=(2, 2))
+    self.thing = Thing(position=self.grid_world.grid_to_pos([22, 18]), scale=(2, 2))
 
     # add to sprites
     self.all_sprites.add(self.thing)
     self.henry.thing_sprites.add(self.thing)
+
+    # determine position
+    self.henry.set_position(self.grid_world.grid_to_pos([10, 10]), is_init_pos=True)
 
 
   def reset(self):
@@ -257,6 +280,37 @@ class LevelThings(LevelCharacter):
     self.all_sprites.add(self.thing)
     self.henry.thing_sprites.add(self.thing)
 
+
+
+class Level_01(LevelThings):
+  """
+  first actual level
+  """
+
+  def __init__(self, screen, screen_size, color_bag, mic=None):
+
+    # parent class init
+    super().__init__(screen, screen_size, color_bag, mic)
+
+    # determine start position
+    self.henry.set_position(self.grid_world.grid_to_pos([10, 10]), is_init_pos=True)
+    self.thing.set_position(self.grid_world.grid_to_pos([22, 18]), is_init_pos=True)
+
+
+  def setup_level(self, grid_world):
+    """
+    setup level
+    """
+
+    # set walls
+    self.setup_wall_edge(self.grid_world)
+
+    # wall in the middle
+    self.grid_world.wall_grid[20:25, 20:24] = 1
+    self.grid_world.wall_grid[10:15, 20] = 1
+
+    # create walls
+    self.grid_world.create_walls()
 
 
 if __name__ == '__main__':
@@ -283,7 +337,8 @@ if __name__ == '__main__':
 
   # level creation
   #level = LevelSquare(screen, screen_size, color_bag)
-  level = LevelMoveWalls(screen, screen_size, color_bag)
+  #level = LevelMoveWalls(screen, screen_size, color_bag)
+  level = Level_01(screen, screen_size, color_bag)
 
   # game logic
   game_logic = GameLogic()

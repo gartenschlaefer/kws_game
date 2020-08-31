@@ -49,12 +49,18 @@ class GridWorld(Interactable):
 		self.act_wall = 0
 
 
+	def grid_to_pos(self, grid_pos):
+		"""
+		transform grid to position
+		"""
+
+		return (grid_pos[0] * self.pixel_size[0], grid_pos[1] * self.pixel_size[1])
+
+
 	def create_walls(self):
 		"""
 		create walls
 		"""
-
-		# TODO: destroy all walls
 
 		# normal walls
 		for i, wall_row in enumerate(self.wall_grid):
@@ -102,12 +108,12 @@ class GridWorld(Interactable):
 			sp.pop(i)
 			mw.obstacle_sprites.add(sp)
 
-		# set one move_wall active
-		try:
+		# set one move wall active
+		if self.move_walls:
+
+			# set active
 			self.move_walls[self.act_wall].is_active = True
 			self.move_walls[self.act_wall].set_color(self.color_bag.active_move_wall)
-		except:
-			print("no moving walls")
 
 
 	def move_walls_update(self, event=None):

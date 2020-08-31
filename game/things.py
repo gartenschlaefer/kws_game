@@ -16,6 +16,10 @@ class Thing(pygame.sprite.Sprite):
     # MRO check
     super().__init__()
 
+    # vars
+    self.position = position
+    self.scale = scale
+
     # load image and create rect
     self.image = pygame.image.load("./art/thing.png").convert_alpha()
     self.rect = self.image.get_rect()
@@ -30,6 +34,19 @@ class Thing(pygame.sprite.Sprite):
 
     # interactions
     self.is_active = True
+
+
+  def set_position(self, position, is_init_pos=False):
+    """
+    set position absolute
+    """
+
+    # set internal pos
+    self.position = position
+
+    # set rect
+    self.rect.x = self.position[0]
+    self.rect.y = self.position[1]
 
 
 if __name__ == '__main__':
