@@ -38,9 +38,7 @@ if __name__ == '__main__':
   """
 
   from color_bag import ColorBag
-  from levels import setup_level_square
-  from character import Character
-  from grid_world import GridWorld
+  from levels import LevelThings
   from text import Text
 
   from game_logic import ThingsGameLogic
@@ -61,29 +59,13 @@ if __name__ == '__main__':
   color_bag = ColorBag()
   text = Text(screen, color_bag)
 
-  # sprite groups
-  all_sprites = pygame.sprite.Group()
-  wall_sprites = pygame.sprite.Group()
-  thing_sprites = pygame.sprite.Group()
 
-  # create game objects
-  henry = Character(position=(width//2, height//2), scale=(2, 2))
-  thing = Thing(position=(10*pixel_size[0], 10*pixel_size[1]), scale=(2, 2))
-  grid_world = GridWorld(screen_size, color_bag, pixel_size=pixel_size)
+  # level creation
+  level = LevelThings(screen, screen_size, color_bag)
 
   # game logic with dependencies
-  game_logic = ThingsGameLogic(henry, text)
+  game_logic = ThingsGameLogic(level.henry, text)
 
-  # setup stuff
-  setup_level_square(grid_world)
-
-  # add to sprite groups
-  all_sprites.add(henry, thing, grid_world.wall_sprites)
-  thing_sprites.add(thing)
-
-  # henry sees walls and things
-  henry.walls = grid_world.wall_sprites
-  henry.things = thing_sprites
 
   # add clock
   clock = pygame.time.Clock()
@@ -95,22 +77,13 @@ if __name__ == '__main__':
       if event.type == pygame.QUIT: 
         run_loop = False
 
-      # input handling of henry
-      henry.input_handler.handle(event)
+      # input handling
       game_logic.event_update(event)
+      level.event_update(event)
 
-    # game logic
+    # frame update
     game_logic.update()
-    
-
-    # update without drawing
-    all_sprites.update()
-
-    # fill screen
-    screen.fill(color_bag.background)
-
-    # draw sprites
-    all_sprites.draw(screen)
+    level.update()
     text.update()
 
     # update display

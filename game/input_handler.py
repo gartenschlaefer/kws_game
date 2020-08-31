@@ -118,8 +118,5 @@ class InputMicHandler(InputHandler):
 			# deactivate
 			elif command == 1:
 
-				# toggle activeness
-				try:
-					self.obj.is_active = not self.obj.is_active
-				except:
-					print("no active var: .is_active")
+				# action
+				self.obj.action_key()

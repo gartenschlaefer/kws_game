@@ -2,6 +2,8 @@
 game logic
 """
 
+import pygame
+
 from interactable import Interactable
 from input_handler import InputKeyHandler
 
@@ -49,7 +51,15 @@ class GameLogic(Interactable):
     """
     update game logic
     """
-    pass
+
+    # quit game
+    if event.type == pygame.QUIT: 
+      self.run_loop = False
+
+    # end game
+    elif event.type == pygame.KEYDOWN:
+      if event.key == pygame.K_ESCAPE:
+        self.run_loop = False
 
 
 

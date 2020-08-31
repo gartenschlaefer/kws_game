@@ -578,6 +578,8 @@ if __name__ == '__main__':
   """
 
   import matplotlib.pyplot as plt
+  from common import create_folder
+  from plots import plot_mel_band_weights
 
   # sampling rate
   fs = 16000
@@ -591,22 +593,13 @@ if __name__ == '__main__':
   # create mel bands
   w_f, w_mel, f, m = mel_band_weights(n_bands, fs, N=N)
 
-  # plot f bands
-  #plt.figure(figsize=(8, 4))
-  plt.figure()
-  plt.plot(f, w_f.T)
-  plt.ylabel('magnitude')
-  plt.xlabel('frequency [Hz]')
-  plt.grid()
+  plot_path = './ignore/plots/fe/'
 
-  plt.figure()
-  plt.plot(m, w_mel.T)
-  plt.ylabel('magnitude')
-  plt.xlabel('mel [mel]')
-  plt.grid()
+  # create folder
+  create_folder([plot_path])
 
-  # plt.figure(3)
-  # plt.plot(triangle(120, 100, same=True))
+  # plot
+  plot_mel_band_weights(w_f, w_mel, f, m, plot_path=plot_path, name='weights')
 
   plt.show()
 

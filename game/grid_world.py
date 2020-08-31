@@ -24,6 +24,12 @@ class GridWorld():
 		self.pixel_size = np.array(pixel_size)
 		self.color_bag = color_bag
 		self.mic = mic
+
+		# mic control
+		if self.mic is None:
+			self.mic_control = False
+		else:
+			self.mic_control = True
 		
 		# pixel spacing
 		self.grid_size = self.screen_size // self.pixel_size
@@ -34,14 +40,13 @@ class GridWorld():
 
 		# create empty movable wall grid
 		self.move_wall_grid = np.zeros(self.grid_size)
-		self.move_walls = []
 		self.move_wall_sprites = pygame.sprite.Group()
+
+		# move wall container
+		self.move_walls = []
 
 		# active move wall
 		self.act_wall = 0
-
-		# some prints
-		print("grid size: ", self.grid_size)
 
 
 	def create_walls(self):
@@ -72,7 +77,7 @@ class GridWorld():
 				if move_wall:
 
 					# create wall element at pixel position
-					move_wall = MovableWall(grid_pos=[i, j], color=self.color_bag.default_move_wall, size=self.pixel_size, grid_move=True, mic_control=True, mic=self.mic)
+					move_wall = MovableWall(grid_pos=[i, j], color=self.color_bag.default_move_wall, size=self.pixel_size, grid_move=True, mic_control=self.mic_control, mic=self.mic)
 
 					# set grid
 					move_wall.set_move_wall_grid(self.move_wall_grid)
@@ -137,24 +142,14 @@ class GridWorld():
 					break
 
 
-	def event_update(self, event, run_loop):
+	def event_update(self, event):
 		"""
 		event update of grid world
 		"""
 
-		if event.type == pygame.QUIT: 
-			run_loop = False
-
-		# in direction
-		elif event.type == pygame.KEYDOWN:
-			if event.key == pygame.K_ESCAPE:
-				run_loop = False
-
 		# events of move walls
 		if self.mic is None:
 			self.move_walls_update(event)
-
-		return run_loop
 
 
 	def update(self):
@@ -177,14 +172,12 @@ if __name__ == '__main__':
 
 	from classifier import Classifier
 	from mic import Mic
-	from levels import setup_level_move_wall
+	from levels import LevelMoveWalls
+	from game_logic import GameLogic
 
 
 	# size of display
 	screen_size = width, height = 640, 480
-
-	# some vars
-	run_loop = True
 
 	# collection of game colors
 	color_bag = ColorBag()
@@ -215,12 +208,12 @@ if __name__ == '__main__':
 	mic = Mic(fs=fs, N=N, hop=hop, classifier=classifier)
 
 
-	# create gridworld
-	grid_world = GridWorld(screen_size, color_bag, mic)
-	setup_level_move_wall(grid_world)
 
-	# add sprites
-	all_sprites.add(grid_world.wall_sprites, grid_world.move_wall_sprites)
+	# level setup
+	level = LevelMoveWalls(screen, screen_size, color_bag, mic)
+
+	# game logic
+	game_logic = GameLogic()
 
 	# add clock
 	clock = pygame.time.Clock()
@@ -229,23 +222,16 @@ if __name__ == '__main__':
 	with mic.stream:
 
 		# game loop
-		while run_loop:
+		while game_logic.run_loop:
 			for event in pygame.event.get():
 
-				# input handling in grid world
-				run_loop = grid_world.event_update(event, run_loop)
+				# event handling
+				game_logic.event_update(event)
+				level.event_update(event)
 
 			# frame update
-			grid_world.update()
-
-			# update sprites
-			all_sprites.update()
-
-			# fill screen
-			screen.fill(color_bag.background)
-
-			# draw sprites
-			all_sprites.draw(screen)
+			game_logic.update()
+			level.update()
 
 			# update display
 			pygame.display.flip()

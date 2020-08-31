@@ -325,6 +325,37 @@ def plot_mfcc_only(mfcc, fs=16000, hop=160, plot_path=None, name='None'):
     plt.show()
 
 
+def plot_mel_band_weights(w_f, w_mel, f, m, plot_path=None, name='weights'):
+  """
+  mel band weights
+  """
+
+  # plot f bands
+  plt.figure(figsize=(8, 5))
+  plt.plot(f, w_f.T)
+  plt.ylabel('magnitude')
+  plt.xlabel('frequency [Hz]')
+  plt.grid()
+
+  # plot
+  if plot_path is not None:
+    plt.savefig(plot_path + name + '_f' + '.png', dpi=150)
+    plt.close()
+
+  # plot mel bands
+  plt.figure(figsize=(8, 5))
+  plt.plot(m, w_mel.T)
+  plt.ylabel('magnitude')
+  plt.xlabel('mel [mel]')
+  plt.grid()
+
+  # plot
+  if plot_path is not None:
+    plt.savefig(plot_path + name + '_mel' '.png', dpi=150)
+    plt.close()
+
+
+
 if __name__ == '__main__':
   
   # metric path

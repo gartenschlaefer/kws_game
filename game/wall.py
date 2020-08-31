@@ -103,7 +103,7 @@ class MovableWall(Wall, Interactable):
 		if action key is pressed
 		"""
 
-		self.is_active = self.is_active
+		self.is_active = not self.is_active
 
 
 	def move_const(self):
@@ -217,6 +217,7 @@ if __name__ == '__main__':
 
 	from classifier import Classifier
 	from mic import Mic
+	from game_logic import GameLogic
 
 	# size of display
 	size = width, height = 640, 480
@@ -250,7 +251,6 @@ if __name__ == '__main__':
 	# create mic instance
 	mic = Mic(fs=fs, N=N, hop=hop, classifier=classifier)
 
-
 	# create normal wall
 	wall = Wall(position=(width//2, height//4))
 
@@ -266,26 +266,29 @@ if __name__ == '__main__':
 	move_wall.obstacle_sprites.add(wall_sprites, move_wall_mic)
 	move_wall_mic.obstacle_sprites.add(wall_sprites, move_wall)
 
+	# game logic
+	game_logic = GameLogic()
+
+	# add clock
+	clock = pygame.time.Clock()
 
 	# stream and update
 	with mic.stream:
 
-		# add clock
-		clock = pygame.time.Clock()
-
 		# game loop
-		while run_loop:
+		while game_logic.run_loop:
 			for event in pygame.event.get():
-				if event.type == pygame.QUIT: 
-					run_loop = False
 
-				# input handling of movable wall
+				# input handling
+				game_logic.event_update(event)
 				move_wall.input_handler.handle(event)
 			
+			# mic update
 			move_wall_mic.input_handler.handle(None)
 
-			# update sprites
+			# update
 			all_sprites.update()
+			game_logic.update()
 
 			# fill screen
 			screen.fill(background_color)

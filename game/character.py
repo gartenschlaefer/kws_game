@@ -3,6 +3,7 @@ character class
 """
 
 import pygame
+
 from input_handler import InputKeyHandler
 from interactable import Interactable
 
@@ -32,7 +33,6 @@ class Character(pygame.sprite.Sprite, Interactable):
 		self.rect.x = position[0]
 		self.rect.y = position[1]
 
-
 		# speed and move dir
 		self.move_speed = 2
 		self.move_dir = [0, 0]
@@ -41,10 +41,11 @@ class Character(pygame.sprite.Sprite, Interactable):
 		self.input_handler = InputKeyHandler(self)
 
 		# interactions
-		self.walls = None
-		self.is_active = True
-		self.things = None
+		self.obstacle_sprites = pygame.sprite.Group()
+		self.thing_sprites = pygame.sprite.Group()
 		self.things_collected = 0
+		self.is_active = True
+
 
 
 	def direction_change(self, direction):
@@ -70,6 +71,16 @@ class Character(pygame.sprite.Sprite, Interactable):
 		self.rect.y = self.init_pos[1]
 
 
+	def event_update(self, event):
+		"""
+		event update for character
+		"""
+
+		# event handling
+		self.input_handler.handle(event)
+
+
+
 	def update(self):
 		"""
 		update character
@@ -83,7 +94,7 @@ class Character(pygame.sprite.Sprite, Interactable):
 		self.rect.x += self.move_dir[0] * self.move_speed
 
 		# colide issue
-		for wall in pygame.sprite.spritecollide(self, self.walls, False):
+		for wall in pygame.sprite.spritecollide(self, self.obstacle_sprites, False):
 
 			# stand at wall
 			if self.move_dir[0] > 0:
@@ -97,7 +108,7 @@ class Character(pygame.sprite.Sprite, Interactable):
 		self.rect.y += self.move_dir[1] * self.move_speed
 
 		# colide issue
-		for wall in pygame.sprite.spritecollide(self, self.walls, False):
+		for wall in pygame.sprite.spritecollide(self, self.obstacle_sprites, False):
 
 			# stand at wall
 			if self.move_dir[1] > 0:
@@ -106,11 +117,9 @@ class Character(pygame.sprite.Sprite, Interactable):
 			else:
 				self.rect.top = wall.rect.bottom
 
-
 		# interaction with things
-		if self.things is not None:
-			for thing in pygame.sprite.spritecollide(self, self.things, True):
-				self.things_collected += 1
+		for thing in pygame.sprite.spritecollide(self, self.thing_sprites, True):
+			self.things_collected += 1
 
 
 
@@ -119,17 +128,12 @@ if __name__ == '__main__':
 	test character
 	"""
 
-	from wall import Wall
-	from grid_world import GridWorld
 	from color_bag import ColorBag
-	from levels import setup_level_square
-
+	from levels import LevelCharacter
+	from game_logic import GameLogic
 
 	# size of display
 	screen_size = width, height = 640, 480
-
-	# some vars
-	run_loop = True
 
 	# collection of game colors
 	color_bag = ColorBag()
@@ -140,50 +144,34 @@ if __name__ == '__main__':
 	# init display
 	screen = pygame.display.set_mode(screen_size)
 
-	# sprite groups
-	all_sprites = pygame.sprite.Group()
-	wall_sprites = pygame.sprite.Group()
+	# level creation
+	level = LevelCharacter(screen, screen_size, color_bag)
 
-	# create the character
-	henry = Character(position=(width//2, height//2), scale=(2, 2))
-
-	# create gridworld
-	grid_world = GridWorld(screen_size, color_bag)
-	setup_level_square(grid_world)
-
-	# add to sprite groups
-	all_sprites.add(henry, grid_world.wall_sprites)
-
-	# henry sees walls
-	henry.walls = grid_world.wall_sprites
+	# game logic
+	game_logic = GameLogic()
 
 	# add clock
 	clock = pygame.time.Clock()
 
 	# game loop
-	while run_loop:
+	while game_logic.run_loop:
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT: 
 				run_loop = False
 
-			# input handling of henry
-			henry.input_handler.handle(event)
+			# input handling
+			game_logic.event_update(event)
+			level.event_update(event)
 
-		# update sprites
-		all_sprites.update()
-
-		# fill screen
-		screen.fill(color_bag.background)
-
-		# draw sprites
-		all_sprites.draw(screen)
+		# frame update
+		game_logic.update()
+		level.update()
 
 		# update display
 		pygame.display.flip()
 
 		# reduce framerate
 		clock.tick(60)
-
 
 	# end pygame
 	pygame.quit()

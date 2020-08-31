@@ -19,8 +19,6 @@ class Collector:
     # determine data size
     self.data_size = int((frame_size * hop + N ) /  hop) + frames_post
 
-    print("Collector init with datasize: ", self.data_size)
-
     # flags
     self.is_collecting = False
 

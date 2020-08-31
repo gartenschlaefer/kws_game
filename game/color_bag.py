@@ -2,9 +2,6 @@
 color bag class
 """
 
-import pygame
-
-
 class ColorBag():
   """
   Input Handler class
