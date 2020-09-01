@@ -42,6 +42,9 @@ if __name__ == '__main__':
   # --
   # game setup
 
+  # fps
+  fps = 60
+
   # size of display
   screen_size = width, height = 640, 480
 
@@ -87,7 +90,7 @@ if __name__ == '__main__':
       pygame.display.flip()
 
       # reduce framerate
-      clock.tick(60)
+      clock.tick(fps)
 
     # end pygame
     pygame.quit()

@@ -11,7 +11,7 @@ class Collector:
   collector class for audio processing
   """
 
-  def __init__(self, N=400, hop=160, frame_size=32, update_size=10, frames_post=10):
+  def __init__(self, N=400, hop=160, frame_size=32, update_size=10, frames_post=10, is_audio_record=False):
     """
     constructor
     """
@@ -19,17 +19,21 @@ class Collector:
     # determine data size
     self.data_size = int((frame_size * hop + N ) /  hop) + frames_post
 
-    # flags
-    self.is_collecting = False
+    # params
+    self.update_size = update_size
+    self.frames_post = frames_post
+    self.is_audio_record = is_audio_record
 
     # data containers
     self.qu = queue.Queue(maxsize=self.data_size)
     self.x = np.empty(shape=(0), dtype=np.float32)
 
-    # size of pre frames for update
-    self.update_size = update_size
+    # whole audio data
+    if self.is_audio_record:
+      self.x_all = np.empty(shape=(0), dtype=np.float32)
 
-    # amount of full collections
+    # vars
+    self.is_collecting = False
     self.collection_counter = 0
 
 
@@ -61,6 +65,10 @@ class Collector:
     if not self.qu.full():
       self.qu.put(x)
 
+    # save all
+    if self.is_audio_record:
+      self.x_all = np.concatenate((self.x_all, x))
+      
 
   def read_collection(self):
     """

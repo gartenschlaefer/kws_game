@@ -21,7 +21,7 @@ class Mic():
   Mic class
   """
 
-  def __init__(self, fs, N, hop, classifier, fs_device=48000, channels=1, energy_thres=1e-4, frame_size=32, device=7):
+  def __init__(self, fs, N, hop, classifier, fs_device=48000, channels=1, energy_thres=1e-4, frame_size=32, device=7, is_audio_record=False):
 
     # vars
     self.fs = fs
@@ -36,7 +36,7 @@ class Mic():
 
     # queue and collector
     self.q = queue.Queue()
-    self.collector = Collector(N=N, hop=hop, frame_size=32, update_size=32, frames_post=32)
+    self.collector = Collector(N=N, hop=hop, frame_size=32, update_size=32, frames_post=32, is_audio_record=is_audio_record)
 
     # feature extractor
     self.feature_extractor = FeatureExtractor(self.fs, N=self.N, hop=self.hop, n_filter_bands=32, n_ceps_coeff=12, frame_size=self.frame_size)
@@ -52,9 +52,6 @@ class Mic():
 
     # setup stream sounddevice
     self.stream = sd.InputStream(samplerate=self.fs*self.downsample, blocksize=self.hop*self.downsample, channels=channels, callback=self.callback_mic)
-
-    # mic sleep caller
-    sd.sleep(int(100))
 
 
   def callback_mic(self, indata, frames, time, status):
@@ -94,14 +91,13 @@ class Mic():
     # process data
     if self.q.qsize():
 
-      #print("que: ", self.q.qsize())
-
       # read out data
       while not self.q.empty():
 
         # get data
         x = self.q.get_nowait()
 
+        # concatenate for energy level
         x_collect = np.concatenate((x_collect, x))
 
         # collection update
@@ -116,10 +112,8 @@ class Mic():
   def update_read_command(self):
     """
     update mic
-    32ms classification
     """
 
-    #print("update read command")
     # read chunk
     xi, is_onset = self.read_mic_data()
 
