@@ -9,7 +9,7 @@ import queue
 import sounddevice as sd
 
 # my stuff
-from feature_extraction import calc_mfcc39, onset_energy_level, find_min_energy_region
+from feature_extraction import FeatureExtractor, onset_energy_level
 from collector import Collector
 from classifier import Classifier
 
@@ -37,6 +37,9 @@ class Mic():
     # queue and collector
     self.q = queue.Queue()
     self.collector = Collector(N=N, hop=hop, frame_size=32, update_size=32, frames_post=32)
+
+    # feature extractor
+    self.feature_extractor = FeatureExtractor(self.fs, N=self.N, hop=self.hop, n_filter_bands=32, n_ceps_coeff=12, frame_size=self.frame_size)
 
     # determine downsample
     self.downsample = fs_device // fs
@@ -132,14 +135,8 @@ class Mic():
       # read out collection
       x_onset = self.collector.read_collection()
 
-      # mfcc
-      mfcc = calc_mfcc39(x_onset, self.fs, N=self.N, hop=self.hop, n_filter_bands=32, n_ceps_coeff=12)
-
-      # find best region
-      _, bon_pos = find_min_energy_region(mfcc, self.fs, self.hop)
-
-      # region of interest
-      mfcc_bon = mfcc[:, bon_pos:bon_pos+self.frame_size]
+      # extract features
+      mfcc_bon, bon_pos = self.feature_extractor.extract_mfcc39(x_onset)
 
       # classify collection
       y_hat = self.classifier.classify_sample(mfcc_bon)
