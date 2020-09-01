@@ -14,11 +14,14 @@ class Classifier():
   Input Handler class
   """
 
-  def __init__(self, file, verbose=True, root_dir=''):
+  def __init__(self, file, verbose=False):
 
     # vars
     self.file = file
     self.verbose = verbose
+
+    # root path
+    self.root_path = '/'.join(file.split('/')[:-1]) + '/'
 
     # data loading
     data = np.load(self.file, allow_pickle=True)
@@ -27,13 +30,13 @@ class Classifier():
     print("\nextract model with params: {}\nand class dict: {}".format(data['param_str'], data['class_dict']))
     
     # extract data from file
-    self.nn_arch, self.class_dict, self.path_to_file = data['params'][()]['nn_arch'], data['class_dict'][()], str(data['model_file_path'])
+    self.nn_arch, self.class_dict, self.path_to_file = data['params'][()]['nn_arch'], data['class_dict'][()], self.root_path + str(data['model_file_path']).split('/')[-1]
 
     # init model
     self.model = get_nn_model(self.nn_arch, n_classes=len(self.class_dict))
 
     # load model
-    self.model.load_state_dict(torch.load(root_dir + self.path_to_file))
+    self.model.load_state_dict(torch.load(self.path_to_file))
 
     # activate eval mode (no dropout layers)
     self.model.eval()
@@ -71,7 +74,7 @@ if __name__ == '__main__':
   """
 
   # create classifier
-  classifier = Classifier(file='./ignore/models/best_models/fstride_c-5.npz')
+  classifier = Classifier(file='./models/fstride_c-5.npz', verbose=True)
 
   # random sample
   x = np.random.randn(39, 32)

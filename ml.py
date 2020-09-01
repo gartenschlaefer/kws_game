@@ -428,10 +428,6 @@ def init_logging(log_path):
   # disable unwanted logs
   logging.getLogger('matplotlib.font_manager').disabled = True
 
-  #logging.debug('This message should go to the log file')
-  #logging.info('So should this')
-  #logging.warning('And this, too')
-
 
 if __name__ == '__main__':
   """
@@ -481,11 +477,8 @@ if __name__ == '__main__':
   nn_arch = nn_architectures[1]
 
   # pretrained model
-  #pre_trained_model_path = model_path + 'conv-fstride_v2_c-30_n-1500_bs-128_it-2000_lr-0p001.pth'
-  #pre_trained_model_path = model_path + 'conv-fstride_v2_c-30_n-1500_bs-32_it-1000_lr-0p001_pre.pth'
   #pre_trained_model_path = model_pre_path + 'conv-fstride_c-30.pth'
   pre_trained_model_path = None
-
 
 
   # params

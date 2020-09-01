@@ -3,7 +3,6 @@ kws game
 """
 
 import pygame
-import numpy as np
 
 from classifier import Classifier
 from mic import Mic
@@ -12,35 +11,17 @@ from mic import Mic
 import sys
 sys.path.append("./game")
 
-from character import Character 
+# game stuff
 from color_bag import ColorBag
-from grid_world import GridWorld
-from levels import setup_level_square
+from game_logic import ThingsGameLogic
+from levels import Level_01, Level_02
+from text import Text
 
 
 if __name__ == '__main__':
   """
-  Main Gridworld
+  kws game main
   """
-
-  # size of display
-  screen_size = width, height = 640, 480
-
-  # some vars
-  run_loop = True
-
-  # collection of game colors
-  color_bag = ColorBag()
-
-  # init pygame
-  pygame.init()
-
-  # init display
-  screen = pygame.display.set_mode(screen_size)
-
-  # sprite groups
-  all_sprites = pygame.sprite.Group()
-
 
   # --
   # mic
@@ -52,18 +33,36 @@ if __name__ == '__main__':
   N, hop = int(0.025 * fs), int(0.010 * fs)
 
   # create classifier
-  classifier = Classifier(file='./ignore/models/best_models/fstride_c-5.npz')  
+  classifier = Classifier(file='./models/fstride_c-5.npz', verbose=False)
 
   # create mic instance
-  mic = Mic(fs=fs, N=N, hop=hop, classifier=classifier)
+  mic = Mic(fs=fs, N=N, hop=hop, classifier=classifier, energy_thres=1e-4, device=7)
 
 
-  # create gridworld
-  grid_world = GridWorld(screen_size, color_bag, mic)
-  setup_level_square(grid_world)
+  # --
+  # game setup
 
-  # add sprites
-  all_sprites.add(grid_world.wall_sprites, grid_world.move_wall_sprites)
+  # size of display
+  screen_size = width, height = 640, 480
+
+  # init pygame
+  pygame.init()
+
+  # init display
+  screen = pygame.display.set_mode(screen_size)
+
+  # collection of game colors
+  color_bag = ColorBag()
+  text = Text(screen, color_bag)
+
+  # level creation
+  levels = [Level_01(screen, screen_size, color_bag, mic), Level_02(screen, screen_size, color_bag, mic)]
+
+  # choose level
+  level = levels[0]
+
+  # game logic with dependencies
+  game_logic = ThingsGameLogic(level, levels, text)
 
   # add clock
   clock = pygame.time.Clock()
@@ -72,23 +71,17 @@ if __name__ == '__main__':
   with mic.stream:
 
     # game loop
-    while run_loop:
+    while game_logic.run_loop:
       for event in pygame.event.get():
 
-        # input handling in grid world
-        run_loop = grid_world.event_update(event, run_loop)
+        # input handling
+        game_logic.event_update(event)
+        level.event_update(event)
 
       # frame update
-      grid_world.frame_update()
-
-      # update sprites
-      all_sprites.update()
-
-      # fill screen
-      screen.fill(color_bag.background)
-
-      # draw sprites
-      all_sprites.draw(screen)
+      level = game_logic.update()
+      level.update()
+      text.update()
 
       # update display
       pygame.display.flip()
@@ -96,5 +89,5 @@ if __name__ == '__main__':
       # reduce framerate
       clock.tick(60)
 
-  # end pygame
-  pygame.quit()
+    # end pygame
+    pygame.quit()

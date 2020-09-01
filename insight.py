@@ -6,15 +6,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 import librosa
 
-import torch
-
 # my stuff
-from common import *
+from common import create_folder
 from plots import *
 from conv_nets import *
 
-from ml import get_nn_model, get_pretrained_model
-from online import extract_model
 from feature_extraction import pre_processing, calc_mfcc39, frames_to_sample
 from classifier import Classifier
 
@@ -49,20 +45,16 @@ if __name__ == '__main__':
   """
 
   # plot path and model path
-  plot_path, model_path = './ignore/plots/insight/', './ignore/models/best_models/'
+  plot_path = './ignore/plots/insight/'
 
   # create folder
   create_folder([plot_path])
 
-  # model name
-  model_name = 'best_model_c-5.npz'
-
-  # extract model from file data
-  model, class_dict = extract_model(model_path + model_name)
-
-
   # classifier
-  classifier = Classifier(file=model_path + model_name, verbose=True)
+  classifier = Classifier(file='./models/fstride_c-5.npz', verbose=True)
+
+  # get model
+  model = classifier.model 
 
 
   # wav file to evaluate

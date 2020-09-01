@@ -88,25 +88,38 @@ class GridWorld(Interactable):
 					# set grid
 					move_wall.set_move_wall_grid(self.move_wall_grid)
 
-					# deactivate move wall
-					move_wall.is_active = False
-
 					# wall container
 					self.move_walls.append(move_wall)
 
 					# add to sprite groups
 					self.move_wall_sprites.add(move_wall)
 
+		# init move walls
+		self.move_walls_init()
+
+
+	def move_walls_init(self):
+		"""
+		init move walls
+		"""
+
 		# collision grouping for movable walls
-		for i, mw in enumerate(self.move_walls):
+		for i, move_wall in enumerate(self.move_walls):
+
+			# reset moving walls
+			move_wall.reset()
+
+			# deactivate move wall
+			move_wall.is_active = False
+			move_wall.set_color(self.color_bag.default_move_wall)
 
 			# move able wall sees wall
-			mw.obstacle_sprites.add(self.wall_sprites)
+			move_wall.obstacle_sprites.add(self.wall_sprites)
 
 			# sees also moving walls
 			sp = self.move_walls.copy()
 			sp.pop(i)
-			mw.obstacle_sprites.add(sp)
+			move_wall.obstacle_sprites.add(sp)
 
 		# set one move wall active
 		if self.move_walls:
@@ -153,11 +166,11 @@ class GridWorld(Interactable):
 		reset grid world
 		"""
 
-		for move_wall in self.move_walls:
+		# active move wall
+		self.act_wall = 0
 
-			# reset moving walls
-			move_wall.reset()
-
+		# init move walls again
+		self.move_walls_init()
 
 
 	def event_update(self, event):
@@ -220,7 +233,7 @@ if __name__ == '__main__':
 	N, hop = int(0.025 * fs), int(0.010 * fs)
 
 	# create classifier
-	classifier = Classifier(file='../ignore/models/best_models/fstride_c-5.npz', root_dir='.')  
+	classifier = Classifier(file='../models/fstride_c-5.npz', verbose=False) 
 
 	# create mic instance
 	mic = Mic(fs=fs, N=N, hop=hop, classifier=classifier)

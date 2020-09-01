@@ -3,7 +3,7 @@ character class
 """
 
 import pygame
-import numpy as np
+import pathlib
 
 from input_handler import InputKeyHandler
 from interactable import Interactable
@@ -24,7 +24,7 @@ class Character(pygame.sprite.Sprite, Interactable):
 		self.is_gravity = is_gravity
 
 		# load image and create rect
-		self.image = pygame.image.load("./art/henry_front.png").convert_alpha()
+		self.image = pygame.image.load(str(pathlib.Path(__file__).parent.absolute()) + "/art/henry_front.png").convert_alpha()
 		self.rect = self.image.get_rect()
 
 		# proper scaling
@@ -195,9 +195,12 @@ class Character(pygame.sprite.Sprite, Interactable):
 		# y movement
 		self.rect.y += move_change_y
 
+		# grounded false
+		self.is_grounded = False
+
 		# collide issue
 		for obst in pygame.sprite.spritecollide(self, self.obstacle_sprites, False):
-
+			
 			# stand at wall
 			if move_change_y > 0:
 

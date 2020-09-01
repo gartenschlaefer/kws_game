@@ -293,7 +293,7 @@ class Level_01(LevelThings):
     super().__init__(screen, screen_size, color_bag, mic)
 
     # determine start position
-    self.henry.set_position(self.grid_world.grid_to_pos([10, 10]), is_init_pos=True)
+    self.henry.set_position(self.grid_world.grid_to_pos([5, 20]), is_init_pos=True)
     self.thing.set_position(self.grid_world.grid_to_pos([22, 18]), is_init_pos=True)
 
 
@@ -306,8 +306,56 @@ class Level_01(LevelThings):
     self.setup_wall_edge(self.grid_world)
 
     # wall in the middle
-    self.grid_world.wall_grid[20:25, 20:24] = 1
-    self.grid_world.wall_grid[10:15, 20] = 1
+    self.grid_world.wall_grid[20:25, 20:23] = 1
+    self.grid_world.wall_grid[20:25, 16] = 1
+    self.grid_world.wall_grid[25, 16:23] = 1
+
+    self.grid_world.wall_grid[10:15, 20:23] = 1
+
+    # move walls
+    self.grid_world.move_wall_grid[20, 17] = 1
+    self.grid_world.move_wall_grid[20, 18] = 1
+    self.grid_world.move_wall_grid[20, 19] = 1
+
+    # create walls
+    self.grid_world.create_walls()
+
+
+class Level_02(LevelThings):
+  """
+  first actual level
+  """
+
+  def __init__(self, screen, screen_size, color_bag, mic=None):
+
+    # parent class init
+    super().__init__(screen, screen_size, color_bag, mic)
+
+    # determine start position
+    self.henry.set_position(self.grid_world.grid_to_pos([22, 20]), is_init_pos=True)
+    self.thing.set_position(self.grid_world.grid_to_pos([2, 5]), is_init_pos=True)
+
+
+  def setup_level(self, grid_world):
+    """
+    setup level
+    """
+
+    # set walls
+    self.setup_wall_edge(self.grid_world)
+
+    # wall in the middle
+    self.grid_world.wall_grid[27:, 19] = 1
+    self.grid_world.wall_grid[19:22, 15] = 1
+    self.grid_world.wall_grid[11:14, 11] = 1
+
+    self.grid_world.wall_grid[:5, 7] = 1
+
+    # move walls
+    self.grid_world.move_wall_grid[29, 22] = 1
+    self.grid_world.move_wall_grid[27, 18] = 1
+    self.grid_world.move_wall_grid[19, 16] = 1
+    self.grid_world.move_wall_grid[4, 8] = 1
 
     # create walls
     self.grid_world.create_walls()
@@ -319,14 +367,11 @@ if __name__ == '__main__':
   """
 
   from color_bag import ColorBag
-  from grid_world import GridWorld
-  from game_logic import GameLogic
+  from game_logic import GameLogic, ThingsGameLogic
+  from text import Text
 
   # size of display
   screen_size = width, height = 640, 480
-
-  # collection of game colors
-  color_bag = ColorBag()
 
   # init pygame
   pygame.init()
@@ -334,14 +379,23 @@ if __name__ == '__main__':
   # init display
   screen = pygame.display.set_mode(screen_size)
 
+  # collection of game colors
+  color_bag = ColorBag()
+  text = Text(screen, color_bag)
 
   # level creation
   #level = LevelSquare(screen, screen_size, color_bag)
   #level = LevelMoveWalls(screen, screen_size, color_bag)
-  level = Level_01(screen, screen_size, color_bag)
 
-  # game logic
-  game_logic = GameLogic()
+  # level creation
+  #levels = [Level_01(screen, screen_size, color_bag), Level_02(screen, screen_size, color_bag)]
+  levels = [Level_02(screen, screen_size, color_bag)]
+
+  # choose level
+  level = levels[0]
+
+  # game logic with dependencies
+  game_logic = ThingsGameLogic(level, levels, text)
 
   # add clock
   clock = pygame.time.Clock()
@@ -356,8 +410,9 @@ if __name__ == '__main__':
       level.event_update(event)
 
     # frame update
-    game_logic.update()
+    level = game_logic.update()
     level.update()
+    text.update()
 
     # update display
     pygame.display.flip()

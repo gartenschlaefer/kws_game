@@ -72,15 +72,21 @@ class ThingsGameLogic(GameLogic):
   Game Logic for things.py
   """
 
-  def __init__(self, level, text):
+  def __init__(self, level, levels, text):
 
     # parent init
     super().__init__()
 
-    # game objects
+    # vars
     self.level = level
-    self.henry = self.level.henry
+    self.levels = levels
     self.text = text
+
+    # level id always start with zero
+    self.level_id = 0
+
+    # game objects
+    self.henry = self.level.henry
 
 
   def check_win_condition(self):
@@ -119,7 +125,23 @@ class ThingsGameLogic(GameLogic):
     """
     
     if self.end_game:
+
+      # update level id
+      self.level_id += 1
+
+      # clamp level id
+      if self.level_id >= len(self.levels):
+        self.level_id = 0
+
+      # restart
       self.restart_game()
+
+      # new level
+      self.level = self.levels[self.level_id]
+
+      # game objects
+      self.henry = self.level.henry
+
 
 
   def event_update(self, event):
@@ -142,3 +164,8 @@ class ThingsGameLogic(GameLogic):
 
     # check win condition
     self.check_win_condition()
+
+    #if self.change_level:
+    #  return self.levels[self.level_id]
+
+    return self.level

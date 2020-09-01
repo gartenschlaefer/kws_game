@@ -103,8 +103,6 @@ class InputMicHandler(InputHandler):
 		# interpret command
 		if command is not None:
 
-			print("yey command: ", command)
-
 			# direction
 			if command == 2:
 				self.obj.direction_change([-1, 0])

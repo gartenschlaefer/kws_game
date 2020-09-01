@@ -67,6 +67,16 @@ def read_mic_data(collector):
   return x, e, is_onset
 
 
+def clear_mic_queue():
+  """
+  clear the queue after classification
+  """
+
+  # empty queue
+  while not q.empty():
+    dummy = q.get_nowait()
+
+
 def stop_mic_condition(x, fs, time_duration):
   """
   stop the while loop
@@ -88,7 +98,7 @@ def sd_setup(fs, hop, fs_device=48000, channels=1):
   sd.default.device = 7
 
   # show devices
-  print("device list: \n", sd.query_devices())
+  print("\ndevice list: \n", sd.query_devices())
 
   # setup stream sounddevice
   stream = sd.InputStream(samplerate=fs*downsample, blocksize=hop*downsample, channels=channels, callback=callback_mic)
@@ -108,10 +118,7 @@ if __name__ == '__main__':
   create_folder([plot_path])
 
   # create classifier
-  classifier = Classifier(file='./ignore/models/best_models/fstride_c-5.npz')
-  #classifier = Classifier(file='./ignore/models/best_models/trad_c-5.npz')
-
-
+  classifier = Classifier(file='./models/fstride_c-5.npz', verbose=True)
 
 
   # --
@@ -186,6 +193,8 @@ if __name__ == '__main__':
       # collection is full
       if collector.is_full():
 
+        print("que size: ", q.qsize())
+
         # read out collection
         x_onset = collector.read_collection()
 
@@ -201,13 +210,16 @@ if __name__ == '__main__':
 
         # classify collection
         y_hat = classifier.classify_sample(mfcc_bon)
+        y_hat_list.append(y_hat)
 
         # times
         time_class_list.append(time.time() - start_time)
         start_time = time.time()
 
-        print("class time: ", time.time() - start_time)
-        y_hat_list.append(y_hat)
+        
+        # clear queue
+        clear_mic_queue()
+        print("que size: ", q.qsize())
 
         # plot profile
         plot_mfcc_profile(x_onset[bon_pos*hop:(bon_pos+frame_size)*hop], fs, N, hop, mfcc_bon, frame_size=frame_size, plot_path=plot_path, name='collect-{}'.format(collector.collection_counter))

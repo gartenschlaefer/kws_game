@@ -3,6 +3,8 @@ things class
 """
 
 import pygame
+import pathlib
+
 from text import Text
 
 
@@ -21,7 +23,7 @@ class Thing(pygame.sprite.Sprite):
     self.scale = scale
 
     # load image and create rect
-    self.image = pygame.image.load("./art/thing.png").convert_alpha()
+    self.image = pygame.image.load(str(pathlib.Path(__file__).parent.absolute()) + "/art/thing.png").convert_alpha()
     self.rect = self.image.get_rect()
 
     # proper scaling
@@ -55,7 +57,7 @@ if __name__ == '__main__':
   """
 
   from color_bag import ColorBag
-  from levels import LevelThings
+  from levels import LevelThings, Level_01
   from text import Text
 
   from game_logic import ThingsGameLogic
@@ -78,11 +80,13 @@ if __name__ == '__main__':
 
 
   # level creation
-  level = LevelThings(screen, screen_size, color_bag)
+  levels = [LevelThings(screen, screen_size, color_bag), Level_01(screen, screen_size, color_bag)]
+
+  # choose level
+  level = levels[0]
 
   # game logic with dependencies
-  game_logic = ThingsGameLogic(level, text)
-
+  game_logic = ThingsGameLogic(level, levels, text)
 
   # add clock
   clock = pygame.time.Clock()
@@ -99,7 +103,8 @@ if __name__ == '__main__':
       level.event_update(event)
 
     # frame update
-    game_logic.update()
+    level = game_logic.update()
+
     level.update()
     text.update()
 

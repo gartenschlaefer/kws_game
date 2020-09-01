@@ -29,8 +29,8 @@ class Wall(pygame.sprite.Sprite):
 		self.rect = self.image.get_rect()
 
 		# set rect position
-		self.rect.x = position[0]
-		self.rect.y = position[1]
+		self.rect.x = self.position[0]
+		self.rect.y = self.position[1]
 
 		self.image.fill(color)
 
@@ -75,6 +75,7 @@ class MovableWall(Wall, Interactable):
 		
 		# save init pos
 		self.init_pos = self.position
+		self.init_grid_pos = self.grid_pos.copy()
 
 		# the grid
 		self.move_wall_grid = None
@@ -201,9 +202,16 @@ class MovableWall(Wall, Interactable):
 		reset move wall
 		"""
 
+		# set active
 		self.is_active = True
-		self.rect.x = self.init_pos[0]
-		self.rect.y = self.init_pos[1]
+
+		# grid pos
+		self.grid_pos[0] = self.init_grid_pos[0]
+		self.grid_pos[1] = self.init_grid_pos[1]
+
+		# reset rect
+		self.rect.x = self.grid_pos[0] * self.size[0]
+		self.rect.y = self.grid_pos[1] * self.size[1]
 
 
 	def update(self):
@@ -262,7 +270,7 @@ if __name__ == '__main__':
 	N, hop = int(0.025 * fs), int(0.010 * fs)
 
 	# create classifier
-	classifier = Classifier(file='../ignore/models/best_models/fstride_c-5.npz', root_dir='.')  
+	classifier = Classifier(file='../models/fstride_c-5.npz', verbose=False)
 
 	# create mic instance
 	mic = Mic(fs=fs, N=N, hop=hop, classifier=classifier)

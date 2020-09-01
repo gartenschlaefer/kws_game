@@ -13,13 +13,15 @@ from feature_extraction import calc_mfcc39, onset_energy_level, find_min_energy_
 from collector import Collector
 from classifier import Classifier
 
+#from plots import plot_mfcc_profile
+
 
 class Mic():
   """
   Mic class
   """
 
-  def __init__(self, fs, N, hop, classifier, fs_device=48000, channels=1, energy_thres=1e-4, frame_size=32):
+  def __init__(self, fs, N, hop, classifier, fs_device=48000, channels=1, energy_thres=1e-4, frame_size=32, device=7):
 
     # vars
     self.fs = fs
@@ -30,6 +32,7 @@ class Mic():
     self.channels = channels
     self.energy_thres = energy_thres
     self.frame_size = frame_size
+    self.device = device
 
     # queue and collector
     self.q = queue.Queue()
@@ -39,10 +42,10 @@ class Mic():
     self.downsample = fs_device // fs
 
     # select microphone
-    sd.default.device = 7
+    sd.default.device = self.device
 
     # show devices
-    print("device list: \n", sd.query_devices())
+    print("\ndevice list: \n", sd.query_devices())
 
     # setup stream sounddevice
     self.stream = sd.InputStream(samplerate=self.fs*self.downsample, blocksize=self.hop*self.downsample, channels=channels, callback=self.callback_mic)
@@ -63,6 +66,16 @@ class Mic():
     self.q.put(indata[::self.downsample, 0])
 
 
+  def clear_mic_queue(self):
+    """
+    clear the queue after classification
+    """
+
+    # empty queue
+    while not self.q.empty():
+      dummy = self.q.get_nowait()
+
+
   def read_mic_data(self):
     """
     reads the input from the queue
@@ -70,25 +83,29 @@ class Mic():
 
     # init
     x = np.empty(shape=(0), dtype=np.float32)
+    x_collect = np.empty(shape=(0), dtype=np.float32)
 
     # onset flag
     is_onset = False
 
     # process data
-    try:
+    if self.q.qsize():
 
-      # get data
-      x = self.q.get_nowait()
+      #print("que: ", self.q.qsize())
+
+      # read out data
+      while not self.q.empty():
+
+        # get data
+        x = self.q.get_nowait()
+
+        x_collect = np.concatenate((x_collect, x))
+
+        # collection update
+        self.collector.update_collect(x.copy())
 
       # detect onset
-      _, is_onset = onset_energy_level(x, alpha=self.energy_thres)
-
-      # collection update
-      self.collector.update_collect(x.copy())
-      
-    # no data
-    except queue.Empty:
-      return x, is_onset
+      _, is_onset = onset_energy_level(x_collect, alpha=self.energy_thres)
 
     return x, is_onset
 
@@ -99,6 +116,7 @@ class Mic():
     32ms classification
     """
 
+    #print("update read command")
     # read chunk
     xi, is_onset = self.read_mic_data()
 
@@ -126,6 +144,11 @@ class Mic():
       # classify collection
       y_hat = self.classifier.classify_sample(mfcc_bon)
 
+      #plot_mfcc_profile(x_onset[bon_pos*self.hop:(bon_pos+32)*self.hop], self.fs, self.N, self.hop, mfcc_bon, frame_size=32, plot_path='./delete/', name='collect-{}'.format(self.collector.collection_counter))
+
+      # clear read queue
+      self.clear_mic_queue()
+
       return y_hat
 
     return None
@@ -143,8 +166,7 @@ if __name__ == '__main__':
   N, hop = int(0.025 * fs), int(0.010 * fs)
 
   # create classifier
-  classifier = Classifier(file='./ignore/models/best_models/fstride_c-5.npz')  
-  #classifier = Classifier(file='./ignore/models/best_models/trad_c-5.npz')  
+  classifier = Classifier(file='./models/fstride_c-5.npz', verbose=True) 
 
   # create mic instance
   mic = Mic(fs=fs, N=N, hop=hop, classifier=classifier)
@@ -157,11 +179,4 @@ if __name__ == '__main__':
 
       # get command
       command = mic.update_read_command()
-
-      # interpret command
-      if command is not None:
-
-        print("yey command: ", command)
-        # interpret command
-        pass
 

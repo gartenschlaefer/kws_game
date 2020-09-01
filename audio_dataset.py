@@ -15,17 +15,6 @@ from feature_extraction import *
 from common import create_folder
 from plots import *
 
-from torch.utils.data import Dataset, DataLoader
-
-
-# TODO: Pytorch stuff
-# class SpeechCommandDataset():
-# 	"""
-# 	Speech Command preparance for running with torch
-# 	"""
-
-# 	def __init__(self, )
-
 
 def copy_wav_files(wav_files, label, data_paths, data_percs):
 	"""
@@ -261,10 +250,10 @@ if __name__ == '__main__':
 	version_nr = 3
 
 	# num examples per class for ml 
-	#n_examples, n_data = 12, 10
+	n_examples, n_data = 12, 10
 	#n_examples, n_data = 70, 50
 	#n_examples, n_data = 550, 500
-	n_examples, n_data = 2200, 2000
+	#n_examples, n_data = 2200, 2000
 	#n_examples, n_data = 1700, 1500
 
 	# plot path
@@ -357,10 +346,5 @@ if __name__ == '__main__':
 
 		# print
 		print("--save data to: ", file_name)
-
-
-
-	# show plots
-	#plt.show()
 
 
