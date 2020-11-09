@@ -8,18 +8,20 @@ Date: 01.09.2020
 
 The aim of this project was to evaluate a Key-Word-Spotting (KWS) system trained with the speech command data set from Warden (2018) in a simple Computer Game.
 
+![alt text](https://raw.githubusercontent.com/chrisworld/kws_game/master/docu/screenshots/level1-1.png)
 
 ## Technical Details
 
 Python 3.7 was used for coding and testing.
 Several packages must by installed to run the game, try and see what is missing.
-Further a microphone is necessary to play the game
+Further a microphone is necessary to play the game.
 
 
 ## Usage
 
 The project contains a fundamental approach for developing a KWS system.
 This stretches from extracting features from the dataset, to speech commands used in the game.
+The interested reader is welcome to go through the code and investigate how it is done, also most files can be executed by their own to show their contribution.
 
 To play the game open a terminal and type:
 
@@ -33,7 +35,7 @@ where the 'device' parameter specifies the input device.
 Choose a number from the device list printed in the terminal.
 Also the 'energy_thres' might need some fine tuning according to your microphone.
 
-
+![alt text](https://raw.githubusercontent.com/chrisworld/kws_game/master/docu/screenshots/level1-2.png)
 
 
 
