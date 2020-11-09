@@ -1,5 +1,6 @@
 """
-audio datasets set creation for kws
+audio datasets set creation for kws game
+process of the speech command dataset and extraction to MFCC features
 """
 
 import re

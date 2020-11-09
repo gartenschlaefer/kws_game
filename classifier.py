@@ -11,7 +11,8 @@ from ml import get_nn_model
 
 class Classifier():
   """
-  Input Handler class
+  classifier class for classifying new samples with a trained model
+  file: path to .pth file
   """
 
   def __init__(self, file, verbose=False):
@@ -47,7 +48,7 @@ class Classifier():
 
   def classify_sample(self, x):
     """
-    classification by neural network
+    classification of a single sample
     """
 
     # input to tensor

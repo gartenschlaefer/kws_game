@@ -8,6 +8,10 @@ import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
 
+# append paths
+import sys
+sys.path.append("../")
+
 from conv_nets import *
 
 
@@ -325,4 +329,4 @@ if __name__ == '__main__':
   #run_tutorial_net(ConvNetTutorial())
 
   # cifar tutorial
-  train_cifar10(ConvNetCifar(), retrain=True)
+  train_cifar10(ConvNetCifar(), retrain=False)
