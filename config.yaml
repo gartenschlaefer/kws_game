@@ -1,0 +1,60 @@
+# --
+# config file for this project
+
+# audio dataset config
+audio_dataset_config:
+
+  # path to speech command dataset
+  dataset_path: ./ignore/speech_commands_v0.01/
+
+  # plot path root
+  plot_path_root: ./ignore/plots/features/
+
+  # paths to save training, testing and eval data
+  data_paths:
+    - ./ignore/train/
+    - ./ignore/test/
+    - ./ignore/eval/
+
+  # split of dataset in training, test, eval
+  data_percs:
+    - 0.8
+    - 0.1
+    - 0.1
+
+  # selected labels of the whole set
+  sel_labels: ['left', 'right', 'up', 'down', 'go']
+  #sel_labels = ['eight', 'sheila', 'nine', 'yes', 'one', 'no', 'left', 'tree', 'bed', 'bird', 'go', 'wow', 'seven', 'marvin', 'dog', 'three', 'two', 'house', 'down', 'six', 'five', 'off', 'right', 'cat', 'zero', 'four', 'stop', 'up', 'on', 'happy']
+
+  # version number - just to confuse myself not too much
+  # v3: data extraction with min energy and randomize onsets
+  version_nr: 3
+
+  # number of examples picked from dataset
+  n_examples_split: [12, 10]
+  #n_examples_split: [1700, 1500]
+  #n_examples_split: [2200, 2000]
+
+
+  # feature params
+  feature_params:
+
+    # sampling rate
+    fs: 16000
+
+    # window and hop size [sec]
+    N_s: 0.025
+    hop_s: 0.010
+
+    # number of filter bands and cepstral coeffs
+    n_filter_bands: 32
+    n_ceps_coeff: 12
+
+    # frame size of output features -> input to nn
+    frame_size: 32
+
+    # mfcc feat size - do not change this
+    feature_size: 39
+
+
+

@@ -7,6 +7,7 @@ import re
 import numpy as np
 import matplotlib.pyplot as plt
 import librosa
+import yaml
 
 from glob import glob
 from shutil import copyfile
@@ -102,82 +103,99 @@ def wav_pre_processing(wav, fs, min_samples):
 		# append with zeros
 		x_raw = np.append(x_raw, np.zeros(min_samples - len(x_raw)))
 
-	# pre processing
-	x = pre_processing(x_raw)
-
-	return x, fs
+	return x_raw
 
 
-def extract_mfcc_data(wavs, params, frame_size=32, ext=None, min_samples=16000, plot_path=None):
+def extract_mfcc_data(wavs, params, n_examples, ext=None, min_samples=16000, plot_path=None):
 	"""
 	extract mfcc data from wav-files
 	"""
 
-	# extract params
-	fs, N, hop, n_filter_bands, n_ceps_coeff = params['fs'], params['N'], params['hop'], params['n_filter_bands'], params['n_ceps_coeff']
+	# windowing samples
+	N, hop = int(params['N_s'] * params['fs']), int(params['hop_s'] * params['fs'])
 
 	# init mfcc_data: [n x m x l] n samples, m features, l frames
-	mfcc_data = np.empty(shape=(0, 39, frame_size), dtype=np.float64)
+	mfcc_data = np.empty(shape=(0, params['feature_size'], params['frame_size']), dtype=np.float64)
 	
-	# damaged file score
-	z_score_list, broken_file_list = np.array([]), []
+	# some lists
+	z_score_list, broken_file_list, label_data, index_data = np.array([]), [], [], []
 
-	# init label list and index data
-	label_data, index_data = [], []
+	# create feature extractor
+	feature_extractor = FeatureExtractor(fs=params['fs'], N=N, hop=hop, n_filter_bands=params['n_filter_bands'], n_ceps_coeff=params['n_ceps_coeff'], frame_size=params['frame_size'])
 
 	# run through all wavs for processing
 	for wav in wavs:
 		
-		# extract filename
-		file_name = re.findall(r'[\w+ 0-9]+\.wav', wav)[0]
-
-		# extract file index from filename
-		file_index = re.sub(r'[a-z A-Z]|(\.wav)', '', file_name)
-
-		# extract label from filename
-		label = re.sub(r'([0-9]+\.wav)', '', file_name)
+		# extract file namings
+		file_name, file_index, label = file_naming_extraction(wav)
 
 		# load and pre-process audio
-		x, fs = wav_pre_processing(wav, fs, min_samples)
+		x = wav_pre_processing(wav, params['fs'], min_samples)
 
 		# print some info
-		print("wav: [{}] with label: [{}], samples=[{}], time=[{}]s".format(wav, label, len(x), len(x)/fs))
+		print("wav: [{}] with label: [{}], samples=[{}], time=[{}]s".format(wav, label, len(x), len(x)/params['fs']))
 
-		# calculate feature vectors [m x l]
-		mfcc = calc_mfcc39(x, fs, N=N, hop=hop, n_filter_bands=n_filter_bands, n_ceps_coeff=n_ceps_coeff)
+		# extract feature vectors [m x l]
+		mfcc, bon_pos = feature_extractor.extract_mfcc39(x)
 
-		# calc onsets
-		#onsets = calc_onsets(x, fs, N=N, hop=hop, adapt_frames=5, adapt_alpha=0.1, adapt_beta=1)
-		onsets = calc_onsets(x, fs, N=N, hop=hop, adapt_frames=5, adapt_alpha=0.05, adapt_beta=0.9)
-
-		# find best onset
-		#best_onset, bon_pos = find_best_onset(onsets, frame_size=frame_size, pre_frames=1)
-		mient = find_min_energy_time(mfcc, fs, hop)
-		minreg, bon_pos = find_min_energy_region(mfcc, fs, hop, frame_size=frame_size, randomize=True)
+		# onset analysis if necessary
+		#onset_analysis(x, params, N, hop)
 
 		# damaged file things
 		z_score, z_damaged = detect_damaged_file(mfcc)
 		z_score_list = np.append(z_score_list, z_score)
 
 		# plot mfcc features
-		plot_mfcc_profile(x, fs, N, hop, mfcc, onsets=None, bon_pos=bon_pos, mient=mient, minreg=None, frame_size=frame_size, plot_path=plot_path, name=label + str(file_index) + '_' + ext)
+		plot_mfcc_profile(x, params['fs'], N, hop, mfcc, onsets=None, bon_pos=bon_pos, mient=None, minreg=None, frame_size=params['frame_size'], plot_path=plot_path, name=label + str(file_index) + '_' + ext)
 
-		# handled damaged files
+		# handle damaged files
 		if z_damaged:
 			print("--*file probably broken!")
 			broken_file_list.append(file_name)
 			continue
 
-		# add to mfcc_data
-		mfcc_data = np.vstack((mfcc_data, mfcc[np.newaxis, :, bon_pos:bon_pos+frame_size]))
+		# add to mfcc_data container
+		mfcc_data = np.vstack((mfcc_data, mfcc[np.newaxis, :, :]))
 		label_data.append(label)
 		index_data.append(label + file_index)
 
 	# broken file info
-	plot_damaged_file_score(z_score_list, plot_path=plot_path, name='z_score_n-{}'.format(params['n_examples']))
+	plot_damaged_file_score(z_score_list, plot_path=plot_path, name='z_score_n-{}'.format(n_examples))
 	print("\n --broken file list: \n{}\nwith length: {}".format(broken_file_list, len(broken_file_list)))
 
 	return mfcc_data, label_data, index_data
+
+
+def file_naming_extraction(wav):
+	"""
+	extracts the file name, index and label of example
+	"""
+
+	# extract filename
+	file_name = re.findall(r'[\w+ 0-9]+\.wav', wav)[0]
+
+	# extract file index from filename
+	file_index = re.sub(r'[a-z A-Z]|(\.wav)', '', file_name)
+
+	# extract label from filename
+	label = re.sub(r'([0-9]+\.wav)', '', file_name)
+
+	return file_name, file_index, label
+
+
+def onset_analysis(x, params, N, hop):
+	"""
+	onset analysis - only for evaluation
+	"""
+
+	# calc onsets
+	onsets = calc_onsets(x, params['fs'], N=N, hop=hop, adapt_frames=5, adapt_alpha=0.1, adapt_beta=1)
+	#onsets = calc_onsets(x, params['fs'], N=N, hop=hop, adapt_frames=5, adapt_alpha=0.05, adapt_beta=0.9)
+
+	# find best onset
+	#best_onset, bon_pos = find_best_onset(onsets, frame_size=frame_size, pre_frames=1)
+	#mient = find_min_energy_time(mfcc, params['fs'], hop)
+	#minreg, bon_pos = find_min_energy_region(mfcc, params['fs'], hop, frame_size=params['frame_size'], randomize=True)
 
 
 def detect_damaged_file(mfcc, z_lim=60):
@@ -194,7 +212,7 @@ def detect_damaged_file(mfcc, z_lim=60):
 
 def label_stats(y):
 	"""
-	labels
+	label statistics
 	"""
 
 	labels = np.unique(y)
@@ -238,74 +256,37 @@ if __name__ == '__main__':
 	main function of audio dataset
 	"""
 
-	# path to whole dataset
-	dataset_path = './ignore/speech_commands_v0.01/'
-
-	# path to training, test and eval set
-	data_paths = ['./ignore/train/', './ignore/test/', './ignore/eval/']
-
-	# percent of data splitting [train, test], leftover is eval
-	data_percs = np.array([0.8, 0.1, 0.1])
-
-	# version number
-	version_nr = 3
+	# yaml config file
+	cfg = yaml.safe_load(open("./config.yaml"))['audio_dataset_config']
 
 	# num examples per class for ml 
-	n_examples, n_data = 12, 10
-	#n_examples, n_data = 70, 50
-	#n_examples, n_data = 550, 500
-	#n_examples, n_data = 2200, 2000
-	#n_examples, n_data = 1700, 1500
+	n_examples, n_data = cfg['n_examples_split']
 
 	# plot path
-	plot_path = './ignore/plots/features/n{}/'.format(n_examples)
+	plot_path = cfg['plot_path_root'] + 'n{}/'.format(n_examples)
 
 	# wav folder
 	wav_folder = 'wav_n-{}/'.format(n_examples)
 
+
 	# create folder
-	create_folder([p + wav_folder for p in data_paths] + [plot_path])
+	create_folder([p + wav_folder for p in cfg['data_paths']] + [plot_path])
 
 	# status message
-	print("\n--create datasets\n[{}] examples per class saved at paths: {} with splits: {}\n".format(n_examples, data_paths, data_percs))
+	print("\n--create datasets\nexamples per class: [{}], saved at paths: {} with splits: {}\n".format(n_examples, cfg['data_paths'], cfg['data_percs']))
 
 	# copy wav files to path
-	labels = create_datasets(n_examples, dataset_path, [p + wav_folder for p in data_paths], data_percs)
-
-	# select labels from
-	# ['eight', 'sheila', 'nine', 'yes', 'one', 'no', 'left', 'tree', 'bed', 'bird', 'go', 'wow', 'seven', 'marvin', 'dog', 'three', 'two', 'house', 'down', 'six', 'five', 'off', 'right', 'cat', 'zero', 'four', 'stop', 'up', 'on', 'happy']
-	sel_labels = ['left', 'right', 'up', 'down', 'go']
-	#sel_labels = ['eight', 'sheila', 'nine', 'yes', 'one', 'no', 'left', 'tree', 'bed', 'bird', 'go', 'wow', 'seven', 'marvin', 'dog', 'three', 'two', 'house', 'down', 'six', 'five', 'off', 'right', 'cat', 'zero', 'four', 'stop', 'up', 'on', 'happy']
-
-	# list labels
-	print("labels: ", labels)
-	print("\nselected labels: ", sel_labels)
+	labels = create_datasets(n_examples, cfg['dataset_path'], [p + wav_folder for p in cfg['data_paths']], cfg['data_percs'])
 
 
 	# --
 	# extract mfcc features
 
-	# sampling rate
-	fs = 16000
+	# print params
+	print("params: ", cfg['feature_params'])
 
-	# mfcc window and hop size
-	N, hop = int(0.025 * fs), int(0.010 * fs)
-
-	# amount of filter bands and cepstral coeffs
-	n_filter_bands, n_ceps_coeff = 32, 12
-
-	# add params
-	params = {'n_examples':n_examples, 'data_percs':data_percs, 'fs':fs, 'N':N, 'hop':hop, 'n_filter_bands':n_filter_bands, 'n_ceps_coeff':n_ceps_coeff}
-
-	# mfcc info
-	info = "n_examples={} with data split {}, fs={}, mfcc: N={} is t={}, hop={} is t={}, n_f-bands={}, n_ceps_coeff={}".format(n_examples, data_percs, fs, N, N/fs, hop, hop/fs, n_filter_bands, n_ceps_coeff)
-	
-	# some prints
-	print(info)
-	print("params: ", params)
-
-	# for all data_paths
-	for dpi, data_path in enumerate(data_paths):
+	# for all data paths (train, test, eval)
+	for dpi, data_path in enumerate(cfg['data_paths']):
 
 		print("\ndata_path: ", data_path)
 
@@ -316,34 +297,33 @@ if __name__ == '__main__':
 		wavs = []
 
 		# get all wavs
-		for l in sel_labels:
+		for l in cfg['sel_labels']:
 
 			# wav re
 			wav_name_re = '*' + l + '[0-9]*.wav'
 
 			# get wavs
-			wavs += glob(data_path + wav_folder + wav_name_re)[:int(data_percs[dpi] * n_examples)]
+			wavs += glob(data_path + wav_folder + wav_name_re)[:int(cfg['data_percs'][dpi] * n_examples)]
 
-		# TODO: Only use meaning full vectors not noise
 
 		# extract data
-		x_raw, y_raw, index_raw = extract_mfcc_data(wavs, params, frame_size=32, ext=ext, plot_path=None)
+		x_raw, y_raw, index_raw = extract_mfcc_data(wavs, cfg['feature_params'], n_examples, ext=ext, plot_path=None)
 
 		# print label stats
 		label_stats(y_raw)
 
 		# reduce to same amount of labels
-		x, y, index = reduce_to(x_raw, y_raw, index_raw, n_data, data_percs, dpi)
+		x, y, index = reduce_to(x_raw, y_raw, index_raw, n_data, cfg['data_percs'], dpi)
 
 		# stats
 		print("reduces: ")
 		label_stats(y)
 
 		# set file name
-		file_name = '{}mfcc_data_{}_n-{}_c-{}_v{}.npz'.format(data_path, ext, n_data, len(sel_labels), version_nr)
+		file_name = '{}mfcc_data_{}_n-{}_c-{}_v{}.npz'.format(data_path, ext, n_data, len(cfg['sel_labels']), cfg['version_nr'])
 
 		# save mfcc data file
-		np.savez(file_name, x=x, y=y, index=index, info=info, params=params)
+		np.savez(file_name, x=x, y=y, index=index, params=cfg['feature_params'])
 
 		# print
 		print("--save data to: ", file_name)
