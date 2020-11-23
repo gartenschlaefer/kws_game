@@ -29,8 +29,7 @@ class Collector:
     self.x = np.empty(shape=(0), dtype=np.float32)
 
     # whole audio data
-    if self.is_audio_record:
-      self.x_all = np.empty(shape=(0), dtype=np.float32)
+    self.x_all = np.empty(shape=(0), dtype=np.float32)
 
     # vars
     self.is_collecting = False

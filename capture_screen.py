@@ -4,16 +4,17 @@ screen capture for video presentation
 
 import pygame
 import os
+import soundfile
 
 from common import create_folder, delete_png_in_path
 
 
 class ScreenCapturer():
   """
-  screen capture class for exporting videos
+  screen capture class for recording pygame screens
   """
 
-  def __init__(self, screen, screen_size, fps, capture_path='./ignore/capture/', frame_path='frames/', frame_name='frame', external_cam=False):
+  def __init__(self, screen, screen_size, fps, capture_path='./ignore/capture/', frame_path='frames/', frame_name='frame', enabled=True):
 
     # params
     self.screen = screen
@@ -25,9 +26,8 @@ class ScreenCapturer():
     self.frame_path = frame_path
     self.frame_name = frame_name
 
-    # external cam
-    if external_cam:
-      self.cam = self.init_external_cam()
+    # enabled
+    self.enabled = enabled
 
     # delete old data
     delete_png_in_path(self.capture_path + self.frame_path)
@@ -44,35 +44,14 @@ class ScreenCapturer():
     self.downsample_count = 0
 
 
-  def init_external_cam(self):
-    """
-    init external camera (not used)
-    """
-
-    import pygame.camera
-
-    # init camera
-    pygame.camera.init()
-
-    # show cams
-    print("cams: ", pygame.camera.list_cameras())
-
-    # for external camera stuff
-    cam = pygame.camera.Camera("/dev/video0", self.screen_size)
-
-    # start camera
-    cam.start()
-
-    # use this to get images
-    #screen_frame = self.cam.get_image()
-
-    return cam
-
-
   def update(self):
     """
     update once per frame
     """
+
+    # return if deactivated
+    if not self.enabled:
+      return
 
     # add image to container
     if self.downsample_count >= self.downsample:
@@ -84,10 +63,14 @@ class ScreenCapturer():
     self.downsample_count += 1
 
 
-  def save_video(self):
+  def save_video(self, mic=None):
     """
     save as video format
     """
+
+    # return if deactivated
+    if not self.enabled:
+      return
 
     # restore all images and save them
     for i, frame in enumerate(self.frame_container):
@@ -95,17 +78,23 @@ class ScreenCapturer():
       # save image
       pygame.image.save(pygame.image.fromstring(frame, (self.screen_size[0], self.screen_size[1]), 'RGB'), '{}{}{}.png'.format(self.capture_path + self.frame_path, self.frame_name, i))
 
-    # convert to video format
-    os.system("avconv -r {} -i {}%d.png -s {}x{} -aspect 4:3 -y {}.avi".format(self.fps // self.downsample, self.capture_path + self.frame_path + self.frame_name, self.screen_size[0], self.screen_size[1], self.capture_path + 'out'))
+    # audio
+    if mic is not None:
 
+      # save audio
+      soundfile.write('{}out_audio.wav'.format(self.capture_path), mic.collector.x_all, mic.fs, subtype=None, endian=None, format=None, closefd=True)
+
+    # convert to video format
+    try:
+      os.system("ffmpeg -framerate {} -start_number 0 -i {}%d.png -i {}out_audio.wav -vcodec mpeg4 {}.avi".format(self.fps // self.downsample, self.capture_path + self.frame_path + self.frame_name, self.capture_path, self.capture_path + 'out'))
+    except:
+      print("***Problem with conversions of frames to video")
 
 
 if __name__ == '__main__':
   """
   capture
   """
-
-  import soundfile
 
   # append paths
   import sys
@@ -164,7 +153,7 @@ if __name__ == '__main__':
   text = Text(screen, color_bag)
 
   # level creation
-  levels = [Level_01(screen, screen_size, color_bag, mic), Level_02(screen, screen_size, color_bag, mic)]
+  levels = [Level_01(screen, screen_size, color_bag, mic)]
 
   # choose level
   level = levels[0]
@@ -202,10 +191,7 @@ if __name__ == '__main__':
 
 
   # save video
-  screen_capturer.save_video()
-
-  # save audio
-  soundfile.write(capture_path + 'out_audio.ogg', mic.collector.x_all, fs, format='ogg', subtype='vorbis')
+  screen_capturer.save_video(mic)
 
   # end pygame
   pygame.quit()

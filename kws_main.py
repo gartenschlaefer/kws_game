@@ -7,6 +7,7 @@ import yaml
 
 from classifier import Classifier
 from mic import Mic
+from capture_screen import ScreenCapturer
 
 # append paths
 import sys
@@ -35,10 +36,10 @@ if __name__ == '__main__':
   N, hop = int(cfg['feature_params']['N_s'] * cfg['feature_params']['fs']), int(cfg['feature_params']['hop_s'] * cfg['feature_params']['fs'])
 
   # create classifier
-  classifier = Classifier(file='./models/fstride_c-5.npz', verbose=False)
+  classifier = Classifier(file=cfg['classifier']['file'], verbose=cfg['classifier']['verbose'])
 
   # create mic instance
-  mic = Mic(fs=cfg['feature_params']['fs'], N=N, hop=hop, classifier=classifier, energy_thres=1e-4, device=8)
+  mic = Mic(fs=cfg['feature_params']['fs'], N=N, hop=hop, classifier=classifier, energy_thres=1e-4, device=8, is_audio_record=cfg['game']['capture_enabled'])
 
 
   # --
@@ -49,6 +50,9 @@ if __name__ == '__main__':
 
   # init display
   screen = pygame.display.set_mode(cfg['game']['screen_size'])
+
+  # init screen capturer
+  screen_capturer = ScreenCapturer(screen, cfg['game']['screen_size'], cfg['game']['fps'], capture_path=cfg['game']['capture_path'], enabled=cfg['game']['capture_enabled'])
 
   # collection of game colors
   color_bag = ColorBag()
@@ -81,6 +85,7 @@ if __name__ == '__main__':
       level = game_logic.update()
       level.update()
       text.update()
+      screen_capturer.update()
 
       # update display
       pygame.display.flip()
@@ -88,5 +93,8 @@ if __name__ == '__main__':
       # reduce framerate
       clock.tick(cfg['game']['fps'])
 
-    # end pygame
-    pygame.quit()
+  # save video plus audio
+  screen_capturer.save_video(mic)
+
+  # end pygame
+  pygame.quit()

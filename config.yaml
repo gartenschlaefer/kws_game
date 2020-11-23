@@ -78,3 +78,19 @@ game:
 
   # size of display
   screen_size: [640, 480]
+
+  # enabled flag
+  capture_enabled: True
+
+  # capture path
+  capture_path: ./ignore/capture/
+
+
+# classifier
+classifier:
+
+  # file name
+  file: './models/fstride_c-5.npz'
+
+  # verbose
+  verbose: False
