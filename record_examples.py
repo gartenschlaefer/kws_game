@@ -7,6 +7,8 @@ import matplotlib.pyplot as plt
 
 import re
 import librosa
+import yaml
+import soundfile
 
 from glob import glob
 
@@ -77,12 +79,16 @@ def cut_signal(x, fs, onsets, hop, time=1, alpha=0.5):
   return x_cut
 
 
-def cut_and_copy_wavs(wavs, wav_path, plot_path, recut=True):
+def cut_and_copy_wavs(wavs, params, wav_path, plot_path, recut=True):
   """
   runs through each wav and gets onsets of individual examples
   """
 
+  # list of labels
   label_list = np.array([])
+
+  # windowing samples
+  N, hop = int(params['N_s'] * params['fs']), int(params['hop_s'] * params['fs'])
 
   # get all wav files and save them
   for i, wav in enumerate(wavs):
@@ -101,89 +107,69 @@ def cut_and_copy_wavs(wavs, wav_path, plot_path, recut=True):
       continue
 
     # read audio from file
-    x, _ = librosa.load(wav, sr=fs)
+    x, _ = librosa.load(wav, sr=params['fs'])
 
     # calc onsets
-    onsets = calc_onsets(x, fs, N=N, hop=hop, adapt_frames=5, adapt_alpha=0.09, adapt_beta=0.8)
-    onsets = clean_onsets(onsets, frame_length=32*5)
+    onsets = calc_onsets(x, params['fs'], N=N, hop=hop, adapt_frames=5, adapt_alpha=0.09, adapt_beta=0.8)
+    onsets = clean_onsets(onsets, frame_length=params['frame_size']*5)
 
     # cut examples to one second
-    x_cut = cut_signal(x, fs, onsets, hop, time=1, alpha=0.4)
+    x_cut = cut_signal(x, params['fs'], onsets, hop, time=1, alpha=0.4)
 
     # plot onsets
-    plot_onsets(x, fs, N, hop, onsets, title=label, plot_path=plot_path, name='onsets_{}'.format(label))
+    plot_onsets(x, params['fs'], N, hop, onsets, title=label, plot_path=plot_path, name='onsets_{}'.format(label))
 
     for j, xj in enumerate(x_cut):
       
       # plot
-      plot_waveform(xj, fs, title='{}-{}'.format(label, j), plot_path=plot_path, name='example_{}-{}'.format(label, j))
+      plot_waveform(xj, params['fs'], title='{}-{}'.format(label, j), plot_path=plot_path, name='example_{}-{}'.format(label, j))
 
       # save file
-      librosa.output.write_wav('{}{}{}.wav'.format(wav_path, label, j), xj, fs)
+      soundfile.write('{}{}{}.wav'.format(wav_path, label, j), xj, params['fs'], subtype=None, endian=None, format=None, closefd=True)
 
   return np.unique(label_list)
 
 
 if __name__ == '__main__':
   """
-  get examples from recordings
+  reads recorded examples from in_path, cuts them to single examples and saves them
   """
 
-  # root path
-  root_path = './ignore/my_recordings/'
-
-  # plot path and model path
-  in_path, plot_path, wav_path = root_path + 'raw/', root_path + 'plots/', root_path + 'wav/'
+  # yaml config file
+  cfg = yaml.safe_load(open("./config.yaml"))
 
   # create folder
-  create_folder([plot_path, wav_path])
-
-  # extension for file name
-  ext = 'my'
-  version_nr = 2
-
-  # --
-  # params
-
-  # sampling frequency
-  fs = 16000
-
-  # mfcc / onset window and hop size
-  N, hop = int(0.025 * fs), int(0.010 * fs)
-
-  # amount of filter bands and cepstral coeffs
-  n_filter_bands, n_ceps_coeff = 32, 12
+  create_folder([cfg['my_recordings']['plot_path'], cfg['my_recordings']['wav_path']])
 
 
   # --
   # cut
 
   # get all .wav files
-  raw_wavs = glob(in_path + '*.wav')
+  raw_wavs = glob(cfg['my_recordings']['in_path'] + '*.wav')
 
   # cut them to single wavs
-  labels = cut_and_copy_wavs(raw_wavs, wav_path, plot_path, recut=True)
+  labels = cut_and_copy_wavs(raw_wavs, cfg['feature_params'], cfg['my_recordings']['wav_path'], cfg['my_recordings']['plot_path'], recut=True)
 
 
   # --
   # extract mfcc features
 
   # get all wavs
-  wavs = glob(wav_path + '*.wav')
+  wavs = glob(cfg['my_recordings']['wav_path'] + '*.wav')
   n_examples = len(wavs)
 
-  # params container and info string
-  params = {'n_examples':n_examples, 'data_percs':[1], 'fs':fs, 'N':N, 'hop':hop, 'n_filter_bands':n_filter_bands, 'n_ceps_coeff':n_ceps_coeff}
-  info = "n_examples={} with data split {}, fs={}, mfcc: N={} is t={}, hop={} is t={}, n_f-bands={}, n_ceps_coeff={}".format(n_examples, [1], fs, N, N/fs, hop, hop/fs, n_filter_bands, n_ceps_coeff)
 
   # extract features
-  mfcc_data, label_data, index_data = extract_mfcc_data(wavs, params, frame_size=32, ext=ext, plot_path=plot_path)
+  mfcc_data, label_data, index_data = extract_mfcc_data(wavs, cfg['feature_params'], n_examples, ext=cfg['my_recordings']['ext'], plot_path=cfg['my_recordings']['plot_path'])
+
 
   # set file name
-  file_name = '{}mfcc_data_{}_n-{}_c-{}_v{}.npz'.format(root_path, ext, n_examples, len(labels), version_nr)
+  file_name = '{}mfcc_data_{}_n-{}_c-{}_v{}.npz'.format(cfg['my_recordings']['out_path'], cfg['my_recordings']['ext'], n_examples, len(labels), cfg['audio_dataset']['version_nr'])
 
   # save mfcc data file
-  np.savez(file_name, x=mfcc_data, y=label_data, index=index_data, info=info, params=params)
+  np.savez(file_name, x=mfcc_data, y=label_data, index=index_data, params=cfg['feature_params'])
+
 
   # print
   print("--save data to: ", file_name)

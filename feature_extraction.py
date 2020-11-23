@@ -3,6 +3,8 @@ feature extraction tools
 """
 
 import numpy as np
+import librosa
+import scipy
 
 from skimage.util.shape import view_as_windows
 
@@ -23,15 +25,55 @@ class FeatureExtractor():
     self.frame_size = frame_size
 
     # calculate weights
-    self.w_f, _, _, _ = mel_band_weights(self.n_filter_bands, fs, N//2)
-
-    # extract random to be fast
-    self.extract_mfcc39(np.random.randn(self.N * self.frame_size))
+    self.w_f, _, _, _ = mel_band_weights(self.n_filter_bands, fs, N//2+1)
 
 
   def extract_mfcc39(self, x):
     """
-    extract mfcc features
+    extract mfcc features fast
+    """
+
+    # pre processing
+    x_pre = pre_processing(x)
+
+    # stft
+    X = 2 / self.N * librosa.stft(x_pre, n_fft=self.N, hop_length=self.hop, win_length=self.N, window='hann', center=False).T
+
+    # energy of fft (one-sided)
+    E = np.power(np.abs(X), 2)
+
+    # sum the weighted energies
+    u = np.inner(E, self.w_f)
+
+    # mfcc
+    mfcc = scipy.fftpack.dct(np.log(u), type=2, n=self.n_filter_bands, axis=1, norm=None, overwrite_x=False).T[:self.n_ceps_coeff]
+
+    # compute deltas [feature x frames]
+    deltas = compute_deltas(mfcc)
+
+    # compute double deltas [feature x frames]
+    double_deltas = compute_deltas(deltas)
+
+    # compute energies [1 x frames]
+    e_mfcc = np.vstack((
+      np.sum(mfcc**2, axis=0) / np.max(np.sum(mfcc**2, axis=0)), 
+      np.sum(deltas**2, axis=0) / np.max(np.sum(deltas**2, axis=0)), 
+      np.sum(double_deltas**2, axis=0) / np.max(np.sum(double_deltas**2, axis=0))
+      ))
+
+    # stack and get best onset
+    mfcc_all = np.vstack((mfcc, deltas, double_deltas, e_mfcc))
+
+    # find best onset
+    _, bon_pos = find_min_energy_region(mfcc_all, self.fs, self.hop)
+
+    # return best onset
+    return mfcc_all[:, bon_pos:bon_pos+self.frame_size], bon_pos
+
+
+  def extract_mfcc39_slow(self, x):
+    """
+    extract mfcc features, slow implementation of my own - not used anymore
     """
 
     # pre processing
@@ -41,13 +83,13 @@ class FeatureExtractor():
     X = custom_stft(x_pre, self.N, self.hop)
 
     # energy of fft (one-sided)
-    E = np.power(np.abs(X[:, :self.N//2]), 2)
+    E = np.power(np.abs(X[:, :self.N//2+1]), 2)
 
     # sum the weighted energies
     u = np.inner(E, self.w_f)
 
     # mfcc
-    mfcc = (dct(np.log(u), self.n_filter_bands).T)[:self.n_ceps_coeff]
+    mfcc = (custom_dct(np.log(u), self.n_filter_bands).T)[:self.n_ceps_coeff]
 
     # compute deltas [feature x frames]
     deltas = compute_deltas(mfcc)
@@ -221,18 +263,19 @@ def compute_deltas(x):
   return d
 
 
-def calc_mfcc39(x, fs, N=400, hop=160, n_filter_bands=32, n_ceps_coeff=12):
+def calc_mfcc39(x, fs, N=400, hop=160, n_filter_bands=32, n_ceps_coeff=12, use_librosa=False):
   """
   calculate mel-frequency 39 feature vector
   """
 
   # get mfcc coeffs [feature x frames]
-  mfcc = calc_mfcc(x, fs, N, hop, n_filter_bands)[:n_ceps_coeff]
+  if use_librosa:
+    import librosa
+    mfcc = librosa.feature.mfcc(x, fs, S=None, n_mfcc=n_filter_bands, dct_type=2, norm='ortho', lifter=0, n_fft=N, hop_length=hop, center=False)[:n_ceps_coeff]
 
-  # librosa test
-  #import librosa
-  #mfcc = librosa.feature.mfcc(x, fs, S=None, n_mfcc=32, dct_type=2, norm='ortho', lifter=0)[:n_ceps_coeff]
-
+  else:
+    mfcc = calc_mfcc(x, fs, N, hop, n_filter_bands)[:n_ceps_coeff]
+  
   # compute deltas [feature x frames]
   deltas = compute_deltas(mfcc)
 
@@ -267,10 +310,10 @@ def calc_mfcc(x, fs, N=1024, hop=512, n_filter_bands=8):
   u = np.inner(E, w_f)
 
   # discrete cosine transform of log
-  return dct(np.log(u), n_filter_bands).T
+  return custom_dct(np.log(u), n_filter_bands).T
 
 
-def dct(X, N):
+def custom_dct(x, N):
   """
   discrete cosine transform
   """
@@ -279,7 +322,7 @@ def dct(X, N):
   H = np.cos(np.pi / N * np.outer((np.arange(N) + 0.5), np.arange(N)))
 
   # transformed signal
-  return np.dot(X, H)
+  return np.dot(x, H)
 
 
 def mel_to_f(m):
@@ -572,36 +615,248 @@ def add_dither(x):
   return x
 
 
+def some_test_signal(fs, t=1, f=500, sig_type='modulated'):
+  """
+  test signal adapted from https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.stft.html
+  """
+
+  # samples
+  samples = np.linspace(0, t, int(fs * t), endpoint=False)
+
+  # modulated signal
+  if sig_type == 'modulated':
+
+    # amplitude and noise power
+    amp = 2 * np.sqrt(2)
+    noise_power = 0.01 * fs / 2
+
+    # modulated signal
+    mod = 500 * np.cos(2 * np.pi * 0.25 * samples)
+    carrier = amp * np.sin(2 * np.pi * f * samples + mod)
+
+    # noise
+    noise = np.random.normal(scale=np.sqrt(noise_power), size=samples.shape)
+    noise *= np.exp(-samples / 5)
+
+    # synthesize signal
+    x = carrier + noise
+
+  # pure sine
+  elif sig_type == 'sine':
+
+    # create sine
+    x = signal = np.sin(2 * np.pi * f * samples)
+
+  # use random
+  else:
+    x = np.random.randn(int(fs * t))
+
+  return x
+
+
+def test_some_stfts(x, fs, N, hop):
+  """
+  test some stft functions, plot from librosa website
+  """
+
+  stft_cus = custom_stft(x, N=N, hop=hop, norm=True)[:, :N//2]
+  stft_lib = 2 / N * librosa.stft(x, n_fft=N, hop_length=hop, win_length=N, window='hann', center=False, dtype=None, pad_mode='reflect')[:N//2]
+  f, t, stft_sci = scipy.signal.stft(x, fs=1.0, window='hann', nperseg=N, noverlap=N-hop, nfft=N, detrend=False, return_onesided=True, boundary='zeros', padded=False, axis=- 1)
+
+  print("cus_stft: ", stft_cus.shape)
+  print("lib_stft: ", stft_lib.shape)
+  print("sci_stft: ", stft_sci.shape)
+
+  # plot
+  fig, ax = plt.subplots()
+  img = librosa.display.specshow(librosa.amplitude_to_db(stft_cus.T, ref=np.max), sr=fs, hop_length=hop, y_axis='log', x_axis='time', ax=ax)
+  ax.set_title('Power spectrogram cus')
+  fig.colorbar(img, ax=ax, format="%+2.0f dB")
+
+  fig, ax = plt.subplots()
+  img = librosa.display.specshow(librosa.amplitude_to_db(stft_lib, ref=np.max), sr=fs, hop_length=hop, y_axis='log', x_axis='time', ax=ax)
+  ax.set_title('Power spectrogram')
+  fig.colorbar(img, ax=ax, format="%+2.0f dB")
+
+  fig, ax = plt.subplots()
+  img = librosa.display.specshow(librosa.amplitude_to_db(stft_sci, ref=np.max), sr=fs, hop_length=hop, y_axis='log', x_axis='time', ax=ax)
+  ax.set_title('Power spectrogram')
+  fig.colorbar(img, ax=ax, format="%+2.0f dB")
+
+  plt.show()
+
+
+def test_some_dcts(u, n_filter_bands, n_ceps_coeff):
+  """
+  test some dct functions, plot from librosa website
+  """
+
+  # test dct functions
+  mfcc_custom = custom_dct(np.log(u), n_filter_bands).T[:n_ceps_coeff]
+  mfcc_sci = scipy.fftpack.dct(np.log(u), type=2, n=n_filter_bands, axis=1, norm=None, overwrite_x=False).T[:n_ceps_coeff]
+
+  print("mfcc_custom: ", mfcc_custom.shape)
+  print("mfcc_sci: ", mfcc_sci.shape)
+
+  plt.figure()
+  librosa.display.specshow(mfcc_custom, x_axis='linear')
+  plt.ylabel('DCT function')
+  plt.title('DCT filter bank')
+  plt.colorbar()
+  plt.tight_layout()
+
+  plt.figure()
+  librosa.display.specshow(mfcc_sci, x_axis='linear')
+  plt.ylabel('DCT function')
+  plt.title('DCT filter bank')
+  plt.colorbar()
+  plt.tight_layout()
+  plt.show()
+
+
+def test_some_mfccs(x, fs, N, hop, n_filter_bands, n_ceps_coeff):
+  """
+  test some mfcc functions, plot from: https://librosa.org/doc/main/generated/librosa.feature.mfcc.html
+  """
+
+  mfcc_cus = calc_mfcc39(x, fs, N=N, hop=hop, n_filter_bands=n_filter_bands, n_ceps_coeff=n_ceps_coeff, use_librosa=False)
+  mfcc_lib = calc_mfcc39(x, fs, N=N, hop=hop, n_filter_bands=n_filter_bands, n_ceps_coeff=n_ceps_coeff, use_librosa=True)
+
+  print("mfcc_cus", mfcc_cus.shape)
+  print("mfcc_lib", mfcc_lib.shape)
+
+  fig, ax = plt.subplots()
+  img = librosa.display.specshow(mfcc_cus, x_axis='time', ax=ax)
+  fig.colorbar(img, ax=ax)
+  ax.set(title='MFCC_cus')
+
+  fig, ax = plt.subplots()
+  img = librosa.display.specshow(mfcc_lib, x_axis='time', ax=ax)
+  fig.colorbar(img, ax=ax)
+  ax.set(title='MFCC_lib')
+
+  plt.show()
+
+
+def time_measurements(x, u, fs, N, hop, n_filter_bands, n_ceps_coeff):
+  """
+  time measurements
+  """
+
+  # create feature extractor
+  feature_extractor = FeatureExtractor(fs, N=N, hop=hop, n_filter_bands=n_filter_bands, n_ceps_coeff=n_ceps_coeff, frame_size=32)
+
+  # n measurements
+  delta_time_list = []
+
+  for i in range(100):
+
+    # measure extraction time - start
+    start_time = time.time()
+
+    # time: 0.030081419944763182
+    #y = calc_mfcc39(x, fs, N=400, hop=160, n_filter_bands=32, n_ceps_coeff=12, use_librosa=False)
+  
+    # time: 0.009309711456298829
+    #y = calc_mfcc39(x, fs, N=400, hop=160, n_filter_bands=32, n_ceps_coeff=12, use_librosa=True)
+
+    # time: 0.00014737367630004883
+    #y = (custom_dct(np.log(u), n_filter_bands).T)
+
+    # time: 6.929159164428711e-05
+    #y = scipy.fftpack.dct(np.log(u), type=2, n=n_filter_bands, axis=1, norm=None, overwrite_x=False).T
+
+    # time: 0.00418839693069458 *** winner
+    y, _ = feature_extractor.extract_mfcc39(x)
+    
+    # time: 0.015525884628295898
+    #y, _ = feature_extractor.extract_mfcc39_slow(x)
+
+    # time: 0.011266257762908936s
+    #y = custom_stft(x, N=N, hop=hop, norm=True)
+
+    # time: 0.0005800390243530274s
+    #y = 2 / N * librosa.stft(x, n_fft=N, hop_length=hop, win_length=N, window='hann', center=True, dtype=None, pad_mode='reflect')
+
+    # time: 0.00044193744659423826s
+    #_, _, y = scipy.signal.stft(x, fs=1.0, window='hann', nperseg=N, noverlap=N-hop, nfft=N, detrend=False, return_onesided=True, boundary='zeros', padded=False, axis=- 1)
+
+    # result of measured time diff
+    delta_time_list.append(time.time() - start_time)
+
+  # data shpae
+  print("y: ", y.shape)
+
+  # times
+  print("delta_time: ", np.mean(delta_time_list))
+
+
 if __name__ == '__main__':
   """
   main file of feature extraction and how to use it
   """
-
+  
+  import time
   import matplotlib.pyplot as plt
+  import librosa.display
+
   from common import create_folder
   from plots import plot_mel_band_weights
 
-  # sampling rate
-  fs = 16000
-
-  # mfcc bands
-  n_bands = 32
-
-  # amount of samples
-  N = 200
-
-  # create mel bands
-  w_f, w_mel, f, m = mel_band_weights(n_bands, fs, N=N)
-
+  # plot path
   plot_path = './ignore/plots/fe/'
 
   # create folder
   create_folder([plot_path])
 
-  # plot
-  plot_mel_band_weights(w_f, w_mel, f, m, plot_path=plot_path, name='weights')
+  # --
+  # params
 
-  plt.show()
+  fs = 16000
+  N = 400
+  hop = 160
+  n_filter_bands = 32
+  n_ceps_coeff = 12
+
+
+  # --
+  # a test signal
+  x = some_test_signal(fs, t=1)
+
+
+  # --
+  # workflow
+
+  # create mel bands
+  w_f, w_mel, f, m = mel_band_weights(n_bands=32, fs=fs, N=N//2+1)
+
+  # stft
+  X = 2 / N * librosa.stft(x, n_fft=N, hop_length=hop, win_length=N, window='hann', center=False).T
+
+  # energy of fft (one-sided)
+  E = np.power(np.abs(X), 2)
+
+  # sum the weighted energies
+  u = np.inner(E, w_f)
+
+
+  #--
+  # test some functions
+
+  #test_some_stfts(x, fs, N, hop)
+  #test_some_dcts(u, n_filter_bands, n_ceps_coeff)
+  #test_some_mfccs(x, fs, N, hop, n_filter_bands, n_ceps_coeff)
+
+
+  # --
+  # other stuff
+
+  # time measurement
+  time_measurements(x, u, fs, N, hop, n_filter_bands, n_ceps_coeff)
+
+  # plot stuff
+  #plot_mel_band_weights(w_f, w_mel, f, m, plot_path=plot_path, name='weights')
+  #plt.show()
 
 
 

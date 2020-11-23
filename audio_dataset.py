@@ -257,26 +257,26 @@ if __name__ == '__main__':
 	"""
 
 	# yaml config file
-	cfg = yaml.safe_load(open("./config.yaml"))['audio_dataset_config']
+	cfg = yaml.safe_load(open("./config.yaml"))
 
 	# num examples per class for ml 
-	n_examples, n_data = cfg['n_examples_split']
+	n_examples, n_data = cfg['audio_dataset']['n_examples_split']
 
 	# plot path
-	plot_path = cfg['plot_path_root'] + 'n{}/'.format(n_examples)
+	plot_path = cfg['audio_dataset']['plot_path_root'] + 'n{}/'.format(n_examples)
 
 	# wav folder
 	wav_folder = 'wav_n-{}/'.format(n_examples)
 
 
 	# create folder
-	create_folder([p + wav_folder for p in cfg['data_paths']] + [plot_path])
+	create_folder([p + wav_folder for p in cfg['audio_dataset']['data_paths']] + [plot_path])
 
 	# status message
-	print("\n--create datasets\nexamples per class: [{}], saved at paths: {} with splits: {}\n".format(n_examples, cfg['data_paths'], cfg['data_percs']))
+	print("\n--create datasets\nexamples per class: [{}], saved at paths: {} with splits: {}\n".format(n_examples, cfg['audio_dataset']['data_paths'], cfg['audio_dataset']['data_percs']))
 
 	# copy wav files to path
-	labels = create_datasets(n_examples, cfg['dataset_path'], [p + wav_folder for p in cfg['data_paths']], cfg['data_percs'])
+	labels = create_datasets(n_examples, cfg['audio_dataset']['dataset_path'], [p + wav_folder for p in cfg['audio_dataset']['data_paths']], cfg['audio_dataset']['data_percs'])
 
 
 	# --
@@ -286,7 +286,7 @@ if __name__ == '__main__':
 	print("params: ", cfg['feature_params'])
 
 	# for all data paths (train, test, eval)
-	for dpi, data_path in enumerate(cfg['data_paths']):
+	for dpi, data_path in enumerate(cfg['audio_dataset']['data_paths']):
 
 		print("\ndata_path: ", data_path)
 
@@ -297,13 +297,13 @@ if __name__ == '__main__':
 		wavs = []
 
 		# get all wavs
-		for l in cfg['sel_labels']:
+		for l in cfg['audio_dataset']['sel_labels']:
 
 			# wav re
 			wav_name_re = '*' + l + '[0-9]*.wav'
 
 			# get wavs
-			wavs += glob(data_path + wav_folder + wav_name_re)[:int(cfg['data_percs'][dpi] * n_examples)]
+			wavs += glob(data_path + wav_folder + wav_name_re)[:int(cfg['audio_dataset']['data_percs'][dpi] * n_examples)]
 
 
 		# extract data
@@ -313,14 +313,14 @@ if __name__ == '__main__':
 		label_stats(y_raw)
 
 		# reduce to same amount of labels
-		x, y, index = reduce_to(x_raw, y_raw, index_raw, n_data, cfg['data_percs'], dpi)
+		x, y, index = reduce_to(x_raw, y_raw, index_raw, n_data, cfg['audio_dataset']['data_percs'], dpi)
 
 		# stats
 		print("reduces: ")
 		label_stats(y)
 
 		# set file name
-		file_name = '{}mfcc_data_{}_n-{}_c-{}_v{}.npz'.format(data_path, ext, n_data, len(cfg['sel_labels']), cfg['version_nr'])
+		file_name = '{}mfcc_data_{}_n-{}_c-{}_v{}.npz'.format(data_path, ext, n_data, len(cfg['audio_dataset']['sel_labels']), cfg['audio_dataset']['version_nr'])
 
 		# save mfcc data file
 		np.savez(file_name, x=x, y=y, index=index, params=cfg['feature_params'])
