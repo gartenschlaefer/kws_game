@@ -149,23 +149,22 @@ if __name__ == '__main__':
   raw_wavs = glob(cfg['my_recordings']['in_path'] + '*.wav')
 
   # cut them to single wavs
-  labels = cut_and_copy_wavs(raw_wavs, cfg['feature_params'], cfg['my_recordings']['wav_path'], cfg['my_recordings']['plot_path'], recut=True)
+  labels = cut_and_copy_wavs(raw_wavs, cfg['feature_params'], cfg['my_recordings']['wav_path'], cfg['my_recordings']['plot_path'], recut=cfg['my_recordings']['recut'])
 
 
   # --
   # extract mfcc features
 
   # get all wavs
-  wavs = glob(cfg['my_recordings']['wav_path'] + '*.wav')
-  n_examples = len(wavs)
-
+  wavs = [glob(cfg['my_recordings']['wav_path'] + '*.wav')]
+  n_examples = len(wavs[0])
 
   # extract features
-  mfcc_data, label_data, index_data = extract_mfcc_data(wavs, cfg['feature_params'], n_examples, ext=cfg['my_recordings']['ext'], plot_path=cfg['my_recordings']['plot_path'])
+  mfcc_data, label_data, index_data = extract_mfcc_data(wavs, cfg['feature_params'], n_examples, set_name=cfg['my_recordings']['set_name'], plot_path_mfcc=cfg['my_recordings']['plot_path'], plot_path_z_score=cfg['my_recordings']['plot_path'], enable_plot=cfg['my_recordings']['enable_plot'])
 
 
   # set file name
-  file_name = '{}mfcc_data_{}_n-{}_c-{}_v{}.npz'.format(cfg['my_recordings']['out_path'], cfg['my_recordings']['ext'], n_examples, len(labels), cfg['audio_dataset']['version_nr'])
+  file_name = '{}mfcc_data_{}_n-{}_c-{}_v{}.npz'.format(cfg['my_recordings']['out_path'], cfg['my_recordings']['set_name'], n_examples, len(labels), cfg['audio_dataset']['version_nr'])
 
   # save mfcc data file
   np.savez(file_name, x=mfcc_data, y=label_data, index=index_data, params=cfg['feature_params'])

@@ -1,26 +1,34 @@
 # --
 # config file for this project
 
+
+# --
 # audio dataset config
 audio_dataset:
 
   # path to speech command dataset
-  dataset_path: ./ignore/speech_commands_v0.01/
-
-  # plot path root
-  plot_path_root: ./ignore/plots/features/
+  dataset_path: ./ignore/dataset/speech_commands_v0.01/
 
   # paths to save training, testing and eval data
   data_paths:
-    - ./ignore/train/
-    - ./ignore/test/
-    - ./ignore/eval/
+    - ./ignore/dataset/train/
+    - ./ignore/dataset/test/
+    - ./ignore/dataset/eval/
 
-  # split of dataset in training, test, eval
-  data_percs:
-    - 0.8
-    - 0.1
-    - 0.1
+  # wav folder name
+  wav_folder: wavs/
+
+  # plot path root
+  plot_paths:
+    mfcc: ./ignore/plots/features/mfcc/
+    z_score: ./ignore/plots/features/z_score/
+
+  # enable plot of each feature extraction
+  #enable_plot: True
+  enable_plot: False
+
+  # split of dataset in training, test, eval (must be a prob. distribution)
+  data_percs: [0.8, 0.1, 0.1]
 
   # selected labels of the whole set
   sel_labels: ['left', 'right', 'up', 'down', 'go']
@@ -31,11 +39,12 @@ audio_dataset:
   version_nr: 3
 
   # number of examples picked from dataset
-  n_examples_split: [12, 10]
-  #n_examples_split: [1700, 1500]
-  #n_examples_split: [2200, 2000]
+  n_examples: 10
+  #n_examples_split: 1700
+  #n_examples_split: 2200, 2000
 
 
+# --
 # feature params
 feature_params:
 
@@ -57,6 +66,7 @@ feature_params:
   feature_size: 39
 
 
+# --
 # my recording stuff
 my_recordings:
 
@@ -64,12 +74,19 @@ my_recordings:
   out_path: ./ignore/my_recordings/
   in_path: ./ignore/my_recordings/raw/
   plot_path: ./ignore/my_recordings/plots/
-  wav_path: ./ignore/my_recordings/wav/
+  wav_path: ./ignore/my_recordings/wavs/
 
-  # my recording file extension
-  ext: 'my'
+  # my recordins set name
+  set_name: 'my'
+
+  # enable plot
+  enable_plot: False
+
+  # force recut of recordings
+  recut: False
 
 
+# --
 # game settings
 game:
 
@@ -80,12 +97,13 @@ game:
   screen_size: [640, 480]
 
   # enabled flag
-  capture_enabled: True
+  capture_enabled: False
 
   # capture path
   capture_path: ./ignore/capture/
 
 
+# --
 # classifier
 classifier:
 

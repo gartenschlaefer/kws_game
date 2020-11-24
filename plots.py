@@ -11,10 +11,14 @@ from feature_extraction import onsets_to_onset_times, frames_to_time
 from glob import glob
 
 
-def plot_damaged_file_score(z, plot_path=None, name='z_score'):
+def plot_damaged_file_score(z, plot_path=None, name='z_score', enable_plot=False):
   """
   damaged file score
   """
+
+  # no plot generation
+  if plot_path is None or enable_plot is False:
+    return
 
   # setup figure
   fig = plt.figure(figsize=(9, 5))
@@ -177,14 +181,14 @@ def plot_val_acc(val_acc, plot_path=None, name='None'):
     #plt.close()
 
 
-def plot_mfcc_profile(x, fs, N, hop, mfcc, onsets=None, bon_pos=None, mient=None, minreg=None, frame_size=32, plot_path=None, name='None'):
+def plot_mfcc_profile(x, fs, N, hop, mfcc, onsets=None, bon_pos=None, mient=None, minreg=None, frame_size=32, plot_path=None, name='None', enable_plot=False):
   """
   plot mfcc extracted features from audio file
   mfcc: [m x l]
   """
 
   # no plot generation
-  if plot_path is None:
+  if plot_path is None or enable_plot is False:
     return
 
   # time vector
@@ -367,14 +371,21 @@ if __name__ == '__main__':
   # get wavs
   metric_files = glob(metric_path + metrics_re)
 
-  # load files
-  data = [np.load(file) for file in metric_files]
+  # safety
+  if not any(metric_files):
+    print("No files available")
 
-  train_loss = data[0]['train_loss'] 
-  val_loss = data[0]['val_loss'] 
-  val_acc = data[0]['val_acc'] 
+  # do something
+  else:
 
-  plot_train_loss(train_loss, val_loss, plot_path=None, name='None')
-  plot_val_acc(val_acc, plot_path=None, name='None')
+    # load files
+    data = [np.load(file) for file in metric_files]
 
-  plt.show()
+    train_loss = data[0]['train_loss'] 
+    val_loss = data[0]['val_loss'] 
+    val_acc = data[0]['val_acc'] 
+
+    plot_train_loss(train_loss, val_loss, plot_path=None, name='None')
+    plot_val_acc(val_acc, plot_path=None, name='None')
+
+    plt.show()

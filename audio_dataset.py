@@ -8,6 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import librosa
 import yaml
+import os
 
 from glob import glob
 from shutil import copyfile
@@ -18,36 +19,14 @@ from common import create_folder
 from plots import *
 
 
-def copy_wav_files(wav_files, label, data_paths, data_percs):
-	"""
-	copy wav files to paths with percentages
-	"""
-
-	# calculate split numbers
-	n_split = np.cumsum(np.array(len(wav_files) * data_percs).astype(int))
-
-	# actual path
-	p = 0
-
-	# run through each path
-	for i, wav in enumerate(wav_files):
-
-		# split in new path
-		if i >= n_split[p]:
-			p += 1
-
-		# stop if out of range (happens at rounding errors)
-		if p >= len(data_paths):
-			break
-
-		# copy files to folder
-		copyfile(wav, data_paths[p] + label + str(i) + '.wav')
-
-
 def	create_datasets(n_examples, dataset_path, data_paths, data_percs):
 	"""
-	copy wav - files from dataset_path to data_path with spliting
+	copy wav files from dataset_path to data_paths with splitting
 	"""
+
+	# return if data paths exist
+	if os.path.isdir(data_paths[0]):
+		return
 
 	# get all class directories except the ones starting with _
 	class_dirs = glob(dataset_path + '[!_]*/')
@@ -67,21 +46,31 @@ def	create_datasets(n_examples, dataset_path, data_paths, data_percs):
 		# get all .wav files
 		wavs = glob(class_dir + '*.wav')
 
-		# create list of wav files in class
-		wav_files = []
+		# calculate split numbers in train, test, eval
+		n_split = (len(wavs) * np.array(data_percs)).astype(int)
 
-		# get all wav files
+		# determine position to split
+		n_split_pos = np.cumsum(n_split)
+
+		# print some info
+		print("label: [{}]\tn_split: [{}]\ttotal:[{}]".format(label, n_split, np.sum(n_split)))
+
+		# actual path
+		p = 0
+
+		# run through each path
 		for i, wav in enumerate(wavs):
 
-			# end .wav search
-			if i >= n_examples:
+			# split in new path
+			if i >= n_split_pos[p]:
+				p += 1
+
+			# stop if out of range (happens at rounding errors)
+			if p >= len(data_paths):
 				break
 
-			# append wav file for copying
-			wav_files.append(wav)
-
-		# copy wav files
-		copy_wav_files(wav_files, label, data_paths, data_percs)
+			# copy files to folder
+			copyfile(wav, data_paths[p] + label + str(i) + '.wav')
 
 	return labels
 
@@ -106,9 +95,10 @@ def wav_pre_processing(wav, fs, min_samples):
 	return x_raw
 
 
-def extract_mfcc_data(wavs, params, n_examples, ext=None, min_samples=16000, plot_path=None):
+def extract_mfcc_data(wavs, params, n_examples, set_name=None, min_samples=16000, plot_path_mfcc=None, plot_path_z_score=None, enable_plot=False):
 	"""
 	extract mfcc data from wav-files
+	wavs must be in a 2D-array [[wavs1], [wavs2]]
 	"""
 
 	# windowing samples
@@ -123,44 +113,51 @@ def extract_mfcc_data(wavs, params, n_examples, ext=None, min_samples=16000, plo
 	# create feature extractor
 	feature_extractor = FeatureExtractor(fs=params['fs'], N=N, hop=hop, n_filter_bands=params['n_filter_bands'], n_ceps_coeff=params['n_ceps_coeff'], frame_size=params['frame_size'])
 
-	# run through all wavs for processing
-	for wav in wavs:
+	# extract class wavs
+	for class_wavs in wavs:
+
+		# run through each example in class wavs
+		for i, wav in enumerate(class_wavs):
 		
-		# extract file namings
-		file_name, file_index, label = file_naming_extraction(wav)
+			# extract file namings
+			file_name, file_index, label = file_naming_extraction(wav)
 
-		# load and pre-process audio
-		x = wav_pre_processing(wav, params['fs'], min_samples)
+			# load and pre-process audio
+			x = wav_pre_processing(wav, params['fs'], min_samples)
 
-		# print some info
-		print("wav: [{}] with label: [{}], samples=[{}], time=[{}]s".format(wav, label, len(x), len(x)/params['fs']))
+			# print some info
+			print("wav: [{}] with label: [{}], samples=[{}], time=[{}]s".format(wav, label, len(x), len(x)/params['fs']))
 
-		# extract feature vectors [m x l]
-		mfcc, bon_pos = feature_extractor.extract_mfcc39(x)
+			# extract feature vectors [m x l]
+			mfcc, bon_pos = feature_extractor.extract_mfcc39(x)
 
-		# onset analysis if necessary
-		#onset_analysis(x, params, N, hop)
+			# onset analysis if necessary
+			#onset_analysis(x, params, N, hop)
 
-		# damaged file things
-		z_score, z_damaged = detect_damaged_file(mfcc)
-		z_score_list = np.append(z_score_list, z_score)
+			# damaged file things
+			z_score, z_damaged = detect_damaged_file(mfcc)
+			z_score_list = np.append(z_score_list, z_score)
 
-		# plot mfcc features
-		plot_mfcc_profile(x, params['fs'], N, hop, mfcc, onsets=None, bon_pos=bon_pos, mient=None, minreg=None, frame_size=params['frame_size'], plot_path=plot_path, name=label + str(file_index) + '_' + ext)
+			# plot mfcc features
+			plot_mfcc_profile(x, params['fs'], N, hop, mfcc, onsets=None, bon_pos=bon_pos, mient=None, minreg=None, frame_size=params['frame_size'], plot_path=plot_path_mfcc, name=label + str(file_index) + '_' + set_name, enable_plot=enable_plot)
 
-		# handle damaged files
-		if z_damaged:
-			print("--*file probably broken!")
-			broken_file_list.append(file_name)
-			continue
+			# handle damaged files
+			if z_damaged:
+				print("--*file probably broken!")
+				broken_file_list.append(file_name)
+				continue
 
-		# add to mfcc_data container
-		mfcc_data = np.vstack((mfcc_data, mfcc[np.newaxis, :, :]))
-		label_data.append(label)
-		index_data.append(label + file_index)
+			# add to mfcc_data container
+			mfcc_data = np.vstack((mfcc_data, mfcc[np.newaxis, :, :]))
+			label_data.append(label)
+			index_data.append(label + file_index)
+
+			# stop if desired examples are reached
+			if i >= n_examples:
+				break
 
 	# broken file info
-	plot_damaged_file_score(z_score_list, plot_path=plot_path, name='z_score_n-{}'.format(n_examples))
+	plot_damaged_file_score(z_score_list, plot_path=plot_path_z_score, name='z_score_n-{}_{}'.format(n_examples, set_name), enable_plot=enable_plot)
 	print("\n --broken file list: \n{}\nwith length: {}".format(broken_file_list, len(broken_file_list)))
 
 	return mfcc_data, label_data, index_data
@@ -223,7 +220,7 @@ def label_stats(y):
 
 def reduce_to(x_raw, y_raw, index_raw, n_data, data_percs, dpi):
 	"""
-	reduce to smaller but equal number of samples and classes
+	reduce to smaller but equal number of samples and classes - not used anymore
 	"""
 
 	# to numpy
@@ -259,24 +256,14 @@ if __name__ == '__main__':
 	# yaml config file
 	cfg = yaml.safe_load(open("./config.yaml"))
 
-	# num examples per class for ml 
-	n_examples, n_data = cfg['audio_dataset']['n_examples_split']
-
-	# plot path
-	plot_path = cfg['audio_dataset']['plot_path_root'] + 'n{}/'.format(n_examples)
-
-	# wav folder
-	wav_folder = 'wav_n-{}/'.format(n_examples)
-
-
 	# create folder
-	create_folder([p + wav_folder for p in cfg['audio_dataset']['data_paths']] + [plot_path])
+	create_folder([p + cfg['audio_dataset']['wav_folder'] for p in cfg['audio_dataset']['data_paths']] +  [cfg['audio_dataset']['plot_paths']['mfcc']] + [cfg['audio_dataset']['plot_paths']['z_score']])
 
 	# status message
-	print("\n--create datasets\nexamples per class: [{}], saved at paths: {} with splits: {}\n".format(n_examples, cfg['audio_dataset']['data_paths'], cfg['audio_dataset']['data_percs']))
+	print("\n--create datasets\nexamples per class: [{}], saved at paths: {} with splits: {}\n".format(cfg['audio_dataset']['n_examples'], cfg['audio_dataset']['data_paths'], cfg['audio_dataset']['data_percs']))
 
 	# copy wav files to path
-	labels = create_datasets(n_examples, cfg['audio_dataset']['dataset_path'], [p + wav_folder for p in cfg['audio_dataset']['data_paths']], cfg['audio_dataset']['data_percs'])
+	labels = create_datasets(cfg['audio_dataset']['n_examples'], cfg['audio_dataset']['dataset_path'], [p + cfg['audio_dataset']['wav_folder'] for p in cfg['audio_dataset']['data_paths']], cfg['audio_dataset']['data_percs'])
 
 
 	# --
@@ -290,37 +277,35 @@ if __name__ == '__main__':
 
 		print("\ndata_path: ", data_path)
 
-		# file extension e.g. train, test, etc.
-		ext = re.sub(r'(\./\w+/)|/', '', data_path)
+		# extract set name e.g train
+		set_name = re.sub(r'/', '', re.findall(r'[\w+ 0-9]+/', data_path)[-1])
 
 		# init wavs
-		wavs = []
+		all_wavs = []
 
-		# get all wavs
+		# get all wavs from selected labels
 		for l in cfg['audio_dataset']['sel_labels']:
 
-			# wav re
+			# wav regex
 			wav_name_re = '*' + l + '[0-9]*.wav'
 
 			# get wavs
-			wavs += glob(data_path + wav_folder + wav_name_re)[:int(cfg['audio_dataset']['data_percs'][dpi] * n_examples)]
+			wavs = glob(data_path + cfg['audio_dataset']['wav_folder'] + wav_name_re)
 
+			# add to all wavs
+			all_wavs.append(wavs)
+
+			# check length of labels
+			print("label: {} with n: {}".format(l, len(wavs)))
 
 		# extract data
-		x_raw, y_raw, index_raw = extract_mfcc_data(wavs, cfg['feature_params'], n_examples, ext=ext, plot_path=None)
+		x, y, index = extract_mfcc_data(all_wavs, cfg['feature_params'], int(cfg['audio_dataset']['n_examples']*cfg['audio_dataset']['data_percs'][dpi]), set_name=set_name, plot_path_mfcc=cfg['audio_dataset']['plot_paths']['mfcc'], plot_path_z_score=cfg['audio_dataset']['plot_paths']['z_score'], enable_plot=cfg['audio_dataset']['enable_plot'])
 
 		# print label stats
-		label_stats(y_raw)
-
-		# reduce to same amount of labels
-		x, y, index = reduce_to(x_raw, y_raw, index_raw, n_data, cfg['audio_dataset']['data_percs'], dpi)
-
-		# stats
-		print("reduces: ")
 		label_stats(y)
 
 		# set file name
-		file_name = '{}mfcc_data_{}_n-{}_c-{}_v{}.npz'.format(data_path, ext, n_data, len(cfg['audio_dataset']['sel_labels']), cfg['audio_dataset']['version_nr'])
+		file_name = '{}mfcc_data_{}_n-{}_c-{}_v{}.npz'.format(data_path, set_name, cfg['audio_dataset']['n_examples'], len(cfg['audio_dataset']['sel_labels']), cfg['audio_dataset']['version_nr'])
 
 		# save mfcc data file
 		np.savez(file_name, x=x, y=y, index=index, params=cfg['feature_params'])

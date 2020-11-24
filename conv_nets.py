@@ -238,11 +238,8 @@ if __name__ == '__main__':
   main function
   """
 
-  # tutorial stuff
-  from tutorial import run_tutorial_net, train_cifar10
+  # create net
+  net = ConvNetTutorial()
 
-  # run the tutorial net
-  run_tutorial_net(ConvNetTutorial())
-
-  # training example
-  train_cifar10(ConvNetCifar(), retrain=False)
+  # print some infos
+  print("Net: ", net)
