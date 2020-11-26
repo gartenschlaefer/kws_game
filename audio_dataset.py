@@ -98,7 +98,7 @@ def wav_pre_processing(wav, fs, min_samples):
 def extract_mfcc_data(wavs, params, n_examples, set_name=None, min_samples=16000, plot_path_mfcc=None, plot_path_z_score=None, enable_plot=False):
 	"""
 	extract mfcc data from wav-files
-	wavs must be in a 2D-array [[wavs1], [wavs2]]
+	wavs must be in a 2D-array [[wavs_class1], [wavs_class2]] so that n_examples will work properly
 	"""
 
 	# windowing samples

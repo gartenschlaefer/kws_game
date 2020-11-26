@@ -39,9 +39,8 @@ audio_dataset:
   version_nr: 3
 
   # number of examples picked from dataset
-  n_examples: 10
-  #n_examples_split: 1700
-  #n_examples_split: 2200, 2000
+  #n_examples: 10
+  n_examples: 500
 
 
 # --
@@ -112,3 +111,57 @@ classifier:
 
   # verbose
   verbose: False
+
+
+# --
+# ml
+ml:
+
+  # c-5
+  #mfcc_data_files: ['./ignore/dataset/train/mfcc_data_train_n-2000_c-5_v3.npz', './ignore/dataset/test/mfcc_data_test_n-2000_c-5_v3.npz', './ignore/dataset/eval/mfcc_data_eval_n-2000_c-5_v3.npz', './ignore/my_recordings/mfcc_data_my_n-25_c-5_v3.npz']
+  mfcc_data_files: ['./ignore/dataset/train/mfcc_data_train_n-500_c-5_v3.npz', './ignore/dataset/test/mfcc_data_test_n-500_c-5_v3.npz', './ignore/dataset/eval/mfcc_data_eval_n-500_c-5_v3.npz', './ignore/my_recordings/mfcc_data_my_n-25_c-5_v3.npz']
+
+  # c-30
+  #mfcc_data_files: ['./ignore/dataset/train/mfcc_data_train_n-2000_c-5_v3.npz', './ignore/dataset/test/mfcc_data_test_n-2000_c-5_v3.npz', './ignore/dataset/eval/mfcc_data_eval_n-2000_c-5_v3.npz', './ignore/my_recordings/mfcc_data_my_n-25_c-5_v3.npz']
+  
+  # paths
+  plot_path: ./ignore/plots/ml/
+  shift_path: ./ignore/plots/ml/shift/
+  metric_path: ./ignore/plots/ml/metrics/' 
+  model_path: ./ignore/models/ 
+  model_pre_path: ./ignore/models/pre/ 
+  log_path: ./ignore/logs/
+
+  # params
+  params:
+
+    # batch size
+    batch_size: 32
+
+    # number of epochs
+    num_epochs: 500
+
+    # learning rate
+    lr: 0.0001
+
+  # retrain existing model
+  retrain: False
+
+  # nn architecture available
+  nn_architectures: {1: 'conv-trad', 2: 'conv-fstride'}
+
+  # chosen architecture
+  nn_arch: conv-trad
+
+
+  # pretrained model
+  #pre_trained_model_path = model_pre_path + 'conv-fstride_c-30.pth'
+  #pre_trained_model_path = None
+
+
+
+
+
+
+
+

@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 
 import os
 import torch
+import yaml
 
 from skimage.util.shape import view_as_windows
 
@@ -19,212 +20,10 @@ import logging
 import time
 
 
-def extract_to_batches(mfcc_data_files, f=32, batch_size=4):
-  """
-  extract data samples from files
-  """
-
-  # status message
-  print("\n--extract batches from data")
-
-  # load files [0]: train, etc.
-  data = [np.load(file, allow_pickle=True) for file in mfcc_data_files]
-
-  # extract data
-  train_data, test_data, eval_data = data[0], data[1], data[2]
-  #print("Container of train_data: ", train_data.files)
-
-  # print some infos about data
-  print("train: ", train_data['x'].shape), print("test: ", test_data['x'].shape), print("eval: ", eval_data['x'].shape)
-  print("data info: ", train_data['info'])
-
-  # get classes
-  classes = np.unique(train_data['y'])
-  print("classes: ", classes)
-
-  # examples per class
-  n_examples_class = (len(train_data['x']) + len(test_data['x']) + len(eval_data['x'])) // len(classes)
-
-  # create batches
-  x_train, y_train, _ = create_batches(train_data, classes, f, batch_size=batch_size)
-  x_val, y_val, _ = create_batches(eval_data, classes, f, batch_size=4)
-  x_test, y_test, _ = create_batches(test_data, classes, f, batch_size=4)
-
-  # my data
-  if len(mfcc_data_files) == 4:
-    x_my, y_my, z_my = create_batches(data[3], classes, f, batch_size=1)
-  else:
-    x_my, y_my, z_my = None, None, None
-
-  # print training batches
-  print("x_train_batches: ", x_train.shape)
-  print("y_train_batches: ", y_train.shape)
-
-  return x_train, y_train, x_val, y_val, x_test, y_test, x_my, y_my, z_my, classes, n_examples_class
 
 
-def create_batches(data, classes, f=32, batch_size=1, window_step=1, plot_shift=False):
-  """
-  create batches for training N x [b x m x f]
-  x: [n x m x l]
-  y: [n]
-  N: Amount of batches
-  b: batch size
-  m: feature size
-  f: frame length
-  """
-
-  # extract data
-  x_data, y_data, index, params = data['x'], data['y'], data['index'], data['params']
-
-  # get shape of things
-  n, m, l = x_data.shape
-
-  print("x_data: ", x_data.shape)
-
-  # randomize examples
-  indices = np.random.permutation(x_data.shape[0])
-  x = np.take(x_data, indices, axis=0)
-  y = np.take(y_data, indices, axis=0)
-  z = np.take(index, indices, axis=0)
-
-  # plot first example
-  #fs, hop, z = params[()]['fs'], params[()]['hop'], np.take(index, indices, axis=0)
-  #plot_mfcc_only(x[0], fs, hop, shift_path, name='{}-{}'.format(z[0], 0))
-
-  # number of windows
-  batch_nums = x.shape[0] // batch_size
-
-  # remaining samples
-  r = int(np.remainder(len(y), batch_size))
-  if r:
-    batch_nums += 1;
-
-  # init batches
-  x_batches = torch.empty((batch_nums, batch_size, 39, f))
-  y_batches = torch.empty((batch_nums, batch_size), dtype=torch.long)
-  z_batches = np.empty((batch_nums, batch_size), dtype=z.dtype)
-
-  # batching
-  for i in range(batch_nums):
-
-    # remainder handling
-    if i == batch_nums - 1 and r:
-
-      # remaining examples
-      r_x = x[i*batch_size:i*batch_size+r, :]
-      r_y = y[i*batch_size:i*batch_size+r]
-      r_z = z[i*batch_size:i*batch_size+r]
-
-      # pick random samples for filler
-      random_samples = np.random.randint(0, high=len(y), size=batch_size-r)
-
-      # filling examples
-      f_x = x[random_samples, :]
-      f_y = y[random_samples]
-      f_z = z[random_samples]
-
-      # concatenate remainder with random examples
-      x_batches[i, :] = torch.from_numpy(np.concatenate((r_x, f_x)).astype(np.float32))
-      y_batches[i, :] = get_index_of_class(np.concatenate((r_y, f_y)), classes, to_torch=True)
-      z_batches[i, :] = np.concatenate((r_z, f_z))
-
-    # no remainder
-    else:
-
-      # get batches
-      x_batches[i, :] = torch.from_numpy(x[i*batch_size:i*batch_size+batch_size, :].astype(np.float32))
-      y_batches[i, :] = get_index_of_class(y[i*batch_size:i*batch_size+batch_size], classes, to_torch=True)
-      z_batches[i, :] = z[i*batch_size:i*batch_size+batch_size]
-
-  # prepare for training x: [num_batches x batch_size x channel x 39 x 32]
-  x_batches = torch.unsqueeze(x_batches, 2)
-
-  return x_batches, y_batches, z_batches
 
 
-def force_windowing(params):
-  """
-  windowing of data (fromer used in batches) - not in use
-  """
-
-  # randomize data
-  indices = np.random.permutation(x_data.shape[0])
-  x_data = np.take(x_data, indices, axis=0)
-  y_data = np.take(y_data, indices, axis=0)
-
-  # x: [n x m x f]
-  x = np.empty(shape=(0, 39, f), dtype=x_data.dtype)
-  y = np.empty(shape=(0), dtype=y_data.dtype)
-
-  # stack windows
-  for i, (x_n, y_n) in enumerate(zip(x_data, y_data)):
-
-    # windowed [r x m x f]
-    x_win = np.squeeze(view_as_windows(x_n, (m, f), step=window_step))
-
-    # window length
-    l_win = x_win.shape[0]
-
-    # append y
-    y = np.append(y, [y_n] * l_win)
-
-    # stack windowed [n+r x m x f]
-    x = np.vstack((x, x_win))
-
-    # for evaluation of shifting
-    if i < 2 and plot_shift:
-
-      # need params for plot
-      fs, hop = params[()]['fs'], params[()]['hop']
-      index = np.take(index, indices, axis=0)
-
-      # plot example
-      plot_mfcc_only(x_n, fs, hop, shift_path, name='{}-{}'.format(index[i], i))
-
-      # plot some shifted mfcc
-      for ri in range(x_win.shape[0]):
-
-        # plot shifted mfcc
-        plot_mfcc_only(x[ri], fs, hop, shift_path, name='{}-{}-{}'.format(index[i], i, ri))
-
-
-def one_hot_label(y, classes, to_torch=False):
-  """
-  create one hot encoded vector e.g.:
-  classes = ['up', 'down']
-  y = 'up'
-  return [1, 0]
-  """
-
-  # create one hot vector
-  hot = np.array([c == y for c in classes]).astype(int)
-
-  # transfer to torch
-  if to_torch:
-    hot = torch.from_numpy(hot)
-
-  return hot
-
-
-def get_index_of_class(y, classes, to_torch=False):
-  """
-  return index of class
-  """
-
-  # init labels
-  y_idx = torch.empty(y.shape, dtype=torch.long)
-
-  for i, yi in enumerate(y):
-
-    # get index
-    idx = np.where(np.array(classes) == yi)[0]
-
-    # transfer to torch
-    if to_torch:
-      y_idx[i] = torch.from_numpy(idx)
-
-  return y_idx
 
 
 def train_nn(model, x_train, y_train, x_val, y_val, classes, nn_arch, num_epochs=2, lr=1e-3, param_str='nope'):
@@ -373,49 +172,10 @@ def print_train_info(epoch, mini_batch, cum_loss, k_print=10):
 
 
 
-def get_nn_model(nn_arch, n_classes):
-  """
-  simply get the desired nn model
-  """
-
-  # select network architecture
-  if nn_arch == 'conv-trad':
-
-    # traditional conv-net
-    model = ConvNetTrad(n_classes)
-
-  elif nn_arch == 'conv-fstride':
-
-    # limited multipliers conv-net
-    model = ConvNetFstride4(n_classes)
-
-  else:
-
-    print("Network Architecture not found, uses: conf-trad")
-    # traditional conv-net
-    model = ConvNetTrad(n_classes)
-
-  return model
 
 
-def get_pretrained_model(model, pre_trained_model_path):
-  """
-  get pretrained model
-  """
 
-  # same model
-  if pre_trained_model_path is None:
-    return model
 
-  # load model
-  try:
-    print("load model: ", pre_trained_model_path)
-    model.load_state_dict(torch.load(pre_trained_model_path))
-
-  except:
-    print("could not load pre-trained model!!!")
-
-  return model
 
 
 def init_logging(log_path):
@@ -434,44 +194,27 @@ if __name__ == '__main__':
   ML - Machine Learning file
   """
 
-  # path to train, test and eval set
-
-  # c-5, with my stuff
-  #mfcc_data_files = ['./ignore/train/mfcc_data_train_n-2000_c-5_v2.npz', './ignore/test/mfcc_data_test_n-2000_c-5_v2.npz', './ignore/eval/mfcc_data_eval_n-2000_c-5_v2.npz', './ignore/my_recordings/mfcc_data_my_n-25_c-5_v2.npz']
-  mfcc_data_files = ['./ignore/train/mfcc_data_train_n-2000_c-5_v3.npz', './ignore/test/mfcc_data_test_n-2000_c-5_v3.npz', './ignore/eval/mfcc_data_eval_n-2000_c-5_v3.npz', './ignore/my_recordings/mfcc_data_my_n-25_c-5_v2.npz']
-  
-  # c-5
-  #mfcc_data_files = ['./ignore/train/mfcc_data_train_n-2000_c-5_v2.npz', './ignore/test/mfcc_data_test_n-2000_c-5_v2.npz', './ignore/eval/mfcc_data_eval_n-2000_c-5_v2.npz']
-  
-  # c-30
-  #mfcc_data_files = ['./ignore/train/mfcc_data_train_n-1500_c-30_v2.npz', './ignore/test/mfcc_data_test_n-1500_c-30_v2.npz', './ignore/eval/mfcc_data_eval_n-1500_c-30_v2.npz']
-
-
-  # plot path and model path
-  plot_path, shift_path, metric_path, model_path, model_pre_path, log_path = './ignore/plots/ml/', './ignore/plots/ml/shift/', './ignore/plots/ml/metrics/', './ignore/models/', './ignore/models/pre/', './ignore/logs/'
+  # yaml config file
+  cfg = yaml.safe_load(open("./config.yaml"))
 
   # create folder
-  create_folder([plot_path, shift_path, metric_path, model_path, model_pre_path, log_path])
+  create_folder([cfg['ml']['plot_path'], cfg['ml']['shift_path'], cfg['ml']['metric_path'], cfg['ml']['model_path'], cfg['ml']['model_pre_path'], cfg['ml']['log_path']])
 
   # init logging
   init_logging(log_path)
+
+
+  # create batches
+  batch_archiv = BatchArchiv(cfg['ml']['mfcc_data_files'], batch_size=cfg['ml']['batch_size'])
 
   # --
   # version
   # 1: better onset detection
   # 2: energy frame onset detection
 
-  #version_id = 1
-  version_id = 3
-
-  # frame size and batch size
-  f, batch_size = 32, 32
-
   # params for training
   num_epochs, lr, retrain = 500, 1e-5, True
 
-  # nn architecture
-  nn_architectures = ['conv-trad', 'conv-fstride']
 
   # select architecture
   nn_arch = nn_architectures[1]
@@ -482,16 +225,13 @@ if __name__ == '__main__':
 
 
   # params
-  params = {'version_id':version_id, 'f':f, 'batch_size':batch_size, 'num_epochs':num_epochs, 'lr':lr, 'nn_arch':nn_arch, 'pre_trained_model_path':pre_trained_model_path}
+  #params = {'version_id':version_id, 'f':f, 'batch_size':batch_size, 'num_epochs':num_epochs, 'lr':lr, 'nn_arch':nn_arch, 'pre_trained_model_path':pre_trained_model_path}
 
 
   # extract all necessary data batches
-  x_train, y_train, x_val, y_val, x_test, y_test, x_my, y_my, z_my, classes, n_examples_class = extract_to_batches(mfcc_data_files, f=f, batch_size=batch_size)
+  #x_train, y_train, x_val, y_val, x_test, y_test, x_my, y_my, z_my, classes, n_examples_class = extract_to_batches(cfg['ml']['mfcc_data_files'], f=f, batch_size=batch_size)
 
-  print("classes: ", classes)
-
-  # create class dict
-  class_dict = {name : i for i, name in enumerate(classes)}
+  print("classes: ", batch_archiv.classes)
 
 
   # -- names:
@@ -507,10 +247,14 @@ if __name__ == '__main__':
 
 
   # param string
-  param_str = '{}_v{}_c-{}_n-{}_bs-{}_it-{}_lr-{}'.format(nn_arch, version_id, len(classes), n_examples_class, batch_size, num_epochs, str(lr).replace('.', 'p'))
+  param_str = '{}_v{}_c-{}_n-{}_bs-{}_it-{}_lr-{}'.format(nn_arch, cfg['audio_dataset']['version_nr'], len(batch_archiv.classes), batch_archiv.n_examples_class, cfg['ml']['batch_size'], cfg['ml']['num_epochs'], str(lr).replace('.', 'p'))
+
 
   if pre_trained_model_path is not None:
     param_str = param_str + '_pre'
+
+
+  # model trainer
 
 
   # init model
@@ -523,10 +267,10 @@ if __name__ == '__main__':
   # training
 
   # check if model already exists
-  if not os.path.exists(model_path + param_str + '.pth') or retrain:
+  if not os.path.exists(cfg['ml']['model_path'] + param_str + '.pth') or retrain:
 
     # train
-    model, train_loss, val_loss, val_acc = train_nn(model, x_train, y_train, x_val, y_val, classes, nn_arch, num_epochs=num_epochs, lr=lr, param_str=param_str)
+    model, train_loss, val_loss, val_acc = train_nn(model, x_train, y_train, x_val, y_val, classes, nn_arch, num_epochs=cfg['ml']['num_epochs'], lr=cfg['ml']['lr'], param_str=param_str)
 
     # save model
     torch.save(model.state_dict(), model_path + param_str + '.pth')
@@ -534,7 +278,7 @@ if __name__ == '__main__':
       torch.save(model.state_dict(), '{}{}_c-{}{}'.format(model_pre_path, nn_arch, len(classes), '.pth'))
 
     # save infos
-    np.savez(model_path + param_str + '.npz', params=params, param_str=param_str, class_dict=class_dict, model_file_path=model_path + param_str + '.pth')
+    np.savez(model_path + param_str + '.npz', params=params, param_str=param_str, class_dict=batches.class_dict, model_file_path=model_path + param_str + '.pth')
     np.savez(metric_path + 'metrics_' + param_str + '.npz', train_loss=train_loss, val_loss=val_loss, val_acc=val_acc)
 
     # plots
@@ -545,10 +289,10 @@ if __name__ == '__main__':
   else:
 
     # load
-    model.load_state_dict(torch.load(model_path + param_str + '.pth'))
+    model.load_state_dict(torch.load(cfg['ml']['model_path'] + param_str + '.pth'))
 
     # save infos
-    np.savez(model_path + param_str + '.npz', params=params, param_str=param_str, class_dict=class_dict, model_file_path=model_path + param_str + '.pth')
+    np.savez(cfg['ml']['model_path'] + param_str + '.npz', params=params, param_str=param_str, class_dict=batches.class_dict, model_file_path=cfg['ml']['model_path'] + param_str + '.pth')
 
 
   # --
