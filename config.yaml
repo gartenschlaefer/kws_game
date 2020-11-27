@@ -24,7 +24,6 @@ audio_dataset:
     z_score: ./ignore/plots/features/z_score/
 
   # enable plot of each feature extraction
-  #enable_plot: True
   enable_plot: False
 
   # split of dataset in training, test, eval (must be a prob. distribution)
@@ -34,8 +33,11 @@ audio_dataset:
   sel_labels: ['left', 'right', 'up', 'down', 'go']
   #sel_labels = ['eight', 'sheila', 'nine', 'yes', 'one', 'no', 'left', 'tree', 'bed', 'bird', 'go', 'wow', 'seven', 'marvin', 'dog', 'three', 'two', 'house', 'down', 'six', 'five', 'off', 'right', 'cat', 'zero', 'four', 'stop', 'up', 'on', 'happy']
 
-  # version number - just to confuse myself not too much
-  # v3: data extraction with min energy and randomize onsets
+  # --
+  # version
+  # 1: better onset detection
+  # 2: energy frame onset detection
+  # 3: data extraction with min energy and randomize onsets
   version_nr: 3
 
   # number of examples picked from dataset
@@ -129,11 +131,17 @@ ml:
   shift_path: ./ignore/plots/ml/shift/
   metric_path: ./ignore/plots/ml/metrics/' 
   model_path: ./ignore/models/ 
-  model_pre_path: ./ignore/models/pre/ 
+  pre_trained_model_path: ./ignore/models/pre/ 
   log_path: ./ignore/logs/
 
+  # use a pre trained model at pre trained model path
+  use_pre_trained_model: False
+
+  # saves the model as pre trained model
+  save_model_as_pre_model: True
+
   # params
-  params:
+  train_params:
 
     # batch size
     batch_size: 32
