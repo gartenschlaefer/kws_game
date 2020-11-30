@@ -156,11 +156,11 @@ if __name__ == '__main__':
   # window and hop size
   N, hop = int(0.025 * fs), int(0.010 * fs)
 
-  # create classifier
-  classifier = Classifier(file='./models/fstride_c-5.npz', verbose=True) 
+  # classifier
+  classifier = Classifier(model_path='./models/conv-fstride/v3_c-5_n-2000/bs-32_it-1000_lr-1e-05/', model_file_name='model.pth', params_file_name='params.npz', verbose=True)
 
   # create mic instance
-  mic = Mic(fs=fs, N=N, hop=hop, classifier=classifier)
+  mic = Mic(fs=fs, N=N, hop=hop, classifier=classifier, fs_device=48000, channels=1, energy_thres=1e-4, frame_size=32, device=0, is_audio_record=False)
 
   # stream and update
   with mic.stream:

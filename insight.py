@@ -51,10 +51,10 @@ if __name__ == '__main__':
   create_folder([plot_path])
 
   # classifier
-  classifier = Classifier(file='./models/fstride_c-5.npz', verbose=True)
+  classifier = Classifier(model_path='./models/conv-fstride/v3_c-5_n-2000/bs-32_it-1000_lr-1e-05/', model_file_name='model.pth', params_file_name='params.npz', verbose=True)
 
   # get model
-  model = classifier.model 
+  model = classifier.cnn_handler.model 
 
 
   # wav file to evaluate

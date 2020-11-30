@@ -8,24 +8,23 @@ import numpy as np
 import matplotlib.pyplot as plt
 import librosa
 import yaml
-import os
 
 from glob import glob
 from shutil import copyfile
 
 # my stuff
 from feature_extraction import *
-from common import create_folder
+from path_collector import PathCollector
 from plots import *
 
 
-def	create_datasets(n_examples, dataset_path, data_paths, data_percs):
+def	create_datasets(n_examples, dataset_path, wav_folders, data_percs, recreate=False):
 	"""
-	copy wav files from dataset_path to data_paths with splitting
+	copy wav files from dataset_path to wav_folders with splitting
 	"""
 
-	# return if data paths exist
-	if os.path.isdir(data_paths[0]):
+	# return if data should not be copied again (saves time)
+	if not recreate:
 		return
 
 	# get all class directories except the ones starting with _
@@ -66,16 +65,16 @@ def	create_datasets(n_examples, dataset_path, data_paths, data_percs):
 				p += 1
 
 			# stop if out of range (happens at rounding errors)
-			if p >= len(data_paths):
+			if p >= len(wav_folders):
 				break
 
 			# copy files to folder
-			copyfile(wav, data_paths[p] + label + str(i) + '.wav')
+			copyfile(wav, wav_folders[p] + label + str(i) + '.wav')
 
 	return labels
 
 
-def wav_pre_processing(wav, fs, min_samples):
+def wav_pre_processing(wav, fs, min_samples, verbose=False):
 	"""
 	Audio pre-processing stage
 	"""
@@ -87,7 +86,8 @@ def wav_pre_processing(wav, fs, min_samples):
 	if len(x_raw) < min_samples:
 
 		# print warning
-		print("lengths is less than 1s, append with zeros for:")
+		if verbose:
+			print("lengths is less than 1s, append with zeros for:")
 
 		# append with zeros
 		x_raw = np.append(x_raw, np.zeros(min_samples - len(x_raw)))
@@ -95,7 +95,7 @@ def wav_pre_processing(wav, fs, min_samples):
 	return x_raw
 
 
-def extract_mfcc_data(wavs, params, n_examples, set_name=None, min_samples=16000, plot_path_mfcc=None, plot_path_z_score=None, enable_plot=False):
+def extract_mfcc_data(wavs, params, n_examples, set_name=None, min_samples=16000, plot_path_mfcc=None, plot_path_z_score=None, enable_plot=False, verbose=False):
 	"""
 	extract mfcc data from wav-files
 	wavs must be in a 2D-array [[wavs_class1], [wavs_class2]] so that n_examples will work properly
@@ -126,7 +126,8 @@ def extract_mfcc_data(wavs, params, n_examples, set_name=None, min_samples=16000
 			x = wav_pre_processing(wav, params['fs'], min_samples)
 
 			# print some info
-			print("wav: [{}] with label: [{}], samples=[{}], time=[{}]s".format(wav, label, len(x), len(x)/params['fs']))
+			if verbose:
+				print("wav: [{}] with label: [{}], samples=[{}], time=[{}]s".format(wav, label, len(x), len(x)/params['fs']))
 
 			# extract feature vectors [m x l]
 			mfcc, bon_pos = feature_extractor.extract_mfcc39(x)
@@ -143,7 +144,8 @@ def extract_mfcc_data(wavs, params, n_examples, set_name=None, min_samples=16000
 
 			# handle damaged files
 			if z_damaged:
-				print("--*file probably broken!")
+				if verbose:
+					print("--*file probably broken!")
 				broken_file_list.append(file_name)
 				continue
 
@@ -153,12 +155,14 @@ def extract_mfcc_data(wavs, params, n_examples, set_name=None, min_samples=16000
 			index_data.append(label + file_index)
 
 			# stop if desired examples are reached
-			if i >= n_examples:
+			if i >= n_examples - 1:
 				break
 
 	# broken file info
 	plot_damaged_file_score(z_score_list, plot_path=plot_path_z_score, name='z_score_n-{}_{}'.format(n_examples, set_name), enable_plot=enable_plot)
-	print("\n --broken file list: \n{}\nwith length: {}".format(broken_file_list, len(broken_file_list)))
+	
+	if verbose:
+		print("\nbroken file list: [{}] with length: [{}]".format(broken_file_list, len(broken_file_list)))
 
 	return mfcc_data, label_data, index_data
 
@@ -212,10 +216,14 @@ def label_stats(y):
 	label statistics
 	"""
 
+	print("\nlabel stats:")
+
+	# get labels
 	labels = np.unique(y)
 
+	# print label stats
 	for label in labels:
-		print("label: {} num: {}".format(label, np.sum(np.array(y)==label)))
+		print("label: [{}]\tnum: [{}]".format(label, np.sum(np.array(y)==label)))
 
 
 def reduce_to(x_raw, y_raw, index_raw, n_data, data_percs, dpi):
@@ -256,14 +264,18 @@ if __name__ == '__main__':
 	# yaml config file
 	cfg = yaml.safe_load(open("./config.yaml"))
 
-	# create folder
-	create_folder([p + cfg['audio_dataset']['wav_folder'] for p in cfg['audio_dataset']['data_paths']] +  [cfg['audio_dataset']['plot_paths']['mfcc']] + [cfg['audio_dataset']['plot_paths']['z_score']])
+	# path_collector
+	path_coll = PathCollector(cfg)
+
+	# create all necessary folders
+	path_coll.create_audio_dataset_folders()
+
 
 	# status message
 	print("\n--create datasets\nexamples per class: [{}], saved at paths: {} with splits: {}\n".format(cfg['audio_dataset']['n_examples'], cfg['audio_dataset']['data_paths'], cfg['audio_dataset']['data_percs']))
 
 	# copy wav files to path
-	labels = create_datasets(cfg['audio_dataset']['n_examples'], cfg['audio_dataset']['dataset_path'], [p + cfg['audio_dataset']['wav_folder'] for p in cfg['audio_dataset']['data_paths']], cfg['audio_dataset']['data_percs'])
+	labels = create_datasets(n_examples=cfg['audio_dataset']['n_examples'], dataset_path=cfg['audio_dataset']['dataset_path'], wav_folders=path_coll.wav_folders_audio_dataset, data_percs=cfg['audio_dataset']['data_percs'], recreate=cfg['audio_dataset']['recreate'])
 
 
 	# --
@@ -273,7 +285,7 @@ if __name__ == '__main__':
 	print("params: ", cfg['feature_params'])
 
 	# for all data paths (train, test, eval)
-	for dpi, data_path in enumerate(cfg['audio_dataset']['data_paths']):
+	for dpi, data_path in enumerate(list(cfg['audio_dataset']['data_paths'].values())):
 
 		print("\ndata_path: ", data_path)
 
@@ -296,7 +308,7 @@ if __name__ == '__main__':
 			all_wavs.append(wavs)
 
 			# check length of labels
-			print("label: {} with n: {}".format(l, len(wavs)))
+			print("overall stat of label: [{}]\tnum: [{}]".format(l, len(wavs)))
 
 		# extract data
 		x, y, index = extract_mfcc_data(all_wavs, cfg['feature_params'], int(cfg['audio_dataset']['n_examples']*cfg['audio_dataset']['data_percs'][dpi]), set_name=set_name, plot_path_mfcc=cfg['audio_dataset']['plot_paths']['mfcc'], plot_path_z_score=cfg['audio_dataset']['plot_paths']['z_score'], enable_plot=cfg['audio_dataset']['enable_plot'])
@@ -304,13 +316,10 @@ if __name__ == '__main__':
 		# print label stats
 		label_stats(y)
 
-		# set file name
-		file_name = '{}mfcc_data_{}_n-{}_c-{}_v{}.npz'.format(data_path, set_name, cfg['audio_dataset']['n_examples'], len(cfg['audio_dataset']['sel_labels']), cfg['audio_dataset']['version_nr'])
-
 		# save mfcc data file
-		np.savez(file_name, x=x, y=y, index=index, params=cfg['feature_params'])
+		np.savez(path_coll.mfcc_data_files[dpi], x=x, y=y, index=index, params=cfg['feature_params'])
 
 		# print
-		print("--save data to: ", file_name)
+		print("--save data to: ", path_coll.mfcc_data_files[dpi])
 
 

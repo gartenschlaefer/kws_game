@@ -7,7 +7,6 @@ References:
 """
 
 import numpy as np
-import matplotlib.pyplot as plt
 
 import torch
 import torch.nn as nn
@@ -239,7 +238,7 @@ if __name__ == '__main__':
   """
 
   # create net
-  net = ConvNetTutorial()
+  net = ConvNetFstride4(5)
 
   # print some infos
   print("Net: ", net)

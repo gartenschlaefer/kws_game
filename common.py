@@ -5,6 +5,16 @@ contains common fuctions
 import os
 
 
+def check_files_existance(files):
+  """
+  check if file exist
+  """
+
+  for file in files:
+    if not os.path.isfile(file):
+      print("File: {} does not exist!!".format(file))
+
+
 def create_folder(paths):
   """
   create folders in paths
@@ -47,4 +57,4 @@ if __name__ == '__main__':
   main of common files
   """
 
-  print("This is the common functions file.\n It includes for instance 'create_folder' ")
+  print("\nThis is the common functions file.\nIt includes for instance 'create_folder'\n")

@@ -122,7 +122,7 @@ if __name__ == '__main__':
   N, hop = int(0.025 * fs), int(0.010 * fs)
 
   # create classifier
-  classifier = Classifier(file='./models/fstride_c-5.npz', verbose=False)
+  classifier = Classifier(model_path='./models/conv-fstride/v3_c-5_n-2000/bs-32_it-1000_lr-1e-05/', verbose=True)
 
   # create mic instance
   mic = Mic(fs=fs, N=N, hop=hop, classifier=classifier, energy_thres=1e-4, device=8, is_audio_record=True)

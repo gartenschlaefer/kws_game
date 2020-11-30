@@ -3,44 +3,51 @@ classifier class
 """
 
 import numpy as np
-import torch
 
 # my stuff
-from ml import get_nn_model
+from net_handler import CnnHandler
 
 
 class Classifier():
   """
   classifier class for classifying new samples with a trained model
-  file: path to .pth file
   """
 
-  def __init__(self, file, verbose=False):
+  def __init__(self, model_path, model_file_name='model.pth', params_file_name='params.npz', verbose=False):
 
     # vars
-    self.file = file
+    self.model_path = model_path
+    self.model_file_name = model_file_name
+    self.params_file_name = params_file_name
     self.verbose = verbose
 
-    # root path
-    self.root_path = '/'.join(file.split('/')[:-1]) + '/'
+    # files
+    self.model_file = self.model_path + self.model_file_name
+    self.params_file = self.model_path + self.params_file_name
 
     # data loading
-    data = np.load(self.file, allow_pickle=True)
+    data = np.load(self.params_file, allow_pickle=True)
+
+    # see whats in data
+    #print(data.files)
+
+    # nn architecture
+    self.nn_arch = data['nn_arch'][()]
+    self.train_params = data['train_params'][()]
+    self.class_dict = data['class_dict'][()]
 
     # print info
-    print("\nextract model with params: {}\nand class dict: {}".format(data['param_str'], data['class_dict']))
+    if verbose:
+      print("\nExtract model with architecture: [{}]\nparams: [{}]\nand class dict: [{}]".format(self.nn_arch, self.train_params, self.class_dict))
     
-    # extract data from file
-    self.nn_arch, self.class_dict, self.path_to_file = data['params'][()]['nn_arch'], data['class_dict'][()], self.root_path + str(data['model_file_path']).split('/')[-1]
-
-    # init model
-    self.model = get_nn_model(self.nn_arch, n_classes=len(self.class_dict))
+    # init net handler
+    self.cnn_handler = CnnHandler(nn_arch=self.nn_arch, n_classes=len(self.class_dict), model_file_name=self.nn_arch)
 
     # load model
-    self.model.load_state_dict(torch.load(self.path_to_file))
+    self.cnn_handler.load_model(model_file=self.model_file)
 
-    # activate eval mode (no dropout layers)
-    self.model.eval()
+    # set evaluation mode
+    self.cnn_handler.set_eval_mode()
 
     # init to be faster
     self.classify_sample(np.random.randn(39, 32))
@@ -51,23 +58,13 @@ class Classifier():
     classification of a single sample
     """
 
-    # input to tensor
-    x = torch.unsqueeze(torch.unsqueeze(torch.from_numpy(x.astype(np.float32)), 0), 0)
+    y_hat, o = self.cnn_handler.classify_sample(x)
 
-    # no gradients for eval
-    with torch.no_grad():
+    if self.verbose:
+      print("\nnew sample:\nprediction: {} - {}\noutput: {}".format(y_hat, list(self.class_dict.keys())[list(self.class_dict.values()).index(int(y_hat))], o.data))
 
-      # classify
-      o = self.model(x)
-
-      # prediction
-      _, y_hat = torch.max(o.data, 1)
-
-      if self.verbose:
-        print("\nnew sample:\nprediction: {} - {}\noutput: {}".format(y_hat, list(self.class_dict.keys())[list(self.class_dict.values()).index(int(y_hat))], o.data))
-
-    return int(y_hat)
-
+    return y_hat
+    
 
 if __name__ == '__main__':
   """
@@ -75,7 +72,7 @@ if __name__ == '__main__':
   """
 
   # create classifier
-  classifier = Classifier(file='./models/fstride_c-5.npz', verbose=True)
+  classifier = Classifier(model_path='./models/conv-fstride/v3_c-5_n-2000/bs-32_it-1000_lr-1e-05/', model_file_name='model.pth', params_file_name='params.npz', verbose=True)
 
   # random sample
   x = np.random.randn(39, 32)

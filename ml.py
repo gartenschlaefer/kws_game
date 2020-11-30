@@ -6,17 +6,15 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 import logging
-import time
 
 import os
-import torch
 import yaml
 
-from skimage.util.shape import view_as_windows
-
 # my stuff
-from common import *
-from plots import *
+from common import s_to_hms_str
+from path_collector import PathCollector
+from plots import plot_val_acc, plot_train_loss, plot_confusion_matrix
+from batch_archiv import BatchArchiv
 from net_handler import CnnHandler
 
 
@@ -39,82 +37,65 @@ if __name__ == '__main__':
   # yaml config file
   cfg = yaml.safe_load(open("./config.yaml"))
 
-  # create folder
-  create_folder([cfg['ml']['plot_path'], cfg['ml']['shift_path'], cfg['ml']['metric_path'], cfg['ml']['model_path'], cfg['ml']['model_pre_path'], cfg['ml']['log_path']])
+  # init path collector
+  path_coll = PathCollector(cfg)
+
+  # create all necessary folders
+  path_coll.create_ml_folders()
+
 
   # init logging
-  init_logging(cfg['ml']['log_path'])
+  init_logging(cfg['ml']['paths']['log'])
 
 
-  # create batches
-  batch_archiv = BatchArchiv(cfg['ml']['mfcc_data_files'], batch_size=cfg['ml']['train_params']['batch_size'])
+  # --
+  # batches
 
-  # params
-  #params = {'version_id':version_id, 'f':f, 'batch_size':batch_size, 'num_epochs':num_epochs, 'lr':lr, 'nn_arch':nn_arch, 'pre_trained_model_path':pre_trained_model_path}
+  # create batch archiv
+  batch_archiv = BatchArchiv(path_coll.mfcc_data_files_all, batch_size=cfg['ml']['train_params']['batch_size'])
 
-
+  # print classes
   print("classes: ", batch_archiv.classes)
 
 
-  # -- names:
-  # n: samples
-  # l: length of frames 
-  # m: features per frame
-  # r: stride of frames 
-  # f: frame length for input into NN
-  #
-  # -- shapes:
-  # x:  [n x m x l]
-  # xr: [n x m x r x f]
-
-
-  # param string
-  param_str = '{}_v{}_c-{}_n-{}_bs-{}_it-{}_lr-{}'.format(cfg['ml']['nn_arch'], cfg['audio_dataset']['version_nr'], len(batch_archiv.classes), batch_archiv.n_examples_class, cfg['ml']['train_params']['batch_size'], cfg['ml']['train_params']['num_epochs'], str(cfg['ml']['train_params']['lr']).replace('.', 'p'))
-
-
+  # --
   # model handler
-  cnn_handler = CnnHandler(nn_arch=cfg['ml']['nn_arch'], batch_archiv=batch_archiv) 
+
+  # create model handler
+  cnn_handler = CnnHandler(nn_arch=cfg['ml']['nn_arch'], n_classes=batch_archiv.n_classes, model_file_name=cfg['ml']['model_file_name']) 
 
   # load pre trained model
-  if cfg['ml']['use_pre_trained_model']:
-    cnn_handler.load_pre_trained_model(cfg['ml']['pre_trained_model_path'])
+  if cfg['ml']['load_pre_model']:
+    cnn_handler.load_model(model_file=path_coll.model_pre_file)
 
 
   # --
   # training
 
   # check if model already exists
-  if not os.path.exists(cfg['ml']['model_path'] + param_str + '.pth') or cfg['ml']['retrain']:
+  if not os.path.exists(path_coll.model_file) or cfg['ml']['retrain']:
 
     # train
-    score_collecotr = cnn_handler.train_nn(num_epochs=cfg['ml']['train_params']['num_epochs'], lr=cfg['ml']['train_params']['lr'], param_str=param_str)
+    train_score = cnn_handler.train_nn(train_params=cfg['ml']['train_params'], batch_archiv=batch_archiv)
 
     # training info
-    logging.info('Traning on arch: {}  time: {}'.format(param_str, s_to_hms_str(score_collector.time_usage)))
+    logging.info('Traning on arch: {}  time: {}'.format(cfg['ml']['nn_arch'], s_to_hms_str(train_score.time_usage)))
     
     # save model
-    cnn_handler.save_model(cfg['ml']['model_path'] + param_str + '.pth')
-
-    # save as pre trained model as well
-    if cfg['ml']['save_model_as_pre_model']:
-      cnn_handler.save_model('{}{}_c-{}{}'.format(cfg['ml']['pre_trained_model_path'], cnn_handler.nn_arch, len(cnn_handler.batch_archiv.classes), '.pth'))
-
-    # save infos
-    np.savez(cfg['ml']['model_path'] + param_str + '.npz', params=params, param_str=param_str, class_dict=batches.class_dict, model_file_path=model_path + param_str + '.pth')
-    np.savez(cfg['ml']['metric_path'] + 'metrics_' + param_str + '.npz', score_collector=score_collector)
+    cnn_handler.save_model(model_file=path_coll.model_file, params_file=path_coll.params_file, train_params=cfg['ml']['train_params'], class_dict=batch_archiv.class_dict, metric_file=path_coll.metrics_file, train_score=train_score, model_pre_file=path_coll.model_pre_file, save_as_pre_model=cfg['ml']['save_as_pre_model'])
 
     # plots
-    plot_train_loss(score_collector.train_loss, score_collector.val_loss, cfg['ml']['plot_path'], name=param_str + '_train_loss')
-    plot_val_acc(score_collector.val_acc, cfg['ml']['plot_path'], name=param_str + '_val_acc')
+    plot_train_loss(train_score.train_loss, train_score.val_loss, plot_path=path_coll.model_path, name='train_loss')
+    plot_val_acc(train_score.val_acc, plot_path=path_coll.model_path, name='val_acc')
 
-  # load model params from file
+  # load model params from file without training
   else:
 
-    # load
-    model.load_state_dict(torch.load(cfg['ml']['model_path'] + param_str + '.pth'))
+    # load model
+    cnn_handler.load_model(model_file=path_coll.model_file)
 
     # save infos
-    np.savez(cfg['ml']['model_path'] + param_str + '.npz', params=params, param_str=param_str, class_dict=batches.class_dict, model_file_path=cfg['ml']['model_path'] + param_str + '.pth')
+    np.savez(path_coll.model_path + cfg['ml']['params_file_name'], train_params=cfg['ml']['train_params'], class_dict=batch_archiv.class_dict, model_file=path_coll.model_file)
 
 
   # --
@@ -126,42 +107,42 @@ if __name__ == '__main__':
   cnn_handler.model.eval()
 
   # evaluation of model
-  eval_score = cnn_handler.eval_nn(cnn_handler.model, calc_cm=True)
+  eval_score = cnn_handler.eval_nn(eval_set='test', batch_archiv=batch_archiv, calc_cm=True, verbose=False)
 
   # print accuracy
-  eval_log = eval_score.info_log()
+  eval_log = eval_score.info_log(do_print=False)
 
 
   # --
   # info output
 
   # log to file
-  if logging_enabled:
+  if cfg['ml']['logging_enabled']:
     logging.info(eval_log)
 
   # print confusion matrix
-  print("confusion matrix:\n", eval_score.cm)
+  print("confusion matrix:\n{}\n".format(eval_score.cm))
 
   # plot confusion matrix
-  plot_confusion_matrix(eval_score.cm, batch_archiv.classes, plot_path=cfg['ml']['plot_path'], name=param_str + '_confusion_test')
+  plot_confusion_matrix(eval_score.cm, batch_archiv.classes, plot_path=path_coll.model_path, name='confusion_test')
 
 
   # --
   # evaluation on my set
-  if x_my is not None:
+  if batch_archiv.x_my is not None:
 
     print("\n--Evaluation on My Set:")
 
     # evaluation of model
-    eval_score = eval_nn(model, x_my, y_my, classes, z_batches=batch_archiv.z_my, calc_cm=True, verbose=True)
-    print("confusion matrix:\n", eval_score.cm)
+    eval_score = cnn_handler.eval_nn(eval_set='my', batch_archiv=batch_archiv, calc_cm=True, verbose=True)
+    print("confusion matrix:\n{}\n".format(eval_score.cm))
 
     # plot confusion matrix
-    plot_confusion_matrix(eval_score.cm, batch_archiv.classes, plot_path=cfg['ml']['plot_path'], name=param_str + '_confusion_my')
+    plot_confusion_matrix(eval_score.cm, batch_archiv.classes, plot_path=path_coll.model_path, name='confusion_my')
 
 
   # show all plots
-  plt.show()
+  #plt.show()
 
 
 

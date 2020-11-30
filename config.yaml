@@ -11,9 +11,9 @@ audio_dataset:
 
   # paths to save training, testing and eval data
   data_paths:
-    - ./ignore/dataset/train/
-    - ./ignore/dataset/test/
-    - ./ignore/dataset/eval/
+    train: ./ignore/dataset/train/
+    test: ./ignore/dataset/test/
+    eval: ./ignore/dataset/eval/
 
   # wav folder name
   wav_folder: wavs/
@@ -25,6 +25,9 @@ audio_dataset:
 
   # enable plot of each feature extraction
   enable_plot: False
+
+  # recreate all datasets (copy wavs to data_paths)
+  recreate: False
 
   # split of dataset in training, test, eval (must be a prob. distribution)
   data_percs: [0.8, 0.1, 0.1]
@@ -43,6 +46,9 @@ audio_dataset:
   # number of examples picked from dataset
   #n_examples: 10
   n_examples: 500
+
+  # file name for saved feature files
+  mfcc_file_name: mfcc_data
 
 
 # --
@@ -72,7 +78,7 @@ feature_params:
 my_recordings:
 
   # paths
-  out_path: ./ignore/my_recordings/
+  out_path_root: ./ignore/my_recordings/
   in_path: ./ignore/my_recordings/raw/
   plot_path: ./ignore/my_recordings/plots/
   wav_path: ./ignore/my_recordings/wavs/
@@ -80,11 +86,77 @@ my_recordings:
   # my recordins set name
   set_name: 'my'
 
+  # mfcc data file name
+  mfcc_file_name: mfcc_data_my
+
   # enable plot
   enable_plot: False
 
   # force recut of recordings
   recut: False
+
+  # number of examples per class
+  n_examples: 5
+
+  # selected labels for own recordings
+  sel_labels: ['left', 'right', 'up', 'down', 'go']
+
+
+# --
+# machine learning settings
+ml:
+
+  # paths
+  paths:
+    log: ./ignore/logs/
+    model: ./ignore/models/ 
+    model_pre: ./ignore/models/pre/
+
+  # file names
+  model_file_name: model.pth
+  params_file_name: params.npz
+  metrics_file_name: metrics.npz
+
+  # use a pre trained model at pre trained model path
+  load_pre_model: True
+
+  # saves the model as pre trained model
+  save_as_pre_model: True
+
+  # params
+  train_params:
+
+    # batch size
+    batch_size: 32
+
+    # number of epochs
+    num_epochs: 10
+
+    # learning rate
+    lr: 0.0001
+
+  # retrain existing model
+  retrain: True
+
+  # nn architecture available
+  nn_architectures: {1: 'conv-trad', 2: 'conv-fstride'}
+
+  # chosen architecture
+  nn_arch: conv-fstride
+
+  # logging enable
+  logging_enabled: True
+
+
+# --
+# classifier
+classifier:
+
+  # path to model
+  model_path: './models/conv-fstride/v3_c-5_n-2000/bs-32_it-1000_lr-1e-05/'
+
+  # verbose
+  verbose: False
 
 
 # --
@@ -102,73 +174,6 @@ game:
 
   # capture path
   capture_path: ./ignore/capture/
-
-
-# --
-# classifier
-classifier:
-
-  # file name
-  file: './models/fstride_c-5.npz'
-
-  # verbose
-  verbose: False
-
-
-# --
-# ml
-ml:
-
-  # c-5
-  #mfcc_data_files: ['./ignore/dataset/train/mfcc_data_train_n-2000_c-5_v3.npz', './ignore/dataset/test/mfcc_data_test_n-2000_c-5_v3.npz', './ignore/dataset/eval/mfcc_data_eval_n-2000_c-5_v3.npz', './ignore/my_recordings/mfcc_data_my_n-25_c-5_v3.npz']
-  mfcc_data_files: ['./ignore/dataset/train/mfcc_data_train_n-500_c-5_v3.npz', './ignore/dataset/test/mfcc_data_test_n-500_c-5_v3.npz', './ignore/dataset/eval/mfcc_data_eval_n-500_c-5_v3.npz', './ignore/my_recordings/mfcc_data_my_n-25_c-5_v3.npz']
-
-  # c-30
-  #mfcc_data_files: ['./ignore/dataset/train/mfcc_data_train_n-2000_c-5_v3.npz', './ignore/dataset/test/mfcc_data_test_n-2000_c-5_v3.npz', './ignore/dataset/eval/mfcc_data_eval_n-2000_c-5_v3.npz', './ignore/my_recordings/mfcc_data_my_n-25_c-5_v3.npz']
-  
-  # paths
-  plot_path: ./ignore/plots/ml/
-  shift_path: ./ignore/plots/ml/shift/
-  metric_path: ./ignore/plots/ml/metrics/' 
-  model_path: ./ignore/models/ 
-  pre_trained_model_path: ./ignore/models/pre/ 
-  log_path: ./ignore/logs/
-
-  # use a pre trained model at pre trained model path
-  use_pre_trained_model: False
-
-  # saves the model as pre trained model
-  save_model_as_pre_model: True
-
-  # params
-  train_params:
-
-    # batch size
-    batch_size: 32
-
-    # number of epochs
-    num_epochs: 500
-
-    # learning rate
-    lr: 0.0001
-
-  # retrain existing model
-  retrain: False
-
-  # nn architecture available
-  nn_architectures: {1: 'conv-trad', 2: 'conv-fstride'}
-
-  # chosen architecture
-  nn_arch: conv-trad
-
-
-  # pretrained model
-  #pre_trained_model_path = model_pre_path + 'conv-fstride_c-30.pth'
-  #pre_trained_model_path = None
-
-
-
-
 
 
 

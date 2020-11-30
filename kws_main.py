@@ -36,7 +36,7 @@ if __name__ == '__main__':
   N, hop = int(cfg['feature_params']['N_s'] * cfg['feature_params']['fs']), int(cfg['feature_params']['hop_s'] * cfg['feature_params']['fs'])
 
   # create classifier
-  classifier = Classifier(file=cfg['classifier']['file'], verbose=cfg['classifier']['verbose'])
+  classifier = Classifier(model_path=cfg['classifier']['model_path'], verbose=cfg['classifier']['verbose'])
 
   # create mic instance
   mic = Mic(fs=cfg['feature_params']['fs'], N=N, hop=hop, classifier=classifier, energy_thres=1e-4, device=8, is_audio_record=cfg['game']['capture_enabled'])

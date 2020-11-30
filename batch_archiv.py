@@ -16,6 +16,7 @@ class BatchArchiv():
     # mfcc files saved as .npz [train, test, eval]
     self.mfcc_data_files = mfcc_data_files
 
+    # batch sizes
     self.batch_size = batch_size
     self.batch_size_eval = batch_size_eval
 
@@ -98,10 +99,6 @@ class BatchArchiv():
     x = np.take(x_data, indices, axis=0)
     y = np.take(y_data, indices, axis=0)
     z = np.take(index, indices, axis=0)
-
-    # plot first example
-    #fs, hop, z = params[()]['fs'], params[()]['hop'], np.take(index, indices, axis=0)
-    #plot_mfcc_only(x[0], fs, hop, shift_path, name='{}-{}'.format(z[0], 0))
 
     # number of windows
     batch_nums = x.shape[0] // batch_size
@@ -189,6 +186,10 @@ def force_windowing(params):
   x = np.empty(shape=(0, 39, f), dtype=x_data.dtype)
   y = np.empty(shape=(0), dtype=y_data.dtype)
 
+  # plot first example
+  #fs, hop, z = params[()]['fs'], params[()]['hop'], np.take(index, indices, axis=0)
+  #plot_mfcc_only(x[0], fs, hop, shift_path, name='{}-{}'.format(z[0], 0))
+
   # stack windows
   for i, (x_n, y_n) in enumerate(zip(x_data, y_data)):
 
@@ -245,12 +246,16 @@ if __name__ == '__main__':
   """
 
   import yaml
+  from path_collector import PathCollector
 
   # yaml config file
   cfg = yaml.safe_load(open("./config.yaml"))
 
+  # path collector for mfcc file pathes
+  path_coll = PathCollector(cfg)
+
   # create batches
-  batches = BatchArchiv(cfg['ml']['mfcc_data_files'], batch_size=32, batch_size_eval=4)
+  batches = BatchArchiv(path_coll.mfcc_data_files_all, batch_size=32, batch_size_eval=4)
 
   print("x_train: ", batches.x_train.shape)
   print("y_train: ", batches.y_train.shape)
