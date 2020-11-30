@@ -14,9 +14,10 @@ from glob import glob
 
 # my stuff
 from feature_extraction import calc_onsets
-from common import *
+
 from plots import *
 from audio_dataset import extract_mfcc_data
+from path_collector import PathCollector
 
 
 def clean_onsets(onsets, frame_length=32):
@@ -138,8 +139,11 @@ if __name__ == '__main__':
   # yaml config file
   cfg = yaml.safe_load(open("./config.yaml"))
 
-  # create folder
-  create_folder([cfg['my_recordings']['plot_path'], cfg['my_recordings']['wav_path']])
+  # path_collector
+  path_coll = PathCollector(cfg)
+
+  # create all necessary folders
+  path_coll.create_my_recording_folders()
 
 
   # --
@@ -155,25 +159,34 @@ if __name__ == '__main__':
   # --
   # extract mfcc features
 
-  # get all wavs
-  wavs = [glob(cfg['my_recordings']['wav_path'] + '*.wav')]
-  n_examples = len(wavs[0])
+  # all wavs init
+  all_wavs = []
+
+  # get all wavs from selected labels
+  for l in cfg['my_recordings']['sel_labels']:
+
+    # wav regex
+    wav_name_re = '*' + l + '[0-9]*.wav'
+
+    # get wavs
+    wavs = glob(cfg['my_recordings']['wav_path'] + wav_name_re)
+
+    # add to all wavs
+    all_wavs.append(wavs)
+
+    # check length of labels
+    print("overall stat of label: [{}]\tnum: [{}]".format(l, len(wavs)))
 
   # extract features
-  mfcc_data, label_data, index_data = extract_mfcc_data(wavs, cfg['feature_params'], n_examples, set_name=cfg['my_recordings']['set_name'], plot_path_mfcc=cfg['my_recordings']['plot_path'], plot_path_z_score=cfg['my_recordings']['plot_path'], enable_plot=cfg['my_recordings']['enable_plot'])
-
-
-  # set file name
-  file_name = '{}mfcc_data_{}_n-{}_c-{}_v{}.npz'.format(cfg['my_recordings']['out_path'], cfg['my_recordings']['set_name'], n_examples, len(labels), cfg['audio_dataset']['version_nr'])
+  mfcc_data, label_data, index_data = extract_mfcc_data(wavs=all_wavs, params=cfg['feature_params'], n_examples=cfg['my_recordings']['n_examples'], set_name=cfg['my_recordings']['set_name'], plot_path_mfcc=cfg['my_recordings']['plot_path'], plot_path_z_score=cfg['my_recordings']['plot_path'], enable_plot=cfg['my_recordings']['enable_plot'])
 
   # save mfcc data file
-  np.savez(file_name, x=mfcc_data, y=label_data, index=index_data, params=cfg['feature_params'])
+  np.savez(path_coll.mfcc_data_file_my, x=mfcc_data, y=label_data, index=index_data, params=cfg['feature_params'])
 
 
-  # print
-  print("--save data to: ", file_name)
-
-  print("n_examples: {}, labels: {}".format(n_examples, labels))
+  # prints
+  print("--save data to: ", path_coll.mfcc_data_file_my)
+  print("n_examples: {}, labels: {}".format(cfg['my_recordings']['n_examples'], cfg['my_recordings']['sel_labels']))
   print("mfcc_data: ", mfcc_data.shape)
 
   plt.show()

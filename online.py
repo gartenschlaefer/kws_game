@@ -21,7 +21,6 @@ from mic import Mic
 from classifier import Classifier
 
 
-
 def callback_mic(indata, frames, time, status):
   """
   Input Stream Callback
@@ -117,8 +116,8 @@ if __name__ == '__main__':
   # create folder
   create_folder([plot_path])
 
-  # create classifier
-  classifier = Classifier(file='./models/fstride_c-5.npz', verbose=True)
+  # classifier
+  classifier = Classifier(model_path='./models/conv-fstride/v3_c-5_n-2000/bs-32_it-1000_lr-1e-05/', model_file_name='model.pth', params_file_name='params.npz', verbose=True)
 
 
   # --

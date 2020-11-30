@@ -5,7 +5,10 @@ Handling Neural Networks
 import numpy as np
 import torch
 
-from conv_nets import *
+import time
+
+from conv_nets import ConvNetTrad, ConvNetFstride4
+from score import TrainScore, EvalScore
 
 
 class NetHandler():
@@ -13,16 +16,22 @@ class NetHandler():
 	Neural Network Handler
 	"""
 
-	def __init__(self, nn_arch, batch_archiv):
+	def __init__(self, nn_arch, n_classes, model_file_name='none'):
 
 		# neural net architecture (see in config which are available : string)
 		self.nn_arch = nn_arch
 
-		# training set
-		self.batch_archiv = batch_archiv
+		# amount of output classes (needed for network architecture)
+		self.n_classes = n_classes
+
+		# model name
+		self.model_file_name = model_file_name
 
 		# neural network model
-		self.model = get_nn_model()
+		self.model = None
+
+		# get the right nn model
+		self.get_nn_model()
 
 
 	def get_nn_model(self):
@@ -34,12 +43,12 @@ class NetHandler():
 		if self.nn_arch == 'conv-trad':
 
 		  # traditional conv-net
-		  self.model = ConvNetTrad(batch_archiv.n_classes)
+		  self.model = ConvNetTrad(self.n_classes)
 
 		elif self.nn_arch == 'conv-fstride':
 
 		  # limited multipliers conv-net
-		  self.model = ConvNetFstride4(batch_archiv.n_classes)
+		  self.model = ConvNetFstride4(self.n_classes)
 
 		# did not find architecture
 		else:
@@ -47,34 +56,43 @@ class NetHandler():
 		  print("Network Architecture not found, uses: conf-trad")
 
 		  # traditional conv-net
-		  self.model = ConvNetTrad(batch_archiv.n_classes)
+		  self.model = ConvNetTrad(self.n_classes)
 
 
-	def load_model(self, model_path):
+	def load_model(self, model_file):
 	  """
 	  load model
 	  """
 
-	  # same model
-	  if model_path is None:
-	    return
-
 	  # load model
 	  try:
-	    print("load model: ", model_path)
-	    self.model.load_state_dict(torch.load(model_path))
+	    print("load model: ", model_file)
+	    self.model.load_state_dict(torch.load(model_file))
 
 	  except:
-	    print("could not load pre-trained model!!!")
+	    print("\n***could not load pre-trained model!!!\n")
 
 
-	def save_model(self, model_path):
+	def save_model(self, model_file, params_file, train_params, class_dict, metric_file=None, train_score=None, model_pre_file=None, save_as_pre_model=False):
 		"""
 		saves model
 		"""
-
 		# just save the model
-		torch.save(self.model.state_dict(), model_path)
+		torch.save(self.model.state_dict(), model_file)
+
+		# use a model name
+		model_file_name_pre = '{}_c-{}'.format(self.nn_arch, self.n_classes)
+
+		# save param file
+		np.savez(params_file, nn_arch=self.nn_arch, train_params=train_params, class_dict=class_dict, model_file=model_file)
+
+		# save metric file
+		if metric_file is not None and train_score is not None:
+			np.savez(metric_file, train_score=train_score)
+
+		# save also als pre model
+		if save_as_pre_model and model_pre_file is not None:
+			torch.save(self.model.state_dict(), model_pre_file)
 
 
 	def print_train_info(self, epoch, mini_batch, cum_loss, k_print=10):
@@ -94,6 +112,13 @@ class NetHandler():
 		return cum_loss
 
 
+	def set_eval_mode(self):
+		"""
+		set eval mode, so that dropouts are ignored
+		"""
+		self.model.eval()
+
+
 	def train_nn(self):
 		"""
 		train interface
@@ -108,32 +133,40 @@ class NetHandler():
 		pass
 
 
+	def classify_sample(self):
+		"""
+		classify a single sample
+		"""
+		pass
+
+
 
 class CnnHandler(NetHandler):
 	"""
 	Neural Network Mentor for CNNs
 	"""
 
-	def __init__(self, nn_arch, batch_archiv, pre_trained_model_path=None):
+	def __init__(self, nn_arch, n_classes, model_file_name='none'):
 
 		# parent class init
-		super().__init__(nn_arch, batch_archiv, pre_trained_model_path=None)
+		super().__init__(nn_arch, n_classes, model_file_name)
 
 		# loss criterion
 		self.criterion = torch.nn.CrossEntropyLoss()
 
 
-	def train_nn(self, num_epochs=2, lr=1e-3, momentum=0.5, param_str='nope'):
+	def train_nn(self, train_params, batch_archiv):
 		"""
 		train the neural network
+		train_params: {'num_epochs': [], 'lr': [], 'momentum': []}
 		"""
 
 		# create optimizer
-		#optimizer = torch.optim.SGD(self.model.parameters(), lr=lr, momentum=momentum)
-		optimizer = torch.optim.Adam(self.model.parameters(), lr=lr)
+		#optimizer = torch.optim.SGD(self.model.parameters(), lr=train_params['lr'], momentum=train_params['momentum'])
+		optimizer = torch.optim.Adam(self.model.parameters(), lr=train_params['lr'])
 
 		# score collector
-		score_collector = ScoreCollecor(num_epochs)
+		train_score = TrainScore(train_params['num_epochs'])
 
 		print("\n--Training starts:")
 
@@ -141,14 +174,14 @@ class CnnHandler(NetHandler):
 		start_time = time.time()
 
 		# epochs
-		for epoch in range(num_epochs):
+		for epoch in range(train_params['num_epochs']):
 
 		  # cumulated loss
 		  cum_loss = 0.0
 
 		  # TODO: do this with loader function from pytorch (maybe or not)
 		  # fetch data samples
-		  for i, (x, y) in enumerate(zip(x_train, y_train)):
+		  for i, (x, y) in enumerate(zip(batch_archiv.x_train, batch_archiv.y_train)):
 
 		    # zero parameter gradients
 		    optimizer.zero_grad()
@@ -169,38 +202,38 @@ class CnnHandler(NetHandler):
 		    cum_loss += loss.item()
 
 		    # batch loss
-		    score_collector.train_loss[epoch] += cum_loss
+		    train_score.train_loss[epoch] += cum_loss
 
 		    # print some infos, reset cum_loss
-		    cum_loss = print_train_info(epoch, i, cum_loss, k_print=y_train.shape[0] // 10)
+		    cum_loss = self.print_train_info(epoch, i, cum_loss, k_print=batch_archiv.y_train.shape[0] // 10)
 
 		  # valdiation
-		  eval_score = self.eval_nn('val')
+		  eval_score = self.eval_nn('val', batch_archiv)
 
 		  # update score collector
-		  score_collector.val_loss[epoch], score_collector.val_acc[epoch] = eval_score.loss, eval_score.acc
+		  train_score.val_loss[epoch], train_score.val_acc[epoch] = eval_score.loss, eval_score.acc
 
 		  # TODO: Early stopping if necessary
 		  
 		print('--Training finished')
 
 		# log time
-		score_collector.time_usage = time.time() - start_time 
+		train_score.time_usage = time.time() - start_time 
 
-		return score_collector
+		return train_score
 
 
-	def eval_nn(eval_set, calc_cm=False, verbose=False):
+	def eval_nn(self, eval_set, batch_archiv, calc_cm=False, verbose=False):
 	  """
 	  evaluation of nn
 	  use eval_set out of ['val', 'test', 'my']
 	  """
 
 	  # init score
-	  eval_score = EvalScore(label_dtype=batch_archiv.y_eval.numpy().dtype, calc_cm=calc_cm)
+	  eval_score = EvalScore(label_dtype=batch_archiv.y_val.numpy().dtype, calc_cm=calc_cm)
 
 	  # select the evaluation set
-	  x_eval, y_eval, z_eval = eval_select_set(eval_set)
+	  x_eval, y_eval, z_eval = self.eval_select_set(eval_set, batch_archiv)
 
 	  # no gradients for eval
 	  with torch.no_grad():
@@ -232,7 +265,7 @@ class CnnHandler(NetHandler):
 	  return eval_score
 
 
-	def eval_select_set(self, eval_set):
+	def eval_select_set(self, eval_set, batch_archiv):
 		"""
 		select set to evaluate
 		"""
@@ -240,144 +273,77 @@ class CnnHandler(NetHandler):
 		# select the set
 		x_eval, y_eval, z_eval = None, None, None
 
+		# validation set
 		if eval_set == 'val':
 			x_eval, y_eval, z_eval = batch_archiv.x_val, batch_archiv.y_val, None
 
+		# test set
 		elif eval_set == 'test':
 			x_eval, y_eval, z_eval = batch_archiv.x_test, batch_archiv.y_test, None
 
-		# determine evaluation files
+		# my test set
 		elif eval_set == 'my':
 			x_eval, y_eval, z_eval = batch_archiv.x_my, batch_archiv.y_my, batch_archiv.z_my
 
+		# set not found
 		else:
 			print("wrong usage of eval_nn, select eval_set one out of ['val', 'test', 'my']")
 
 		return x_eval, y_eval, z_eval
 
 
-
-class ScoreCollecor():
-	"""
-	collection of scores
-	"""
-
-	def __init__(self, num_epochs):
-
-		# collect losses over epochs
-		self.train_loss = np.zeros(num_epochs)
-		self.val_loss = np.zeros(num_epochs)
-		self.val_acc = np.zeros(num_epochs)
-
-		# time score
-		self.time_usage = None
-
-
-
-class EvalScore():
-	"""
-	typical scores for evaluation
-	"""
-
-	def __init__(self, label_dtype, calc_cm=False):
-
-		# params
-		self.label_dtype = label_dtype
-		self.calc_cm = calc_cm
-
-		# init vars
-		self.loss = 0.0
-		self.correct = 0
-		self.total = 0
-		self.cm = None
-		self.acc = None
-
-		# all labels from batches
-		self.y_all = np.empty(shape=(0), dtype=self.label_dtype)
-
-		# all predicted labels
-		self.y_hat_all = np.empty(shape=(0), dtype=self.label_dtype)
-
-
-	def update(self, loss, y, y_hat):
+	def classify_sample(self, x):
 		"""
-		update score (batch update)
+		classification of a single sample
 		"""
 
-		# loss update
-		self.loss += loss
+		# input to tensor
+		x = torch.unsqueeze(torch.unsqueeze(torch.from_numpy(x.astype(np.float32)), 0), 0)
 
-		# add total amount of prediction
-		self.total += y.size(0)
+		# no gradients for eval
+		with torch.no_grad():
 
-		# check if correctly predicted
-		self.correct += (y_hat == y).sum().item()
+			# classify
+			o = self.model(x)
 
-		# collect labels for confusion matrix
-		if self.calc_cm:
-			self.y_all = np.append(self.y_all, y)
-			self.y_hat_all = np.append(self.y_hat_all, y_hat)
+			# prediction
+			_, y_hat = torch.max(o.data, 1)
 
-
-	def finish(self):
-		"""
-		finishing procedure
-		"""
-
-		from sklearn.metrics import confusion_matrix
-
-		# no cm was required
-		if not self.calc_cm:
-			return
-
-		# confusion matrix
-		self.cm = confusion_matrix(self.y_all, self.y_hat_all)
-
-		# accuracy
-		self.acc = 100 * self.correct / self.total
-
-
-	def info_log(self, do_print=True):
-		"""
-		print evaluation outcome
-		"""
-
-		# message
-		eval_log = "Eval: correct: [{} / {}] acc: [{:.4f}] with loss: [{:.4f}]\n".format(self.correct, self.total, self.acc, self.loss)
-
-		# print
-		if do_print:
-			print(eval_log)
-
-		return eval_log
-
-
-
+		return int(y_hat), o
 
 
 
 if __name__ == '__main__':
 	"""
-		handles all neural networks with training and evaluation 
+	handles all neural networks with training, evaluation and classifying samples 
 	"""
 
 	import yaml
 	from batch_archiv import BatchArchiv
+	from path_collector import PathCollector
 
 	# yaml config file
 	cfg = yaml.safe_load(open("./config.yaml"))
 
+	# path collector
+	path_coll = PathCollector(cfg)
+
 	# create batches
-	batch_archiv = BatchArchiv(cfg['ml']['mfcc_data_files'], batch_size=32, batch_size_eval=4)
+	batch_archiv = BatchArchiv(path_coll.mfcc_data_files_all, batch_size=32, batch_size_eval=4)
 
 	# select architecture
 	nn_arch = 'conv-fstride'
 
 	# create an cnn handler
-	cnn_handler = CnnHandler(nn_arch, batch_archiv)
+	cnn_handler = CnnHandler(nn_arch, n_classes=5, model_file_name='none')
 
 	# training
-	cnn_handler.train_nn(num_epochs=2, lr=1e-3, momentum=0.5, param_str='nope')
+	cnn_handler.train_nn(cfg['ml']['train_params'], batch_archiv=batch_archiv)
 
 	# validation
-	cnn_handler.eval_nn(calc_cm=False, verbose=False, use_my_eval=False)
+	cnn_handler.eval_nn(eval_set='val', batch_archiv=batch_archiv, calc_cm=False, verbose=False)
+
+	# classify sample
+	y_hat, o = cnn_handler.classify_sample(np.random.randn(39, 32))
+
+	print("classify: [{}]\noutput: [{}]".format(y_hat, o))
