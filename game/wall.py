@@ -235,6 +235,8 @@ if __name__ == '__main__':
 	test character
 	"""
 
+	import yaml
+
 	# append paths
 	import sys
 	sys.path.append("../")
@@ -243,8 +245,8 @@ if __name__ == '__main__':
 	from mic import Mic
 	from game_logic import GameLogic
 
-	# size of display
-	size = width, height = 640, 480
+	# yaml config file
+	cfg = yaml.safe_load(open("../config.yaml"))
 
 	# some vars
 	run_loop = True
@@ -257,7 +259,7 @@ if __name__ == '__main__':
 	pygame.init()
 
 	# init display
-	screen = pygame.display.set_mode(size)
+	screen = pygame.display.set_mode(cfg['game']['screen_size'])
 
 	# sprite groups
 	all_sprites = pygame.sprite.Group()
@@ -267,16 +269,16 @@ if __name__ == '__main__':
 	fs = 16000
 
 	# window and hop size
-	N, hop = int(0.025 * fs), int(0.010 * fs)
+	N, hop = int(cfg['feature_params']['N_s'] * cfg['feature_params']['fs']), int(cfg['feature_params']['hop_s'] * cfg['feature_params']['fs'])
 
 	# create classifier
 	classifier = Classifier(model_path='../models/conv-fstride/v3_c-5_n-2000/bs-32_it-1000_lr-1e-05/', model_file_name='model.pth', params_file_name='params.npz', verbose=True)
 
 	# create mic instance
-	mic = Mic(fs=fs, N=N, hop=hop, classifier=classifier)
+	mic = Mic(classifier=classifier, feature_params=cfg['feature_params'], mic_params=cfg['mic_params'], is_audio_record=False)
 
 	# create normal wall
-	wall = Wall(position=(width//2, height//4))
+	wall = Wall(position=(cfg['game']['screen_size'][0]//2, cfg['game']['screen_size'][1]//4))
 
 	# create movable walls
 	move_wall = MovableWall(grid_pos=[10, 10], color=(10, 100, 100), grid_move=grid_move, mic_control=False)
@@ -324,7 +326,7 @@ if __name__ == '__main__':
 			pygame.display.flip()
 
 			# reduce framerate
-			clock.tick(60)
+			clock.tick(cfg['game']['fps'])
 
 
 	# end pygame

@@ -39,9 +39,9 @@ if __name__ == '__main__':
   classifier = Classifier(model_path=cfg['classifier']['model_path'], verbose=cfg['classifier']['verbose'])
 
   # create mic instance
-  mic = Mic(fs=cfg['feature_params']['fs'], N=N, hop=hop, classifier=classifier, energy_thres=1e-4, device=8, is_audio_record=cfg['game']['capture_enabled'])
+  mic = Mic(classifier=classifier, feature_params=cfg['feature_params'], mic_params=cfg['mic_params'], is_audio_record=cfg['game']['capture_enabled'])
 
-
+  
   # --
   # game setup
 

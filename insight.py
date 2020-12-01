@@ -43,6 +43,11 @@ if __name__ == '__main__':
   """
   Insight file - gives insight in neural nets
   """
+  
+  import yaml
+  
+  # yaml config file
+  cfg = yaml.safe_load(open("./config.yaml"))
 
   # plot path and model path
   plot_path = './ignore/plots/insight/'
@@ -65,7 +70,7 @@ if __name__ == '__main__':
   fs = 16000
 
   # window and hop size
-  N, hop = int(0.025 * fs), int(0.010 * fs)
+  N, hop = int(cfg['feature_params']['N_s'] * cfg['feature_params']['fs']), int(cfg['feature_params']['hop_s'] * cfg['feature_params']['fs'])
 
 
   # -- 
@@ -98,7 +103,7 @@ if __name__ == '__main__':
 
     # classify
     print("frame: ", i)
-    y_hat = classifier.classify_sample(x)
+    y_hat, label = classifier.classify_sample(x)
     y_hat_list.append(y_hat)
 
     # plot

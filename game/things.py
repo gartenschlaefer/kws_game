@@ -55,15 +55,16 @@ if __name__ == '__main__':
   """
   test character
   """
+  import yaml
 
   from color_bag import ColorBag
   from levels import LevelThings, Level_01
   from text import Text
-
   from game_logic import ThingsGameLogic
 
-  # size of display
-  screen_size = width, height = 640, 480
+
+  # yaml config file
+  cfg = yaml.safe_load(open("../config.yaml"))
 
   # grid
   pixel_size = (20, 20)
@@ -72,7 +73,7 @@ if __name__ == '__main__':
   pygame.init()
 
   # init display
-  screen = pygame.display.set_mode(screen_size)
+  screen = pygame.display.set_mode(cfg['game']['screen_size'])
 
   # collection of game colors
   color_bag = ColorBag()
@@ -80,7 +81,7 @@ if __name__ == '__main__':
 
 
   # level creation
-  levels = [LevelThings(screen, screen_size, color_bag), Level_01(screen, screen_size, color_bag)]
+  levels = [LevelThings(screen, cfg['game']['screen_size'], color_bag), Level_01(screen, cfg['game']['screen_size'], color_bag)]
 
   # choose level
   level = levels[0]
@@ -112,7 +113,7 @@ if __name__ == '__main__':
     pygame.display.flip()
 
     # reduce framerate
-    clock.tick(60)
+    clock.tick(cfg['game']['fps'])
 
 
   # end pygame

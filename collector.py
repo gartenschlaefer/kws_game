@@ -16,20 +16,25 @@ class Collector:
     constructor
     """
 
-    # determine data size
-    self.data_size = int((frame_size * hop + N ) /  hop) + frames_post
-
-    # params
+    # arguments
+    self.N = N
+    self.hop = hop
+    self.frame_size = frame_size
     self.update_size = update_size
     self.frames_post = frames_post
     self.is_audio_record = is_audio_record
+
+    # determine data size
+    self.data_size = int((frame_size * hop + N ) /  hop) + frames_post
 
     # data containers
     self.qu = queue.Queue(maxsize=self.data_size)
     self.x = np.empty(shape=(0), dtype=np.float32)
 
-    # whole audio data
+    # whole audio data for recording
     self.x_all = np.empty(shape=(0), dtype=np.float32)
+    self.e_all = np.empty(shape=(0), dtype=np.float32)
+    self.on_all = np.empty(shape=(0), dtype=np.float32)
 
     # vars
     self.is_collecting = False
@@ -44,7 +49,7 @@ class Collector:
     self.is_collecting = True
 
 
-  def update_collect(self, x):
+  def update_collect(self, x, e=None, on=None):
     """
     update the collection with an entry
     """
@@ -64,9 +69,12 @@ class Collector:
     if not self.qu.full():
       self.qu.put(x)
 
-    # save all
+    # save all for audio record
     if self.is_audio_record:
       self.x_all = np.concatenate((self.x_all, x))
+      self.e_all = np.append(self.e_all, e)
+      if on:
+        self.on_all = np.append(self.on_all, len(self.x_all) / self.hop)
       
 
   def read_collection(self):

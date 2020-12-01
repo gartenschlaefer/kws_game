@@ -58,12 +58,17 @@ class Classifier():
     classification of a single sample
     """
 
+    # classify
     y_hat, o = self.cnn_handler.classify_sample(x)
 
-    if self.verbose:
-      print("\nnew sample:\nprediction: {} - {}\noutput: {}".format(y_hat, list(self.class_dict.keys())[list(self.class_dict.values()).index(int(y_hat))], o.data))
+    # get label
+    label = list(self.class_dict.keys())[list(self.class_dict.values()).index(int(y_hat))]
 
-    return y_hat
+    # print infos
+    if self.verbose:
+      print("\nnew sample:\nprediction: {} - {}\noutput: {}".format(y_hat, label, o.data))
+
+    return y_hat, label
     
 
 if __name__ == '__main__':

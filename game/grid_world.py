@@ -197,6 +197,8 @@ if __name__ == '__main__':
 	Main Gridworld
 	"""
 
+	import yaml
+
 	# append paths
 	import sys
 	sys.path.append("../")
@@ -206,6 +208,9 @@ if __name__ == '__main__':
 	from levels import LevelMoveWalls
 	from game_logic import GameLogic
 
+
+	# yaml config file
+	cfg = yaml.safe_load(open("../config.yaml"))
 
 	# size of display
 	screen_size = width, height = 640, 480
@@ -226,19 +231,14 @@ if __name__ == '__main__':
 	# --
 	# mic
 
-	# params
-	fs = 16000
-
 	# window and hop size
-	N, hop = int(0.025 * fs), int(0.010 * fs)
+	N, hop = int(cfg['feature_params']['N_s'] * cfg['feature_params']['fs']), int(cfg['feature_params']['hop_s'] * cfg['feature_params']['fs'])
 
 	# create classifier
 	classifier = Classifier(model_path='../models/conv-fstride/v3_c-5_n-2000/bs-32_it-1000_lr-1e-05/', model_file_name='model.pth', params_file_name='params.npz', verbose=True)
 
 	# create mic instance
-	mic = Mic(fs=fs, N=N, hop=hop, classifier=classifier)
-
-
+	mic = Mic(classifier=classifier, feature_params=cfg['feature_params'], mic_params=cfg['mic_params'], is_audio_record=False)
 
 	# level setup
 	level = LevelMoveWalls(screen, screen_size, color_bag, mic)

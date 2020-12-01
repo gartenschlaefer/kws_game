@@ -160,6 +160,35 @@ classifier:
 
 
 # --
+# microphone parameters
+mic_params:
+
+  # device id
+  device: 6
+
+  # sampling frequency of microphone
+  fs_device: 48000
+
+  # channels to be recorded
+  channels: 1
+
+  # energy threshold for onsets
+  energy_thres: 0.0001
+
+  # collector update size (pre frames)
+  update_size: 32
+
+  # collector post frames (after onset detection)
+  frames_post: 32
+
+  # plot of mic
+  plot_path: './ignore/plots/mic/'
+
+  # enable plot (set false when playing, just for debugging)
+  enable_plot: False
+
+
+# --
 # game settings
 game:
 

@@ -365,31 +365,33 @@ if __name__ == '__main__':
   """
   levels
   """
+  import yaml
 
   from color_bag import ColorBag
   from game_logic import GameLogic, ThingsGameLogic
   from text import Text
 
-  # size of display
-  screen_size = width, height = 640, 480
+  # yaml config file
+  cfg = yaml.safe_load(open("../config.yaml"))
+
 
   # init pygame
   pygame.init()
 
   # init display
-  screen = pygame.display.set_mode(screen_size)
+  screen = pygame.display.set_mode(cfg['game']['screen_size'])
 
   # collection of game colors
   color_bag = ColorBag()
   text = Text(screen, color_bag)
 
   # level creation
-  #level = LevelSquare(screen, screen_size, color_bag)
-  #level = LevelMoveWalls(screen, screen_size, color_bag)
+  #level = LevelSquare(screen, cfg['game']['screen_size'], color_bag)
+  #level = LevelMoveWalls(screen, cfg['game']['screen_size'], color_bag)
 
   # level creation
-  #levels = [Level_01(screen, screen_size, color_bag), Level_02(screen, screen_size, color_bag)]
-  levels = [Level_02(screen, screen_size, color_bag)]
+  #levels = [Level_01(screen, cfg['game']['screen_size'], color_bag), Level_02(screen, cfg['game']['screen_size'], color_bag)]
+  levels = [Level_02(screen, cfg['game']['screen_size'], color_bag)]
 
   # choose level
   level = levels[0]
@@ -418,7 +420,7 @@ if __name__ == '__main__':
     pygame.display.flip()
 
     # reduce framerate
-    clock.tick(60)
+    clock.tick(cfg['game']['fps'])
 
   # end pygame
   pygame.quit()

@@ -82,7 +82,7 @@ class ScreenCapturer():
     if mic is not None:
 
       # save audio
-      soundfile.write('{}out_audio.wav'.format(self.capture_path), mic.collector.x_all, mic.fs, subtype=None, endian=None, format=None, closefd=True)
+      soundfile.write('{}out_audio.wav'.format(self.capture_path), mic.collector.x_all, mic.feature_params['fs'], subtype=None, endian=None, format=None, closefd=True)
 
     # convert to video format
     try:
@@ -96,6 +96,8 @@ if __name__ == '__main__':
   capture
   """
 
+  import yaml
+  
   # append paths
   import sys
   sys.path.append("./game")
@@ -109,43 +111,35 @@ if __name__ == '__main__':
   from text import Text
 
 
-  # capture paths
-  capture_path = './ignore/capture/'
+  # yaml config file
+  cfg = yaml.safe_load(open("./config.yaml"))
+
 
   # --
   # mic (for sound capture)
 
-  # params
-  fs = 16000
-
   # window and hop size
-  N, hop = int(0.025 * fs), int(0.010 * fs)
+  N, hop = int(cfg['feature_params']['N_s'] * cfg['feature_params']['fs']), int(cfg['feature_params']['hop_s'] * cfg['feature_params']['fs'])
 
   # create classifier
   classifier = Classifier(model_path='./models/conv-fstride/v3_c-5_n-2000/bs-32_it-1000_lr-1e-05/', verbose=True)
 
   # create mic instance
-  mic = Mic(fs=fs, N=N, hop=hop, classifier=classifier, energy_thres=1e-4, device=8, is_audio_record=True)
-
-
+  mic = Mic(classifier=classifier, feature_params=cfg['feature_params'], mic_params=cfg['mic_params'], is_audio_record=True)
+  
+  
   # --
   # game setup
-
-  # fps
-  fps = 60
-
-  # size of display
-  screen_size = width, height = 640, 480
 
   # init pygame
   pygame.init()
 
   # init display
-  screen = pygame.display.set_mode(screen_size)
+  screen = pygame.display.set_mode(cfg['game']['screen_size'])
 
 
   # init screen capturer
-  screen_capturer = ScreenCapturer(screen, screen_size, fps, capture_path=capture_path)
+  screen_capturer = ScreenCapturer(screen, cfg['game']['screen_size'], cfg['game']['fps'], capture_path=cfg['game']['capture_path'])
 
 
   # collection of game colors
@@ -153,7 +147,7 @@ if __name__ == '__main__':
   text = Text(screen, color_bag)
 
   # level creation
-  levels = [Level_01(screen, screen_size, color_bag, mic)]
+  levels = [Level_01(screen, cfg['game']['screen_size'], color_bag, mic)]
 
   # choose level
   level = levels[0]
@@ -187,7 +181,7 @@ if __name__ == '__main__':
       pygame.display.flip()
 
       # reduce framerate
-      clock.tick(fps)
+      clock.tick(cfg['game']['fps'])
 
 
   # save video
