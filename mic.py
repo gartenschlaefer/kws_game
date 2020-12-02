@@ -32,24 +32,24 @@ class Mic():
     # windowing params
     self.N, self.hop = int(feature_params['N_s'] * feature_params['fs']), int(feature_params['hop_s'] * feature_params['fs'])
 
-    # queue and collector
+    # queue
     self.q = queue.Queue()
+
+    # collector
     self.collector = Collector(N=self.N, hop=self.hop, frame_size=self.feature_params['frame_size'], update_size=self.mic_params['update_size'], frames_post=self.mic_params['frames_post'], is_audio_record=self.is_audio_record)
 
     # feature extractor
     self.feature_extractor = FeatureExtractor(self.feature_params['fs'], N=self.N, hop=self.hop, n_filter_bands=self.feature_params['n_filter_bands'], n_ceps_coeff=self.feature_params['n_ceps_coeff'], frame_size=self.feature_params['frame_size'])
 
-    # determine downsample
-    self.downsample = mic_params['fs_device'] // self.feature_params['fs']
-
-    # select microphone
-    sd.default.device = self.mic_params['device']
+    # select microphone yourself (usually not necessary)
+    if mic_params['select_device']:
+      sd.default.device = self.mic_params['device']
 
     # show devices
     print("\ndevice list: \n", sd.query_devices())
 
     # setup stream sounddevice
-    self.stream = sd.InputStream(samplerate=self.feature_params['fs']*self.downsample, blocksize=self.hop*self.downsample, channels=self.mic_params['channels'], callback=self.callback_mic)
+    self.stream = sd.InputStream(samplerate=self.feature_params['fs'], blocksize=self.hop, channels=self.mic_params['channels'], callback=self.callback_mic)
 
 
   def callback_mic(self, indata, frames, time, status):
@@ -60,8 +60,7 @@ class Mic():
     if status:
       print(status)
 
-    # put into queue
-    self.q.put(indata[::self.downsample, 0])
+    self.q.put(indata[:, 0].copy())
 
 
   def clear_mic_queue(self):
@@ -69,9 +68,18 @@ class Mic():
     clear the queue after classification
     """
 
-    # empty queue
-    while not self.q.empty():
-      dummy = self.q.get_nowait()
+    # process data
+    for i in range(self.q.qsize()):
+
+      # get chunk
+      x = self.q.get()
+
+      # onset and energy archiv
+      e, _ = onset_energy_level(x, alpha=self.mic_params['energy_thres'])
+
+      # update collector
+      self.collector.x_all = np.append(self.collector.x_all, x)
+      self.collector.e_all = np.append(self.collector.e_all, e)
 
 
   def read_mic_data(self):
@@ -80,7 +88,6 @@ class Mic():
     """
 
     # init
-    x = np.empty(shape=(0), dtype=np.float32)
     x_collect = np.empty(shape=(0), dtype=np.float32)
     e_collect = np.empty(shape=(0), dtype=np.float32)
 
@@ -90,14 +97,13 @@ class Mic():
     # process data
     if self.q.qsize():
 
-      # read out data
-      while not self.q.empty():
+      for i in range(self.q.qsize()):
 
         # get data
-        x = self.q.get_nowait()
+        x = self.q.get()
 
-        # concatenate collection
-        x_collect = np.concatenate((x_collect, x))
+        # append chunk
+        x_collect = np.append(x_collect, x.copy())
 
         # append energy level
         e_collect = np.append(e_collect, 1)
@@ -108,7 +114,7 @@ class Mic():
       # collection update
       self.collector.update_collect(x_collect.copy(), e=e_collect.copy()*e_onset, on=is_onset)
 
-    return x, is_onset
+    return is_onset
 
 
   def update_read_command(self):
@@ -117,7 +123,7 @@ class Mic():
     """
 
     # read chunk
-    xi, is_onset = self.read_mic_data()
+    is_onset = self.read_mic_data()
 
     # onset was detected
     if is_onset:
@@ -138,7 +144,7 @@ class Mic():
       y_hat, label = self.classifier.classify_sample(mfcc_bon)
 
       # plot
-      plot_mfcc_profile(x_onset[bon_pos*self.hop:(bon_pos+32)*self.hop], self.feature_params['fs'], self.N, self.hop, mfcc_bon, frame_size=self.feature_params['frame_size'], plot_path=self.mic_params['plot_path'], name='collect-{}_label-{}'.format(self.collector.collection_counter, label), enable_plot=self.mic_params['enable_plot'])
+      plot_mfcc_profile(x_onset[bon_pos*self.hop:(bon_pos+self.feature_params['frame_size'])*self.hop], self.feature_params['fs'], self.N, self.hop, mfcc_bon, frame_size=self.feature_params['frame_size'], plot_path=self.mic_params['plot_path'], name='collect-{}_label-{}'.format(self.collector.collection_counter, label), enable_plot=self.mic_params['enable_plot'])
 
       # clear read queue
       self.clear_mic_queue()
@@ -156,6 +162,22 @@ class Mic():
     return (self.collector.x_all.shape[0] >= (time_duration * self.feature_params['fs'])) and self.is_audio_record
 
 
+  def save_audio_file(self):
+    """
+    saves collection to audio file
+    """
+
+    # has not recorded audio
+    if not self.is_audio_record:
+      print("***you did not set the record flag!")
+      return
+
+    import soundfile
+
+    # save audio
+    soundfile.write('{}out_audio.wav'.format(self.mic_params['plot_path']), self.collector.x_all, self.feature_params['fs'], subtype=None, endian=None, format=None, closefd=True)
+
+
 if __name__ == '__main__':
   """
   mic
@@ -163,11 +185,16 @@ if __name__ == '__main__':
 
   import yaml
   import matplotlib.pyplot as plt
+  import soundfile
 
   from plots import plot_waveform
+  from common import create_folder
 
   # yaml config file
   cfg = yaml.safe_load(open("./config.yaml"))
+
+  # create folder
+  create_folder([cfg['mic_params']['plot_path']])
 
   # window and hop size
   N, hop = int(cfg['feature_params']['N_s'] * cfg['feature_params']['fs']), int(cfg['feature_params']['hop_s'] * cfg['feature_params']['fs'])
@@ -193,6 +220,9 @@ if __name__ == '__main__':
         # print command
         print("command: ", command)
 
+    # clear queue
+    mic.clear_mic_queue()
+
   # some prints
   print("x_all: ", mic.collector.x_all.shape)
   print("e_all: ", mic.collector.e_all.shape)
@@ -200,5 +230,9 @@ if __name__ == '__main__':
 
   # plot waveform
   plot_waveform(mic.collector.x_all, cfg['feature_params']['fs'], mic.collector.e_all * 10, hop, mic.collector.on_all, title='input stream', ylim=(-1, 1), plot_path=None, name='None')
-  plt.show()
 
+  # save audio
+  mic.save_audio_file()
+
+  # show plots
+  plt.show()

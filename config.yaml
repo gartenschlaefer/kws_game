@@ -163,8 +163,11 @@ classifier:
 # microphone parameters
 mic_params:
 
-  # device id
-  device: 6
+  # slect specific device
+  select_device: False
+
+  # sel device id
+  device: 5
 
   # sampling frequency of microphone
   fs_device: 48000
@@ -182,7 +185,7 @@ mic_params:
   frames_post: 32
 
   # plot of mic
-  plot_path: './ignore/plots/mic/'
+  plot_path: './ignore/mic/'
 
   # enable plot (set false when playing, just for debugging)
   enable_plot: False

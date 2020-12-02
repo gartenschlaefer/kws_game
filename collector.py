@@ -28,7 +28,7 @@ class Collector:
     self.data_size = int((frame_size * hop + N ) /  hop) + frames_post
 
     # data containers
-    self.qu = queue.Queue(maxsize=self.data_size)
+    self.q = queue.Queue(maxsize=self.data_size)
     self.x = np.empty(shape=(0), dtype=np.float32)
 
     # whole audio data for recording
@@ -58,20 +58,20 @@ class Collector:
     if not self.is_collecting:
 
       # remove last
-      if self.qu.qsize() == self.update_size:
-        dummy = self.qu.get_nowait()
+      if self.q.qsize() == self.update_size:
+        dummy = self.q.get_nowait()
 
       # error message
-      if self.qu.qsize() > self.update_size:
+      if self.q.qsize() > self.update_size:
         print("wrong handling of buffer")
 
     # put conditions
-    if not self.qu.full():
-      self.qu.put(x)
+    if not self.q.full():
+      self.q.put(x)
 
     # save all for audio record
     if self.is_audio_record:
-      self.x_all = np.concatenate((self.x_all, x))
+      self.x_all = np.append(self.x_all, x)
       self.e_all = np.append(self.e_all, e)
       if on:
         self.on_all = np.append(self.on_all, len(self.x_all) / self.hop)
@@ -88,8 +88,8 @@ class Collector:
     self.x = np.empty(shape=(0), dtype=np.float32)
 
     # read out elements
-    while not self.qu.empty():
-      self.x = np.concatenate((self.x, self.qu.get_nowait()))
+    while not self.q.empty():
+      self.x = np.append(self.x, self.q.get_nowait())
 
     # update collection counter
     self.collection_counter += 1
@@ -102,4 +102,4 @@ class Collector:
     get full info
     """
 
-    return self.qu.full()
+    return self.q.full()
