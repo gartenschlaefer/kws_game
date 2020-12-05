@@ -14,7 +14,6 @@ import sys
 sys.path.append("./game")
 
 # game stuff
-from color_bag import ColorBag
 from game_logic import ThingsGameLogic
 from levels import Level_01, Level_02
 from text import Text
@@ -31,9 +30,6 @@ if __name__ == '__main__':
 
   # --
   # mic
-
-  # windowing samples
-  N, hop = int(cfg['feature_params']['N_s'] * cfg['feature_params']['fs']), int(cfg['feature_params']['hop_s'] * cfg['feature_params']['fs'])
 
   # create classifier
   classifier = Classifier(model_path=cfg['classifier']['model_path'], verbose=cfg['classifier']['verbose'])
@@ -54,12 +50,11 @@ if __name__ == '__main__':
   # init screen capturer
   screen_capturer = ScreenCapturer(screen, cfg['game']['screen_size'], cfg['game']['fps'], capture_path=cfg['game']['capture_path'], enabled=cfg['game']['capture_enabled'])
 
-  # collection of game colors
-  color_bag = ColorBag()
-  text = Text(screen, color_bag)
+  # text
+  text = Text(screen)
 
   # level creation
-  levels = [Level_01(screen, cfg['game']['screen_size'], color_bag, mic), Level_02(screen, cfg['game']['screen_size'], color_bag, mic)]
+  levels = [Level_01(screen, cfg['game']['screen_size'], mic), Level_02(screen, cfg['game']['screen_size'], mic)]
 
   # choose level
   level = levels[0]

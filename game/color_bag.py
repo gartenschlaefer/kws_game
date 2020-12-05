@@ -22,4 +22,7 @@ class ColorBag():
     # text color
     self.win = (50, 100, 100)
 
+    # mic bar
+    self.mic_bar_meter = (210, 100, 20)
+
 

@@ -24,8 +24,8 @@ class Wall(pygame.sprite.Sprite):
 		self.color = color
 		self.size = size
 
-		# ball init
-		self.image = pygame.surface.Surface(size)
+		# wall init
+		self.image = pygame.surface.Surface(self.size)
 		self.rect = self.image.get_rect()
 
 		# set rect position
@@ -232,7 +232,7 @@ class MovableWall(Wall, Interactable):
 
 if __name__ == '__main__':
 	"""
-	test character
+	wall
 	"""
 
 	import yaml

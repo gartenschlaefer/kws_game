@@ -13,11 +13,11 @@ class Text(Interactable):
   character class
   """
 
-  def __init__(self, screen, color_bag):
+  def __init__(self, screen):
 
     # vars
     self.screen = screen
-    self.color_bag = color_bag
+    self.color_bag = ColorBag()
 
     # init font
     pygame.font.init()
@@ -79,9 +79,6 @@ if __name__ == '__main__':
   # yaml config file
   cfg = yaml.safe_load(open("../config.yaml"))
 
-  # collection of game colors
-  color_bag = ColorBag()
-
   # init pygame
   pygame.init()
 
@@ -89,7 +86,7 @@ if __name__ == '__main__':
   screen = pygame.display.set_mode(cfg['game']['screen_size'])
 
   # text module
-  text = Text(screen, color_bag)
+  text = Text(screen)
   text.win_message()
  
 
@@ -110,7 +107,7 @@ if __name__ == '__main__':
     game_logic.update()
 
     # fill screen
-    screen.fill(color_bag.background)
+    screen.fill(text.color_bag.background)
 
     # text update
     text.update()

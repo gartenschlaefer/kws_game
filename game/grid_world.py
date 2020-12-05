@@ -6,8 +6,9 @@ import pygame
 import numpy as np
 
 from wall import Wall, MovableWall
-from color_bag import ColorBag
+
 from interactable import Interactable
+
 
 class GridWorld(Interactable):
 	"""
@@ -212,20 +213,11 @@ if __name__ == '__main__':
 	# yaml config file
 	cfg = yaml.safe_load(open("../config.yaml"))
 
-	# size of display
-	screen_size = width, height = 640, 480
-
-	# collection of game colors
-	color_bag = ColorBag()
-
 	# init pygame
 	pygame.init()
 
 	# init display
-	screen = pygame.display.set_mode(screen_size)
-
-	# sprite groups
-	all_sprites = pygame.sprite.Group()
+	screen = pygame.display.set_mode(cfg['game']['screen_size'])
 
 
 	# --
@@ -240,8 +232,12 @@ if __name__ == '__main__':
 	# create mic instance
 	mic = Mic(classifier=classifier, feature_params=cfg['feature_params'], mic_params=cfg['mic_params'], is_audio_record=False)
 
+
+	# --
+	# level
+
 	# level setup
-	level = LevelMoveWalls(screen, screen_size, color_bag, mic)
+	level = LevelMoveWalls(screen, cfg['game']['screen_size'], mic)
 
 	# game logic
 	game_logic = GameLogic()
@@ -268,7 +264,7 @@ if __name__ == '__main__':
 			pygame.display.flip()
 
 			# reduce framerate
-			clock.tick(60)
+			clock.tick(cfg['game']['fps'])
 
 	# end pygame
 	pygame.quit()

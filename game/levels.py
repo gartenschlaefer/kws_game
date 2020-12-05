@@ -5,6 +5,7 @@ levels
 import pygame
 
 from interactable import Interactable
+from color_bag import ColorBag
 
 
 class Level(Interactable):
@@ -12,15 +13,18 @@ class Level(Interactable):
   level class
   """
 
-  def __init__(self, screen, screen_size, color_bag):
+  def __init__(self, screen, screen_size):
 
     # colors
     self.screen = screen
     self.screen_size = screen_size
-    self.color_bag = color_bag
+    self.color_bag = ColorBag()
 
     # sprites
     self.all_sprites = pygame.sprite.Group()
+
+    # interactables
+    self.interactables = []
 
 
   def setup_level(self):
@@ -30,86 +34,24 @@ class Level(Interactable):
     pass
 
 
-  def update(self):
-    """
-    update
-    """
-
-    # update sprites
-    self.all_sprites.update()
-
-    # fill screen
-    self.screen.fill(self.color_bag.background)
-
-    # draw sprites
-    self.all_sprites.draw(screen)
-
-
-
-class LevelGrid(Level):
-  """
-  level with grid
-  """
-
-  def __init__(self, screen, screen_size, color_bag, mic=None):
-
-    from grid_world import GridWorld
-
-    # parent class init
-    super().__init__(screen, screen_size, color_bag)
-
-    # new vars
-    self.mic = mic
-
-    # create gridworld
-    self.grid_world = GridWorld(self.screen_size, self.color_bag, self.mic)
-
-    # setup
-    self.setup_level(self.grid_world)
-
-    # sprites
-    self.all_sprites.add(self.grid_world.wall_sprites, self.grid_world.move_wall_sprites)
-
-
-  def setup_level(self, grid_world):
-    """
-    setup level
-    """
-
-    # set walls
-    self.setup_wall_edge(self.grid_world)
-
-    # create walls
-    self.grid_world.create_walls()
-
-
-  def setup_wall_edge(self, grid_world):
-    """
-    limit edges
-    """
-
-    # set walls
-    self.grid_world.wall_grid[:, 0] = 1
-    self.grid_world.wall_grid[:, -1] = 1
-    self.grid_world.wall_grid[0, :] = 1
-    self.grid_world.wall_grid[-1, :] = 1
-
-
   def reset(self):
     """
     reset level
     """
 
-    self.grid_world.reset()
+    # interactables
+    for interactable in self.interactables:
+      interactable.reset()
 
 
   def event_update(self, event):
     """
     event update
     """
-    
-    # grid world update
-    self.grid_world.event_update(event)
+
+    # interactables
+    for interactable in self.interactables:
+      interactable.event_update(event)
 
 
   def update(self):
@@ -117,8 +59,9 @@ class LevelGrid(Level):
     update
     """
 
-    # grid world update
-    self.grid_world.update()
+    # interactables
+    for i, interactable in enumerate(self.interactables):
+      interactable.update()
 
     # update sprites
     self.all_sprites.update()
@@ -131,24 +74,112 @@ class LevelGrid(Level):
 
 
 
-class LevelSquare(LevelGrid):
+class LevelMic(Level):
   """
-  level square
+  level class
   """
 
-  def __init__(self, screen, screen_size, color_bag):
+  def __init__(self, screen, screen_size, mic):
+
+    from mic_bar import MicBar
 
     # parent class init
-    super().__init__(screen, screen_size, color_bag)
+    super().__init__(screen, screen_size)
+
+    # mic
+    self.mic = mic
+
+    # mic bar
+    self.mic_bar = MicBar(mic, position=(200, 200), color_bag=self.color_bag, size=(50, 150))
+
+    # setup level
+    self.setup_level()
+
+    # append interactable
+    self.interactables.append(self.mic_bar)
 
 
-  def setup_level(self, grid_world):
+  def setup_level(self):
+    """
+    setup level
+    """
+    
+    # sprites
+    self.all_sprites.add(self.mic_bar.sprites)
+
+
+
+class LevelGrid(Level):
+  """
+  level with grid
+  """
+
+  def __init__(self, screen, screen_size, mic=None):
+
+    from grid_world import GridWorld
+
+    # parent class init
+    super().__init__(screen, screen_size)
+
+    # new vars
+    self.mic = mic
+
+    # create gridworld
+    self.grid_world = GridWorld(self.screen_size, self.color_bag, self.mic)
+
+    # setup
+    self.setup_level()
+
+    # append interactable
+    self.interactables.append(self.grid_world)
+
+    # sprites
+    self.all_sprites.add(self.grid_world.wall_sprites, self.grid_world.move_wall_sprites)
+
+
+  def setup_level(self):
     """
     setup level
     """
 
     # set walls
-    self.setup_wall_edge(self.grid_world)
+    self.setup_wall_edge()
+
+    # create walls
+    self.grid_world.create_walls()
+
+
+  def setup_wall_edge(self):
+    """
+    limit edges
+    """
+
+    # set walls
+    self.grid_world.wall_grid[:, 0] = 1
+    self.grid_world.wall_grid[:, -1] = 1
+    self.grid_world.wall_grid[0, :] = 1
+    self.grid_world.wall_grid[-1, :] = 1
+
+
+
+class LevelSquare(LevelGrid):
+  """
+  level square
+  """
+
+  def __init__(self, screen, screen_size):
+
+    # parent class init
+    super().__init__(screen, screen_size)
+
+
+  def setup_level(self):
+    """
+    setup level
+    """
+
+    # set walls
+    self.setup_wall_edge()
 
     # wall in the middle
     self.grid_world.wall_grid[7, 7] = 1
@@ -163,19 +194,19 @@ class LevelMoveWalls(LevelGrid):
   level with moving walls
   """
 
-  def __init__(self, screen, screen_size, color_bag, mic=None):
+  def __init__(self, screen, screen_size, mic=None):
 
     # parent class init
-    super().__init__(screen, screen_size, color_bag, mic)
+    super().__init__(screen, screen_size, mic)
 
 
-  def setup_level(self, grid_world):
+  def setup_level(self):
     """
     setup level
     """
 
     # set walls
-    self.setup_wall_edge(self.grid_world)
+    self.setup_wall_edge()
 
     self.grid_world.wall_grid[5, 5] = 1
 
@@ -194,10 +225,10 @@ class LevelCharacter(LevelGrid):
   level with character
   """
 
-  def __init__(self, screen, screen_size, color_bag, mic=None):
+  def __init__(self, screen, screen_size, mic=None):
 
     # parent class init
-    super().__init__(screen, screen_size, color_bag, mic)
+    super().__init__(screen, screen_size, mic)
 
     from character import Character
 
@@ -205,17 +236,20 @@ class LevelCharacter(LevelGrid):
     self.henry = Character(position=(self.screen_size[0]//2, self.screen_size[1]//2), scale=(2, 2), is_gravity=True)
     self.henry.obstacle_sprites.add(self.grid_world.wall_sprites, self.grid_world.move_wall_sprites)
 
+    # add interactable
+    self.interactables.append(self.henry)
+
     # add to sprites
-    self.all_sprites.add(self.henry)
+    self.all_sprites.add(self.henry.character_sprite)
 
 
-  def setup_level(self, grid_world):
+  def setup_level(self):
     """
     setup level
     """
 
     # set walls
-    self.setup_wall_edge(self.grid_world)
+    self.setup_wall_edge()
 
     # wall in the middle
     self.grid_world.wall_grid[20:25, 20:24] = 1
@@ -225,35 +259,16 @@ class LevelCharacter(LevelGrid):
     self.grid_world.create_walls()
 
 
-  def reset(self):
-    """
-    reset level
-    """
-
-    self.grid_world.reset()
-    self.henry.reset()
-
-
-  def event_update(self, event):
-    """
-    event update
-    """
-    
-    # grid world update
-    self.henry.event_update(event)
-    self.grid_world.event_update(event)
-
-
 
 class LevelThings(LevelCharacter):
   """
   level with character
   """
 
-  def __init__(self, screen, screen_size, color_bag, mic=None):
+  def __init__(self, screen, screen_size, mic=None):
 
     # parent class init
-    super().__init__(screen, screen_size, color_bag, mic)
+    super().__init__(screen, screen_size, mic)
 
     from things import Thing
 
@@ -287,23 +302,23 @@ class Level_01(LevelThings):
   first actual level
   """
 
-  def __init__(self, screen, screen_size, color_bag, mic=None):
+  def __init__(self, screen, screen_size, mic=None):
 
     # parent class init
-    super().__init__(screen, screen_size, color_bag, mic)
+    super().__init__(screen, screen_size, mic)
 
     # determine start position
     self.henry.set_position(self.grid_world.grid_to_pos([5, 20]), is_init_pos=True)
     self.thing.set_position(self.grid_world.grid_to_pos([22, 18]), is_init_pos=True)
 
 
-  def setup_level(self, grid_world):
+  def setup_level(self):
     """
     setup level
     """
 
     # set walls
-    self.setup_wall_edge(self.grid_world)
+    self.setup_wall_edge()
 
     # wall in the middle
     self.grid_world.wall_grid[20:25, 20:23] = 1
@@ -321,28 +336,29 @@ class Level_01(LevelThings):
     self.grid_world.create_walls()
 
 
+
 class Level_02(LevelThings):
   """
   first actual level
   """
 
-  def __init__(self, screen, screen_size, color_bag, mic=None):
+  def __init__(self, screen, screen_size, mic=None):
 
     # parent class init
-    super().__init__(screen, screen_size, color_bag, mic)
+    super().__init__(screen, screen_size, mic)
 
     # determine start position
     self.henry.set_position(self.grid_world.grid_to_pos([22, 20]), is_init_pos=True)
     self.thing.set_position(self.grid_world.grid_to_pos([2, 5]), is_init_pos=True)
 
 
-  def setup_level(self, grid_world):
+  def setup_level(self):
     """
     setup level
     """
 
     # set walls
-    self.setup_wall_edge(self.grid_world)
+    self.setup_wall_edge()
 
     # wall in the middle
     self.grid_world.wall_grid[27:, 19] = 1
@@ -361,13 +377,13 @@ class Level_02(LevelThings):
     self.grid_world.create_walls()
 
 
+
 if __name__ == '__main__':
   """
   levels
   """
   import yaml
 
-  from color_bag import ColorBag
   from game_logic import GameLogic, ThingsGameLogic
   from text import Text
 
@@ -381,17 +397,11 @@ if __name__ == '__main__':
   # init display
   screen = pygame.display.set_mode(cfg['game']['screen_size'])
 
-  # collection of game colors
-  color_bag = ColorBag()
-  text = Text(screen, color_bag)
+  # text
+  text = Text(screen)
 
   # level creation
-  #level = LevelSquare(screen, cfg['game']['screen_size'], color_bag)
-  #level = LevelMoveWalls(screen, cfg['game']['screen_size'], color_bag)
-
-  # level creation
-  #levels = [Level_01(screen, cfg['game']['screen_size'], color_bag), Level_02(screen, cfg['game']['screen_size'], color_bag)]
-  levels = [Level_02(screen, cfg['game']['screen_size'], color_bag)]
+  levels = [Level_01(screen, cfg['game']['screen_size']), Level_02(screen, cfg['game']['screen_size']), LevelSquare(screen, cfg['game']['screen_size']), LevelMoveWalls(screen, cfg['game']['screen_size'])]
 
   # choose level
   level = levels[0]

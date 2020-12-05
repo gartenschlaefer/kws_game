@@ -57,7 +57,6 @@ if __name__ == '__main__':
   """
   import yaml
 
-  from color_bag import ColorBag
   from levels import LevelThings, Level_01
   from text import Text
   from game_logic import ThingsGameLogic
@@ -76,12 +75,11 @@ if __name__ == '__main__':
   screen = pygame.display.set_mode(cfg['game']['screen_size'])
 
   # collection of game colors
-  color_bag = ColorBag()
-  text = Text(screen, color_bag)
+  text = Text(screen)
 
 
   # level creation
-  levels = [LevelThings(screen, cfg['game']['screen_size'], color_bag), Level_01(screen, cfg['game']['screen_size'], color_bag)]
+  levels = [LevelThings(screen, cfg['game']['screen_size']), Level_01(screen, cfg['game']['screen_size'])]
 
   # choose level
   level = levels[0]

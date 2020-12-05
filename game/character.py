@@ -19,24 +19,16 @@ class Character(pygame.sprite.Sprite, Interactable):
 		# MRO check
 		super().__init__()
 
+		# arguments
 		self.position = position
 		self.scale = scale
 		self.is_gravity = is_gravity
 
-		# load image and create rect
-		self.image = pygame.image.load(str(pathlib.Path(__file__).parent.absolute()) + "/art/henry_front.png").convert_alpha()
-		self.rect = self.image.get_rect()
-
-		# proper scaling
-		self.image = pygame.transform.scale(self.image, (self.rect.width * scale[0], self.rect.height * scale[1]))
-		self.rect = self.image.get_rect()
+		# character sprite
+		self.character_sprite = CharacterSprite(self.position, self.scale)
 
 		# save init pos
 		self.init_pos = position
-
-		# set rect position
-		self.rect.x = position[0]
-		self.rect.y = position[1]
 
 		# speed and move dir
 		self.move_speed = [3, 3]
@@ -72,8 +64,8 @@ class Character(pygame.sprite.Sprite, Interactable):
 			self.init_pos = position
 
 		# set rect
-		self.rect.x = self.position[0]
-		self.rect.y = self.position[1]
+		self.character_sprite.rect.x = self.position[0]
+		self.character_sprite.rect.y = self.position[1]
 
 
 	def calc_gravity(self):
@@ -155,7 +147,6 @@ class Character(pygame.sprite.Sprite, Interactable):
 		self.input_handler.handle(event)
 
 
-
 	def update(self):
 		"""
 		update character
@@ -169,17 +160,17 @@ class Character(pygame.sprite.Sprite, Interactable):
 		move_change_x = self.move_dir[0] * self.move_speed[0]
 
 		# x movement
-		self.rect.x += move_change_x
+		self.character_sprite.rect.x += move_change_x
 
 		# collide issue
-		for obst in pygame.sprite.spritecollide(self, self.obstacle_sprites, False):
+		for obst in pygame.sprite.spritecollide(self.character_sprite, self.obstacle_sprites, False):
 
 			# stand at wall
 			if move_change_x > 0:
-				self.rect.right = obst.rect.left
+				self.character_sprite.rect.right = obst.rect.left
 
 			else:
-				self.rect.left = obst.rect.right
+				self.character_sprite.rect.left = obst.rect.right
 
 
 		# y gravity
@@ -193,19 +184,19 @@ class Character(pygame.sprite.Sprite, Interactable):
 		move_change_y = self.move_dir[1] * self.move_speed[1]
 
 		# y movement
-		self.rect.y += move_change_y
+		self.character_sprite.rect.y += move_change_y
 
 		# grounded false
 		self.is_grounded = False
 
 		# collide issue
-		for obst in pygame.sprite.spritecollide(self, self.obstacle_sprites, False):
+		for obst in pygame.sprite.spritecollide(self.character_sprite, self.obstacle_sprites, False):
 			
 			# stand at wall
 			if move_change_y > 0:
 
 				# stop atop
-				self.rect.bottom = obst.rect.top
+				self.character_sprite.rect.bottom = obst.rect.top
 
 				# grounded condition
 				self.is_grounded = True
@@ -213,14 +204,41 @@ class Character(pygame.sprite.Sprite, Interactable):
 			else:
 
 				# stop with head hit
-				self.rect.top = obst.rect.bottom
+				self.character_sprite.rect.top = obst.rect.bottom
 
 				# no upward movement anymore
 				self.move_speed[1] = 0
 
 		# interaction with things
-		for thing in pygame.sprite.spritecollide(self, self.thing_sprites, True):
+		for thing in pygame.sprite.spritecollide(self.character_sprite, self.thing_sprites, True):
 			self.things_collected += 1
+
+
+
+class CharacterSprite(pygame.sprite.Sprite):
+	"""
+	wall class
+	"""
+
+	def __init__(self, position, scale):
+
+		# MRO check
+		super().__init__()
+
+		# arguments
+		self.position = position
+		self.scale = scale
+
+		# load image and create rect
+		self.image = pygame.image.load(str(pathlib.Path(__file__).parent.absolute()) + "/art/henry_front.png").convert_alpha()
+		self.rect = self.image.get_rect()
+
+		# proper scaling
+		self.image = pygame.transform.scale(self.image, (self.rect.width * scale[0], self.rect.height * scale[1]))
+		self.rect = self.image.get_rect()
+
+		# set rect position
+		self.rect.x, self.rect.y = self.position[0], self.position[1]
 
 
 
@@ -231,15 +249,11 @@ if __name__ == '__main__':
 
 	import yaml
 
-	from color_bag import ColorBag
 	from levels import LevelCharacter
 	from game_logic import GameLogic
 
 	# yaml config file
 	cfg = yaml.safe_load(open("../config.yaml"))
-
-	# collection of game colors
-	color_bag = ColorBag()
 
 	# init pygame
 	pygame.init()
@@ -248,7 +262,7 @@ if __name__ == '__main__':
 	screen = pygame.display.set_mode(cfg['game']['screen_size'])
 
 	# level creation
-	level = LevelCharacter(screen, cfg['game']['screen_size'], color_bag)
+	level = LevelCharacter(screen, cfg['game']['screen_size'])
 
 	# game logic
 	game_logic = GameLogic()

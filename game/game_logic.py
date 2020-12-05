@@ -165,7 +165,4 @@ class ThingsGameLogic(GameLogic):
     # check win condition
     self.check_win_condition()
 
-    #if self.change_level:
-    #  return self.levels[self.level_id]
-
     return self.level

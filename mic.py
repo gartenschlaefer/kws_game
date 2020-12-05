@@ -46,7 +46,7 @@ class Mic():
       sd.default.device = self.mic_params['device']
 
     # show devices
-    print("\ndevice list: \n", sd.query_devices())
+    #print("\ndevice list: \n", sd.query_devices())
 
     # setup stream sounddevice
     self.stream = sd.InputStream(samplerate=self.feature_params['fs'], blocksize=self.hop, channels=self.mic_params['channels'], callback=self.callback_mic)
