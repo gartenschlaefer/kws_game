@@ -16,7 +16,7 @@ class NetHandler():
 	Neural Network Handler
 	"""
 
-	def __init__(self, nn_arch, n_classes, model_file_name='none'):
+	def __init__(self, nn_arch, n_classes, model_file_name='none', use_cpu=False):
 
 		# neural net architecture (see in config which are available : string)
 		self.nn_arch = nn_arch
@@ -32,6 +32,19 @@ class NetHandler():
 
 		# get the right nn model
 		self.get_nn_model()
+
+		# set device
+		self.device = torch.device("cpu")
+
+		if not use_cpu and torch.cuda.is_available():
+			self.device = torch.device("cuda")
+			print("gpu available: ", torch.cuda.get_device_name(self.device))
+		
+		# print msg
+		print("device: ", self.device)
+		
+		# net to device
+		self.model.to(self.device)
 
 
 	def get_nn_model(self):
@@ -146,10 +159,10 @@ class CnnHandler(NetHandler):
 	Neural Network Mentor for CNNs
 	"""
 
-	def __init__(self, nn_arch, n_classes, model_file_name='none'):
+	def __init__(self, nn_arch, n_classes, model_file_name='none', use_cpu=False):
 
 		# parent class init
-		super().__init__(nn_arch, n_classes, model_file_name)
+		super().__init__(nn_arch, n_classes, model_file_name, use_cpu)
 
 		# loss criterion
 		self.criterion = torch.nn.CrossEntropyLoss()
@@ -176,45 +189,45 @@ class CnnHandler(NetHandler):
 		# epochs
 		for epoch in range(train_params['num_epochs']):
 
-		  # cumulated loss
-		  cum_loss = 0.0
+			# cumulated loss
+			cum_loss = 0.0
 
-		  # TODO: do this with loader function from pytorch (maybe or not)
-		  # fetch data samples
-		  for i, (x, y) in enumerate(zip(batch_archiv.x_train, batch_archiv.y_train)):
+			# TODO: do this with loader function from pytorch (maybe or not)
+			# fetch data samples
+			for i, (x, y) in enumerate(zip(batch_archiv.x_train.to(self.device), batch_archiv.y_train.to(self.device))):
 
-		    # zero parameter gradients
-		    optimizer.zero_grad()
+				# zero parameter gradients
+				optimizer.zero_grad()
 
-		    # forward pass o:[b x c]
-		    o = self.model(x)
+				# forward pass o:[b x c]
+				o = self.model(x)
 
-		    # loss
-		    loss = self.criterion(o, y)
+				# loss
+				loss = self.criterion(o, y)
 
-		    # backward
-		    loss.backward()
+				# backward
+				loss.backward()
 
-		    # optimizer step - update params
-		    optimizer.step()
+				# optimizer step - update params
+				optimizer.step()
 
-		    # loss update
-		    cum_loss += loss.item()
+				# loss update
+				cum_loss += loss.item()
 
-		    # batch loss
-		    train_score.train_loss[epoch] += cum_loss
+				# batch loss
+				train_score.train_loss[epoch] += cum_loss
 
-		    # print some infos, reset cum_loss
-		    cum_loss = self.print_train_info(epoch, i, cum_loss, k_print=batch_archiv.y_train.shape[0] // 10)
+				# print some infos, reset cum_loss
+				cum_loss = self.print_train_info(epoch, i, cum_loss, k_print=batch_archiv.y_train.shape[0] // 10)
 
-		  # valdiation
-		  eval_score = self.eval_nn('val', batch_archiv)
+			# valdiation
+			eval_score = self.eval_nn('val', batch_archiv)
 
-		  # update score collector
-		  train_score.val_loss[epoch], train_score.val_acc[epoch] = eval_score.loss, eval_score.acc
+			# update score collector
+			train_score.val_loss[epoch], train_score.val_acc[epoch] = eval_score.loss, eval_score.acc
 
-		  # TODO: Early stopping if necessary
-		  
+		# TODO: Early stopping if necessary
+
 		print('--Training finished')
 
 		# log time
@@ -239,7 +252,7 @@ class CnnHandler(NetHandler):
 	  with torch.no_grad():
 
 	    # load data
-	    for i, (x, y) in enumerate(zip(x_eval, y_eval)):
+	    for i, (x, y) in enumerate(zip(x_eval.to(self.device), y_eval.to(self.device))):
 
 	      # classify
 	      o = self.model(x)
@@ -251,7 +264,7 @@ class CnnHandler(NetHandler):
 	      _, y_hat = torch.max(o.data, 1)
 
 	      # update eval score
-	      eval_score.update(loss, y, y_hat)
+	      eval_score.update(loss, y.cpu(), y_hat.cpu())
 
 	      # some prints
 	      if verbose:
@@ -298,7 +311,7 @@ class CnnHandler(NetHandler):
 		"""
 
 		# input to tensor
-		x = torch.unsqueeze(torch.unsqueeze(torch.from_numpy(x.astype(np.float32)), 0), 0)
+		x = torch.unsqueeze(torch.unsqueeze(torch.from_numpy(x.astype(np.float32)), 0), 0).to(self.device)
 
 		# no gradients for eval
 		with torch.no_grad():
@@ -333,9 +346,10 @@ if __name__ == '__main__':
 
 	# select architecture
 	nn_arch = 'conv-fstride'
+	#nn_arch = 'conv-trad'
 
 	# create an cnn handler
-	cnn_handler = CnnHandler(nn_arch, n_classes=5, model_file_name='none')
+	cnn_handler = CnnHandler(nn_arch, n_classes=5, model_file_name='none', use_cpu=True)
 
 	# training
 	cnn_handler.train_nn(cfg['ml']['train_params'], batch_archiv=batch_archiv)

@@ -45,11 +45,14 @@ class Mic():
     if mic_params['select_device']:
       sd.default.device = self.mic_params['device']
 
+    # determine downsample
+    self.downsample = self.mic_params['fs_device'] // self.feature_params['fs']
+
     # show devices
-    #print("\ndevice list: \n", sd.query_devices())
+    print("\ndevice list: \n", sd.query_devices())
 
     # setup stream sounddevice
-    self.stream = sd.InputStream(samplerate=self.feature_params['fs'], blocksize=self.hop, channels=self.mic_params['channels'], callback=self.callback_mic)
+    self.stream = sd.InputStream(samplerate=self.mic_params['fs_device'], blocksize=int(self.hop * self.downsample), channels=self.mic_params['channels'], callback=self.callback_mic)
 
 
   def callback_mic(self, indata, frames, time, status):
@@ -60,7 +63,10 @@ class Mic():
     if status:
       print(status)
 
-    self.q.put(indata[:, 0].copy())
+    #self.q.put(indata[:, 0].copy())
+
+    # add to queue with primitive downsampling
+    self.q.put(indata[::self.downsample, 0].copy())
 
 
   def clear_mic_queue(self):

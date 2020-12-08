@@ -62,7 +62,7 @@ if __name__ == '__main__':
   # model handler
 
   # create model handler
-  cnn_handler = CnnHandler(nn_arch=cfg['ml']['nn_arch'], n_classes=batch_archiv.n_classes, model_file_name=cfg['ml']['model_file_name']) 
+  cnn_handler = CnnHandler(nn_arch=cfg['ml']['nn_arch'], n_classes=batch_archiv.n_classes, model_file_name=cfg['ml']['model_file_name'], use_cpu=cfg['ml']['use_cpu']) 
 
   # load pre trained model
   if cfg['ml']['load_pre_model']:
@@ -79,7 +79,7 @@ if __name__ == '__main__':
     train_score = cnn_handler.train_nn(train_params=cfg['ml']['train_params'], batch_archiv=batch_archiv)
 
     # training info
-    logging.info('Traning on arch: {}  time: {}'.format(cfg['ml']['nn_arch'], s_to_hms_str(train_score.time_usage)))
+    logging.info('Traning on arch: [{}], train_params: {}, device: [{}], time: {}'.format(cfg['ml']['nn_arch'], cfg['ml']['train_params'], cnn_handler.device, s_to_hms_str(train_score.time_usage)))
     
     # save model
     cnn_handler.save_model(model_file=path_coll.model_file, params_file=path_coll.params_file, train_params=cfg['ml']['train_params'], class_dict=batch_archiv.class_dict, metric_file=path_coll.metrics_file, train_score=train_score, model_pre_file=path_coll.model_pre_file, save_as_pre_model=cfg['ml']['save_as_pre_model'])

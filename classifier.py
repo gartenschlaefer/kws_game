@@ -41,7 +41,7 @@ class Classifier():
       print("\nExtract model with architecture: [{}]\nparams: [{}]\nand class dict: [{}]".format(self.nn_arch, self.train_params, self.class_dict))
     
     # init net handler
-    self.cnn_handler = CnnHandler(nn_arch=self.nn_arch, n_classes=len(self.class_dict), model_file_name=self.nn_arch)
+    self.cnn_handler = CnnHandler(nn_arch=self.nn_arch, n_classes=len(self.class_dict), model_file_name=self.nn_arch, use_cpu=True)
 
     # load model
     self.cnn_handler.load_model(model_file=self.model_file)

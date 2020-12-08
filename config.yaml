@@ -147,6 +147,9 @@ ml:
   # logging enable
   logging_enabled: True
 
+  # use cpu
+  use_cpu: False
+
 
 # --
 # classifier
@@ -164,12 +167,12 @@ classifier:
 mic_params:
 
   # slect specific device
-  select_device: False
+  select_device: True
 
   # sel device id
-  device: 5
+  device: 10
 
-  # sampling frequency of microphone
+  # sampling frequency of your microphone device (idealy this would be 16000, as it will be downsampled to it)
   fs_device: 48000
 
   # channels to be recorded
