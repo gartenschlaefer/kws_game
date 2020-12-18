@@ -3,6 +3,7 @@ mic class
 """
 
 import pygame
+import numpy as np
 
 from interactable import Interactable
 from input_handler import InputKeyHandler
@@ -13,7 +14,7 @@ class MicBar(Interactable):
   graphical bar for microphone energy measure
   """
 
-  def __init__(self, mic, position, color_bag, size=(20, 40)):
+  def __init__(self, mic, position, color_bag, size=(20, 40), energy_frame_update=4):
 
     # init parents
     super().__init__()
@@ -23,6 +24,7 @@ class MicBar(Interactable):
     self.position = position
     self.color_bag = color_bag
     self.size = size
+    self.energy_frame_update = energy_frame_update
 
     # sprites group
     self.sprites = pygame.sprite.Group()
@@ -79,7 +81,35 @@ class MicBar(Interactable):
     """
     update
     """
-    pass
+    
+    # read mic
+    self.mic.read_mic_data()
+
+    # get energy of mic
+    #print("mic energy: ", len(self.mic.collector.e_all))
+
+    # view mean energy over frames
+    if len(self.mic.collector.e_all) > self.energy_frame_update:
+
+      # energy of frames
+      e_frames = self.mic.collector.e_all
+
+      # reset collection
+      self.mic.collector.reset_collection_all()
+
+      # mean
+      e_mu = np.mean(e_frames)
+
+      # db
+      e_mu_db = 10 * np.log10(e_mu)
+
+      print("e_mu: {}, db: {}".format(e_mu, e_mu_db))
+
+      # set bar accordingly
+      self.bar_sprite.act_length = (e_mu_db + self.bar_sprite.min_db) * self.bar_sprite.total_length
+
+      print("act_length: ", self.bar_sprite.act_length)
+
 
 
 
@@ -88,7 +118,7 @@ class BarSprite(pygame.sprite.Sprite):
   wall class
   """
 
-  def __init__(self, mic, position, color=(10, 200, 200), size=(20, 20)):
+  def __init__(self, mic, position, color=(10, 200, 200), size=(20, 20), min_db=-80):
 
     # MRO check
     super().__init__()
@@ -98,6 +128,7 @@ class BarSprite(pygame.sprite.Sprite):
     self.position = position
     self.color = color
     self.size = size
+    self.min_db = min_db
 
     # wall init
     self.image = pygame.surface.Surface(self.size)
@@ -109,8 +140,9 @@ class BarSprite(pygame.sprite.Sprite):
     # fill with color
     self.image.fill(self.color)
 
-    # actual length
+    # lengths
     self.act_length = 5
+    self.total_length = self.size[1]
 
 
   def update(self):
@@ -122,7 +154,7 @@ class BarSprite(pygame.sprite.Sprite):
     self.image.fill(self.color)
 
     # draw the rect
-    pygame.draw.rect(self.image, (100, 0, 100), (5, self.size[1]-self.act_length, self.size[0] - 10, self.act_length))
+    pygame.draw.rect(self.image, (100, 0, 100), (5, self.total_length-self.act_length, self.size[0] - 10, self.act_length))
 
 
 
@@ -158,7 +190,7 @@ if __name__ == '__main__':
   classifier = Classifier(model_path='.' + cfg['classifier']['model_path'], verbose=cfg['classifier']['verbose'])
 
   # create mic instance
-  mic = Mic(classifier=classifier, feature_params=cfg['feature_params'], mic_params=cfg['mic_params'], is_audio_record=cfg['game']['capture_enabled'])
+  mic = Mic(classifier=classifier, feature_params=cfg['feature_params'], mic_params=cfg['mic_params'], is_audio_record=True)
 
   
   # --
@@ -195,22 +227,6 @@ if __name__ == '__main__':
 
       # frame update
       level.update()
-
-
-      # #pygame.draw.rect(screen, (100, 0, 100), (5, 5, 5, 5))
-      # meter_image = pygame.surface.Surface((5, 5))
-      # meter_rect = meter_image.get_rect()
-
-      # # set rect position
-      # meter_rect.x, meter_rect.y = 0, 0
-
-      # # fill with color
-      # meter_image.fill((100, 0, 100))
-
-      # screen.blit(meter_image, meter_rect)
-
-
-
 
       # update display
       pygame.display.flip()

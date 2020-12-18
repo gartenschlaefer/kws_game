@@ -75,6 +75,17 @@ class Collector:
       self.e_all = np.append(self.e_all, e)
       if on:
         self.on_all = np.append(self.on_all, len(self.x_all) / self.hop)
+
+
+  def reset_collection_all(self):
+    """
+    reset the collection of all data during audio record
+    """
+
+    self.x_all = np.empty(shape=(0), dtype=np.float32)
+    self.e_all = np.empty(shape=(0), dtype=np.float32)
+    self.on_all = np.empty(shape=(0), dtype=np.float32)
+
       
 
   def read_collection(self):

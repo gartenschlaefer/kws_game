@@ -34,16 +34,14 @@ class NetHandler():
 		self.get_nn_model()
 
 		# set device
-		self.device = torch.device("cpu")
+		self.device = torch.device("cuda:0" if (torch.cuda.is_available() and not use_cpu) else "cpu")
 
-		if not use_cpu and torch.cuda.is_available():
-			self.device = torch.device("cuda")
-			print("gpu available: ", torch.cuda.get_device_name(self.device))
-		
 		# print msg
 		print("device: ", self.device)
+		if torch.cuda.is_available() and not use_cpu:
+			print("use gpu: ", torch.cuda.get_device_name(self.device))
 		
-		# net to device
+		# model to device
 		self.model.to(self.device)
 
 
@@ -349,7 +347,7 @@ if __name__ == '__main__':
 	#nn_arch = 'conv-trad'
 
 	# create an cnn handler
-	cnn_handler = CnnHandler(nn_arch, n_classes=5, model_file_name='none', use_cpu=True)
+	cnn_handler = CnnHandler(nn_arch, n_classes=5, model_file_name='none', use_cpu=False)
 
 	# training
 	cnn_handler.train_nn(cfg['ml']['train_params'], batch_archiv=batch_archiv)
