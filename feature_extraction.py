@@ -615,7 +615,7 @@ def add_dither(x):
   return x
 
 
-def some_test_signal(fs, t=1, f=500, sig_type='modulated'):
+def some_test_signal(fs, t=1, f=500, sig_type='modulated', save_to_file=False):
   """
   test signal adapted from https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.stft.html
   """
@@ -650,6 +650,10 @@ def some_test_signal(fs, t=1, f=500, sig_type='modulated'):
   # use random
   else:
     x = np.random.randn(int(fs * t))
+
+  # save file
+  if save_to_file:
+    soundfile.write('./ignore/features/test.wav', x, fs, subtype=None, endian=None, format=None, closefd=True)
 
   return x
 
@@ -800,6 +804,8 @@ if __name__ == '__main__':
   import matplotlib.pyplot as plt
   import librosa.display
 
+  import soundfile
+
   from common import create_folder
   from plots import plot_mel_band_weights
 
@@ -820,8 +826,10 @@ if __name__ == '__main__':
 
 
   # --
-  # a test signal
-  x = some_test_signal(fs, t=1)
+  # test signal
+
+  # generate test signal
+  x = some_test_signal(fs, t=1, save_to_file=False)
 
 
   # --
@@ -839,6 +847,18 @@ if __name__ == '__main__':
   # sum the weighted energies
   u = np.inner(E, w_f)
 
+  # mfcc
+  mfcc = custom_dct(np.log(u), n_filter_bands).T
+
+  print("mfcc: ", mfcc.shape)
+
+
+  # inverse mfcc
+  y = librosa.feature.inverse.mfcc_to_audio(mfcc, n_mels=32, dct_type=2, norm='ortho', ref=1.0)
+  print("x: ", x.shape)
+  print("y: ", y.shape)
+  soundfile.write('./ignore/features/inv_mfcc.wav', y, fs, subtype=None, endian=None, format=None, closefd=True)
+
 
   #--
   # test some functions
@@ -852,7 +872,7 @@ if __name__ == '__main__':
   # other stuff
 
   # time measurement
-  time_measurements(x, u, fs, N, hop, n_filter_bands, n_ceps_coeff)
+  #time_measurements(x, u, fs, N, hop, n_filter_bands, n_ceps_coeff)
 
   # plot stuff
   #plot_mel_band_weights(w_f, w_mel, f, m, plot_path=plot_path, name='weights')

@@ -22,7 +22,7 @@ class ConvNetTrad(nn.Module):
   def __init__(self, n_classes):
     """
     define neural network architecture
-    input: [m x f]
+    input: [batch x channels x m x f]
     m - features (MFCC)
     f - frames
     """
@@ -93,7 +93,7 @@ class ConvNetFstride4(nn.Module):
   def __init__(self, n_classes):
     """
     define neural network architecture
-    input: [m x f]
+    input: [batch x channels x m x f]
     m - features (MFCC)
     f - frames
     """
@@ -238,7 +238,18 @@ if __name__ == '__main__':
   """
 
   # create net
-  net = ConvNetFstride4(5)
+  net = ConvNetFstride4(n_classes=5)
 
   # print some infos
   print("Net: ", net)
+
+  # generate random sample
+  x = torch.randn((1, 1, 39, 32))
+
+  print("\nx: ", x.shape)
+
+  # test net
+  o = net(x)
+
+  # output
+  print("o: ", o)

@@ -106,7 +106,7 @@ class MicBar(Interactable):
       print("e_mu: {}, db: {}".format(e_mu, e_mu_db))
 
       # set bar accordingly
-      self.bar_sprite.act_length = (e_mu_db + self.bar_sprite.min_db) * self.bar_sprite.total_length
+      self.bar_sprite.act_length = (e_mu_db / (-1 * self.bar_sprite.min_db) + 1) * self.bar_sprite.total_length
 
       print("act_length: ", self.bar_sprite.act_length)
 
@@ -118,7 +118,7 @@ class BarSprite(pygame.sprite.Sprite):
   wall class
   """
 
-  def __init__(self, mic, position, color=(10, 200, 200), size=(20, 20), min_db=-80):
+  def __init__(self, mic, position, color=(10, 200, 200), size=(20, 20), min_db=-70):
 
     # MRO check
     super().__init__()
