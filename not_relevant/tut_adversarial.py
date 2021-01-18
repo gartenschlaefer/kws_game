@@ -182,7 +182,7 @@ if __name__ == '__main__':
     ndf = 32
 
     # Number of training epochs
-    num_epochs = 25
+    num_epochs = 2
 
     # Learning rate for optimizers
     lr = 0.0002
@@ -409,4 +409,4 @@ if __name__ == '__main__':
     plt.show()
 
     # save
-    ani.save("./out_ep-{}_ndf-{}.mp4".format(num_epochs, ndf))
+    ani.save("./ignore/out_ep-{}_ndf-{}.mp4".format(num_epochs, ndf))

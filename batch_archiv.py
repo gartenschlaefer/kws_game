@@ -8,17 +8,16 @@ import torch
 
 class BatchArchiv():
   """
-  creates batches
+  creates batches from mfcc files saved as .npz [train, test, eval]
   """
 
-  def __init__(self, mfcc_data_files, batch_size=4, batch_size_eval=4):
+  def __init__(self, mfcc_data_files, batch_size=4, batch_size_eval=4, to_torch=True):
 
-    # mfcc files saved as .npz [train, test, eval]
+    # params
     self.mfcc_data_files = mfcc_data_files
-
-    # batch sizes
     self.batch_size = batch_size
     self.batch_size_eval = batch_size_eval
+    self.to_torch=to_torch
 
     # training batches
     self.x_train = None
@@ -109,8 +108,14 @@ class BatchArchiv():
       batch_nums += 1;
 
     # init batches
-    x_batches = torch.empty((batch_nums, batch_size, self.feature_params[()]['feature_size'], self.feature_params[()]['frame_size']))
-    y_batches = torch.empty((batch_nums, batch_size), dtype=torch.long)
+    if self.to_torch:
+      x_batches = torch.empty((batch_nums, batch_size, self.feature_params[()]['feature_size'], self.feature_params[()]['frame_size']))
+      y_batches = torch.empty((batch_nums, batch_size), dtype=torch.long)
+
+    else:
+      x_batches = np.empty((batch_nums, batch_size, self.feature_params[()]['feature_size'], self.feature_params[()]['frame_size']), dtype=x.dtype)
+      y_batches = np.empty((batch_nums, batch_size), dtype=y.dtype)
+
     z_batches = np.empty((batch_nums, batch_size), dtype=z.dtype)
 
     # batching
@@ -133,20 +138,33 @@ class BatchArchiv():
         f_z = z[random_samples]
 
         # concatenate remainder with random examples
-        x_batches[i, :] = torch.from_numpy(np.concatenate((r_x, f_x)).astype(np.float32))
-        y_batches[i, :] = self.get_index_of_class(np.concatenate((r_y, f_y)), to_torch=True)
+        # to torch if necessary (usually)
+        if self.to_torch:
+          x_batches[i, :] = torch.from_numpy(np.concatenate((r_x, f_x)).astype(np.float32))
+
+        else:
+          x_batches[i, :] = np.concatenate((r_x, f_x))
+
+        y_batches[i, :] = self.get_index_of_class(np.concatenate((r_y, f_y)), to_torch=self.to_torch)
         z_batches[i, :] = np.concatenate((r_z, f_z))
 
       # no remainder
       else:
 
-        # get batches
-        x_batches[i, :] = torch.from_numpy(x[i*batch_size:i*batch_size+batch_size, :].astype(np.float32))
-        y_batches[i, :] = self.get_index_of_class(y[i*batch_size:i*batch_size+batch_size], to_torch=True)
+        # to torch if necessary (usually)
+        if self.to_torch:
+          x_batches[i, :] = torch.from_numpy(x[i*batch_size:i*batch_size+batch_size, :].astype(np.float32))
+
+        else:
+          # get batches
+          x_batches[i, :] = x[i*batch_size:i*batch_size+batch_size, :]
+
+        y_batches[i, :] = self.get_index_of_class(y[i*batch_size:i*batch_size+batch_size], to_torch=self.to_torch)
         z_batches[i, :] = z[i*batch_size:i*batch_size+batch_size]
 
     # prepare for training x: [num_batches x batch_size x channel x 39 x 32]
-    x_batches = torch.unsqueeze(x_batches, 2)
+    if self.to_torch:
+      x_batches = torch.unsqueeze(x_batches, 2)
 
     return x_batches, y_batches, z_batches
 
