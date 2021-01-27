@@ -9,7 +9,7 @@ from input_handler import InputKeyHandler
 from interactable import Interactable
 
 
-class Character(pygame.sprite.Sprite, Interactable):
+class Character(Interactable):
 	"""
 	character class
 	"""
@@ -108,6 +108,17 @@ class Character(pygame.sprite.Sprite, Interactable):
 		# apply x direction
 		self.move_dir[0] += direction[0]
 
+		# update sprite view
+		if self.move_dir[0] < 0:
+			self.character_sprite.change_view_sprites("side-l")
+
+		elif self.move_dir[0] > 0:
+			self.character_sprite.change_view_sprites("side-r")
+
+		else:
+			self.character_sprite.change_view_sprites("front")
+
+		# gravity moves
 		if self.is_gravity:
 			return
 
@@ -217,7 +228,7 @@ class Character(pygame.sprite.Sprite, Interactable):
 
 class CharacterSprite(pygame.sprite.Sprite):
 	"""
-	wall class
+	character sprite class
 	"""
 
 	def __init__(self, position, scale):
@@ -229,16 +240,75 @@ class CharacterSprite(pygame.sprite.Sprite):
 		self.position = position
 		self.scale = scale
 
-		# load image and create rect
-		self.image = pygame.image.load(str(pathlib.Path(__file__).parent.absolute()) + "/art/henry_front.png").convert_alpha()
-		self.rect = self.image.get_rect()
+		# sprite index
+		self.sprite_index = 0
 
-		# proper scaling
-		self.image = pygame.transform.scale(self.image, (self.rect.width * scale[0], self.rect.height * scale[1]))
+		# root for sprites
+		self.sprite_root_path = str(pathlib.Path(__file__).parent.absolute()) + "/art/"
+
+		# image file names
+		self.image_file_names = ["henry_front.png", "henry_side-1.png", "henry_side-2.png", "henry_side-3.png"]
+
+		# index for sprites infos
+		self.view_index = {"front":(0, 1), "side-r":(1, 4), "side-l":(4, 7)}
+
+		# actual view
+		self.view = "front"
+
+		# actual sprites as image arrays
+		self.sprites = [pygame.image.load(self.sprite_root_path + s).convert_alpha() for s in self.image_file_names]
+
+		# load image and create rect
+		self.rect = self.sprites[self.sprite_index].get_rect()
+
+		# scale sprites
+		self.sprites = [pygame.transform.scale(s, (self.rect.width * scale[0], self.rect.height * scale[1])) for s in self.sprites]
+
+		# add flipped views
+		self.sprites.extend([pygame.transform.flip(s, True, False) for s in self.sprites[self.view_index['side-r'][0]:self.view_index['side-r'][1]]])
+
+		# subset of sprites
+		self.view_sprites = self.sprites[self.view_index[self.view][0]:self.view_index[self.view][1]]
+
+		# image refs
+		self.image = self.sprites[self.sprite_index]
 		self.rect = self.image.get_rect()
 
 		# set rect position
 		self.rect.x, self.rect.y = self.position[0], self.position[1]
+
+
+	def change_view_sprites(self, view):
+		"""
+		view must be either "front", "side-l" "side-r"
+		"""
+
+		# safety check
+		if not view in self.view_index.keys():
+			print("view of sprite is not in list")
+			return
+
+		# view update
+		self.view = view
+
+		# view sprites update
+		self.view_sprites = self.sprites[self.view_index[self.view][0]:self.view_index[self.view][1]]
+
+
+	def update(self):
+		"""
+		update of sprite
+		"""
+
+		# update sprite index
+		self.sprite_index += 1
+
+		# loop animation
+		if self.sprite_index >= len(self.view_sprites):
+			self.sprite_index = 0
+
+		# update image
+		self.image = self.view_sprites[self.sprite_index]
 
 
 

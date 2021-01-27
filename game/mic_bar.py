@@ -130,7 +130,7 @@ class BarSprite(pygame.sprite.Sprite):
     self.size = size
     self.min_db = min_db
 
-    # wall init
+    # bar init
     self.image = pygame.surface.Surface(self.size)
     self.rect = self.image.get_rect()
 
