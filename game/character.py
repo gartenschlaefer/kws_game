@@ -231,7 +231,7 @@ class CharacterSprite(pygame.sprite.Sprite):
 	character sprite class
 	"""
 
-	def __init__(self, position, scale):
+	def __init__(self, position, scale, anim_frame_update=3):
 
 		# MRO check
 		super().__init__()
@@ -239,6 +239,10 @@ class CharacterSprite(pygame.sprite.Sprite):
 		# arguments
 		self.position = position
 		self.scale = scale
+		self.anim_frame_update = anim_frame_update
+
+		# frame
+		self.anim_frame = 0
 
 		# sprite index
 		self.sprite_index = 0
@@ -280,7 +284,7 @@ class CharacterSprite(pygame.sprite.Sprite):
 
 	def change_view_sprites(self, view):
 		"""
-		view must be either "front", "side-l" "side-r"
+		view must be in the set {"front", "side-l" "side-r"}
 		"""
 
 		# safety check
@@ -300,8 +304,14 @@ class CharacterSprite(pygame.sprite.Sprite):
 		update of sprite
 		"""
 
-		# update sprite index
-		self.sprite_index += 1
+		# frame counts
+		self.anim_frame += 1
+
+		if self.anim_frame > self.anim_frame_update:
+
+			# update sprite index, reset anim frame
+			self.sprite_index += 1
+			self.anim_frame = 0
 
 		# loop animation
 		if self.sprite_index >= len(self.view_sprites):

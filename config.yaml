@@ -135,6 +135,9 @@ ml:
     # learning rate
     lr: 0.0001
 
+    # momentum
+    beta: 0.5
+
   # retrain existing model
   retrain: True
 

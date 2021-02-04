@@ -62,7 +62,7 @@ if __name__ == '__main__':
   # model handler
 
   # create model handler
-  cnn_handler = CnnHandler(nn_arch=cfg['ml']['nn_arch'], n_classes=batch_archiv.n_classes, model_file_name=cfg['ml']['model_file_name'], use_cpu=cfg['ml']['use_cpu']) 
+  cnn_handler = CnnHandler(nn_arch=cfg['ml']['nn_arch'], n_classes=batch_archiv.n_classes, use_cpu=cfg['ml']['use_cpu']) 
 
   # load pre trained model
   if cfg['ml']['load_pre_model']:
