@@ -117,6 +117,10 @@ ml:
   params_file_name: params.npz
   metrics_file_name: metrics.npz
 
+  # adversarial model file names
+  adv_G_model_file_name: g_model.pth
+  adv_D_model_file_name: d_model.pth
+
   # use a pre trained model at pre trained model path
   load_pre_model: True
 
@@ -130,7 +134,7 @@ ml:
     batch_size: 32
 
     # number of epochs
-    num_epochs: 10
+    num_epochs: 2
 
     # learning rate
     lr: 0.0001
@@ -142,10 +146,11 @@ ml:
   retrain: True
 
   # nn architecture available
-  nn_architectures: {1: 'conv-trad', 2: 'conv-fstride'}
+  nn_architectures: {1: 'conv-trad', 2: 'conv-fstride', 3: 'adv-experimental'}
 
   # chosen architecture
-  nn_arch: conv-fstride
+  #nn_arch: conv-fstride
+  nn_arch: adv-experimental
 
   # logging enable
   logging_enabled: True
@@ -160,6 +165,8 @@ classifier:
 
   # path to model
   model_path: './models/conv-fstride/v3_c-5_n-2000/bs-32_it-1000_lr-1e-05/'
+  model_file_name: 'model.pth'
+  params_file_name: 'params.npz'
 
   # verbose
   verbose: False

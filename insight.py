@@ -45,9 +45,13 @@ if __name__ == '__main__':
   """
   
   import yaml
+  from path_collector import PathCollector
   
   # yaml config file
   cfg = yaml.safe_load(open("./config.yaml"))
+
+  # init path collector
+  path_coll = PathCollector(cfg)
 
   # plot path and model path
   plot_path = './ignore/plots/insight/'
@@ -56,7 +60,7 @@ if __name__ == '__main__':
   create_folder([plot_path])
 
   # classifier
-  classifier = Classifier(model_path='./models/conv-fstride/v3_c-5_n-2000/bs-32_it-1000_lr-1e-05/', model_file_name='model.pth', params_file_name='params.npz', verbose=True)
+  classifier = Classifier(path_coll=path_coll, verbose=True)
 
   # get model
   model = classifier.cnn_handler.model 

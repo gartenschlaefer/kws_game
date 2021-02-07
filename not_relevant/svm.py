@@ -31,7 +31,7 @@ if __name__ == '__main__':
   cfg = yaml.safe_load(open("./config.yaml"))
 
   # init path collector
-  path_coll = PathCollector(cfg)
+  path_coll = PathCollector(cfg, root_path='.')
 
 
   # --

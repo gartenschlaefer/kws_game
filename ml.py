@@ -15,7 +15,7 @@ from common import s_to_hms_str
 from path_collector import PathCollector
 from plots import plot_val_acc, plot_train_loss, plot_confusion_matrix
 from batch_archiv import BatchArchiv
-from net_handler import CnnHandler
+from net_handler import CnnHandler, AdversarialNetHandler
 
 
 def init_logging(log_path):
@@ -23,6 +23,7 @@ def init_logging(log_path):
   init logging stuff
   """
 
+  # config
   logging.basicConfig(filename=log_path + 'ml.log', level=logging.DEBUG, format='%(asctime)s %(message)s')
 
   # disable unwanted logs
@@ -62,11 +63,15 @@ if __name__ == '__main__':
   # model handler
 
   # create model handler
-  cnn_handler = CnnHandler(nn_arch=cfg['ml']['nn_arch'], n_classes=batch_archiv.n_classes, use_cpu=cfg['ml']['use_cpu']) 
+  if cfg['ml']['nn_arch'] == 'adv-experimental':
+    nn_handler = AdversarialNetHandler(nn_arch=cfg['ml']['nn_arch'], use_cpu=cfg['ml']['use_cpu'])
+
+  else:
+    nn_handler = CnnHandler(nn_arch=cfg['ml']['nn_arch'], n_classes=batch_archiv.n_classes, use_cpu=cfg['ml']['use_cpu']) 
 
   # load pre trained model
   if cfg['ml']['load_pre_model']:
-    cnn_handler.load_model(model_file=path_coll.model_pre_file)
+    nn_handler.load_model(path_coll=path_coll, for_what='pre')
 
 
   # --
@@ -76,13 +81,13 @@ if __name__ == '__main__':
   if not os.path.exists(path_coll.model_file) or cfg['ml']['retrain']:
 
     # train
-    train_score = cnn_handler.train_nn(train_params=cfg['ml']['train_params'], batch_archiv=batch_archiv)
+    train_score = nn_handler.train_nn(train_params=cfg['ml']['train_params'], batch_archiv=batch_archiv)
 
     # training info
-    logging.info('Traning on arch: [{}], train_params: {}, device: [{}], time: {}'.format(cfg['ml']['nn_arch'], cfg['ml']['train_params'], cnn_handler.device, s_to_hms_str(train_score.time_usage)))
+    logging.info('Traning on arch: [{}], train_params: {}, device: [{}], time: {}'.format(cfg['ml']['nn_arch'], cfg['ml']['train_params'], nn_handler.device, s_to_hms_str(train_score.time_usage)))
     
     # save model
-    cnn_handler.save_model(model_file=path_coll.model_file, params_file=path_coll.params_file, train_params=cfg['ml']['train_params'], class_dict=batch_archiv.class_dict, metric_file=path_coll.metrics_file, train_score=train_score, model_pre_file=path_coll.model_pre_file, save_as_pre_model=cfg['ml']['save_as_pre_model'])
+    nn_handler.save_model(path_coll=path_coll, train_params=cfg['ml']['train_params'], class_dict=batch_archiv.class_dict, train_score=train_score, save_as_pre_model=cfg['ml']['save_as_pre_model'])
 
     # plots
     plot_train_loss(train_score.train_loss, train_score.val_loss, plot_path=path_coll.model_path, name='train_loss')
@@ -92,10 +97,7 @@ if __name__ == '__main__':
   else:
 
     # load model
-    cnn_handler.load_model(model_file=path_coll.model_file)
-
-    # save infos
-    np.savez(path_coll.model_path + cfg['ml']['params_file_name'], train_params=cfg['ml']['train_params'], class_dict=batch_archiv.class_dict, model_file=path_coll.model_file)
+    nn_handler.load_model(path_coll=path_coll, for_what='trained')
 
 
   # --
@@ -104,10 +106,10 @@ if __name__ == '__main__':
   print("\n--Evaluation on Test Set:")
 
   # activate eval mode (no dropout layers)
-  cnn_handler.model.eval()
+  nn_handler.set_eval_mode()
 
   # evaluation of model
-  eval_score = cnn_handler.eval_nn(eval_set='test', batch_archiv=batch_archiv, calc_cm=True, verbose=False)
+  eval_score = nn_handler.eval_nn(eval_set='test', batch_archiv=batch_archiv, calc_cm=True, verbose=False)
 
   # print accuracy
   eval_log = eval_score.info_log(do_print=False)
@@ -134,7 +136,7 @@ if __name__ == '__main__':
     print("\n--Evaluation on My Set:")
 
     # evaluation of model
-    eval_score = cnn_handler.eval_nn(eval_set='my', batch_archiv=batch_archiv, calc_cm=True, verbose=True)
+    eval_score = nn_handler.eval_nn(eval_set='my', batch_archiv=batch_archiv, calc_cm=True, verbose=True)
     print("confusion matrix:\n{}\n".format(eval_score.cm))
 
     # plot confusion matrix

@@ -98,6 +98,9 @@ def plot_confusion_matrix(cm, classes, plot_path=None, name='None'):
   plot confusion matrix
   """
 
+  if cm is None:
+    return
+
   # init plot
   fig, ax = plt.subplots( figsize=(8, 8) )
   im = ax.imshow(cm, cmap=plt.cm.Blues)
@@ -143,8 +146,11 @@ def plot_train_loss(train_loss, val_loss, plot_path=None, name='None'):
   """
 
   # normalize
-  train_loss = train_loss / np.linalg.norm(train_loss, ord=np.infty)
-  val_loss = val_loss / np.linalg.norm(val_loss, ord=np.infty)
+  if np.linalg.norm(train_loss, ord=np.infty):
+    train_loss = train_loss / np.linalg.norm(train_loss, ord=np.infty)
+
+  if np.linalg.norm(val_loss, ord=np.infty):
+    val_loss = val_loss / np.linalg.norm(val_loss, ord=np.infty)
 
   # setup figure
   fig = plt.figure(figsize=(8, 5))

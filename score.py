@@ -37,8 +37,8 @@ class EvalScore():
 		self.loss = 0.0
 		self.correct = 0
 		self.total = 0
+		self.acc = 0.0
 		self.cm = None
-		self.acc = None
 
 		# all labels from batches
 		self.y_all = np.empty(shape=(0), dtype=self.label_dtype)

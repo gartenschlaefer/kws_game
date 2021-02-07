@@ -195,9 +195,13 @@ if __name__ == '__main__':
 
   from plots import plot_waveform
   from common import create_folder
+  from path_collector import PathCollector
 
   # yaml config file
   cfg = yaml.safe_load(open("./config.yaml"))
+
+  # init path collector
+  path_coll = PathCollector(cfg)
 
   # create folder
   create_folder([cfg['mic_params']['plot_path']])
@@ -206,8 +210,8 @@ if __name__ == '__main__':
   N, hop = int(cfg['feature_params']['N_s'] * cfg['feature_params']['fs']), int(cfg['feature_params']['hop_s'] * cfg['feature_params']['fs'])
 
   # classifier
-  classifier = Classifier(model_path='./models/conv-fstride/v3_c-5_n-2000/bs-32_it-1000_lr-1e-05/', model_file_name='model.pth', params_file_name='params.npz', verbose=True)
-
+  classifier = Classifier(path_coll=path_coll, verbose=True)
+  
   # create mic instance
   mic = Mic(classifier=classifier, feature_params=cfg['feature_params'], mic_params=cfg['mic_params'], is_audio_record=True)
 

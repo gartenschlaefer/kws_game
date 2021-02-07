@@ -13,20 +13,13 @@ class Classifier():
   classifier class for classifying new samples with a trained model
   """
 
-  def __init__(self, model_path, model_file_name='model.pth', params_file_name='params.npz', verbose=False):
+  def __init__(self, path_coll, verbose=False):
 
     # vars
-    self.model_path = model_path
-    self.model_file_name = model_file_name
-    self.params_file_name = params_file_name
     self.verbose = verbose
 
-    # files
-    self.model_file = self.model_path + self.model_file_name
-    self.params_file = self.model_path + self.params_file_name
-
     # data loading
-    data = np.load(self.params_file, allow_pickle=True)
+    data = np.load(path_coll.classifier_params, allow_pickle=True)
 
     # see whats in data
     #print(data.files)
@@ -41,10 +34,10 @@ class Classifier():
       print("\nExtract model with architecture: [{}]\nparams: [{}]\nand class dict: [{}]".format(self.nn_arch, self.train_params, self.class_dict))
     
     # init net handler
-    self.cnn_handler = CnnHandler(nn_arch=self.nn_arch, n_classes=len(self.class_dict), model_file_name=self.nn_arch, use_cpu=True)
+    self.cnn_handler = CnnHandler(nn_arch=self.nn_arch, n_classes=len(self.class_dict), use_cpu=True)
 
     # load model
-    self.cnn_handler.load_model(model_file=self.model_file)
+    self.cnn_handler.load_model(path_coll=path_coll, for_what='classifier')
 
     # set evaluation mode
     self.cnn_handler.set_eval_mode()
@@ -76,8 +69,17 @@ if __name__ == '__main__':
   main of classifier
   """
 
+  import yaml
+  from path_collector import PathCollector
+
+  # yaml config file
+  cfg = yaml.safe_load(open("./config.yaml"))
+
+  # init path collector
+  path_coll = PathCollector(cfg)
+
   # create classifier
-  classifier = Classifier(model_path='./models/conv-fstride/v3_c-5_n-2000/bs-32_it-1000_lr-1e-05/', model_file_name='model.pth', params_file_name='params.npz', verbose=True)
+  classifier = Classifier(path_coll=path_coll, verbose=True)
 
   # random sample
   x = np.random.randn(39, 32)

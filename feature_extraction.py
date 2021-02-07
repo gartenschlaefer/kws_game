@@ -854,10 +854,10 @@ if __name__ == '__main__':
 
 
   # inverse mfcc
-  y = librosa.feature.inverse.mfcc_to_audio(mfcc, n_mels=32, dct_type=2, norm='ortho', ref=1.0)
-  print("x: ", x.shape)
-  print("y: ", y.shape)
-  soundfile.write('./ignore/features/inv_mfcc.wav', y, fs, subtype=None, endian=None, format=None, closefd=True)
+  # y = librosa.feature.inverse.mfcc_to_audio(mfcc, n_mels=32, dct_type=2, norm='ortho', ref=1.0)
+  # print("x: ", x.shape)
+  # print("y: ", y.shape)
+  # soundfile.write('./ignore/features/inv_mfcc.wav', y, fs, subtype=None, endian=None, format=None, closefd=True)
 
 
   #--

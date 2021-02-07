@@ -174,21 +174,21 @@ if __name__ == '__main__':
 
   # game stuff
   from game_logic import GameLogic
-  
   from levels import LevelMic
-  #from text import Text
-
+  from path_collector import PathCollector
 
   # yaml config file
   cfg = yaml.safe_load(open("../config.yaml"))
 
+  # init path collector
+  path_coll = PathCollector(cfg, root_path='.')
 
   # --
   # mic
 
   # create classifier
-  classifier = Classifier(model_path='.' + cfg['classifier']['model_path'], verbose=cfg['classifier']['verbose'])
-
+  classifier = Classifier(path_coll=path_coll, verbose=True)
+  
   # create mic instance
   mic = Mic(classifier=classifier, feature_params=cfg['feature_params'], mic_params=cfg['mic_params'], is_audio_record=True)
 
