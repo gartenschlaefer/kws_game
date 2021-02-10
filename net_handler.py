@@ -119,7 +119,7 @@ class NetHandler():
 		pass
 
 
-	def generate_samples(self, num_samples=10):
+	def generate_samples(self, noise=None, num_samples=10, to_np=False):
 		"""
 		generate samples if it is a generative network
 		"""
@@ -395,9 +395,6 @@ class AdversarialNetHandler(NetHandler):
 		self.G.apply(self.weights_init)
 		self.D.apply(self.weights_init)
 
-		# image list for evaluation
-		self.img_list = []
-
 
 	def weights_init(self, m):
 		"""
@@ -468,7 +465,7 @@ class AdversarialNetHandler(NetHandler):
 		#	torch.save(self.model.state_dict(), model_pre_file)
 
 
-	def train_nn(self, train_params, batch_archiv):
+	def train_nn(self, train_params, batch_archiv, callback_f=None):
 		"""
 		train adversarial nets
 		"""
@@ -572,11 +569,9 @@ class AdversarialNetHandler(NetHandler):
 				cum_loss = self.print_train_info(epoch, i, cum_loss, k_print=batch_archiv.y_train.shape[0] // 10)
 
 
-			# check progess after epoch
-			with torch.no_grad():
-				fake = self.G(fixed_noise).detach().cpu()
-			print("fake: ", fake.shape)
-			self.img_list.append(vutils.make_grid(fake, padding=2, normalize=True))
+			# check progess after epoch with callback function
+			if callback_f is not None:
+				callback_f(self.generate_samples(noise=fixed_noise, to_np=True))
 
 
 		print('--Training finished')
@@ -587,25 +582,85 @@ class AdversarialNetHandler(NetHandler):
 		return train_score
 
 
-	def generate_samples(self, num_samples=10):
+	def generate_samples(self, noise=None, num_samples=10, to_np=False):
 		"""
-		generator samples from G according to number of samples
+		generator samples from G
 		"""
 
-		# noise ad input
-		noise = torch.randn(num_samples, self.G.n_latent, device=self.device)
+		# generate noise if not given
+		if noise is None:
+			noise = torch.randn(num_samples, self.G.n_latent, device=self.device)
 
 		# create fakes through Generator
-		fakes = self.G(noise)
+		with torch.no_grad():
+			fakes = torch.squeeze(self.G(noise).detach().cpu())
+
+		# to numpy if necessary
+		if to_np:
+			fakes = fakes.numpy()
 
 		return fakes
 
 
 
+def cnn_analytics(cfg, batch_archiv):
+	"""
+	evaluate convolutional networks
+	"""
+
+	# create an cnn handler
+	cnn_handler = CnnHandler(nn_arch='conv-fstride', n_classes=5, use_cpu=False)
+
+	# training
+	cnn_handler.train_nn(cfg['ml']['train_params'], batch_archiv=batch_archiv)
+
+	# validation
+	cnn_handler.eval_nn(eval_set='val', batch_archiv=batch_archiv, calc_cm=False, verbose=False)
+
+	# classify sample
+	y_hat, o = cnn_handler.classify_sample(np.random.randn(39, 32))
+
+	print("classify: [{}]\noutput: [{}]".format(y_hat, o))
+
+
+def image_collect(x):
+	"""
+	collect images of mfcc's (used as callback function in the training of adversarial networks)
+	"""
+
+	# image list for evaluation
+	global img_list
+
+	# append image
+	img_list.append(x)
+
+
+def create_anim(path_coll):
+	"""
+	create image animation
+	"""
+
+	# image list for evaluation
+	global img_list
+
+	# images for evaluation on training
+	print("amount of mfccs for anim: ", len(img_list))
+
+	# plot
+	fig = plt.figure(figsize=(8,8))
+	#plt.axis("off")
+
+	# animation
+	ani = animation.ArtistAnimation(fig, [[plt.imshow(i[0, :], animated=True)] for i in img_list], interval=1000, repeat_delay=1000, blit=True)
+	plt.show()
+
+	# save
+	ani.save("{}anim.mp4".format(path_coll.model_path))
+
 
 def adversarial_analytics(cfg, path_coll, batch_archiv):
 	"""
-	a function for evaluating the adversarial network
+	evaluate the adversarial networks
 	"""
 
 	# adversarial
@@ -615,30 +670,13 @@ def adversarial_analytics(cfg, path_coll, batch_archiv):
 	if not os.path.exists(path_coll.adv_g_model_file) or not os.path.exists(path_coll.adv_d_model_file) or cfg['ml']['retrain']:
 
 		# train
-		train_score = adv_handler.train_nn(cfg['ml']['train_params'], batch_archiv=batch_archiv)
+		train_score = adv_handler.train_nn(cfg['ml']['train_params'], batch_archiv=batch_archiv, callback_f=image_collect)
 
 		# save model
 		adv_handler.save_model(path_coll=path_coll, train_params=cfg['ml']['train_params'], class_dict=batch_archiv.class_dict, train_score=train_score, save_as_pre_model=cfg['ml']['save_as_pre_model'])
 
-		from plots import plot_val_acc, plot_train_loss, plot_confusion_matrix
-
 		# plots
 		plot_train_loss(train_score.train_loss, train_score.val_loss, plot_path=path_coll.model_path, name='train_loss')
-		plot_val_acc(train_score.val_acc, plot_path=path_coll.model_path, name='val_acc')
-
-		# images for evaluation on training
-		imgs = adv_handler.img_list
-
-		print("imgaes: ", len(imgs))
-		print("imgaes: ", imgs[0].shape)
-
-		# plot
-		fig = plt.figure(figsize=(8,8))
-		plt.axis("off")
-		ims = [[plt.imshow(np.transpose(i, (1, 2, 0)), animated=True)] for i in imgs]
-
-		# animation
-		ani = animation.ArtistAnimation(fig, ims, interval=1000, repeat_delay=1000, blit=True)
 
 	# load model params from file without training
 	else:
@@ -647,11 +685,12 @@ def adversarial_analytics(cfg, path_coll, batch_archiv):
 		adv_handler.load_model(path_coll=path_coll, for_what='trained')
 
 	# generate samples from trained model
-	fakes = adv_handler.generate_samples(num_samples=10)
+	fake = adv_handler.generate_samples(num_samples=1, to_np=True)
+	plot_mfcc_only(fake, fs=16000, hop=160, plot_path=None, name='None')
 
-	print("fakes: ", fakes.shape)
+	# training anim
+	create_anim(path_coll)
 
-	plt.show()
 
 
 if __name__ == '__main__':
@@ -666,6 +705,7 @@ if __name__ == '__main__':
 
 	from batch_archiv import BatchArchiv
 	from path_collector import PathCollector
+	from plots import plot_val_acc, plot_train_loss, plot_mfcc_only
 
 	# yaml config file
 	cfg = yaml.safe_load(open("./config.yaml"))
@@ -679,21 +719,17 @@ if __name__ == '__main__':
 	# create batches
 	batch_archiv = BatchArchiv(path_coll.mfcc_data_files_all, batch_size=32, batch_size_eval=4)
 
+	# global vars
+	global img_list
+	img_list = []
 
-	# # create an cnn handler
-	# cnn_handler = CnnHandler(nn_arch='conv-fstride', n_classes=5, use_cpu=False)
-
-	# # training
-	# cnn_handler.train_nn(cfg['ml']['train_params'], batch_archiv=batch_archiv)
-
-	# # validation
-	# cnn_handler.eval_nn(eval_set='val', batch_archiv=batch_archiv, calc_cm=False, verbose=False)
-
-	# # classify sample
-	# y_hat, o = cnn_handler.classify_sample(np.random.randn(39, 32))
-
-	# print("classify: [{}]\noutput: [{}]".format(y_hat, o))
-
+	# cnn analytics
+	#cnn_analytics(cfg, batch_archiv)
 
 	# adversarial analytics
 	adversarial_analytics(cfg, path_coll, batch_archiv)
+
+
+
+
+

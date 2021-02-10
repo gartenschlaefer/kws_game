@@ -330,10 +330,6 @@ def plot_mfcc_only(mfcc, fs=16000, hop=160, plot_path=None, name='None'):
     plt.savefig(plot_path + 'mfcc-only_' + name + '.png', dpi=150)
     plt.close()
 
-  # just show it
-  else:
-    plt.show()
-
 
 def plot_mel_band_weights(w_f, w_mel, f, m, plot_path=None, name='weights'):
   """
