@@ -67,7 +67,7 @@ class NetHandler():
 		return None
 
 
-	def print_train_info(self, epoch, mini_batch, cum_loss, k_print=10):
+	def print_train_info(self, epoch, mini_batch, train_score, k_print=10):
 		"""
 		print some training info
 		"""
@@ -75,13 +75,13 @@ class NetHandler():
 		# print loss
 		if mini_batch % k_print == k_print-1:
 
-			# print info
-			print('epoch: {}, mini-batch: {}, loss: [{:.5f}]'.format(epoch + 1, mini_batch + 1, cum_loss / k_print))
+			# adversarial gets separate print
+			if train_score.use_adv:
+				print('epoch: {}, mini-batch: {}, G loss: [{:.5f}], D loss real: [{:.5f}], D loss fake: [{:.5f}]'.format(epoch + 1, mini_batch + 1, train_score.g_batch_loss / k_print, train_score.d_batch_loss_real / k_print, train_score.d_batch_loss_fake / k_print))
 
-			# zero cum loss
-			cum_loss = 0.0
-
-		return cum_loss
+			else:
+				# print info
+				print('epoch: {}, mini-batch: {}, loss: [{:.5f}]'.format(epoch + 1, mini_batch + 1, train_score.batch_loss / k_print))
 
 
 	def load_model(self, path_coll, for_what='train'):
@@ -222,9 +222,6 @@ class CnnHandler(NetHandler):
 		# epochs
 		for epoch in range(train_params['num_epochs']):
 
-			# cumulated loss
-			cum_loss = 0.0
-
 			# TODO: do this with loader function from pytorch (maybe or not)
 			# fetch data samples
 			for i, (x, y) in enumerate(zip(batch_archiv.x_train.to(self.device), batch_archiv.y_train.to(self.device))):
@@ -244,14 +241,12 @@ class CnnHandler(NetHandler):
 				# optimizer step - update params
 				optimizer.step()
 
-				# loss update
-				cum_loss += loss.item()
+				# update batch loss collection
+				train_score.update_batch_losses(epoch, loss.item())
 
-				# batch loss
-				train_score.train_loss[epoch] += cum_loss
-
-				# print some infos, reset cum_loss
-				cum_loss = self.print_train_info(epoch, i, cum_loss, k_print=batch_archiv.y_train.shape[0] // 10)
+				# print some infos
+				self.print_train_info(epoch, i, train_score, k_print=batch_archiv.y_train.shape[0] // 10)
+				train_score.reset_batch_losses()
 
 			# valdiation
 			eval_score = self.eval_nn('val', batch_archiv)
@@ -474,11 +469,11 @@ class AdversarialNetHandler(NetHandler):
 		fixed_noise = torch.randn(32, self.G.n_latent, device=self.device)
 
 		# Setup Adam optimizers for both G and D
-		optimizerD = torch.optim.Adam(self.D.parameters(), lr=train_params['lr'], betas=(train_params['beta'], 0.999))
-		optimizerG = torch.optim.Adam(self.G.parameters(), lr=train_params['lr'], betas=(train_params['beta'], 0.999))
+		optimizer_d = torch.optim.Adam(self.D.parameters(), lr=train_params['lr'], betas=(train_params['beta'], 0.999))
+		optimizer_g = torch.optim.Adam(self.G.parameters(), lr=train_params['lr'], betas=(train_params['beta'], 0.999))
 
 		# score collector
-		train_score = TrainScore(train_params['num_epochs'])
+		train_score = TrainScore(train_params['num_epochs'], use_adv=True)
 
 		print("\n--Training starts:")
 
@@ -488,15 +483,12 @@ class AdversarialNetHandler(NetHandler):
 		# epochs
 		for epoch in range(train_params['num_epochs']):
 
-			# cumulated loss
-			cum_loss = 0.0
-
 			# fetch data samples
 			for i, x in enumerate(batch_archiv.x_train.to(self.device)):
 
 				# zero parameter gradients
 				self.D.zero_grad()
-				optimizerD.zero_grad()
+				optimizer_d.zero_grad()
 
 				# --
 				# train with real batch
@@ -508,16 +500,15 @@ class AdversarialNetHandler(NetHandler):
 				o = self.D(x).view(-1)
 
 				# loss of D with reals
-				lossD_real = self.criterion(o, y)
-				lossD_real.backward()
-				#D_x = o.mean().item()
+				d_loss_real = self.criterion(o, y)
+				d_loss_real.backward()
+				#d_reals = o.mean().item()
 
 
 				# --
 				# train with fake batch
 
 				# create noise as input
-				#noise = torch.randn(batch_archiv.batch_size, self.G.n_latent, 1, 1, device=self.device)
 				noise = torch.randn(batch_archiv.batch_size, self.G.n_latent, device=self.device)
 
 				# create fakes through Generator
@@ -530,15 +521,15 @@ class AdversarialNetHandler(NetHandler):
 				o = self.D(fakes.detach()).view(-1)
 
 				# loss of D with fakes
-				lossD_fake = self.criterion(o, y)
-				lossD_fake.backward()
+				d_loss_fake = self.criterion(o, y)
+				d_loss_fake.backward()
 				#D_G_z1 = o.mean().item()
 
 				# cumulate all losses
-				lossD = lossD_real + lossD_fake
+				#d_loss = loss_real + lossD_fake
 
 				# optimizer step
-				optimizerD.step()
+				optimizer_d.step()
 
 
 				# --
@@ -551,22 +542,19 @@ class AdversarialNetHandler(NetHandler):
 				o = self.D(fakes).view(-1)
 
 				# loss of G of D with fakes
-				lossG = self.criterion(o, y)
-				lossG.backward()
+				g_loss = self.criterion(o, y)
+				g_loss.backward()
 				#D_G_z2 = o.mean().item()
 
 				# optimizer step
-				optimizerG.step()
+				optimizer_g.step()
 
+				# update batch loss collection
+				train_score.update_batch_losses(epoch, loss=0.0, g_loss=g_loss.item(), d_loss_real=d_loss_real.item(), d_loss_fake=d_loss_fake.item())
 
-				# loss update
-				cum_loss += lossD.item()
-
-				# batch loss
-				train_score.train_loss[epoch] += cum_loss
-
-				# print some infos, reset cum_loss
-				cum_loss = self.print_train_info(epoch, i, cum_loss, k_print=batch_archiv.y_train.shape[0] // 10)
+				# print some infos
+				self.print_train_info(epoch, i, train_score, k_print=batch_archiv.y_train.shape[0] // 10)
+				train_score.reset_batch_losses()
 
 
 			# check progess after epoch with callback function
