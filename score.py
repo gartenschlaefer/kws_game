@@ -84,7 +84,7 @@ class EvalScore():
 	typical scores for evaluation
 	"""
 
-	def __init__(self, label_dtype, calc_cm=False):
+	def __init__(self, label_dtype=np.int32, calc_cm=False):
 
 		# params
 		self.label_dtype = label_dtype

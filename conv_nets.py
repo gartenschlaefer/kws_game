@@ -27,7 +27,7 @@ class ConvNetTrad(nn.Module):
     f - frames
     """
 
-    # MRO check
+    # parent init
     super().__init__()
 
     # 1. conv layer
@@ -98,7 +98,7 @@ class ConvNetFstride4(nn.Module):
     f - frames
     """
 
-    # MRO check
+    # parent init
     super().__init__()
 
     # conv layer

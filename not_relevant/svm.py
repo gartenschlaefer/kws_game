@@ -16,7 +16,7 @@ from sklearn import svm
 # my stuff
 from path_collector import PathCollector
 from plots import plot_val_acc, plot_train_loss, plot_confusion_matrix
-from batch_archiv import BatchArchiv
+from batch_archiv import SpeechCommandsBatchArchiv
 
 
 if __name__ == '__main__':
@@ -38,7 +38,7 @@ if __name__ == '__main__':
   # batches
 
   # create batch archiv
-  batch_archiv = BatchArchiv(path_coll.mfcc_data_files_all, batch_size=1, to_torch=False)
+  batch_archiv = SpeechCommandsBatchArchiv(path_coll.mfcc_data_files_all, batch_size=1, to_torch=False)
 
   # print classes
   print("classes: ", batch_archiv.classes)

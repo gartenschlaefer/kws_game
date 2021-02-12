@@ -72,8 +72,14 @@ class NetHandler():
 		print some training info
 		"""
 
+		do_print_anyway = False
+
+		if not k_print:
+			k_print = 1
+			do_print_anyway = True
+
 		# print loss
-		if mini_batch % k_print == k_print-1:
+		if mini_batch % k_print == k_print-1 or do_print_anyway:
 
 			# adversarial gets separate print
 			if train_score.use_adv:
@@ -109,7 +115,7 @@ class NetHandler():
 		"""
 		evaluation interface
 		"""
-		return EvalScore(label_dtype=batch_archiv.y_val.numpy().dtype)
+		return EvalScore()
 
 
 	def classify_sample(self):
@@ -154,7 +160,10 @@ class CnnHandler(NetHandler):
 		self.model = self.get_nn_model()
 
 		# model to device
-		self.model.to(self.device)
+		try:
+			self.model.to(self.device)
+		except:
+			print("***model could not be sent to device!")
 
 
 	def load_model(self, path_coll, for_what='train'):
@@ -270,11 +279,17 @@ class CnnHandler(NetHandler):
 		use eval_set out of ['val', 'test', 'my']
 		"""
 
-		# init score
-		eval_score = EvalScore(label_dtype=batch_archiv.y_val.numpy().dtype, calc_cm=calc_cm)
-
 		# select the evaluation set
 		x_eval, y_eval, z_eval = self.eval_select_set(eval_set, batch_archiv)
+
+		# if set does not exist
+		if x_eval is None or y_eval is None:
+			print("no eval set found")
+			return EvalScore(calc_cm=calc_cm)
+
+		# init score
+		eval_score = EvalScore(calc_cm=calc_cm)
+
 
 		# no gradients for eval
 		with torch.no_grad():
@@ -691,7 +706,7 @@ if __name__ == '__main__':
 	import matplotlib.animation as animation
 	import os
 
-	from batch_archiv import BatchArchiv
+	from batch_archiv import SpeechCommandsBatchArchiv
 	from path_collector import PathCollector
 	from plots import plot_val_acc, plot_train_loss, plot_mfcc_only
 
@@ -705,17 +720,17 @@ if __name__ == '__main__':
 	path_coll.create_ml_folders()
 
 	# create batches
-	batch_archiv = BatchArchiv(path_coll.mfcc_data_files_all, batch_size=32, batch_size_eval=4)
+	batch_archiv = SpeechCommandsBatchArchiv(path_coll.mfcc_data_files_all, batch_size=32, batch_size_eval=4)
 
 	# global vars
 	global img_list
 	img_list = []
 
 	# cnn analytics
-	#cnn_analytics(cfg, batch_archiv)
+	cnn_analytics(cfg, batch_archiv)
 
 	# adversarial analytics
-	adversarial_analytics(cfg, path_coll, batch_archiv)
+	#adversarial_analytics(cfg, path_coll, batch_archiv)
 
 
 

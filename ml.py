@@ -14,7 +14,7 @@ import yaml
 from common import s_to_hms_str
 from path_collector import PathCollector
 from plots import plot_val_acc, plot_train_loss, plot_confusion_matrix
-from batch_archiv import BatchArchiv
+from batch_archiv import SpeechCommandsBatchArchiv
 from net_handler import CnnHandler, AdversarialNetHandler
 
 
@@ -53,7 +53,7 @@ if __name__ == '__main__':
   # batches
 
   # create batch archiv
-  batch_archiv = BatchArchiv(path_coll.mfcc_data_files_all, batch_size=cfg['ml']['train_params']['batch_size'])
+  batch_archiv = SpeechCommandsBatchArchiv(path_coll.mfcc_data_files_all, batch_size=cfg['ml']['train_params']['batch_size'])
 
   # print classes
   print("classes: ", batch_archiv.classes)
