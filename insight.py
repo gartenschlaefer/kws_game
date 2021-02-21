@@ -11,7 +11,7 @@ from common import create_folder
 from plots import *
 from conv_nets import *
 
-from feature_extraction import pre_processing, calc_mfcc39, frames_to_sample
+from feature_extraction import FeatureExtractor, frames_to_sample
 from classifier import Classifier
 
 from skimage.util.shape import view_as_windows
@@ -84,17 +84,20 @@ if __name__ == '__main__':
   #eval_model(model)
 
 
+
   # --
   # classification insights
+
+  # init feature extractor
+  feature_extractor = FeatureExtractor(cfg['feature_params'])
 
   # read audio from file
   x_raw, fs = librosa.load(wav, sr=fs)
 
-  # preprocessing
-  x_pre = pre_processing(x_raw)
-
   # mfcc
-  x_mfcc = calc_mfcc39(x_pre, fs, N=N, hop=hop, n_filter_bands=32, n_ceps_coeff=12)
+  x_mfcc, _ = feature_extractor.extract_mfcc39(x_raw, normalize=True, reduce_to_best_onset=False)
+
+  print("mfcc: ", x_mfcc.shape)
 
   # dimensions
   m, f, window_step = 39, 32, 2
@@ -114,10 +117,10 @@ if __name__ == '__main__':
     time_s = frames_to_sample(i*window_step, fs, hop)
     time_e = frames_to_sample(i*window_step+32, fs, hop)
 
-    plot_waveform(x_pre[time_s:time_e], fs, title='frame{}_y-{}'.format(i, y_hat), xlim=None, ylim=(-1, 1), plot_path=plot_path, name='frame{}'.format(i))
+    plot_waveform(x_raw[time_s:time_e], fs, title='frame{}_y-{}'.format(i, y_hat), xlim=None, ylim=(-1, 1), plot_path=plot_path, name='frame{}'.format(i))
 
   print("y_hats: ", y_hat_list)
-  plot_waveform(x_pre, fs, ylim=(-1, 1))
+  plot_waveform(x_raw, fs, ylim=(-1, 1))
 
   plt.show()
 

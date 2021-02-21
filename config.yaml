@@ -3,56 +3,124 @@
 
 
 # --
-# audio dataset config
-audio_dataset:
+# dataset config
+datasets:
 
-  # path to speech command dataset
-  dataset_path: ./ignore/dataset/speech_commands_v0.01/
+  # speech commands dataset
+  speech_commands:
 
-  # paths to save training, testing and eval data
-  data_paths:
-    train: ./ignore/dataset/train/
-    test: ./ignore/dataset/test/
-    eval: ./ignore/dataset/eval/
+    # file extension for audio files
+    file_ext: '.wav'
 
-  # wav folder name
-  wav_folder: wavs/
+    # path to speech command dataset
+    dataset_path: ./ignore/dataset/speech_commands_v0.01/
 
-  # plot path root
-  plot_paths:
-    mfcc: ./ignore/plots/features/mfcc/
-    z_score: ./ignore/plots/features/z_score/
+    # paths to save training, testing and eval data
+    data_paths:
+      train: ./ignore/dataset/train/
+      test: ./ignore/dataset/test/
+      eval: ./ignore/dataset/eval/
 
-  # enable plot of each feature extraction
-  enable_plot: False
+    # wav folder name
+    wav_folder: wavs/
 
-  # recreate all datasets (copy wavs to data_paths)
-  recreate: False
+    # split of dataset in training, test, eval (must be a prob. distribution)
+    split_percs: [0.8, 0.1, 0.1]
 
-  # split of dataset in training, test, eval (must be a prob. distribution)
-  data_percs: [0.8, 0.1, 0.1]
+    # plot path root
+    plot_paths:
+      mfcc: ./ignore/dataset/plots/mfcc/
+      z_score: ./ignore/dataset/plots/z_score/
 
-  # selected labels of the whole set
-  sel_labels: ['left', 'right', 'up', 'down', 'go']
-  #sel_labels = ['eight', 'sheila', 'nine', 'yes', 'one', 'no', 'left', 'tree', 'bed', 'bird', 'go', 'wow', 'seven', 'marvin', 'dog', 'three', 'two', 'house', 'down', 'six', 'five', 'off', 'right', 'cat', 'zero', 'four', 'stop', 'up', 'on', 'happy']
+    # enable plot of each feature extraction
+    enable_plot: False
 
-  # --
-  # version
-  # 1: better onset detection
-  # 2: energy frame onset detection
-  # 3: data extraction with min energy and randomize onsets
-  version_nr: 3
+    # recreate all datasets (copy wavs to data_paths - not necessary except the dataset is changed)
+    recreate: False
 
-  # number of examples picked from dataset
-  #n_examples: 10
-  n_examples: 500
+    # selected labels of the whole set
+    sel_labels: ['left', 'right', 'up', 'down', 'go']
+    #sel_labels = ['eight', 'sheila', 'nine', 'yes', 'one', 'no', 'left', 'tree', 'bed', 'bird', 'go', 'wow', 'seven', 'marvin', 'dog', 'three', 'two', 'house', 'down', 'six', 'five', 'off', 'right', 'cat', 'zero', 'four', 'stop', 'up', 'on', 'happy']
 
-  # file name for saved feature files
-  mfcc_file_name: mfcc_data
+    # --
+    # version
+    # 1: better onset detection
+    # 2: energy frame onset detection
+    # 3: data extraction with min energy and randomize onsets
+    # 4: normalized features
+    version_nr: 4
+
+    # number of examples picked from dataset
+    #n_examples: 10
+    n_examples: 500
+
+    # file name for saved feature files
+    feature_file_name: mfcc_data
+
+
+  # my recordings dataset
+  my_recordings:
+
+    # file extension for audio files
+    file_ext: '.wav'
+
+    # path to speech command dataset
+    dataset_path: ./ignore/my_recordings/raw/
+
+    # paths to save training, testing and eval data
+    data_paths:
+      my: ./ignore/my_recordings/my/
+
+    # wav folder name
+    wav_folder: wavs/
+
+    # split of dataset
+    split_percs: [1.0]
+
+    # plot path root
+    plot_paths:
+      mfcc: ./ignore/my_recordings/plots/mfcc/
+      z_score: ./ignore/my_recordings/plots/z_score/
+      onsets: ./ignore/my_recordings/plots/onsets/
+      waveform: ./ignore/my_recordings/plots/waveform/
+
+    # enable plot of each feature extraction
+    enable_plot: False
+
+    # recreate all datasets (copy wavs to data_paths - not necessary except the dataset is changed)
+    recreate: False
+
+    # selected labels of the whole set
+    sel_labels: ['left', 'right', 'up', 'down', 'go']
+    #sel_labels = ['eight', 'sheila', 'nine', 'yes', 'one', 'no', 'left', 'tree', 'bed', 'bird', 'go', 'wow', 'seven', 'marvin', 'dog', 'three', 'two', 'house', 'down', 'six', 'five', 'off', 'right', 'cat', 'zero', 'four', 'stop', 'up', 'on', 'happy']
+
+    # --
+    # version
+    # 1: better onset detection
+    # 2: energy frame onset detection
+    # 3: data extraction with min energy and randomize onsets
+    # 4: normalized features
+    version_nr: 4
+
+    # number of examples picked from dataset
+    n_examples: 5
+
+    # file name for saved feature files
+    feature_file_name: mfcc_data_my
+
+
+    # paths
+    out_path_root: ./ignore/my_recordings/
+    #in_path: ./ignore/my_recordings/raw/
+    #plot_path: ./ignore/my_recordings/plots/
+    wav_path: ./ignore/my_recordings/wavs/
+
+    # my recordins set name
+    #set_name: 'my'
 
 
 # --
-# feature params
+# feature params for dataset extraction
 feature_params:
 
   # sampling rate
@@ -72,34 +140,8 @@ feature_params:
   # mfcc feat size - do not change this
   feature_size: 39
 
-
-# --
-# my recording stuff
-my_recordings:
-
-  # paths
-  out_path_root: ./ignore/my_recordings/
-  in_path: ./ignore/my_recordings/raw/
-  plot_path: ./ignore/my_recordings/plots/
-  wav_path: ./ignore/my_recordings/wavs/
-
-  # my recordins set name
-  set_name: 'my'
-
-  # mfcc data file name
-  mfcc_file_name: mfcc_data_my
-
-  # enable plot
-  enable_plot: False
-
-  # force recut of recordings
-  recut: False
-
-  # number of examples per class
-  n_examples: 5
-
-  # selected labels for own recordings
-  sel_labels: ['left', 'right', 'up', 'down', 'go']
+  # normalized features -> [0, 1] over frames
+  norm_features: True
 
 
 # --
@@ -134,7 +176,7 @@ ml:
     batch_size: 32
 
     # number of epochs
-    num_epochs: 2
+    num_epochs: 10
 
     # learning rate
     lr: 0.0001
@@ -149,8 +191,8 @@ ml:
   nn_architectures: {1: 'conv-trad', 2: 'conv-fstride', 3: 'adv-experimental'}
 
   # chosen architecture
-  #nn_arch: conv-fstride
-  nn_arch: adv-experimental
+  nn_arch: conv-fstride
+  #nn_arch: adv-experimental
 
   # logging enable
   logging_enabled: True

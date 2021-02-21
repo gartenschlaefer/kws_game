@@ -14,27 +14,25 @@ class FeatureExtractor():
   feature extractor class with MFCC features
   """
 
-  def __init__(self, fs, N=400, hop=160, n_filter_bands=32, n_ceps_coeff=12, frame_size=32):
+  def __init__(self, feature_params):
 
-    # vars
-    self.fs = fs
-    self.N = N
-    self.hop = hop
-    self.n_filter_bands = n_filter_bands
-    self.n_ceps_coeff = n_ceps_coeff
-    self.frame_size = frame_size
+    # arguments
+    self.feature_params = feature_params
+
+    # windowing params
+    self.N, self.hop = int(self.feature_params['N_s'] * self.feature_params['fs']), int(self.feature_params['hop_s'] * self.feature_params['fs'])
 
     # calculate weights
-    self.w_f, _, _, _ = mel_band_weights(self.n_filter_bands, fs, N//2+1)
+    self.w_f, _, _, _ = mel_band_weights(self.feature_params['n_filter_bands'], self.feature_params['fs'], self.N//2+1)
 
 
-  def extract_mfcc39(self, x):
+  def extract_mfcc39(self, x, normalize=False, reduce_to_best_onset=True):
     """
     extract mfcc features fast
     """
 
     # pre processing
-    x_pre = pre_processing(x)
+    x_pre = self.pre_processing(x)
 
     # stft
     X = 2 / self.N * librosa.stft(x_pre, n_fft=self.N, hop_length=self.hop, win_length=self.N, window='hann', center=False).T
@@ -46,13 +44,13 @@ class FeatureExtractor():
     u = np.inner(E, self.w_f)
 
     # mfcc
-    mfcc = scipy.fftpack.dct(np.log(u), type=2, n=self.n_filter_bands, axis=1, norm=None, overwrite_x=False).T[:self.n_ceps_coeff]
+    mfcc = scipy.fftpack.dct(np.log(u), type=2, n=self.feature_params['n_filter_bands'], axis=1, norm=None, overwrite_x=False).T[:self.feature_params['n_ceps_coeff']]
 
     # compute deltas [feature x frames]
-    deltas = compute_deltas(mfcc)
+    deltas = self.compute_deltas(mfcc)
 
     # compute double deltas [feature x frames]
-    double_deltas = compute_deltas(deltas)
+    double_deltas = self.compute_deltas(deltas)
 
     # compute energies [1 x frames]
     e_mfcc = np.vstack((
@@ -64,11 +62,100 @@ class FeatureExtractor():
     # stack and get best onset
     mfcc_all = np.vstack((mfcc, deltas, double_deltas, e_mfcc))
 
+    # norm -> [0, 1]
+    if normalize:
+      for i, m in enumerate(mfcc_all):
+        mfcc_all[i] = (m + np.abs(np.min(m))) / np.linalg.norm(m + np.abs(np.min(m)), ord=np.infty)
+
     # find best onset
-    _, bon_pos = find_min_energy_region(mfcc_all, self.fs, self.hop)
+    _, bon_pos = self.find_min_energy_region(mfcc_all)
 
     # return best onset
-    return mfcc_all[:, bon_pos:bon_pos+self.frame_size], bon_pos
+    if reduce_to_best_onset:
+      return mfcc_all[:, bon_pos:bon_pos+self.feature_params['frame_size']], bon_pos
+
+    return mfcc_all, bon_pos
+
+
+  def pre_processing(self, x):
+    """
+    actual preprocessing with dithering and normalization
+    """
+    
+    # make a copy
+    x = x.copy()
+
+    # dither
+    x = self.add_dither(x)
+
+    # normalize input signal with infinity norm
+    x = librosa.util.normalize(x)
+
+    return x
+
+
+  def add_dither(self, x):
+    """
+    add a dither signal
+    """
+
+    # determine abs min value except from zero, for dithering
+    try:
+      min_val = np.min(np.abs(x[np.abs(x)>0]))
+    except:
+      print("only zeros in this signal")
+      min_val = 1e-4
+
+    # add some dither
+    x += np.random.normal(0, 0.5, len(x)) * min_val
+
+    return x
+
+
+  def compute_deltas(self, x):
+    """
+    compute deltas for mfcc [feature x frames]
+    """
+
+    # init
+    d = np.zeros(x.shape)
+    
+    # zero-padding
+    x_pad = np.pad(x, ((0, 0), (1, 1)))
+
+    # for all time frames
+    for t in range(x.shape[1]):
+      
+      # calculate diff
+      d[:, t] = (x_pad[:, t+2] - x_pad[:, t]) / 2
+
+    # clean first and last entry
+    d[:, -1] = d[:, -2]
+    d[:, 0] = d[:, 1]
+
+    return d
+
+
+  def find_min_energy_region(self, mfcc, randomize=False, rand_frame=5):
+    """
+    find frame with least amount of energy
+    """
+
+    # windowed [r x m x f]
+    x_win = np.squeeze(view_as_windows(mfcc[36, :], self.feature_params['frame_size'], step=1))
+
+    # best onset position
+    bon_pos = np.argmin(np.sum(x_win, axis=1))
+
+    # randomize a bit
+    if randomize:
+      bon_pos += np.random.randint(-rand_frame, rand_frame)
+      if bon_pos > x_win.shape[0]-1:
+        bon_pos = x_win.shape[0]-1
+      elif bon_pos < 0:
+        bon_pos = 0
+
+    return frames_to_time(bon_pos, self.feature_params['fs'], self.hop), bon_pos
 
 
   def extract_mfcc39_slow(self, x):
@@ -77,7 +164,7 @@ class FeatureExtractor():
     """
 
     # pre processing
-    x_pre = pre_processing(x)
+    x_pre = self.pre_processing(x)
 
     # stft
     X = custom_stft(x_pre, self.N, self.hop)
@@ -92,10 +179,10 @@ class FeatureExtractor():
     mfcc = (custom_dct(np.log(u), self.n_filter_bands).T)[:self.n_ceps_coeff]
 
     # compute deltas [feature x frames]
-    deltas = compute_deltas(mfcc)
+    deltas = self.compute_deltas(mfcc)
 
     # compute double deltas [feature x frames]
-    double_deltas = compute_deltas(deltas)
+    double_deltas = self.compute_deltas(deltas)
 
     # compute energies [1 x frames]
     e_mfcc = np.vstack((
@@ -108,33 +195,11 @@ class FeatureExtractor():
     mfcc_all = np.vstack((mfcc, deltas, double_deltas, e_mfcc))
 
     # find best onset
-    _, bon_pos = find_min_energy_region(mfcc_all, self.fs, self.hop)
+    _, bon_pos = self.find_min_energy_region(mfcc_all, self.fs, self.hop)
 
     # return best onset
     return mfcc_all[:, bon_pos:bon_pos+self.frame_size], bon_pos
 
-
-
-def find_min_energy_region(mfcc, fs, hop, frame_size=32, randomize=False, rand_frame=5):
-  """
-  find frame with least amount of energy
-  """
-
-  # windowed [r x m x f]
-  x_win = np.squeeze(view_as_windows(mfcc[36, :], frame_size, step=1))
-
-  # best onset position
-  bon_pos = np.argmin(np.sum(x_win, axis=1))
-
-  # randomize a bit
-  if randomize:
-    bon_pos += np.random.randint(-rand_frame, rand_frame)
-    if bon_pos > x_win.shape[0]-1:
-      bon_pos = x_win.shape[0]-1
-    elif bon_pos < 0:
-      bon_pos = 0
-
-  return frames_to_time(bon_pos, fs, hop), bon_pos
 
 
 def find_min_energy_time(mfcc, fs, hop):
@@ -191,19 +256,6 @@ def find_best_onset(onsets, frame_size=32, pre_frames=1):
   return best_onset, int(np.where(best_onset == 1)[0][0])
 
 
-def onset_energy_level(x, alpha=0.01):
-  """
-  onset detection with energy level
-  x: [n x c]
-  n: samples
-  c: channels
-  """
-
-  e = x.T @ x / len(x)
-
-  return e, e > alpha
-
-
 def frames_to_time(x, fs, hop):
   """
   transfer from frame space into time space (choose beginning of frame)
@@ -218,49 +270,6 @@ def frames_to_sample(x, fs, hop):
   """
 
   return x * hop
-
-
-def pre_processing(x):
-  """
-  actual preprocessing with dithering and normalization
-  """
-  
-  import librosa
-
-  # make a copy
-  x = x.copy()
-
-  # dither
-  x = add_dither(x)
-
-  # normalize input signal with infinity norm
-  x = librosa.util.normalize(x)
-
-  return x
-
-
-def compute_deltas(x):
-  """
-  compute deltas for mfcc [feature x frames]
-  """
-
-  # init
-  d = np.zeros(x.shape)
-  
-  # zero-padding
-  x_pad = np.pad(x, ((0, 0), (1, 1)))
-
-  # for all time frames
-  for t in range(x.shape[1]):
-    
-    # calculate diff
-    d[:, t] = (x_pad[:, t+2] - x_pad[:, t]) / 2
-
-  # clean first and last entry
-  d[:, -1] = d[:, -2]
-  d[:, 0] = d[:, 1]
-
-  return d
 
 
 def calc_mfcc39(x, fs, N=400, hop=160, n_filter_bands=32, n_ceps_coeff=12, use_librosa=False):
@@ -587,32 +596,11 @@ def create_frames(x, N, hop):
     if wi == win_num - 1 and r:
       windows[wi] = np.concatenate((x[wi * hop :], np.zeros(N - len(x[wi * hop :]))))
 
-      # add differ
-      #windows[wi] = add_dither(windows[wi])
-
     # no remainder
     else:
       windows[wi] = x[wi * hop : (wi * hop) + N]
 
   return windows
-
-
-def add_dither(x):
-  """
-  add a dither signal
-  """
-
-  # determine abs min value except from zero, for dithering
-  try:
-    min_val = np.min(np.abs(x[np.abs(x)>0]))
-  except:
-    print("only zeros in this signal")
-    min_val = 1e-4
-
-  # add some dither
-  x += np.random.normal(0, 0.5, len(x)) * min_val
-
-  return x
 
 
 def some_test_signal(fs, t=1, f=500, sig_type='modulated', save_to_file=False):
@@ -742,13 +730,13 @@ def test_some_mfccs(x, fs, N, hop, n_filter_bands, n_ceps_coeff):
   plt.show()
 
 
-def time_measurements(x, u, fs, N, hop, n_filter_bands, n_ceps_coeff):
+def time_measurements(x, u, feature_params):
   """
   time measurements
   """
 
   # create feature extractor
-  feature_extractor = FeatureExtractor(fs, N=N, hop=hop, n_filter_bands=n_filter_bands, n_ceps_coeff=n_ceps_coeff, frame_size=32)
+  feature_extractor = FeatureExtractor(feature_params)
 
   # n measurements
   delta_time_list = []
@@ -800,6 +788,7 @@ if __name__ == '__main__':
   main file of feature extraction and how to use it
   """
   
+  import yaml
   import time
   import matplotlib.pyplot as plt
   import librosa.display
@@ -815,13 +804,21 @@ if __name__ == '__main__':
   # create folder
   create_folder([plot_path])
 
+  # yaml config file
+  cfg = yaml.safe_load(open("./config.yaml"))
+
+
+  # init feature extractor
+  feature_extractor = FeatureExtractor(cfg['feature_params'])
+
+
   # --
   # params
 
   fs = 16000
   N = 400
   hop = 160
-  n_filter_bands = 32
+  n_filter_bands = 16
   n_ceps_coeff = 12
 
 
@@ -831,12 +828,17 @@ if __name__ == '__main__':
   # generate test signal
   x = some_test_signal(fs, t=1, save_to_file=False)
 
+  # mfcc
+  mfcc, _ = feature_extractor.extract_mfcc39(x)
+
+  print("mfcc: ", mfcc.shape)
+
 
   # --
   # workflow
 
   # create mel bands
-  w_f, w_mel, f, m = mel_band_weights(n_bands=32, fs=fs, N=N//2+1)
+  w_f, w_mel, f, m = mel_band_weights(n_bands=n_filter_bands, fs=fs, N=N//2+1)
 
   # stft
   X = 2 / N * librosa.stft(x, n_fft=N, hop_length=hop, win_length=N, window='hann', center=False).T
@@ -872,11 +874,11 @@ if __name__ == '__main__':
   # other stuff
 
   # time measurement
-  #time_measurements(x, u, fs, N, hop, n_filter_bands, n_ceps_coeff)
+  #time_measurements(x, u, cfg['feature_params'])
 
   # plot stuff
-  #plot_mel_band_weights(w_f, w_mel, f, m, plot_path=plot_path, name='weights')
-  #plt.show()
+  plot_mel_band_weights(w_f, w_mel, f, m, plot_path=None, name='weights')
+  plt.show()
 
 
 

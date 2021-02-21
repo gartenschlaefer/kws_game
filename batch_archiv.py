@@ -62,7 +62,6 @@ class BatchArchiv():
     """
 
     # get index from class dict
-    #y_index = np.array([self.class_dict[i] for i in y], dtype=np.int16)
     y_index = np.array([self.class_dict[i] for i in y])
 
     # to torch if necessary
@@ -70,6 +69,56 @@ class BatchArchiv():
       y_index = torch.from_numpy(y_index)
 
     return y_index
+
+
+  def reduce_to_label(self, label):
+    """
+    reduce to only one label
+    """
+
+    # safety
+    if label not in self.class_dict.keys():
+      print("***unknown label")
+      return
+
+    # training batches
+    if self.y_train is not None:
+      self.x_train, self.y_train = self.reduce_to_label_algorithm(label, self.x_train, self.y_train)
+
+    # validation batches
+    if self.y_val is not None:
+      self.x_val, self.y_val = self.reduce_to_label_algorithm(label, self.x_val, self.y_val)
+
+    # test batches
+    if self.y_test is not None:
+      self.x_test, self.y_test = self.reduce_to_label_algorithm(label, self.x_test, self.y_test)
+
+
+  def reduce_to_label_algorithm(self, label, x, y):
+    """
+    reduce algorithm
+    """
+
+    # get label vector and feature shape
+    label_vector = y == self.class_dict[label]
+    f_shape = x.shape[2:]
+
+    # get labels
+    x = x[label_vector]
+    y = y[label_vector]
+
+    # reshape
+    x = x[:len(x)-len(x)%self.batch_size].reshape((-1, self.batch_size) + f_shape)
+    y = y[:len(y)-len(y)%self.batch_size].reshape((-1, self.batch_size))
+
+    return x, y
+
+
+  def extract(self):
+    """
+    extract data interface
+    """
+    pass
 
 
 
@@ -221,7 +270,9 @@ if __name__ == '__main__':
   """
 
   import yaml
+  import matplotlib.pyplot as plt
   from path_collector import PathCollector
+  from plots import plot_mfcc_only
 
   # yaml config file
   cfg = yaml.safe_load(open("./config.yaml"))
@@ -243,3 +294,24 @@ if __name__ == '__main__':
 
   print("x_my: ", batches.x_my.shape)
   print("y_my: ", batches.y_my.shape)
+
+  plot_mfcc_only(batches.x_train[0, 0, 0], fs=16000, hop=160, plot_path=None, name='None')
+  plt.show()
+
+  batches.reduce_to_label("up")
+  print("\nreduced:")
+
+  print("x_train: ", batches.x_train.shape)
+  print("y_train: ", batches.y_train.shape)
+
+  print("x_val: ", batches.x_val.shape)
+  print("y_val: ", batches.y_val.shape)
+
+  print("x_test: ", batches.x_test.shape)
+  print("y_test: ", batches.y_test.shape)
+
+  print("x_my: ", batches.x_my.shape)
+  print("y_my: ", batches.y_my.shape)
+
+  plot_mfcc_only(batches.x_train[0, 0, 0], fs=16000, hop=160, plot_path=None, name='None')
+  plt.show()

@@ -9,7 +9,7 @@ import queue
 import sounddevice as sd
 
 # my stuff
-from feature_extraction import FeatureExtractor, onset_energy_level
+from feature_extraction import FeatureExtractor
 from collector import Collector
 from classifier import Classifier
 
@@ -39,7 +39,7 @@ class Mic():
     self.collector = Collector(N=self.N, hop=self.hop, frame_size=self.feature_params['frame_size'], update_size=self.mic_params['update_size'], frames_post=self.mic_params['frames_post'], is_audio_record=self.is_audio_record)
 
     # feature extractor
-    self.feature_extractor = FeatureExtractor(self.feature_params['fs'], N=self.N, hop=self.hop, n_filter_bands=self.feature_params['n_filter_bands'], n_ceps_coeff=self.feature_params['n_ceps_coeff'], frame_size=self.feature_params['frame_size'])
+    self.feature_extractor = FeatureExtractor(self.feature_params)
 
     # select microphone yourself (usually not necessary)
     if mic_params['select_device']:
@@ -81,7 +81,7 @@ class Mic():
       x = self.q.get()
 
       # onset and energy archiv
-      e, _ = onset_energy_level(x, alpha=self.mic_params['energy_thres'])
+      e, _ = self.onset_energy_level(x, alpha=self.mic_params['energy_thres'])
 
       # update collector
       self.collector.x_all = np.append(self.collector.x_all, x)
@@ -115,12 +115,25 @@ class Mic():
         e_collect = np.append(e_collect, 1)
 
       # detect onset
-      e_onset, is_onset = onset_energy_level(x_collect, alpha=self.mic_params['energy_thres'])
+      e_onset, is_onset = self.onset_energy_level(x_collect, alpha=self.mic_params['energy_thres'])
 
       # collection update
       self.collector.update_collect(x_collect.copy(), e=e_collect.copy()*e_onset, on=is_onset)
 
     return is_onset
+
+
+  def onset_energy_level(self, x, alpha=0.01):
+    """
+    onset detection with energy level
+    x: [n x c]
+    n: samples
+    c: channels
+    """
+
+    e = x.T @ x / len(x)
+
+    return e, e > alpha
 
 
   def update_read_command(self):

@@ -5,6 +5,27 @@ contains common fuctions
 import os
 
 
+def check_folders_existance(folders, empty_check=False):
+  """
+  check if all folders exist
+  """
+
+  for f in folders:
+
+    # existance check
+    if not os.path.isdir(f):
+      print("folder does not exists: ", f)
+      return False
+
+    # empty check
+    if empty_check:
+      if not len(os.listdir(f)):
+        print("folder is empty: ", f)
+        return False
+
+  return True
+
+
 def check_files_existance(files):
   """
   check if file exist
