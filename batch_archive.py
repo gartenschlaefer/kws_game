@@ -6,10 +6,11 @@ import numpy as np
 import torch
 
 
-class BatchArchiv():
+class BatchArchive():
   """
   Batch Archiv interface 
   collector of training, validation, test adn my data batches
+  x: data, y: label_num, z: index
   """
 
   def __init__(self, batch_size=4, batch_size_eval=4):
@@ -21,14 +22,17 @@ class BatchArchiv():
     # training batches
     self.x_train = None
     self.y_train = None
+    self.z_train = None
 
     # validation batches
     self.x_val = None
     self.y_val = None
+    self.z_val = None
 
     # test batches
     self.x_test = None
     self.y_test = None
+    self.z_test = None
 
     # my batches
     self.x_my = None
@@ -122,22 +126,22 @@ class BatchArchiv():
 
 
 
-class SpeechCommandsBatchArchiv(BatchArchiv):
+class SpeechCommandsBatchArchive(BatchArchive):
   """
-  creates batches from mfcc files saved as .npz [train, test, eval]
+  creates batches from feature files saved as .npz [train, test, eval]
   """
 
-  def __init__(self, mfcc_data_files, batch_size=4, batch_size_eval=4, to_torch=True):
+  def __init__(self, feature_files, batch_size=4, batch_size_eval=4, to_torch=True):
 
     # parent init
     super().__init__(batch_size, batch_size_eval)
 
     # params
-    self.mfcc_data_files = mfcc_data_files
+    self.feature_files = feature_files
     self.to_torch = to_torch
 
     # load files [0]: train, etc.
-    self.data = [np.load(file, allow_pickle=True) for file in self.mfcc_data_files]
+    self.data = [np.load(file, allow_pickle=True) for file in self.feature_files]
 
     # feature params
     self.feature_params = self.data[0]['params']
@@ -161,12 +165,12 @@ class SpeechCommandsBatchArchiv(BatchArchiv):
     print("\n--extract batches from data:\ntrain: {}\nval: {}\ntest: {}\n".format(self.data[0]['x'].shape, self.data[1]['x'].shape, self.data[2]['x'].shape))
 
     # create batches
-    self.x_train, self.y_train, _ = self.create_batches(self.data[0], batch_size=self.batch_size)
-    self.x_val, self.y_val, _ = self.create_batches(self.data[1], batch_size=self.batch_size_eval)
-    self.x_test, self.y_test, _ = self.create_batches(self.data[2], batch_size=self.batch_size_eval)
+    self.x_train, self.y_train, self.z_train = self.create_batches(self.data[0], batch_size=self.batch_size)
+    self.x_val, self.y_val, self.z_val = self.create_batches(self.data[1], batch_size=self.batch_size_eval)
+    self.x_test, self.y_test, self.z_test = self.create_batches(self.data[2], batch_size=self.batch_size_eval)
 
-    # my data
-    if len(self.mfcc_data_files) == 4:
+    # my data included
+    if len(self.feature_files) == 4:
       self.x_my, self.y_my, self.z_my = self.create_batches(self.data[3], batch_size=1)
 
 
@@ -178,11 +182,11 @@ class SpeechCommandsBatchArchiv(BatchArchiv):
     N: Amount of batches
     b: batch size
     m: feature size
-    f: frame length
+    f: frame size
     """
 
     # extract data
-    x_data, y_data, index, params = data['x'], data['y'], data['index'], data['params']
+    x_data, y_data, z_data, params = data['x'], data['y'], data['index'], data['params']
 
     # get shape of things
     n, m, l = x_data.shape
@@ -191,7 +195,7 @@ class SpeechCommandsBatchArchiv(BatchArchiv):
     indices = np.random.permutation(x_data.shape[0])
     x = np.take(x_data, indices, axis=0)
     y = np.take(y_data, indices, axis=0)
-    z = np.take(index, indices, axis=0)
+    z = np.take(z_data, indices, axis=0)
 
     # number of windows
     batch_nums = x.shape[0] // batch_size
@@ -281,37 +285,37 @@ if __name__ == '__main__':
   path_coll = PathCollector(cfg)
 
   # create batches
-  batches = SpeechCommandsBatchArchiv(path_coll.mfcc_data_files_all, batch_size=32, batch_size_eval=4)
+  batch_archive = SpeechCommandsBatchArchive(path_coll.mfcc_data_files_all, batch_size=32, batch_size_eval=4)
 
-  print("x_train: ", batches.x_train.shape)
-  print("y_train: ", batches.y_train.shape)
+  print("x_train: ", batch_archive.x_train.shape)
+  print("y_train: ", batch_archive.y_train.shape)
 
-  print("x_val: ", batches.x_val.shape)
-  print("y_val: ", batches.y_val.shape)
+  print("x_val: ", batch_archive.x_val.shape)
+  print("y_val: ", batch_archive.y_val.shape)
 
-  print("x_test: ", batches.x_test.shape)
-  print("y_test: ", batches.y_test.shape)
+  print("x_test: ", batch_archive.x_test.shape)
+  print("y_test: ", batch_archive.y_test.shape)
 
-  print("x_my: ", batches.x_my.shape)
-  print("y_my: ", batches.y_my.shape)
+  print("x_my: ", batch_archive.x_my.shape)
+  print("y_my: ", batch_archive.y_my.shape)
 
-  plot_mfcc_only(batches.x_train[0, 0, 0], fs=16000, hop=160, plot_path=None, name='None')
+  plot_mfcc_only(batch_archive.x_train[0, 0, 0], fs=16000, hop=160, plot_path=None, name='None')
   plt.show()
 
-  batches.reduce_to_label("up")
+  batch_archive.reduce_to_label("up")
   print("\nreduced:")
 
-  print("x_train: ", batches.x_train.shape)
-  print("y_train: ", batches.y_train.shape)
+  print("x_train: ", batch_archive.x_train.shape)
+  print("y_train: ", batch_archive.y_train.shape)
 
-  print("x_val: ", batches.x_val.shape)
-  print("y_val: ", batches.y_val.shape)
+  print("x_val: ", batch_archive.x_val.shape)
+  print("y_val: ", batch_archive.y_val.shape)
 
-  print("x_test: ", batches.x_test.shape)
-  print("y_test: ", batches.y_test.shape)
+  print("x_test: ", batch_archive.x_test.shape)
+  print("y_test: ", batch_archive.y_test.shape)
 
-  print("x_my: ", batches.x_my.shape)
-  print("y_my: ", batches.y_my.shape)
+  print("x_my: ", batch_archive.x_my.shape)
+  print("y_my: ", batch_archive.y_my.shape)
 
-  plot_mfcc_only(batches.x_train[0, 0, 0], fs=16000, hop=160, plot_path=None, name='None')
+  plot_mfcc_only(batch_archive.x_train[0, 0, 0], fs=16000, hop=160, plot_path=None, name='None')
   plt.show()

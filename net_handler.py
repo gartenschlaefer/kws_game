@@ -104,14 +104,14 @@ class NetHandler():
 		pass
 
 
-	def train_nn(self, train_params, batch_archiv):
+	def train_nn(self, train_params, batch_archive):
 		"""
 		train interface
 		"""
 		return TrainScore(train_params['num_epochs'])
 
 
-	def eval_nn(self, eval_set, batch_archiv, calc_cm=False, verbose=False):
+	def eval_nn(self, eval_set, batch_archive, calc_cm=False, verbose=False):
 		"""
 		evaluation interface
 		"""
@@ -210,7 +210,7 @@ class CnnHandler(NetHandler):
 			torch.save(self.model.state_dict(), path_coll.model_pre_file)
 
 
-	def train_nn(self, train_params, batch_archiv):
+	def train_nn(self, train_params, batch_archive):
 		"""
 		train the neural network
 		train_params: {'num_epochs': [], 'lr': [], 'momentum': []}
@@ -233,7 +233,7 @@ class CnnHandler(NetHandler):
 
 			# TODO: do this with loader function from pytorch (maybe or not)
 			# fetch data samples
-			for i, (x, y) in enumerate(zip(batch_archiv.x_train.to(self.device), batch_archiv.y_train.to(self.device))):
+			for i, (x, y) in enumerate(zip(batch_archive.x_train.to(self.device), batch_archive.y_train.to(self.device))):
 
 				# zero parameter gradients
 				optimizer.zero_grad()
@@ -254,11 +254,11 @@ class CnnHandler(NetHandler):
 				train_score.update_batch_losses(epoch, loss.item())
 
 				# print some infos
-				self.print_train_info(epoch, i, train_score, k_print=batch_archiv.y_train.shape[0] // 10)
+				self.print_train_info(epoch, i, train_score, k_print=batch_archive.y_train.shape[0] // 10)
 				train_score.reset_batch_losses()
 
 			# valdiation
-			eval_score = self.eval_nn('val', batch_archiv)
+			eval_score = self.eval_nn('val', batch_archive)
 
 			# update score collector
 			train_score.val_loss[epoch], train_score.val_acc[epoch] = eval_score.loss, eval_score.acc
@@ -273,14 +273,14 @@ class CnnHandler(NetHandler):
 		return train_score
 
 
-	def eval_nn(self, eval_set, batch_archiv, calc_cm=False, verbose=False):
+	def eval_nn(self, eval_set, batch_archive, calc_cm=False, verbose=False):
 		"""
 		evaluation of nn
 		use eval_set out of ['val', 'test', 'my']
 		"""
 
 		# select the evaluation set
-		x_eval, y_eval, z_eval = self.eval_select_set(eval_set, batch_archiv)
+		x_eval, y_eval, z_eval = self.eval_select_set(eval_set, batch_archive)
 
 		# if set does not exist
 		if x_eval is None or y_eval is None:
@@ -321,7 +321,7 @@ class CnnHandler(NetHandler):
 		return eval_score
 
 
-	def eval_select_set(self, eval_set, batch_archiv):
+	def eval_select_set(self, eval_set, batch_archive):
 		"""
 		select set to evaluate
 		"""
@@ -331,15 +331,15 @@ class CnnHandler(NetHandler):
 
 		# validation set
 		if eval_set == 'val':
-			x_eval, y_eval, z_eval = batch_archiv.x_val, batch_archiv.y_val, None
+			x_eval, y_eval, z_eval = batch_archive.x_val, batch_archive.y_val, None
 
 		# test set
 		elif eval_set == 'test':
-			x_eval, y_eval, z_eval = batch_archiv.x_test, batch_archiv.y_test, None
+			x_eval, y_eval, z_eval = batch_archive.x_test, batch_archive.y_test, None
 
 		# my test set
 		elif eval_set == 'my':
-			x_eval, y_eval, z_eval = batch_archiv.x_my, batch_archiv.y_my, batch_archiv.z_my
+			x_eval, y_eval, z_eval = batch_archive.x_my, batch_archive.y_my, batch_archive.z_my
 
 		# set not found
 		else:
@@ -475,7 +475,7 @@ class AdversarialNetHandler(NetHandler):
 		#	torch.save(self.model.state_dict(), model_pre_file)
 
 
-	def train_nn(self, train_params, batch_archiv, callback_f=None):
+	def train_nn(self, train_params, batch_archive, callback_f=None):
 		"""
 		train adversarial nets
 		"""
@@ -499,7 +499,7 @@ class AdversarialNetHandler(NetHandler):
 		for epoch in range(train_params['num_epochs']):
 
 			# fetch data samples
-			for i, x in enumerate(batch_archiv.x_train.to(self.device)):
+			for i, x in enumerate(batch_archive.x_train.to(self.device)):
 
 				# zero parameter gradients
 				self.D.zero_grad()
@@ -509,7 +509,7 @@ class AdversarialNetHandler(NetHandler):
 				# train with real batch
 
 				# labels for batch
-				y = torch.full((batch_archiv.batch_size,), self.real_label, dtype=torch.float, device=self.device)
+				y = torch.full((batch_archive.batch_size,), self.real_label, dtype=torch.float, device=self.device)
 
 				# forward pass o:[b x c]
 				o = self.D(x).view(-1)
@@ -524,7 +524,7 @@ class AdversarialNetHandler(NetHandler):
 				# train with fake batch
 
 				# create noise as input
-				noise = torch.randn(batch_archiv.batch_size, self.G.n_latent, device=self.device)
+				noise = torch.randn(batch_archive.batch_size, self.G.n_latent, device=self.device)
 
 				# create fakes through Generator
 				fakes = self.G(noise)
@@ -568,7 +568,7 @@ class AdversarialNetHandler(NetHandler):
 				train_score.update_batch_losses(epoch, loss=0.0, g_loss=g_loss.item(), d_loss_real=d_loss_real.item(), d_loss_fake=d_loss_fake.item())
 
 				# print some infos
-				self.print_train_info(epoch, i, train_score, k_print=batch_archiv.y_train.shape[0] // 10)
+				self.print_train_info(epoch, i, train_score, k_print=batch_archive.y_train.shape[0] // 10)
 				train_score.reset_batch_losses()
 
 
@@ -606,7 +606,7 @@ class AdversarialNetHandler(NetHandler):
 
 
 
-def cnn_analytics(cfg, batch_archiv):
+def cnn_analytics(cfg, batch_archive):
 	"""
 	evaluate convolutional networks
 	"""
@@ -615,10 +615,10 @@ def cnn_analytics(cfg, batch_archiv):
 	cnn_handler = CnnHandler(nn_arch='conv-fstride', n_classes=5, use_cpu=False)
 
 	# training
-	cnn_handler.train_nn(cfg['ml']['train_params'], batch_archiv=batch_archiv)
+	cnn_handler.train_nn(cfg['ml']['train_params'], batch_archive=batch_archive)
 
 	# validation
-	cnn_handler.eval_nn(eval_set='val', batch_archiv=batch_archiv, calc_cm=False, verbose=False)
+	cnn_handler.eval_nn(eval_set='val', batch_archive=batch_archive, calc_cm=False, verbose=False)
 
 	# classify sample
 	y_hat, o = cnn_handler.classify_sample(np.random.randn(39, 32))
@@ -661,7 +661,7 @@ def create_anim(path_coll):
 	ani.save("{}anim.mp4".format(path_coll.model_path))
 
 
-def adversarial_analytics(cfg, path_coll, batch_archiv):
+def adversarial_analytics(cfg, path_coll, batch_archive):
 	"""
 	evaluate the adversarial networks
 	"""
@@ -669,14 +669,17 @@ def adversarial_analytics(cfg, path_coll, batch_archiv):
 	# adversarial
 	adv_handler = AdversarialNetHandler(nn_arch='adv-experimental', use_cpu=False)
 
+	# reduce batch archieve to one label
+
+
 	# check if model already exists
 	if not os.path.exists(path_coll.adv_g_model_file) or not os.path.exists(path_coll.adv_d_model_file) or cfg['ml']['retrain']:
 
 		# train
-		train_score = adv_handler.train_nn(cfg['ml']['train_params'], batch_archiv=batch_archiv, callback_f=image_collect)
+		train_score = adv_handler.train_nn(cfg['ml']['train_params'], batch_archive=batch_archive, callback_f=image_collect)
 
 		# save model
-		adv_handler.save_model(path_coll=path_coll, train_params=cfg['ml']['train_params'], class_dict=batch_archiv.class_dict, train_score=train_score, save_as_pre_model=cfg['ml']['save_as_pre_model'])
+		adv_handler.save_model(path_coll=path_coll, train_params=cfg['ml']['train_params'], class_dict=batch_archive.class_dict, train_score=train_score, save_as_pre_model=cfg['ml']['save_as_pre_model'])
 
 		# plots
 		plot_train_loss(train_score.train_loss, train_score.val_loss, plot_path=path_coll.model_path, name='train_loss')
@@ -706,7 +709,7 @@ if __name__ == '__main__':
 	import matplotlib.animation as animation
 	import os
 
-	from batch_archiv import SpeechCommandsBatchArchiv
+	from batch_archive import SpeechCommandsBatchArchive
 	from path_collector import PathCollector
 	from plots import plot_val_acc, plot_train_loss, plot_mfcc_only
 
@@ -720,19 +723,14 @@ if __name__ == '__main__':
 	path_coll.create_ml_folders()
 
 	# create batches
-	batch_archiv = SpeechCommandsBatchArchiv(path_coll.mfcc_data_files_all, batch_size=32, batch_size_eval=4)
+	batch_archive = SpeechCommandsBatchArchive(path_coll.mfcc_data_files_all, batch_size=32, batch_size_eval=4)
 
 	# global vars
 	global img_list
 	img_list = []
 
 	# cnn analytics
-	cnn_analytics(cfg, batch_archiv)
+	#cnn_analytics(cfg, batch_archive)
 
 	# adversarial analytics
-	#adversarial_analytics(cfg, path_coll, batch_archiv)
-
-
-
-
-
+	#adversarial_analytics(cfg, path_coll, batch_archive)

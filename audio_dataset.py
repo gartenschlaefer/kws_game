@@ -469,6 +469,8 @@ if __name__ == '__main__':
 	"""
 
 	import yaml
+	from batch_archive import SpeechCommandsBatchArchive
+	from plots import plot_mfcc_only
 
 	# yaml config file
 	cfg = yaml.safe_load(open("./config.yaml"))
@@ -478,7 +480,13 @@ if __name__ == '__main__':
 	#audio_dataset = MyRecordingsDataset(cfg['datasets']['my_recordings'], feature_params=cfg['feature_params'], verbose=False)
 
 	# extract and save features
-	audio_dataset.extract_features()
+	#audio_dataset.extract_features()
+
+	# batches
+	batch_archive = SpeechCommandsBatchArchive(feature_files=audio_dataset.feature_files, batch_size=32, batch_size_eval=4, to_torch=False)
+
+	print("archive: ", batch_archive.x_train.shape)
+	plot_mfcc_only(batch_archive.x_train[0, 0], name=batch_archive.z_train[0, 0])
 
 
 

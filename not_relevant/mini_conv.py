@@ -15,11 +15,11 @@ from glob import glob
 
 sys.path.append("../")
 
-from batch_archiv import BatchArchiv
+from batch_archive import BatchArchive
 from net_handler import CnnHandler
 
 
-class PixelCharactersBatchArchiv(BatchArchiv):
+class PixelCharactersBatchArchive(BatchArchive):
 	"""
 	Batch Archiv for Pixel Characters
 	"""
@@ -130,22 +130,22 @@ if __name__ == '__main__':
 
 
 	# create batch archiv
-	batch_archiv = PixelCharactersBatchArchiv(batch_size=1, batch_size_eval=1, to_torch=True)
-	batch_archiv.create_class_dictionary(label_data)
+	batch_archive = PixelCharactersBatchArchiv(batch_size=1, batch_size_eval=1, to_torch=True)
+	batch_archive.create_class_dictionary(label_data)
 
 	# [num_batches x batch_size x channel x 39 x 32]
-	batch_archiv.x_train = torch.unsqueeze(torch.from_numpy(image_data.astype(np.float32)).permute(0, 3, 1, 2), 0)
+	batch_archive.x_train = torch.unsqueeze(torch.from_numpy(image_data.astype(np.float32)).permute(0, 3, 1, 2), 0)
 
 	# get labels
-	batch_archiv.y_train = torch.unsqueeze(batch_archiv.get_index_of_class(label_data, to_torch=True), 0)
+	batch_archive.y_train = torch.unsqueeze(batch_archive.get_index_of_class(label_data, to_torch=True), 0)
 
 	# validation set is train set
-	batch_archiv.x_val = batch_archiv.x_train
-	batch_archiv.y_val = batch_archiv.y_train
+	batch_archive.x_val = batch_archive.x_train
+	batch_archive.y_val = batch_archive.y_train
 
-	print("batch_archiv: ", batch_archiv.class_dict)
-	print("batch_archiv.x_train: ", batch_archiv.x_train.shape)
-	print("batch_archiv.y_train: ", batch_archiv.y_train)
+	print("batch_archive: ", batch_archive.class_dict)
+	print("batch_archive.x_train: ", batch_archive.x_train.shape)
+	print("batch_archive.y_train: ", batch_archive.y_train)
 
 	# net handler
 	net_handler = CnnHandler(nn_arch='mini', n_classes=2, use_cpu=False)
@@ -153,10 +153,10 @@ if __name__ == '__main__':
 	# init model
 	net_handler.model = ConvPixelCharacters(n_classes=2)
 	net_handler.model.to(net_handler.device)
-	#net_handler.model(batch_archiv.x_train[0])
+	#net_handler.model(batch_archive.x_train[0])
 
 	# training
-	net_handler.train_nn(cfg['ml']['train_params'], batch_archiv=batch_archiv)
+	net_handler.train_nn(cfg['ml']['train_params'], batch_archive=batch_archive)
 
-	#plt.imshow(batch_archiv.x_train[0, 5].permute(1, 2, 0))
+	#plt.imshow(batch_archive.x_train[0, 5].permute(1, 2, 0))
 	#plt.show()

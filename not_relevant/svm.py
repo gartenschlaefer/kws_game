@@ -16,7 +16,7 @@ from sklearn import svm
 # my stuff
 from path_collector import PathCollector
 from plots import plot_val_acc, plot_train_loss, plot_confusion_matrix
-from batch_archiv import SpeechCommandsBatchArchiv
+from batch_archive import SpeechCommandsBatchArchive
 
 
 if __name__ == '__main__':
@@ -38,13 +38,13 @@ if __name__ == '__main__':
   # batches
 
   # create batch archiv
-  batch_archiv = SpeechCommandsBatchArchiv(path_coll.mfcc_data_files_all, batch_size=1, to_torch=False)
+  batch_archive = SpeechCommandsBatchArchive(path_coll.mfcc_data_files_all, batch_size=1, to_torch=False)
 
   # print classes
-  print("classes: ", batch_archiv.classes)
+  print("classes: ", batch_archive.classes)
 
-  x = np.squeeze(batch_archiv.x_train, axis=1).reshape(batch_archiv.x_train.shape[0], -1)
-  y = np.squeeze(batch_archiv.y_train, axis=1)
+  x = np.squeeze(batch_archive.x_train, axis=1).reshape(batch_archive.x_train.shape[0], -1)
+  y = np.squeeze(batch_archive.y_train, axis=1)
 
   #print("x: ", x.shape)
   #print("y: ", y.shape)

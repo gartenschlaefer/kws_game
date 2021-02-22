@@ -218,17 +218,15 @@ def plot_mfcc_profile(x, fs, N, hop, mfcc, onsets=None, bon_pos=None, mient=None
   if minreg is not None:
     plt.axvline(x=minreg, dashes=(5, 5), color='g', lw=2)
 
+  # onset marks
   if onsets is not None:
-    # onsets to time
     onset_times = onsets_to_onset_times(onsets, fs, N, hop)
-    # draw onsets
     for onset in onset_times:
       plt.axvline(x=float(onset), dashes=(5, 1), color='k', lw=1)
 
+  # best onset mark
   if bon_pos is not None:
-    # care for best onset
     best_onset_times = frames_to_time(np.array([bon_pos, bon_pos+frame_size]), fs, hop)
-    # best onset + frame
     for onset in best_onset_times:
       plt.axvline(x=float(onset), dashes=(3, 3), color='b', lw=2)
 
@@ -251,15 +249,8 @@ def plot_mfcc_profile(x, fs, N, hop, mfcc, onsets=None, bon_pos=None, mient=None
     # specify grid pos
     ax = fig.add_subplot(gs[rs:re, :n_cols-2])
 
-    #im = ax.imshow(mfcc[c], aspect='auto', extent = [0, mfcc[c].shape[1], c[-1], c[0]])
-    im = ax.imshow(mfcc[c], aspect='auto', extent = [0, t[-1], c[-1], c[0]])
-
-    # color limited
-    # if titles[i] != 'energies':
-    #   im = ax.imshow(mfcc[c], aspect='auto', extent = [0, t[-1], c[-1], c[0]], vmin=-100, vmax=np.max(mfcc[c]))
-    #
-    # else:
-    #   im = ax.imshow(mfcc[c], aspect='auto', extent = [0, t[-1], c[-1], c[0]])
+    # plot image coeffs
+    im = ax.imshow(mfcc[c], aspect='auto', extent=[0, t[-1], c[-1], c[0]])
 
     # some labels
     ax.set_title(titles[i])
@@ -278,7 +269,7 @@ def plot_mfcc_profile(x, fs, N, hop, mfcc, onsets=None, bon_pos=None, mient=None
   plt.close()
 
 
-def plot_mfcc_only(mfcc, fs=16000, hop=160, plot_path=None, name='None'):
+def plot_mfcc_only(mfcc, fs=16000, hop=160, plot_path=None, name='None', show_plot=True):
   """
   plot mfcc extracted features only (no time series)
   mfcc: [m x l]
@@ -329,6 +320,9 @@ def plot_mfcc_only(mfcc, fs=16000, hop=160, plot_path=None, name='None'):
   if plot_path is not None:
     plt.savefig(plot_path + 'mfcc-only_' + name + '.png', dpi=150)
     plt.close()
+
+  elif show_plot:
+    plt.show()
 
 
 def plot_mel_band_weights(w_f, w_mel, f, m, plot_path=None, name='weights'):
