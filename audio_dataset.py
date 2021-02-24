@@ -83,21 +83,20 @@ class AudioDataset():
 		return [[data_path1], [data_path2], ...]
 		"""
 
-		print("\n--get audiofiles:")
-
 		# for all data paths (train, test, eval)
 		for dpi, data_path in enumerate(list(self.dataset_cfg['data_paths'].values())):
 
 			# determine set name
-			set_name = re.sub(r'/', '', re.findall(r'[\w+ 0-9]+/', data_path)[-1])
-			print("set name: ", set_name)
-			self.set_names.append(set_name)
+			self.set_names.append(re.sub(r'/', '', re.findall(r'[\w+ 0-9]+/', data_path)[-1]))
 
 			# init set files
 			set_files = []
 
 			# get all wavs from selected labels
 			for l in self.dataset_cfg['sel_labels']:
+
+				# append to labels
+				self.labels.append(l)
 
 				# regex
 				file_name_re = '*' + l + '[0-9]*' + self.dataset_cfg['file_ext']
@@ -111,7 +110,7 @@ class AudioDataset():
 
 				# check label num
 				if len(label_files) < int(self.dataset_cfg['n_examples'] * self.dataset_cfg['split_percs'][dpi]):
-					print("***[get_audiofiles] labels are less than n_examples, recreate dataset and check files")
+					print("***[audio set] labels are less than n_examples, recreate dataset and check files")
 					import sys
 					sys.exit()
 
@@ -186,9 +185,6 @@ class SpeechCommandsDataset(AudioDataset):
 
 			# extract label
 			label = class_dir.split('/')[-2]
-
-			# append to label list
-			self.labels.append(label)
 
 			# get all .wav files
 			wavs = glob(class_dir + '*' + self.dataset_cfg['file_ext'])
@@ -375,9 +371,6 @@ class MyRecordingsDataset(SpeechCommandsDataset):
 			# filename extraction
 			file_name, file_index, label = self.file_naming_extraction(wav)
 
-			# append to label list
-			self.labels.append(label)
-
 			# read audio from file
 			x, _ = librosa.load(wav, sr=self.feature_params['fs'])
 
@@ -476,17 +469,18 @@ if __name__ == '__main__':
 	cfg = yaml.safe_load(open("./config.yaml"))
 
 	# audioset init
-	audio_dataset = SpeechCommandsDataset(cfg['datasets']['speech_commands'], feature_params=cfg['feature_params'], verbose=False)
-	#audio_dataset = MyRecordingsDataset(cfg['datasets']['my_recordings'], feature_params=cfg['feature_params'], verbose=False)
+	audio_set1 = SpeechCommandsDataset(cfg['datasets']['speech_commands'], feature_params=cfg['feature_params'], verbose=False)
+	audio_set2 = MyRecordingsDataset(cfg['datasets']['my_recordings'], feature_params=cfg['feature_params'], verbose=False)
 
 	# extract and save features
-	#audio_dataset.extract_features()
+	audio_set1.extract_features()
+	audio_set2.extract_features()
 
 	# batches
-	batch_archive = SpeechCommandsBatchArchive(feature_files=audio_dataset.feature_files, batch_size=32, batch_size_eval=4, to_torch=False)
+	batch_archive = SpeechCommandsBatchArchive(feature_files=audio_set1.feature_files, batch_size=32, batch_size_eval=4, to_torch=False)
 
 	print("archive: ", batch_archive.x_train.shape)
-	plot_mfcc_only(batch_archive.x_train[0, 0], name=batch_archive.z_train[0, 0])
+	plot_mfcc_only(batch_archive.x_train[0, 0], name=batch_archive.z_train[0, 0], show_plot=True)
 
 
 

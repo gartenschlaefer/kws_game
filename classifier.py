@@ -5,7 +5,7 @@ classifier class
 import numpy as np
 
 # my stuff
-from net_handler import CnnHandler
+from net_handler import NetHandler
 
 
 class Classifier():
@@ -13,16 +13,21 @@ class Classifier():
   classifier class for classifying new samples with a trained model
   """
 
-  def __init__(self, path_coll, verbose=False):
+  def __init__(self, cfg_classifier, root_path='./'):
 
-    # vars
-    self.verbose = verbose
+    # arguments
+    self.cfg_classifier = cfg_classifier
+    self.root_path = root_path
+
+    # classifier parameter file
+    self.classifier_params_file = self.root_path + self.cfg_classifier['model_path'] + self.cfg_classifier['params_file_name']
+    self.classifier_model_file = self.root_path + self.cfg_classifier['model_path'] + self.cfg_classifier['model_file_name']
 
     # data loading
-    data = np.load(path_coll.classifier_params, allow_pickle=True)
+    data = np.load(self.classifier_params_file, allow_pickle=True)
 
     # see whats in data
-    #print(data.files)
+    print(data.files)
 
     # nn architecture
     self.nn_arch = data['nn_arch'][()]
@@ -30,17 +35,17 @@ class Classifier():
     self.class_dict = data['class_dict'][()]
 
     # print info
-    if verbose:
+    if self.cfg_classifier['verbose']:
       print("\nExtract model with architecture: [{}]\nparams: [{}]\nand class dict: [{}]".format(self.nn_arch, self.train_params, self.class_dict))
     
     # init net handler
-    self.cnn_handler = CnnHandler(nn_arch=self.nn_arch, n_classes=len(self.class_dict), use_cpu=True)
+    self.net_handler = NetHandler(nn_arch=self.nn_arch, n_classes=len(self.class_dict), use_cpu=True)
 
     # load model
-    self.cnn_handler.load_model(path_coll=path_coll, for_what='classifier')
+    self.net_handler.load_models(model_files=[self.classifier_model_file])
 
     # set evaluation mode
-    self.cnn_handler.set_eval_mode()
+    self.net_handler.set_eval_mode()
 
     # init to be faster
     self.classify_sample(np.random.randn(39, 32))
@@ -52,13 +57,13 @@ class Classifier():
     """
 
     # classify
-    y_hat, o = self.cnn_handler.classify_sample(x)
+    y_hat, o = self.net_handler.classify_sample(x)
 
     # get label
     label = list(self.class_dict.keys())[list(self.class_dict.values()).index(int(y_hat))]
 
     # print infos
-    if self.verbose:
+    if self.cfg_classifier['verbose']:
       print("\nnew sample:\nprediction: {} - {}\noutput: {}".format(y_hat, label, o.data))
 
     return y_hat, label
@@ -70,16 +75,12 @@ if __name__ == '__main__':
   """
 
   import yaml
-  from path_collector import PathCollector
 
   # yaml config file
   cfg = yaml.safe_load(open("./config.yaml"))
 
-  # init path collector
-  path_coll = PathCollector(cfg)
-
   # create classifier
-  classifier = Classifier(path_coll=path_coll, verbose=True)
+  classifier = Classifier(cfg_classifier=cfg['classifier'])
 
   # random sample
   x = np.random.randn(39, 32)

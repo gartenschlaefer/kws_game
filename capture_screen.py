@@ -108,24 +108,13 @@ if __name__ == '__main__':
   from classifier import Classifier
   from mic import Mic
   from text import Text
-  from path_collector import PathCollector
 
 
   # yaml config file
   cfg = yaml.safe_load(open("./config.yaml"))
 
-  # init path collector
-  path_coll = PathCollector(cfg)
-
-
-  # --
-  # mic (for sound capture)
-
-  # window and hop size
-  N, hop = int(cfg['feature_params']['N_s'] * cfg['feature_params']['fs']), int(cfg['feature_params']['hop_s'] * cfg['feature_params']['fs'])
-
   # create classifier
-  classifier = Classifier(path_coll=path_coll, verbose=True)
+  classifier = Classifier(cfg_classifier=cfg['classifier'])
 
   # create mic instance
   mic = Mic(classifier=classifier, feature_params=cfg['feature_params'], mic_params=cfg['mic_params'], is_audio_record=True)
@@ -140,10 +129,8 @@ if __name__ == '__main__':
   # init display
   screen = pygame.display.set_mode(cfg['game']['screen_size'])
 
-
   # init screen capturer
   screen_capturer = ScreenCapturer(screen, cfg['game']['screen_size'], cfg['game']['fps'], capture_path=cfg['game']['capture_path'])
-
 
   # text
   text = Text(screen)

@@ -14,9 +14,9 @@ sys.path.append("../")
 from sklearn import svm
 
 # my stuff
-from path_collector import PathCollector
 from plots import plot_val_acc, plot_train_loss, plot_confusion_matrix
 from batch_archive import SpeechCommandsBatchArchive
+from audio_dataset import AudioDataset
 
 
 if __name__ == '__main__':
@@ -30,15 +30,16 @@ if __name__ == '__main__':
   # yaml config file
   cfg = yaml.safe_load(open("./config.yaml"))
 
-  # init path collector
-  path_coll = PathCollector(cfg, root_path='.')
+  # audio sets
+  audio_set1 = AudioDataset(cfg['datasets']['speech_commands'])
+  audio_set2 = AudioDataset(cfg['datasets']['my_recordings'])
 
 
   # --
   # batches
 
   # create batch archiv
-  batch_archive = SpeechCommandsBatchArchive(path_coll.mfcc_data_files_all, batch_size=1, to_torch=False)
+  batch_archive = SpeechCommandsBatchArchive(audio_set1.feature_files + audio_set2.feature_files, batch_size=1, to_torch=False)
 
   # print classes
   print("classes: ", batch_archive.classes)

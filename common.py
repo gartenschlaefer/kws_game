@@ -34,6 +34,9 @@ def check_files_existance(files):
   for file in files:
     if not os.path.isfile(file):
       print("File: {} does not exist!!".format(file))
+      return False
+
+  return True
 
 
 def create_folder(paths):

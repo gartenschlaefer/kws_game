@@ -171,23 +171,19 @@ if __name__ == '__main__':
 
   from classifier import Classifier
   from mic import Mic
-
-  # game stuff
   from game_logic import GameLogic
   from levels import LevelMic
-  from path_collector import PathCollector
+
 
   # yaml config file
   cfg = yaml.safe_load(open("../config.yaml"))
 
-  # init path collector
-  path_coll = PathCollector(cfg, root_path='.')
 
   # --
   # mic
 
   # create classifier
-  classifier = Classifier(path_coll=path_coll, verbose=True)
+  classifier = Classifier(cfg_classifier=cfg['classifier'], root_path='../')
   
   # create mic instance
   mic = Mic(classifier=classifier, feature_params=cfg['feature_params'], mic_params=cfg['mic_params'], is_audio_record=True)

@@ -208,34 +208,27 @@ if __name__ == '__main__':
 	from mic import Mic
 	from levels import LevelMoveWalls
 	from game_logic import GameLogic
-	from path_collector import PathCollector
-
 
 
 	# yaml config file
 	cfg = yaml.safe_load(open("../config.yaml"))
 
-	# init path collector
-	path_coll = PathCollector(cfg, root_path='.')
+
+	# --
+	# mic
+
+	# create classifier
+	classifier = Classifier(cfg_classifier=cfg['classifier'], root_path='../')
+
+	# create mic instance
+	mic = Mic(classifier=classifier, feature_params=cfg['feature_params'], mic_params=cfg['mic_params'], is_audio_record=False)
+
 
 	# init pygame
 	pygame.init()
 
 	# init display
 	screen = pygame.display.set_mode(cfg['game']['screen_size'])
-
-
-	# --
-	# mic
-
-	# window and hop size
-	N, hop = int(cfg['feature_params']['N_s'] * cfg['feature_params']['fs']), int(cfg['feature_params']['hop_s'] * cfg['feature_params']['fs'])
-
-	# create classifier
-	classifier = Classifier(path_coll=path_coll, verbose=True)
-
-	# create mic instance
-	mic = Mic(classifier=classifier, feature_params=cfg['feature_params'], mic_params=cfg['mic_params'], is_audio_record=False)
 
 
 	# --

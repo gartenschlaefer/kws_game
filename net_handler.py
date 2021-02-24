@@ -4,17 +4,11 @@ Handling Neural Networks
 
 import numpy as np
 import torch
-
 import time
 
 from conv_nets import ConvNetTrad, ConvNetFstride4
 from adversarial_nets import G_experimental, D_experimental
-
 from score import TrainScore, EvalScore
-
-# TODO: Remove this later
-# used for evaluation
-import torchvision.utils as vutils
 
 
 class NetHandler():
@@ -22,24 +16,48 @@ class NetHandler():
 	Neural Network Handler with general functionalities and interfaces
 	"""
 
-	def __init__(self, nn_arch, use_cpu=False):
+	def __new__(cls, nn_arch, n_classes, use_cpu=False):
+
+		# adversarial handler
+		if nn_arch == 'adv-experimental':
+			for child_cls in cls.__subclasses__():
+				if child_cls.__name__ == 'AdversarialNetHandler':
+					return super().__new__(AdversarialNetHandler)
+
+		# cnn handler
+		elif nn_arch == 'conv-trad' or nn_arch == 'conv-fstride':
+			for child_cls in cls.__subclasses__():
+				if child_cls.__name__ == 'CnnHandler':
+					return super().__new__(CnnHandler)
+
+		# handler specific
+		return super().__new__(cls)
+
+
+	def __init__(self, nn_arch, n_classes, use_cpu=False):
 
 		# neural net architecture (see in config which are available : string)
 		self.nn_arch = nn_arch
+
+		# classes
+		self.n_classes = n_classes
 
 		# use cpu or gpu
 		self.use_cpu = use_cpu
 
 		# set device
-		self.device = torch.device("cuda:0" if (torch.cuda.is_available() and not use_cpu) else "cpu")
+		self.device = torch.device("cuda:0" if (torch.cuda.is_available() and not self.use_cpu) else "cpu")
 
 		# print msg
 		print("device: ", self.device)
-		if torch.cuda.is_available() and not use_cpu:
+		if torch.cuda.is_available() and not self.use_cpu:
 			print("use gpu: ", torch.cuda.get_device_name(self.device))
-		
 
-	def get_nn_model(self):
+		# models dictionary key: name, value: model
+		self.models = {}
+
+
+	def init_models(self):
 		"""
 		simply get the desired nn model
 		"""
@@ -47,24 +65,39 @@ class NetHandler():
 		# select network architecture
 		if self.nn_arch == 'conv-trad':
 
-			# traditional conv-net
-			return ConvNetTrad(self.n_classes)
+			#self.models_dict = {'cnn':0}
+			self.models = {'cnn':ConvNetTrad(self.n_classes)}
 
 		elif self.nn_arch == 'conv-fstride':
 
-			# limited multipliers conv-net
-			return ConvNetFstride4(self.n_classes)
+			#self.models_dict = {'cnn':0}
+			self.models = {'cnn':ConvNetFstride4(self.n_classes)}
 
 		elif self.nn_arch == 'adv-experimental':
 
-			# adversarial network
-			return (G_experimental(), D_experimental())
+			#self.models_dict = {'g':0, 'd':1}
+			self.models = {'g':G_experimental(), 'd':D_experimental()}
 
-		# architecture not found
-		print("***Network Architecture not found!")
+		else:
+			# architecture not found
+			print("***Network Architecture not found!")
 
-		# traditional conv-net
-		return None
+		# send models to device
+		self.models = dict((k, model.to(self.device)) for k, model in self.models.items())
+
+
+	def set_eval_mode(self):
+		"""
+		sets the eval mode (dropout layers are ignored)
+		"""
+		self.models = dict((k, model.eval()) for k, model in self.models.items())
+
+
+	def set_train_mode(self):
+		"""
+		sets the eval mode (dropout layers are ignored)
+		"""
+		self.models = dict((k, model.train()) for k, model in self.models.items())
 
 
 	def print_train_info(self, epoch, mini_batch, train_score, k_print=10):
@@ -90,21 +123,65 @@ class NetHandler():
 				print('epoch: {}, mini-batch: {}, loss: [{:.5f}]'.format(epoch + 1, mini_batch + 1, train_score.batch_loss / k_print))
 
 
-	def load_model(self, path_coll, for_what='train'):
+	def load_models(self, model_files):
 		"""
-		loads model
+		loads model from array of model file names
+		watch order if more than one model file
 		"""
-		pass
+
+		# safety check
+		if len(model_files) != len(self.models):
+			print("***len of model file names is not equal length of models")
+			return
+
+		# load models
+		for model_file, (k, model) in zip(model_files, self.models.items()):
+
+			try:
+				print("load model: {}, net handler model: {}".format(model_file, k))
+				model.load_state_dict(torch.load(model_file))
+
+			except:
+				print("\n***could not load model!!!\n")		
+			pass
 
 
-	def save_model(self, path_coll, train_params, class_dict, train_score=None, save_as_pre_model=False):
+	def save_models(self, model_files):
 		"""
 		saves model
 		"""
-		pass
+
+		# safety check
+		if len(model_files) != len(self.models):
+			print("***len of model file names is not equal length of models")
+			return
+
+		# load models
+		for model_file, (k, model) in zip(model_files, self.models.items()):
+
+			try:
+				print("save model: {}, net handler model: {}".format(model_file, k))
+				torch.save(model.state_dict(), model_file)
+
+			except:
+				print("\n***could not save model!!!\n")
 
 
-	def train_nn(self, train_params, batch_archive):
+	def save_params(self, params_file, train_params, class_dict):
+		"""
+		save parameter file
+		"""
+		np.savez(params_file, nn_arch=self.nn_arch, train_params=train_params, class_dict=class_dict)
+
+
+	def save_metrics(self, metrics_file, train_score=None):
+		"""
+		save training metrics
+		"""
+		np.savez(metrics_file, train_score=train_score)
+
+
+	def train_nn(self, train_params, batch_archive, callback_f=None):
 		"""
 		train interface
 		"""
@@ -118,18 +195,46 @@ class NetHandler():
 		return EvalScore()
 
 
-	def classify_sample(self):
+	def eval_select_set(self, eval_set, batch_archive):
+		"""
+		select set to evaluate (only for batch archive class)
+		"""
+
+		# select the set
+		x_eval, y_eval, z_eval = None, None, None
+
+		# validation set
+		if eval_set == 'val':
+			x_eval, y_eval, z_eval = batch_archive.x_val, batch_archive.y_val, batch_archive.z_val
+
+		# test set
+		elif eval_set == 'test':
+			x_eval, y_eval, z_eval = batch_archive.x_test, batch_archive.y_test, batch_archive.z_test
+
+		# my test set
+		elif eval_set == 'my':
+			x_eval, y_eval, z_eval = batch_archive.x_my, batch_archive.y_my, batch_archive.z_my
+
+		# set not found
+		else:
+			print("wrong usage of eval_nn, select eval_set one out of ['val', 'test', 'my']")
+
+		return x_eval, y_eval, z_eval
+
+
+	def classify_sample(self, x):
 		"""
 		classify a single sample
 		"""
-		pass
+		y_hat, o = 0, 0
+		return y_hat, o
 
 
 	def generate_samples(self, noise=None, num_samples=10, to_np=False):
 		"""
 		generate samples if it is a generative network
 		"""
-		pass
+		return None
 
 
 	def set_eval_mode(self):
@@ -148,69 +253,16 @@ class CnnHandler(NetHandler):
 	def __init__(self, nn_arch, n_classes, use_cpu=False):
 
 		# parent class init
-		super().__init__(nn_arch, use_cpu)
-
-		# classes
-		self.n_classes = n_classes
+		super().__init__(nn_arch, n_classes, use_cpu)
 
 		# loss criterion
 		self.criterion = torch.nn.CrossEntropyLoss()
 
-		# get the right nn model
-		self.model = self.get_nn_model()
-
-		# model to device
-		try:
-			self.model.to(self.device)
-		except:
-			print("***model could not be sent to device!")
+		# init models
+		self.init_models()
 
 
-	def load_model(self, path_coll, for_what='train'):
-		"""
-		load model
-		"""
-
-		# which model should be loaded
-		if for_what == 'trained':
-			model_file_path = path_coll.model_file
-
-		elif for_what == 'pre':
-			model_file_path = path_coll.model_pre_file
-
-		elif for_what == 'classifier':
-			model_file_path = path_coll.classifier_model
-
-		# load model
-		try:
-			print("load model: ", model_file_path)
-			self.model.load_state_dict(torch.load(model_file_path))
-
-		except:
-			print("\n***could not load pre-trained model!!!\n")
-
-
-	def save_model(self, path_coll, train_params, class_dict, train_score=None, save_as_pre_model=False):
-		"""
-		saves model
-		"""
-
-		# just save the model
-		torch.save(self.model.state_dict(), path_coll.model_file)
-
-		# save param file
-		np.savez(path_coll.params_file, nn_arch=self.nn_arch, train_params=train_params, class_dict=class_dict)
-
-		# save metric file
-		if train_score is not None:
-			np.savez(path_coll.metrics_file, train_score=train_score)
-
-		# save also als pre model
-		if save_as_pre_model:
-			torch.save(self.model.state_dict(), path_coll.model_pre_file)
-
-
-	def train_nn(self, train_params, batch_archive):
+	def train_nn(self, train_params, batch_archive, callback_f=None):
 		"""
 		train the neural network
 		train_params: {'num_epochs': [], 'lr': [], 'momentum': []}
@@ -218,7 +270,7 @@ class CnnHandler(NetHandler):
 
 		# create optimizer
 		#optimizer = torch.optim.SGD(self.model.parameters(), lr=train_params['lr'], momentum=train_params['momentum'])
-		optimizer = torch.optim.Adam(self.model.parameters(), lr=train_params['lr'])
+		optimizer = torch.optim.Adam(self.models['cnn'].parameters(), lr=train_params['lr'])
 
 		# score collector
 		train_score = TrainScore(train_params['num_epochs'])
@@ -239,7 +291,7 @@ class CnnHandler(NetHandler):
 				optimizer.zero_grad()
 
 				# forward pass o:[b x c]
-				o = self.model(x)
+				o = self.models['cnn'](x)
 
 				# loss
 				loss = self.criterion(o, y)
@@ -298,7 +350,7 @@ class CnnHandler(NetHandler):
 			for i, (x, y) in enumerate(zip(x_eval.to(self.device), y_eval.to(self.device))):
 
 				# classify
-				o = self.model(x)
+				o = self.models['cnn'](x)
 
 				# loss
 				loss = self.criterion(o, y)
@@ -321,33 +373,6 @@ class CnnHandler(NetHandler):
 		return eval_score
 
 
-	def eval_select_set(self, eval_set, batch_archive):
-		"""
-		select set to evaluate
-		"""
-
-		# select the set
-		x_eval, y_eval, z_eval = None, None, None
-
-		# validation set
-		if eval_set == 'val':
-			x_eval, y_eval, z_eval = batch_archive.x_val, batch_archive.y_val, None
-
-		# test set
-		elif eval_set == 'test':
-			x_eval, y_eval, z_eval = batch_archive.x_test, batch_archive.y_test, None
-
-		# my test set
-		elif eval_set == 'my':
-			x_eval, y_eval, z_eval = batch_archive.x_my, batch_archive.y_my, batch_archive.z_my
-
-		# set not found
-		else:
-			print("wrong usage of eval_nn, select eval_set one out of ['val', 'test', 'my']")
-
-		return x_eval, y_eval, z_eval
-
-
 	def classify_sample(self, x):
 		"""
 		classification of a single sample
@@ -360,19 +385,12 @@ class CnnHandler(NetHandler):
 		with torch.no_grad():
 
 			# classify
-			o = self.model(x)
+			o = self.models['cnn'](x)
 
 			# prediction
 			_, y_hat = torch.max(o.data, 1)
 
 		return int(y_hat), o
-
-
-	def set_eval_mode(self):
-		"""
-		sets the eval mode (dropout layers are ignored)
-		"""
-		self.model.eval()
 
 
 
@@ -382,28 +400,24 @@ class AdversarialNetHandler(NetHandler):
 	adapted form: https://pytorch.org/tutorials/beginner/dcgan_faces_tutorial.html
 	"""
 
-	def __init__(self, nn_arch, use_cpu=False):
+	def __init__(self, nn_arch, n_classes, use_cpu=False):
 
 		# parent class init
-		super().__init__(nn_arch, use_cpu)
+		super().__init__(nn_arch, n_classes, use_cpu)
 
 		# loss criterion
 		self.criterion = torch.nn.BCELoss()
 
 		# neural network models, G-Generator, D-Discriminator
-		self.G, self.D = self.get_nn_model()
-
-		# model to device
-		self.G.to(self.device)
-		self.D.to(self.device)
+		self.init_models()
 
 		# labels
 		self.real_label = 1.
 		self.fake_label = 0.
 
 		# weights init
-		self.G.apply(self.weights_init)
-		self.D.apply(self.weights_init)
+		self.models['g'].apply(self.weights_init)
+		self.models['d'].apply(self.weights_init)
 
 
 	def weights_init(self, m):
@@ -420,72 +434,17 @@ class AdversarialNetHandler(NetHandler):
 			torch.nn.init.constant_(m.bias.data, 0)
 
 
-	def load_model(self, path_coll, for_what='trained'):
-		"""
-		load model
-		"""
-
-		# which model should be loaded
-		if for_what == 'trained':
-			g_file = path_coll.adv_g_model_file
-			d_file = path_coll.adv_d_model_file
-
-		elif for_what == 'pre':
-			g_file = None
-			d_file = None
-
-		elif for_what == 'classifier':
-			g_file = None
-			d_file = None
-
-		else:
-			print("for_what parameter was wrong defined")
-
-
-		# load model
-		try:
-			print("load adv_g_model_file: ", g_file)
-			print("load adv_d_model_file: ", d_file)
-			self.G.load_state_dict(torch.load(g_file))
-			self.D.load_state_dict(torch.load(d_file))
-
-		except:
-			print("\n***could not load pre-trained model!!!\n")
-
-
-	def save_model(self, path_coll, train_params, class_dict, train_score=None, save_as_pre_model=False):
-		"""
-		saves model
-		"""
-
-		# just save the model
-		torch.save(self.G.state_dict(), path_coll.adv_g_model_file)
-		torch.save(self.D.state_dict(), path_coll.adv_d_model_file)
-
-		# save param file
-		np.savez(path_coll.params_file, nn_arch=self.nn_arch, train_params=train_params, class_dict=class_dict)
-
-		# save metric file
-		if train_score is not None:
-			np.savez(path_coll.metrics_file, train_score=train_score)
-
-		# TODO:
-		# save also als pre model
-		#if save_as_pre_model and model_pre_file is not None:
-		#	torch.save(self.model.state_dict(), model_pre_file)
-
-
 	def train_nn(self, train_params, batch_archive, callback_f=None):
 		"""
 		train adversarial nets
 		"""
 
 		# Create batch of latent vectors that we will use to visualize the progression of the generator
-		fixed_noise = torch.randn(32, self.G.n_latent, device=self.device)
+		fixed_noise = torch.randn(32, self.models['g'].n_latent, device=self.device)
 
 		# Setup Adam optimizers for both G and D
-		optimizer_d = torch.optim.Adam(self.D.parameters(), lr=train_params['lr'], betas=(train_params['beta'], 0.999))
-		optimizer_g = torch.optim.Adam(self.G.parameters(), lr=train_params['lr'], betas=(train_params['beta'], 0.999))
+		optimizer_d = torch.optim.Adam(self.models['d'].parameters(), lr=train_params['lr'], betas=(train_params['beta'], 0.999))
+		optimizer_g = torch.optim.Adam(self.models['g'].parameters(), lr=train_params['lr'], betas=(train_params['beta'], 0.999))
 
 		# score collector
 		train_score = TrainScore(train_params['num_epochs'], use_adv=True)
@@ -502,7 +461,7 @@ class AdversarialNetHandler(NetHandler):
 			for i, x in enumerate(batch_archive.x_train.to(self.device)):
 
 				# zero parameter gradients
-				self.D.zero_grad()
+				self.models['d'].zero_grad()
 				optimizer_d.zero_grad()
 
 				# --
@@ -512,28 +471,27 @@ class AdversarialNetHandler(NetHandler):
 				y = torch.full((batch_archive.batch_size,), self.real_label, dtype=torch.float, device=self.device)
 
 				# forward pass o:[b x c]
-				o = self.D(x).view(-1)
+				o = self.models['d'](x).view(-1)
 
 				# loss of D with reals
 				d_loss_real = self.criterion(o, y)
 				d_loss_real.backward()
 				#d_reals = o.mean().item()
 
-
 				# --
 				# train with fake batch
 
 				# create noise as input
-				noise = torch.randn(batch_archive.batch_size, self.G.n_latent, device=self.device)
+				noise = torch.randn(batch_archive.batch_size, self.models['g'].n_latent, device=self.device)
 
 				# create fakes through Generator
-				fakes = self.G(noise)
+				fakes = self.models['g'](noise)
 
 				# create fake labels
 				y.fill_(self.fake_label)
 
 				# fakes to D
-				o = self.D(fakes.detach()).view(-1)
+				o = self.models['d'](fakes.detach()).view(-1)
 
 				# loss of D with fakes
 				d_loss_fake = self.criterion(o, y)
@@ -546,15 +504,14 @@ class AdversarialNetHandler(NetHandler):
 				# optimizer step
 				optimizer_d.step()
 
-
 				# --
 				# update of G
 
-				self.G.zero_grad()
+				self.models['g'].zero_grad()
 
 				y.fill_(self.real_label)
 
-				o = self.D(fakes).view(-1)
+				o = self.models['d'](fakes).view(-1)
 
 				# loss of G of D with fakes
 				g_loss = self.criterion(o, y)
@@ -571,11 +528,9 @@ class AdversarialNetHandler(NetHandler):
 				self.print_train_info(epoch, i, train_score, k_print=batch_archive.y_train.shape[0] // 10)
 				train_score.reset_batch_losses()
 
-
 			# check progess after epoch with callback function
 			if callback_f is not None:
 				callback_f(self.generate_samples(noise=fixed_noise, to_np=True))
-
 
 		print('--Training finished')
 
@@ -592,11 +547,11 @@ class AdversarialNetHandler(NetHandler):
 
 		# generate noise if not given
 		if noise is None:
-			noise = torch.randn(num_samples, self.G.n_latent, device=self.device)
+			noise = torch.randn(num_samples, self.models['g'].n_latent, device=self.device)
 
 		# create fakes through Generator
 		with torch.no_grad():
-			fakes = torch.squeeze(self.G(noise).detach().cpu())
+			fakes = torch.squeeze(self.models['g'](noise).detach().cpu())
 
 		# to numpy if necessary
 		if to_np:
@@ -606,131 +561,43 @@ class AdversarialNetHandler(NetHandler):
 
 
 
-def cnn_analytics(cfg, batch_archive):
-	"""
-	evaluate convolutional networks
-	"""
-
-	# create an cnn handler
-	cnn_handler = CnnHandler(nn_arch='conv-fstride', n_classes=5, use_cpu=False)
-
-	# training
-	cnn_handler.train_nn(cfg['ml']['train_params'], batch_archive=batch_archive)
-
-	# validation
-	cnn_handler.eval_nn(eval_set='val', batch_archive=batch_archive, calc_cm=False, verbose=False)
-
-	# classify sample
-	y_hat, o = cnn_handler.classify_sample(np.random.randn(39, 32))
-
-	print("classify: [{}]\noutput: [{}]".format(y_hat, o))
-
-
-def image_collect(x):
-	"""
-	collect images of mfcc's (used as callback function in the training of adversarial networks)
-	"""
-
-	# image list for evaluation
-	global img_list
-
-	# append image
-	img_list.append(x)
-
-
-def create_anim(path_coll):
-	"""
-	create image animation
-	"""
-
-	# image list for evaluation
-	global img_list
-
-	# images for evaluation on training
-	print("amount of mfccs for anim: ", len(img_list))
-
-	# plot
-	fig = plt.figure(figsize=(8,8))
-	#plt.axis("off")
-
-	# animation
-	ani = animation.ArtistAnimation(fig, [[plt.imshow(i[0, :], animated=True)] for i in img_list], interval=1000, repeat_delay=1000, blit=True)
-	plt.show()
-
-	# save
-	ani.save("{}anim.mp4".format(path_coll.model_path))
-
-
-def adversarial_analytics(cfg, path_coll, batch_archive):
-	"""
-	evaluate the adversarial networks
-	"""
-
-	# adversarial
-	adv_handler = AdversarialNetHandler(nn_arch='adv-experimental', use_cpu=False)
-
-	# reduce batch archieve to one label
-
-
-	# check if model already exists
-	if not os.path.exists(path_coll.adv_g_model_file) or not os.path.exists(path_coll.adv_d_model_file) or cfg['ml']['retrain']:
-
-		# train
-		train_score = adv_handler.train_nn(cfg['ml']['train_params'], batch_archive=batch_archive, callback_f=image_collect)
-
-		# save model
-		adv_handler.save_model(path_coll=path_coll, train_params=cfg['ml']['train_params'], class_dict=batch_archive.class_dict, train_score=train_score, save_as_pre_model=cfg['ml']['save_as_pre_model'])
-
-		# plots
-		plot_train_loss(train_score.train_loss, train_score.val_loss, plot_path=path_coll.model_path, name='train_loss')
-
-	# load model params from file without training
-	else:
-
-		# load model
-		adv_handler.load_model(path_coll=path_coll, for_what='trained')
-
-	# generate samples from trained model
-	fake = adv_handler.generate_samples(num_samples=1, to_np=True)
-	plot_mfcc_only(fake, fs=16000, hop=160, plot_path=None, name='None')
-
-	# training anim
-	create_anim(path_coll)
-
-
-
 if __name__ == '__main__':
 	"""
 	handles all neural networks with training, evaluation and classifying samples 
 	"""
 
 	import yaml
-	import matplotlib.pyplot as plt
-	import matplotlib.animation as animation
-	import os
 
 	from batch_archive import SpeechCommandsBatchArchive
-	from path_collector import PathCollector
-	from plots import plot_val_acc, plot_train_loss, plot_mfcc_only
+	from audio_dataset import AudioDataset
 
 	# yaml config file
 	cfg = yaml.safe_load(open("./config.yaml"))
 
-	# path collector
-	path_coll = PathCollector(cfg)
-
-	# create all necessary folders
-	path_coll.create_ml_folders()
+	# audio sets
+	audio_set1 = AudioDataset(cfg['datasets']['speech_commands'])
+	audio_set2 = AudioDataset(cfg['datasets']['my_recordings'])
 
 	# create batches
-	batch_archive = SpeechCommandsBatchArchive(path_coll.mfcc_data_files_all, batch_size=32, batch_size_eval=4)
+	batch_archive = SpeechCommandsBatchArchive(audio_set1.feature_files + audio_set2.feature_files, batch_size=32, batch_size_eval=4)
 
-	# global vars
-	global img_list
-	img_list = []
+	# choose architecture
+	nn_arch = 'conv-fstride'
+	#nn_arch = 'conv-trad'
+	#nn_arch = 'adv-experimental'
 
-	# cnn analytics
-	#cnn_analytics(cfg, batch_archive)
+	# create an cnn handler
+	net_handler = NetHandler(nn_arch=nn_arch, n_classes=5, use_cpu=False)
+	print(net_handler.models)
 
-	# adversarial analytics
-	#adversarial_analytics(cfg, path_coll, batch_archive)
+	# training
+	net_handler.train_nn(cfg['ml']['train_params'], batch_archive=batch_archive)
+
+	# validation
+	net_handler.eval_nn(eval_set='val', batch_archive=batch_archive, calc_cm=False, verbose=False)
+
+	# classify sample
+	y_hat, o = net_handler.classify_sample(np.random.randn(39, 32))
+
+	print("classify: [{}]\noutput: [{}]".format(y_hat, o))
+

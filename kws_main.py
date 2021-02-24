@@ -17,7 +17,6 @@ sys.path.append("./game")
 from game_logic import ThingsGameLogic
 from levels import Level_01, Level_02
 from text import Text
-from path_collector import PathCollector
 
 
 if __name__ == '__main__':
@@ -28,15 +27,12 @@ if __name__ == '__main__':
   # yaml config file
   cfg = yaml.safe_load(open("./config.yaml"))
 
-  # init path collector
-  path_coll = PathCollector(cfg)
-
 
   # --
   # mic
 
   # create classifier
-  classifier = Classifier(path_coll=path_coll, verbose=cfg['classifier']['verbose'])
+  classifier = Classifier(cfg_classifier=cfg['classifier'])
 
   # create mic instance
   mic = Mic(classifier=classifier, feature_params=cfg['feature_params'], mic_params=cfg['mic_params'], is_audio_record=cfg['game']['capture_enabled'])

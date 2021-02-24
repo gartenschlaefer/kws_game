@@ -275,32 +275,36 @@ if __name__ == '__main__':
 
   import yaml
   import matplotlib.pyplot as plt
-  from path_collector import PathCollector
   from plots import plot_mfcc_only
+  from audio_dataset import AudioDataset
 
   # yaml config file
   cfg = yaml.safe_load(open("./config.yaml"))
 
-  # path collector for mfcc file pathes
-  path_coll = PathCollector(cfg)
+  # audio sets
+  audio_set1 = AudioDataset(cfg['datasets']['speech_commands'])
+  audio_set2 = AudioDataset(cfg['datasets']['my_recordings'])
 
   # create batches
-  batch_archive = SpeechCommandsBatchArchive(path_coll.mfcc_data_files_all, batch_size=32, batch_size_eval=4)
+  batch_archive = SpeechCommandsBatchArchive(audio_set1.feature_files + audio_set2.feature_files, batch_size=32, batch_size_eval=4)
 
   print("x_train: ", batch_archive.x_train.shape)
   print("y_train: ", batch_archive.y_train.shape)
+  print("z_train: ", batch_archive.z_train.shape)
 
   print("x_val: ", batch_archive.x_val.shape)
   print("y_val: ", batch_archive.y_val.shape)
+  print("z_val: ", batch_archive.z_val.shape)
 
   print("x_test: ", batch_archive.x_test.shape)
   print("y_test: ", batch_archive.y_test.shape)
+  print("z_test: ", batch_archive.z_test.shape)
 
   print("x_my: ", batch_archive.x_my.shape)
   print("y_my: ", batch_archive.y_my.shape)
+  print("z_my: ", batch_archive.z_my.shape)
 
-  plot_mfcc_only(batch_archive.x_train[0, 0, 0], fs=16000, hop=160, plot_path=None, name='None')
-  plt.show()
+  plot_mfcc_only(batch_archive.x_train[0, 0, 0], fs=16000, hop=160, plot_path=None, name=batch_archive.z_train[0, 0])
 
   batch_archive.reduce_to_label("up")
   print("\nreduced:")
@@ -317,5 +321,4 @@ if __name__ == '__main__':
   print("x_my: ", batch_archive.x_my.shape)
   print("y_my: ", batch_archive.y_my.shape)
 
-  plot_mfcc_only(batch_archive.x_train[0, 0, 0], fs=16000, hop=160, plot_path=None, name='None')
-  plt.show()
+  plot_mfcc_only(batch_archive.x_train[0, 0, 0], fs=16000, hop=160, plot_path=None, name=batch_archive.z_train[0, 0], show_plot=True)

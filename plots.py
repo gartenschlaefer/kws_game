@@ -269,7 +269,7 @@ def plot_mfcc_profile(x, fs, N, hop, mfcc, onsets=None, bon_pos=None, mient=None
   plt.close()
 
 
-def plot_mfcc_only(mfcc, fs=16000, hop=160, plot_path=None, name='None', show_plot=True):
+def plot_mfcc_only(mfcc, fs=16000, hop=160, plot_path=None, name='None', show_plot=False):
   """
   plot mfcc extracted features only (no time series)
   mfcc: [m x l]

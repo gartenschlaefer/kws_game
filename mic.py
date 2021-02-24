@@ -29,17 +29,17 @@ class Mic():
     self.mic_params = mic_params
     self.is_audio_record = is_audio_record
 
+    # feature extractor
+    self.feature_extractor = FeatureExtractor(self.feature_params)
+
     # windowing params
-    self.N, self.hop = int(feature_params['N_s'] * feature_params['fs']), int(feature_params['hop_s'] * feature_params['fs'])
+    self.N, self.hop = self.feature_extractor.N, self.feature_extractor.hop
 
     # queue
     self.q = queue.Queue()
 
     # collector
     self.collector = Collector(N=self.N, hop=self.hop, frame_size=self.feature_params['frame_size'], update_size=self.mic_params['update_size'], frames_post=self.mic_params['frames_post'], is_audio_record=self.is_audio_record)
-
-    # feature extractor
-    self.feature_extractor = FeatureExtractor(self.feature_params)
 
     # select microphone yourself (usually not necessary)
     if mic_params['select_device']:
@@ -208,22 +208,15 @@ if __name__ == '__main__':
 
   from plots import plot_waveform
   from common import create_folder
-  from path_collector import PathCollector
 
   # yaml config file
   cfg = yaml.safe_load(open("./config.yaml"))
 
-  # init path collector
-  path_coll = PathCollector(cfg)
-
   # create folder
   create_folder([cfg['mic_params']['plot_path']])
 
-  # window and hop size
-  N, hop = int(cfg['feature_params']['N_s'] * cfg['feature_params']['fs']), int(cfg['feature_params']['hop_s'] * cfg['feature_params']['fs'])
-
   # classifier
-  classifier = Classifier(path_coll=path_coll, verbose=True)
+  classifier = Classifier(cfg_classifier=cfg['classifier'])
   
   # create mic instance
   mic = Mic(classifier=classifier, feature_params=cfg['feature_params'], mic_params=cfg['mic_params'], is_audio_record=True)
@@ -252,7 +245,7 @@ if __name__ == '__main__':
   print("on_all: ", mic.collector.on_all.shape)
 
   # plot waveform
-  plot_waveform(mic.collector.x_all, cfg['feature_params']['fs'], mic.collector.e_all * 10, hop, mic.collector.on_all, title='input stream', ylim=(-1, 1), plot_path=None, name='None')
+  plot_waveform(mic.collector.x_all, cfg['feature_params']['fs'], mic.collector.e_all * 10, mic.hop, mic.collector.on_all, title='input stream', ylim=(-1, 1), plot_path=None, name='None')
 
   # save audio
   mic.save_audio_file()

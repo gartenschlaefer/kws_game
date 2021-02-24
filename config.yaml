@@ -85,7 +85,7 @@ datasets:
       waveform: ./ignore/my_recordings/plots/waveform/
 
     # enable plot of each feature extraction
-    enable_plot: False
+    enable_plot: True
 
     # recreate all datasets (copy wavs to data_paths - not necessary except the dataset is changed)
     recreate: False
@@ -109,16 +109,6 @@ datasets:
     feature_file_name: mfcc_data_my
 
 
-    # paths
-    out_path_root: ./ignore/my_recordings/
-    #in_path: ./ignore/my_recordings/raw/
-    #plot_path: ./ignore/my_recordings/plots/
-    wav_path: ./ignore/my_recordings/wavs/
-
-    # my recordins set name
-    #set_name: 'my'
-
-
 # --
 # feature params for dataset extraction
 feature_params:
@@ -136,6 +126,7 @@ feature_params:
 
   # frame size of output features -> input to nn
   frame_size: 32
+  #frame_size: 50
 
   # mfcc feat size - do not change this
   feature_size: 39
@@ -160,14 +151,13 @@ ml:
   metrics_file_name: metrics.npz
 
   # adversarial model file names
-  adv_G_model_file_name: g_model.pth
-  adv_D_model_file_name: d_model.pth
+  adv_model_file_names: ['g_model.pth', d_model.pth]
 
   # use a pre trained model at pre trained model path
-  load_pre_model: True
+  load_pre_model: False
 
   # saves the model as pre trained model
-  save_as_pre_model: True
+  save_as_pre_model: False
 
   # params
   train_params:
@@ -176,7 +166,7 @@ ml:
     batch_size: 32
 
     # number of epochs
-    num_epochs: 10
+    num_epochs: 5
 
     # learning rate
     lr: 0.0001
@@ -206,7 +196,9 @@ ml:
 classifier:
 
   # path to model
-  model_path: './models/conv-fstride/v3_c-5_n-2000/bs-32_it-1000_lr-1e-05/'
+  model_path: 'models/conv-fstride/v3_c-5_n-2000/bs-32_it-1000_lr-1e-05/'
+
+  # file names
   model_file_name: 'model.pth'
   params_file_name: 'params.npz'
 
