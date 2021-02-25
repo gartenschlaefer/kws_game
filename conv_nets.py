@@ -90,7 +90,7 @@ class ConvNetFstride4(nn.Module):
   presented in [Sainath 2015] - cnn-one-fstride4
   """
 
-  def __init__(self, n_classes):
+  def __init__(self, n_classes, data_size):
     """
     define neural network architecture
     input: [batch x channels x m x f]
@@ -101,14 +101,33 @@ class ConvNetFstride4(nn.Module):
     # parent init
     super().__init__()
 
+    # arguments
+    self.n_classes = n_classes
+    self.data_size = data_size
+
+    # extract input size [channel x features x frames]
+    self.n_channels, self.n_features, self.n_frames = self.data_size
+
+    # params
+    self.n_feature_maps = 54
+    self.kernel_size = (8, self.n_frames)
+    self.stride = (4, 1)
+
+    # dimensions after conv
+    self.feature_strides = int((self.n_features - self.kernel_size[0]) / self.stride[0] + 1)
+    self.frame_strides = int((self.n_frames - self.kernel_size[1]) / self.stride[1] + 1)
+
+    print("feature_strides: ", self.feature_strides)
+    print("frame_strides: ", self.frame_strides)
+
     # conv layer
-    self.conv = nn.Conv2d(1, 54, kernel_size=(8, 32), stride=(4, 1))
+    self.conv = nn.Conv2d(self.n_channels, self.n_feature_maps, kernel_size=self.kernel_size, stride=self.stride)
 
     # fully connected layers with affine transformations: y = Wx + b
-    self.fc1 = nn.Linear(432, 32)
+    self.fc1 = nn.Linear(self.n_feature_maps * self.feature_strides * self.frame_strides, 32)
     self.fc2 = nn.Linear(32, 128)
     self.fc3 = nn.Linear(128, 128)
-    self.fc4 = nn.Linear(128, n_classes)
+    self.fc4 = nn.Linear(128, self.n_classes)
 
     # dropout layer
     self.dropout_layer1 = nn.Dropout(p=0.2)
@@ -237,19 +256,16 @@ if __name__ == '__main__':
   main function
   """
 
-  # create net
-  net = ConvNetFstride4(n_classes=5)
-
-  # print some infos
-  print("Net: ", net)
-
   # generate random sample
   x = torch.randn((1, 1, 39, 32))
 
-  print("\nx: ", x.shape)
+  # create net
+  net = ConvNetFstride4(n_classes=5, data_size=x.shape[1:])
 
   # test net
   o = net(x)
 
-  # output
+  # print some infos
+  print("\nx: ", x.shape)
+  print("Net: ", net)
   print("o: ", o)

@@ -44,6 +44,9 @@ class BatchArchive():
     self.class_dict = None
     self.n_classes = None
 
+    # data size
+    self.data_size = None
+
 
   def create_class_dictionary(self, y):
     """
@@ -155,6 +158,8 @@ class SpeechCommandsBatchArchive(BatchArchive):
     # do extraction
     self.extract()
 
+    print("data: x_train: ", self.x_train.shape)
+
 
   def extract(self):
     """
@@ -163,6 +168,17 @@ class SpeechCommandsBatchArchive(BatchArchive):
 
     # print some infos about data
     print("\n--extract batches from data:\ntrain: {}\nval: {}\ntest: {}\n".format(self.data[0]['x'].shape, self.data[1]['x'].shape, self.data[2]['x'].shape))
+
+    # set data size
+    self.data_size = self.data[0]['x'].shape[1:]
+    
+    # check data sizes
+    if not all([d['x'].shape[1:] == self.data_size for d in self.data]):
+      print("***extraction failed: data sizes are not equal")
+      return
+
+    # add channel dimension
+    self.data_size = (1, ) + self.data_size
 
     # create batches
     self.x_train, self.y_train, self.z_train = self.create_batches(self.data[0], batch_size=self.batch_size)
@@ -282,8 +298,8 @@ if __name__ == '__main__':
   cfg = yaml.safe_load(open("./config.yaml"))
 
   # audio sets
-  audio_set1 = AudioDataset(cfg['datasets']['speech_commands'])
-  audio_set2 = AudioDataset(cfg['datasets']['my_recordings'])
+  audio_set1 = AudioDataset(cfg['datasets']['speech_commands'], cfg['feature_params'])
+  audio_set2 = AudioDataset(cfg['datasets']['my_recordings'], cfg['feature_params'])
 
   # create batches
   batch_archive = SpeechCommandsBatchArchive(audio_set1.feature_files + audio_set2.feature_files, batch_size=32, batch_size_eval=4)

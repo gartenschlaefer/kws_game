@@ -31,8 +31,8 @@ if __name__ == '__main__':
   cfg = yaml.safe_load(open("./config.yaml"))
 
   # audio sets
-  audio_set1 = AudioDataset(cfg['datasets']['speech_commands'])
-  audio_set2 = AudioDataset(cfg['datasets']['my_recordings'])
+  audio_set1 = AudioDataset(cfg['datasets']['speech_commands'], cfg['feature_params'])
+  audio_set2 = AudioDataset(cfg['datasets']['my_recordings'], cfg['feature_params'])
 
 
   # --

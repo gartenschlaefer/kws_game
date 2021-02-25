@@ -29,17 +29,24 @@ class Classifier():
     # see whats in data
     print(data.files)
 
-    # nn architecture
+    # extract params
     self.nn_arch = data['nn_arch'][()]
     self.train_params = data['train_params'][()]
     self.class_dict = data['class_dict'][()]
+
+    # for legacy models
+    try:
+      self.data_size = data['data_size'][()]
+    except:
+      print("old classifier model use fixed data size: (1, 39, 32)")
+      self.data_size = (1, 39, 32)
 
     # print info
     if self.cfg_classifier['verbose']:
       print("\nExtract model with architecture: [{}]\nparams: [{}]\nand class dict: [{}]".format(self.nn_arch, self.train_params, self.class_dict))
     
     # init net handler
-    self.net_handler = NetHandler(nn_arch=self.nn_arch, n_classes=len(self.class_dict), use_cpu=True)
+    self.net_handler = NetHandler(nn_arch=self.nn_arch, n_classes=len(self.class_dict), data_size=self.data_size, use_cpu=True)
 
     # load model
     self.net_handler.load_models(model_files=[self.classifier_model_file])

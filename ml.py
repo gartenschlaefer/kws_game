@@ -202,8 +202,8 @@ if __name__ == '__main__':
   cfg = yaml.safe_load(open("./config.yaml"))
 
   # audio sets
-  audio_set1 = AudioDataset(cfg['datasets']['speech_commands'])
-  audio_set2 = AudioDataset(cfg['datasets']['my_recordings'])
+  audio_set1 = AudioDataset(cfg['datasets']['speech_commands'], cfg['feature_params'])
+  audio_set2 = AudioDataset(cfg['datasets']['my_recordings'], cfg['feature_params'])
 
   # create batch archive
   batch_archive = SpeechCommandsBatchArchive(audio_set1.feature_files + audio_set2.feature_files, batch_size=cfg['ml']['train_params']['batch_size'])
@@ -213,7 +213,7 @@ if __name__ == '__main__':
   print("x_train: ", batch_archive.x_train.shape)
 
   # net handler
-  net_handler = NetHandler(nn_arch=cfg['ml']['nn_arch'], n_classes=5, use_cpu=False)
+  net_handler = NetHandler(nn_arch=cfg['ml']['nn_arch'], n_classes=batch_archive.n_classes, data_size=batch_archive.data_size, use_cpu=False)
 
 
   # --
