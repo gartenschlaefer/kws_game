@@ -28,13 +28,16 @@ class AudioDataset():
     self.dataset_cfg = dataset_cfg
     self.feature_params = feature_params
 
+    # extracted vars
+    self.feature_size = (self.feature_params['n_ceps_coeff'] + 1) * (1 + 2 * self.feature_params['compute_deltas'])
+
     # variables
     self.labels = []
     self.set_names = []
     self.set_audio_files = []
 
     # parameter path
-    self.param_path = 'v{}_c-{}_n-{}_f-{}x{}/'.format(self.dataset_cfg['version_nr'], len(self.dataset_cfg['sel_labels']), self.dataset_cfg['n_examples'], self.feature_params['feature_size'], self.feature_params['frame_size'])
+    self.param_path = 'v{}_c-{}_n-{}_f-{}x{}/'.format(self.dataset_cfg['version_nr'], len(self.dataset_cfg['sel_labels']), self.dataset_cfg['n_examples'], self.feature_size, self.feature_params['frame_size'])
 
     # wav folders
     self.wav_folders = [p + self.dataset_cfg['wav_folder'] for p in list(self.dataset_cfg['data_paths'].values())]
@@ -249,7 +252,7 @@ class SpeechCommandsDataset(AudioDataset):
     """
 
     # mfcc_data: [n x m x l], labels and index
-    mfcc_data, label_data, index_data = np.empty(shape=(0, self.feature_params['feature_size'], self.feature_params['frame_size']), dtype=np.float64), [], []
+    mfcc_data, label_data, index_data = np.empty(shape=(0, self.feature_size, self.feature_params['frame_size']), dtype=np.float64), [], []
 
     # some lists
     z_score_list, broken_file_list,  = np.array([]), []
@@ -274,7 +277,7 @@ class SpeechCommandsDataset(AudioDataset):
           print("wav: [{}] with label: [{}], samples=[{}], time=[{}]s".format(wav, label, len(x), len(x)/self.feature_params['fs']))
 
         # extract feature vectors [m x l]
-        mfcc, bon_pos = self.feature_extractor.extract_mfcc39(x, normalize=self.feature_params['norm_features'], reduce_to_best_onset=False)
+        mfcc, bon_pos = self.feature_extractor.extract_mfcc39(x, reduce_to_best_onset=False)
 
         # damaged file things
         z_score, z_damaged = self.detect_damaged_file(mfcc)

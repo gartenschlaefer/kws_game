@@ -125,14 +125,15 @@ feature_params:
   n_ceps_coeff: 12
 
   # frame size of output features -> input to nn
-  frame_size: 32
-  #frame_size: 50
-
-  # mfcc feat size - do not change this
-  feature_size: 39
+  #frame_size: 32
+  frame_size: 50
 
   # normalized features -> [0, 1] over frames
   norm_features: True
+
+  # with deltas
+  compute_deltas: False
+  #compute_deltas: True
 
 
 # --

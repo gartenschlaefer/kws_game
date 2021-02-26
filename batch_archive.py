@@ -149,6 +149,10 @@ class SpeechCommandsBatchArchive(BatchArchive):
     # feature params
     self.feature_params = self.data[0]['params']
 
+    # feature size
+    self.feature_size = (self.feature_params[()]['n_ceps_coeff'] + 1) * (1 + 2 * self.feature_params[()]['compute_deltas'])
+    self.frame_size = self.feature_params[()]['frame_size']
+
     # get classes
     self.create_class_dictionary(self.data[0]['y'])
 
@@ -223,11 +227,11 @@ class SpeechCommandsBatchArchive(BatchArchive):
 
     # init batches
     if self.to_torch:
-      x_batches = torch.empty((batch_nums, batch_size, self.feature_params[()]['feature_size'], self.feature_params[()]['frame_size']))
+      x_batches = torch.empty((batch_nums, batch_size, self.feature_size, self.frame_size))
       y_batches = torch.empty((batch_nums, batch_size), dtype=torch.long)
 
     else:
-      x_batches = np.empty((batch_nums, batch_size, self.feature_params[()]['feature_size'], self.feature_params[()]['frame_size']), dtype=x.dtype)
+      x_batches = np.empty((batch_nums, batch_size, self.feature_size, self.frame_size), dtype=x.dtype)
       y_batches = np.empty((batch_nums, batch_size), dtype=y.dtype)
 
     z_batches = np.empty((batch_nums, batch_size), dtype=z.dtype)

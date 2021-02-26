@@ -40,8 +40,10 @@ class NetHandler():
     self.nn_arch = nn_arch
     self.n_classes = n_classes
     self.data_size = data_size
-
     self.use_cpu = use_cpu
+
+    # vars
+    self.num_print_per_epoch = 5
 
     # set device
     self.device = torch.device("cuda:0" if (torch.cuda.is_available() and not self.use_cpu) else "cpu")
@@ -304,7 +306,7 @@ class CnnHandler(NetHandler):
         train_score.update_batch_losses(epoch, loss.item())
 
         # print some infos
-        self.print_train_info(epoch, i, train_score, k_print=batch_archive.y_train.shape[0] // 10)
+        self.print_train_info(epoch, i, train_score, k_print=batch_archive.y_train.shape[0] // self.num_print_per_epoch)
         train_score.reset_batch_losses()
 
       # valdiation
@@ -523,7 +525,7 @@ class AdversarialNetHandler(NetHandler):
         train_score.update_batch_losses(epoch, loss=0.0, g_loss=g_loss.item(), d_loss_real=d_loss_real.item(), d_loss_fake=d_loss_fake.item())
 
         # print some infos
-        self.print_train_info(epoch, i, train_score, k_print=batch_archive.y_train.shape[0] // 10)
+        self.print_train_info(epoch, i, train_score, k_print=batch_archive.y_train.shape[0] // self.num_print_per_epoch)
         train_score.reset_batch_losses()
 
       # check progess after epoch with callback function

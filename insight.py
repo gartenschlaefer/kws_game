@@ -82,7 +82,7 @@ if __name__ == '__main__':
   x_raw, _ = librosa.load(wav, sr=cfg['feature_params']['fs'])
 
   # mfcc
-  x_mfcc, _ = feature_extractor.extract_mfcc39(x_raw, normalize=True, reduce_to_best_onset=False)
+  x_mfcc, _ = feature_extractor.extract_mfcc39(x_raw, reduce_to_best_onset=False)
 
   print("mfcc: ", x_mfcc.shape)
 

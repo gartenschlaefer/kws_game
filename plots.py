@@ -236,8 +236,12 @@ def plot_mfcc_profile(x, fs, N, hop, mfcc, onsets=None, bon_pos=None, mient=None
   ax.set_xlim([0, t[-1]])
 
   # select mfcc coeffs in arrays
-  sel_coefs = [np.arange(0, 12), np.arange(12, 24), np.arange(24, 36), np.arange(36, 39)]
-  titles = ['12 MFCCs', 'deltas', 'double deltas', 'energies']
+  if mfcc.shape[0] == 39:
+    sel_coefs = [np.arange(0, 12), np.arange(12, 24), np.arange(24, 36), np.arange(36, 39)]
+    titles = ['12 MFCCs', 'deltas', 'double deltas', 'energies']
+  else:
+    sel_coefs = [np.arange(0, mfcc.shape[0])]
+    titles = ['MFCCs']
 
   # mfcc plots
   for i, c in enumerate(sel_coefs):
@@ -289,8 +293,12 @@ def plot_mfcc_only(mfcc, fs=16000, hop=160, plot_path=None, name='None', show_pl
   gs = plt.GridSpec(n_rows, n_cols, wspace=0.4, hspace=0.3)
 
   # select mfcc coeffs in arrays
-  sel_coefs = [np.arange(0, 12), np.arange(12, 24), np.arange(24, 36), np.arange(36, 39)]
-  titles = ['12 MFCCs' + ' of "' + name + '"', 'deltas', 'double deltas', 'energies']
+  if mfcc.shape[0] == 39:
+    sel_coefs = [np.arange(0, 12), np.arange(12, 24), np.arange(24, 36), np.arange(36, 39)]
+    titles = ['12 MFCCs' + ' of "' + name + '"', 'deltas', 'double deltas', 'energies']
+  else:
+    sel_coefs = [np.arange(0, mfcc.shape[0])]
+    titles = ['MFCCs' + ' of "' + name + '"',]
 
   # mfcc plots
   for i, c in enumerate(sel_coefs):
@@ -325,7 +333,7 @@ def plot_mfcc_only(mfcc, fs=16000, hop=160, plot_path=None, name='None', show_pl
     plt.show()
 
 
-def plot_mel_band_weights(w_f, w_mel, f, m, plot_path=None, name='weights'):
+def plot_mel_band_weights(w_f, w_mel, f, m, plot_path=None, name='weights', show_plot=False):
   """
   mel band weights
   """
@@ -354,6 +362,8 @@ def plot_mel_band_weights(w_f, w_mel, f, m, plot_path=None, name='weights'):
     plt.savefig(plot_path + name + '_mel' '.png', dpi=150)
     plt.close()
 
+  elif show_plot:
+    plt.show()
 
 
 if __name__ == '__main__':
