@@ -19,7 +19,7 @@ class ConvNetTrad(nn.Module):
   presented in [Sainath 2015] - cnn-trad-fpool3
   """
 
-  def __init__(self, n_classes):
+  def __init__(self, n_classes, data_size):
     """
     define neural network architecture
     input: [batch x channels x m x f]
@@ -30,17 +30,43 @@ class ConvNetTrad(nn.Module):
     # parent init
     super().__init__()
 
+    # arguments
+    self.n_classes = n_classes
+    self.data_size = data_size
+
+    # extract input size [channel x features x frames]
+    self.n_channels, self.n_features, self.n_frames = self.data_size
+
+    # params
+    self.n_feature_maps = [64, 64]
+
+    # for 39x32
+    #self.kernel_sizes = [(8, 20), (4, 1), (4, 10)]
+    #self.strides = [(1, 1), (4, 1), (1, 1)]
+
+    # for 13x32
+    self.kernel_sizes = [(4, 20), (2, 4), (2, 4)]
+    self.strides = [(1, 1), (2, 4), (1, 1)]
+
+    # layer dimensions
+    self.conv_layer_dim = []
+    self.conv_layer_dim.append((self.n_features, self.n_frames))
+
+    for i, (k, s) in enumerate(zip(self.kernel_sizes, self.strides)):
+      self.conv_layer_dim.append((int((self.conv_layer_dim[i][0] - k[0]) / s[0] + 1), int((self.conv_layer_dim[i][1] - k[1]) / s[1] + 1)))
+
+    print("conv layer dim: ", self.conv_layer_dim)
     # 1. conv layer
-    self.conv1 = nn.Conv2d(1, 64, kernel_size=(8, 20), stride=(1, 1))
+    self.conv1 = nn.Conv2d(self.n_channels, self.n_feature_maps[0], kernel_size=self.kernel_sizes[0], stride=self.strides[0])
 
     # max pool layer
-    self.pool = nn.MaxPool2d(kernel_size=(4, 1), stride=(4, 1))
+    self.pool = nn.MaxPool2d(kernel_size=self.kernel_sizes[1], stride=self.strides[1])
 
     # 2. conv layer
-    self.conv2 = nn.Conv2d(64, 64, kernel_size=(4, 10), stride=(1, 1))
+    self.conv2 = nn.Conv2d(64, 64, kernel_size=self.kernel_sizes[2], stride=self.strides[2])
 
     # fully connected layers with affine transformations: y = Wx + b
-    self.fc1 = nn.Linear(1280, 32)
+    self.fc1 = nn.Linear(np.prod(self.conv_layer_dim[-1]) * self.n_feature_maps[-1], 32)
     self.fc2 = nn.Linear(32, 128)
     self.fc3 = nn.Linear(128, n_classes)
 
@@ -257,10 +283,12 @@ if __name__ == '__main__':
   """
 
   # generate random sample
-  x = torch.randn((1, 1, 39, 32))
+  #x = torch.randn((1, 1, 39, 32))
+  x = torch.randn((1, 1, 13, 50))
 
   # create net
-  net = ConvNetFstride4(n_classes=5, data_size=x.shape[1:])
+  #net = ConvNetFstride4(n_classes=5, data_size=x.shape[1:])
+  net = ConvNetTrad(n_classes=5, data_size=x.shape[1:])
 
   # test net
   o = net(x)

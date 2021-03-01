@@ -375,7 +375,7 @@ class CnnHandler(NetHandler):
 
   def classify_sample(self, x):
     """
-    classification of a single sample
+    classification of a single sample presented in dim [m x f]
     """
 
     # input to tensor
@@ -581,6 +581,7 @@ if __name__ == '__main__':
   # create batches
   batch_archive = SpeechCommandsBatchArchive(audio_set1.feature_files + audio_set2.feature_files, batch_size=32, batch_size_eval=4)
   print("data: ", batch_archive.data_size)
+
   # choose architecture
   nn_arch = 'conv-fstride'
   #nn_arch = 'conv-trad'
