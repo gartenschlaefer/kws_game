@@ -233,7 +233,7 @@ class LevelCharacter(LevelGrid):
     from character import Character
 
     # create the character
-    self.henry = Character(position=(self.screen_size[0]//2, self.screen_size[1]//2), scale=(2, 2), is_gravity=True)
+    self.henry = Character(position=(self.screen_size[0]//2, self.screen_size[1]//2), scale=(2, 2), has_gravity=True, grid_move=False)
     self.henry.obstacle_sprites.add(self.grid_world.wall_sprites, self.grid_world.move_wall_sprites)
 
     # add interactable

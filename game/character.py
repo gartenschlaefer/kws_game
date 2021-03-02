@@ -7,42 +7,31 @@ import pathlib
 
 from input_handler import InputKeyHandler
 from interactable import Interactable
+from moveable import Moveable
 
 
-class Character(Interactable):
+class Character(Interactable, Moveable):
   """
   character class
   """
 
-  def __init__(self, position, scale=(3, 3), is_gravity=False):
-
-    # MRO check
-    super().__init__()
+  def __init__(self, position, scale=(3, 3), has_gravity=True, grid_move=False):
 
     # arguments
     self.position = position
     self.scale = scale
-    self.is_gravity = is_gravity
 
     # character sprite
     self.character_sprite = CharacterSprite(self.position, self.scale)
 
+    # moveable init
+    Moveable.__init__(self, move_sprite=self.character_sprite, move_rect=self.character_sprite.rect, move_speed=[3, 3], has_gravity=has_gravity, grid_move=grid_move)
+
     # save init pos
     self.init_pos = position
 
-    # speed and move dir
-    self.move_speed = [3, 3]
-    self.move_dir = [0, 0]
-
-    # gravity stuff
-    self.gravity_change = 0
-    self.is_grounded = False
-    self.max_fall_speed = 6
-    self.init_fall_speed = 3
-    self.jump_force = 6
-
     # input handler
-    self.input_handler = InputKeyHandler(self)
+    self.input_handler = InputKeyHandler(self, grid_move=grid_move)
 
     # interactions
     self.obstacle_sprites = pygame.sprite.Group()
@@ -68,45 +57,19 @@ class Character(Interactable):
     self.character_sprite.rect.y = self.position[1]
 
 
-  def calc_gravity(self):
-    """
-    gravity
-    """
-
-    # grounded condition
-    if self.is_grounded:
-      self.move_speed[1] = self.init_fall_speed
-
-    # change speed according to gravity
-    if self.move_speed[1] < self.max_fall_speed:
-      self.move_speed[1] += 0.3
-
-    # determine direction determined by move speed
-    self.move_dir[1] = 1
-
-
-  def jump(self):
-    """
-    character jump
-    """
-
-    # only if grounded
-    if self.is_grounded:
-
-      # change vertical speed
-      self.move_speed[1] = -self.jump_force
-
-      # not grounded anymore
-      self.is_grounded = False
-
-
   def direction_change(self, direction):
     """
     move character to position
     """
 
-    # apply x direction
-    self.move_dir[0] += direction[0]
+    # update move direction in Movable class
+    self.update_move_direction(direction)
+
+
+  def view_update(self):
+    """
+    update view upon direction
+    """
 
     # update sprite view
     if self.move_dir[0] < 0:
@@ -117,13 +80,6 @@ class Character(Interactable):
 
     else:
       self.character_sprite.change_view_sprites("front")
-
-    # gravity moves
-    if self.is_gravity:
-      return
-
-    # apply y direction
-    self.move_dir[1] += direction[1]
 
 
   def action_key(self):
@@ -167,58 +123,11 @@ class Character(Interactable):
     if not self.is_active:
       return
 
-    # change of x
-    move_change_x = self.move_dir[0] * self.move_speed[0]
+    # move player with movement class
+    self.move_update()
 
-    # x movement
-    self.character_sprite.rect.x += move_change_x
-
-    # collide issue
-    for obst in pygame.sprite.spritecollide(self.character_sprite, self.obstacle_sprites, False):
-
-      # stand at wall
-      if move_change_x > 0:
-        self.character_sprite.rect.right = obst.rect.left
-
-      else:
-        self.character_sprite.rect.left = obst.rect.right
-
-
-    # y gravity
-    if self.is_gravity:
-
-      # calculate gravity
-      self.calc_gravity()
-
-
-    # change of y
-    move_change_y = self.move_dir[1] * self.move_speed[1]
-
-    # y movement
-    self.character_sprite.rect.y += move_change_y
-
-    # grounded false
-    self.is_grounded = False
-
-    # collide issue
-    for obst in pygame.sprite.spritecollide(self.character_sprite, self.obstacle_sprites, False):
-      
-      # stand at wall
-      if move_change_y > 0:
-
-        # stop atop
-        self.character_sprite.rect.bottom = obst.rect.top
-
-        # grounded condition
-        self.is_grounded = True
-
-      else:
-
-        # stop with head hit
-        self.character_sprite.rect.top = obst.rect.bottom
-
-        # no upward movement anymore
-        self.move_speed[1] = 0
+    # update of character view
+    self.view_update()
 
     # interaction with things
     for thing in pygame.sprite.spritecollide(self.character_sprite, self.thing_sprites, True):
@@ -233,7 +142,7 @@ class CharacterSprite(pygame.sprite.Sprite):
 
   def __init__(self, position, scale, anim_frame_update=3):
 
-    # MRO check
+    # Parent init
     super().__init__()
 
     # arguments

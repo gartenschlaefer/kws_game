@@ -9,7 +9,7 @@ class Interactable():
 
   def direction_change(self, direction):
     """
-    move character to position
+    move direction
     """
     pass
 

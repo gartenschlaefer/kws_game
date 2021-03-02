@@ -7,6 +7,7 @@ import numpy as np
 
 from input_handler import InputKeyHandler, InputMicHandler
 from interactable import Interactable
+from moveable import Moveable
 
 
 class Wall(pygame.sprite.Sprite):
@@ -44,7 +45,7 @@ class Wall(pygame.sprite.Sprite):
 
 
 
-class MovableWall(Wall, Interactable):
+class MovableWall(Wall, Interactable, Moveable):
   """
   a movable wall
   """
@@ -54,20 +55,21 @@ class MovableWall(Wall, Interactable):
     # vars
     self.grid_pos = grid_pos
     self.grid_move = grid_move
+    self.mic_control = mic_control
+    self.mic = mic
 
     # MRO check
     super().__init__(np.array(grid_pos)*size, color, size)
 
     # input handler
-    if mic_control:
-      self.input_handler = InputMicHandler(self, mic=mic, grid_move=grid_move)
+    if self.mic_control:
+      self.input_handler = InputMicHandler(self, mic=self.mic, grid_move=self.grid_move)
 
     else:
-      self.input_handler = InputKeyHandler(self, grid_move=grid_move)
+      self.input_handler = InputKeyHandler(self, grid_move=self.grid_move)
 
-    # speed and move dir
-    self.move_speed = 2
-    self.move_dir = [0, 0]
+    # moveable init
+    Moveable.__init__(self, move_sprite=self, move_rect=self.rect, move_speed=[3, 3], has_gravity=False, grid_move=self.grid_move)
 
     # interactions
     self.obstacle_sprites = pygame.sprite.Group()
@@ -94,15 +96,8 @@ class MovableWall(Wall, Interactable):
     move character to position
     """
 
-    # single movement
-    if self.grid_move:
-      self.move_dir[0] = direction[0]
-      self.move_dir[1] = direction[1]
-
-    # constant movement change
-    else:
-      self.move_dir[0] += direction[0]
-      self.move_dir[1] += direction[1]
+    # update move direction in Movable class
+    self.update_move_direction(direction)
 
 
   def action_key(self):
@@ -111,90 +106,6 @@ class MovableWall(Wall, Interactable):
     """
 
     self.is_active = not self.is_active
-
-
-  def move_const(self):
-    """
-    update character
-    """
-
-    # not active
-    if not self.is_active:
-      return
-
-    # x movement
-    self.rect.x += self.move_dir[0] * self.move_speed
-
-    # collide issue
-    for obst in pygame.sprite.spritecollide(self, self.obstacle_sprites, False):
-
-      # stand at wall
-      if self.move_dir[0] > 0:
-        self.rect.right = obst.rect.left
-
-      else:
-        self.rect.left = obst.rect.right
-
-    # y movement
-    self.rect.y += self.move_dir[1] * self.move_speed
-
-    # collide issue
-    for obst in pygame.sprite.spritecollide(self, self.obstacle_sprites, False):
-
-      # stand at wall
-      if self.move_dir[1] > 0:
-        self.rect.bottom = obst.rect.top
-
-      else:
-        self.rect.top = obst.rect.bottom
-
-
-  def move_grid(self):
-    """
-    move in grid to position
-    """
-
-    # not active
-    if not self.is_active:
-      return
-
-    # update position if changed
-    if np.any(self.move_dir):
-
-      # save old pos
-      old_pos = self.grid_pos.copy()
-
-      # new pos
-      self.grid_pos[0] += self.move_dir[0]  
-      self.grid_pos[1] += self.move_dir[1]
-
-      # update actual pos
-      self.rect.x = self.grid_pos[0] * self.size[0]
-      self.rect.y = self.grid_pos[1] * self.size[1]
-
-      try:
-        #collide issue
-        for obst in pygame.sprite.spritecollide(self, self.obstacle_sprites, False):
-
-          # hit an obstacle
-          if obst:
-
-            # old position again
-            self.grid_pos = old_pos
-            self.rect.x = self.grid_pos[0] * self.size[0]
-            self.rect.y = self.grid_pos[1] * self.size[1]
-      except:
-        print("no collisions implemented")
-
-      # handle move wall grids
-      try:
-        self.move_wall_grid[old_pos[0], old_pos[1]] = 0
-        self.move_wall_grid[self.grid_pos[0], self.grid_pos[1]] = 1
-      except:
-        print("no grid stuff implemented")
-
-      # reset move direction
-      self.move_dir = [0, 0]
 
 
   def reset(self):
@@ -214,20 +125,33 @@ class MovableWall(Wall, Interactable):
     self.rect.y = self.grid_pos[1] * self.size[1]
 
 
+  def grid_update(self):
+    """
+    update grid data
+    """
+
+    # TODO: update grid upon rect
+    # handle move wall grids
+    # try:
+    #   self.move_wall_grid[old_pos[0], old_pos[1]] = 0
+    #   self.move_wall_grid[self.grid_pos[0], self.grid_pos[1]] = 1
+    # except:
+    #   print("no grid stuff implemented")
+    pass
+
+
   def update(self):
     """
     update movable wall moves
     """
 
-    if self.grid_move:
+    # not active
+    if not self.is_active:
+      return
 
-      # perform a grid move
-      self.move_grid()
+    # move update
+    self.move_update()
 
-    else:
-      
-      # move constantly
-      self.move_const()
 
 
 if __name__ == '__main__':

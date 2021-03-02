@@ -15,6 +15,7 @@ class Animal():
     print("animal new class: ", cls)
 
     if change_type == 'cat':
+      print("change to cat")
 
       for child_cls in cls.__subclasses__():
         print("child: ", child_cls)
@@ -22,11 +23,12 @@ class Animal():
           return super().__new__(Cat)
 
     elif change_type == 'dog':
+      print("change to dog")
 
       for child_cls in cls.__subclasses__():
         print("child: ", child_cls)
         if child_cls.__name__ == 'Dog':
-          return super().__new__(Cat)
+          return super().__new__(Dog)
 
     return super().__new__(cls)
 
@@ -61,7 +63,6 @@ class Cat(Animal):
     super().__init__(change_type)
 
     self.type = 'cat'
-
     print("cat init")
 
 
@@ -93,6 +94,7 @@ class Dog(Animal):
     super().__init__(change_type)
 
     self.type = 'dog'
+    print("dog init")
 
 
   def make_sound(self):
@@ -109,6 +111,44 @@ class Dog(Animal):
     """
 
     print("Dog Growl: Grrrrr")
+
+
+
+class Infos():
+
+  # def __new__(cls, *args, **kwargs):
+  #   print("new info")
+  #   return super().__new__(cls, *args, **kwargs)
+
+  def __init__(self):
+
+    self.name = 'lessli'
+    self.age = 2
+
+
+
+class Lessli(Animal, Infos):
+
+  # def __new__(cls, *args, **kwargs):
+
+
+  #   Animal.__new__(Animal, *args, **kwargs)
+
+  #   print("cls: ", cls)
+  #   print("super new: ", super().__new__(Lessli, *args, **kwargs))
+  #   return super().__new__(Lessli, *args, **kwargs)
+
+  def __init__(self, change_type):
+    Animal.__init__(self, change_type=change_type)
+    Infos.__init__(self)
+    print("super init: ", super())
+
+
+  def list_infos(self):
+
+    print("name: {}, age: {}, type: {}".format(self.name, self.age, self.type))
+
+
 
 
 if __name__ == '__main__':
@@ -138,4 +178,12 @@ if __name__ == '__main__':
   animal_cat.make_sound()
   animal_cat.growl()
 
+  print("\nanimal dog")
+  animal_dog = Animal(change_type='dog')
+  animal_dog.make_sound()
+  animal_dog.growl()
 
+  print("\nLessli")
+  lessli = Lessli(change_type='dog')
+  #lessli.list_infos()
+  print(lessli)
