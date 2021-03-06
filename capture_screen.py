@@ -6,7 +6,7 @@ import pygame
 import os
 import soundfile
 
-from common import create_folder, delete_png_in_path
+from common import create_folder, delete_files_in_path
 
 
 class ScreenCapturer():
@@ -30,7 +30,7 @@ class ScreenCapturer():
     self.enabled = enabled
 
     # delete old data
-    delete_png_in_path(self.capture_path + self.frame_path)
+    delete_files_in_path([self.capture_path + self.frame_path], file_ext='.png')
 
     # create folder for captured frames
     create_folder([self.capture_path + self.frame_path])

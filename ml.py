@@ -9,12 +9,12 @@ import logging
 
 # my stuff
 from common import s_to_hms_str, create_folder, check_files_existance
-from plots import plot_val_acc, plot_train_loss, plot_confusion_matrix, plot_mfcc_only
+from plots import plot_val_acc, plot_train_loss, plot_confusion_matrix, plot_mfcc_only, plot_grid_images, plot_other_grid
 
 
 class ML():
   """
-  Machine Learning class - concatenation or required objects
+  Machine Learning class
   """
 
   def __init__(self, cfg_ml, audio_dataset, batch_archive, net_hander):
@@ -46,12 +46,6 @@ class ML():
 
     # image list (for adversarial)
     self.img_list = []
-
-
-  def init(self):
-    """
-    init machine learning
-    """
 
     # create ml folders
     create_folder(list(self.cfg_ml['paths'].values()) + [self.model_path])
@@ -140,6 +134,34 @@ class ML():
       plot_confusion_matrix(eval_score.cm, batch_archive.classes, plot_path=self.model_path, name='confusion_my')
 
 
+  def analyze(self):
+    """
+    analyze function, e.g. analyze weights
+    """
+
+    # analyze weights
+    weights = self.net_handler.get_model_weights()
+
+    # weights are available
+    if weights is not None:
+
+      # conv1
+      if 'conv1' in weights.keys():
+
+        # info
+        print("conv1 analyze: ", weights['conv1'].shape)
+        
+        # plot images
+        plot_grid_images(x=weights['conv1'].numpy(), padding=1, num_cols=8, title='conv1 '+ self.param_path_ml.replace('/', ' '), plot_path=self.model_path, name='conv1', show_plot=False)
+        #plot_other_grid(x=weights['conv1'].numpy(), plot_path=None, name='None', enable_plot=True)
+
+    # generate samples (for generative networks)
+    self.generate_samples()
+
+    # animation (for generative networks)
+    self.create_anim()
+
+
   def generate_samples(self):
     """
     generate samples if it is a generative network
@@ -213,7 +235,7 @@ if __name__ == '__main__':
   print("x_train: ", batch_archive.x_train.shape)
 
   # net handler
-  net_handler = NetHandler(nn_arch=cfg['ml']['nn_arch'], n_classes=batch_archive.n_classes, data_size=batch_archive.data_size, use_cpu=False)
+  net_handler = NetHandler(nn_arch=cfg['ml']['nn_arch'], n_classes=batch_archive.n_classes, data_size=batch_archive.data_size, use_cpu=cfg['ml']['use_cpu'])
 
 
   # --
@@ -222,19 +244,14 @@ if __name__ == '__main__':
   # instance
   ml = ML(cfg_ml=cfg['ml'], audio_dataset=audio_set1, batch_archive=batch_archive, net_hander=net_handler)
 
-  # init
-  ml.init()
-
   # training
   ml.train()
 
   # evaluation
   ml.eval()
 
-  # generate samples (for generative networks)
-  ml.generate_samples()
+  # analyze
+  ml.analyze()
 
-  # animation (for generative networks)
-  ml.create_anim()
 
 

@@ -4,11 +4,133 @@ plot some figures
 
 import numpy as np
 import matplotlib.pyplot as plt
+
 from sklearn.metrics import confusion_matrix
-
 from feature_extraction import onsets_to_onset_times, frames_to_time
-
 from glob import glob
+from praatio import tgio
+
+
+def plot_other_grid(x, plot_path=None, name='None', enable_plot=False):
+  """
+  plot mfcc extracted features from audio file
+  mfcc: [m x l]
+  """
+
+  # no plot generation
+  if plot_path is None or enable_plot is False:
+    return
+
+  n_col_grid = 8
+  n_row_grid = 8
+  #n_row_grid = int(np.ceil(x.shape[0] / 8))
+
+  # make a grid
+  n_im_rows, n_im_cols = x.shape[2], x.shape[3]
+  n_rows, n_cols = n_im_rows * n_row_grid + n_row_grid+1, n_im_cols * n_col_grid + n_col_grid+1
+
+  fig = plt.figure(figsize=(8*n_cols/n_rows-0.5, 8))
+  gs = plt.GridSpec(n_rows, n_cols, wspace=0.4, hspace=0.3)
+
+  i, j = 0, 0
+
+  # mfcc plots
+  for xi in x:
+
+    # row start and stop
+    rs = j * n_im_rows + 1
+    re = (j + 1) * n_im_rows
+    cs = i * n_im_cols + 1
+    ce = (i + 1) * n_im_cols
+
+    # update indices
+    if not i % (8-1) and i: i, j = 0, j + 1
+    else: i += 1
+
+    # specify grid pos
+    ax = fig.add_subplot(gs[rs:re, cs:ce])
+
+    # plot image coeffs
+    im = ax.imshow(xi[0], aspect='equal')
+    ax.axis("off")
+
+  # plot
+  if plot_path is not None:
+    plt.savefig(plot_path + 'mfcc-' + name + '.png', dpi=150)
+    plt.close()
+
+  else:
+    plt.show()
+
+
+def plot_grid_images(x, padding=1, num_cols=8, title='grid', plot_path=None, name='None', show_plot=False):
+  """
+  plot grid images
+  """
+
+  # get dimensions
+  n_kernels, n_channels, n_features, n_frames = x.shape
+
+  # determine minimum value
+  value_min = np.min(x)
+
+  # init images
+  row_imgs = np.empty((n_channels, n_features, 0), dtype=x.dtype)
+  grid_img = np.empty((n_channels, 0, n_frames * num_cols + num_cols + padding), dtype=x.dtype)
+
+  # padding init
+  v_padding = np.ones((n_channels, n_features, 1)) * value_min
+  h_padding = np.ones((n_channels, 1, n_frames * num_cols + num_cols + padding)) * value_min
+
+  # vars
+  row, col = 0, 0
+
+  # add each image
+  for w in x:
+
+    # horizontal filling
+    row_imgs = np.concatenate((row_imgs, v_padding, w), axis=2)
+    col += 1
+
+    # max row imgs
+    if col >= 8:
+
+      row_imgs = np.concatenate((row_imgs, v_padding), axis=2)
+      grid_img = np.concatenate((grid_img, h_padding, row_imgs), axis=1)
+      row_imgs = np.empty((n_channels, n_features, 0), dtype=x.dtype)
+      col = 0
+
+  # rest of row
+  if row_imgs.shape[2] != 0:
+    row_imgs = np.concatenate((row_imgs, np.ones((n_channels, n_features, n_frames * num_cols + num_cols + padding - row_imgs.shape[2])) * value_min), axis=2)
+    grid_img = np.concatenate((grid_img, h_padding, row_imgs), axis=1)
+    row_imgs = np.empty((n_channels, n_features, 0), dtype=x.dtype)
+
+  # last padding
+  grid_img = np.concatenate((grid_img, h_padding), axis=1)
+
+  # plot
+  plt.figure()
+  plt.axis("off")
+  plt.title(title)
+  plt.imshow(grid_img[0], aspect='equal')
+
+  # plot the fig
+  if plot_path is not None:
+    plt.savefig(plot_path + 'grid_' + name + '.png', dpi=150)
+    plt.close()
+
+  elif show_plot:
+    plt.show()
+
+  # torch grid (must be torch tensor)
+  # import torchvision.utils as vutils
+  # img = np.transpose(vutils.make_grid(weights['conv1'], padding=1, normalize=True), (1, 2, 0))
+  # plt.figure(figsize=(8,8))
+  # plt.axis("off")
+  # plt.title("conv1")
+  # plt.imshow(img)
+  # plt.show()
 
 
 def plot_damaged_file_score(z, plot_path=None, name='z_score', enable_plot=False):
@@ -138,6 +260,7 @@ def plot_confusion_matrix(cm, classes, plot_path=None, name='None'):
   # plot the fig
   if plot_path is not None:
     plt.savefig(plot_path + name + '.png', dpi=150)
+    plt.close()
 
 
 def plot_train_loss(train_loss, val_loss, plot_path=None, name='None'):
@@ -165,7 +288,7 @@ def plot_train_loss(train_loss, val_loss, plot_path=None, name='None'):
   # plot the fig
   if plot_path is not None:
     plt.savefig(plot_path + name + '.png', dpi=150)
-    #plt.close()
+    plt.close()
 
 
 def plot_val_acc(val_acc, plot_path=None, name='None'):
@@ -184,10 +307,34 @@ def plot_val_acc(val_acc, plot_path=None, name='None'):
   # plot the fig
   if plot_path is not None:
     plt.savefig(plot_path + name + '.png', dpi=150)
-    #plt.close()
+    plt.close()
 
 
-def plot_mfcc_profile(x, fs, N, hop, mfcc, onsets=None, bon_pos=None, mient=None, minreg=None, frame_size=32, plot_path=None, name='None', enable_plot=False):
+def plot_textGrid_annotation(anno_file, x=None, plot_text=False):
+  """
+  annotation
+  """
+
+  # annotation
+  if anno_file is not None:
+
+    # open annotation file
+    tg = tgio.openTextgrid(anno_file)
+
+    # get tier
+    tier = tg.tierDict[tg.tierNameList[0]]
+
+    # calculate height of text
+    if x is not None and plot_text: h = np.min(x)
+    else: h = 0
+
+    # go through all entries
+    for s, e, l in tier.entryList:
+      plt.axvline(x=s, dashes=(3, 3), color='k', lw=1)
+      if plot_text: plt.text(s + 0.01, h, l, color='k')
+
+
+def plot_mfcc_profile(x, fs, N, hop, mfcc, anno_file=None, onsets=None, bon_pos=None, mient=None, minreg=None, frame_size=32, plot_path=None, name='None', enable_plot=False):
   """
   plot mfcc extracted features from audio file
   mfcc: [m x l]
@@ -211,6 +358,8 @@ def plot_mfcc_profile(x, fs, N, hop, mfcc, onsets=None, bon_pos=None, mient=None
   ax = fig.add_subplot(gs[0:n_im_rows-1, :n_cols-2])
   ax.plot(t[:len(x)], x)
 
+  # annotation
+  plot_textGrid_annotation(anno_file, x, plot_text=True)
 
   # min energy time and region
   if mient is not None:
@@ -255,6 +404,9 @@ def plot_mfcc_profile(x, fs, N, hop, mfcc, onsets=None, bon_pos=None, mient=None
 
     # plot image coeffs
     im = ax.imshow(mfcc[c], aspect='auto', extent=[0, t[-1], c[-1], c[0]])
+
+    # annotation
+    plot_textGrid_annotation(anno_file)
 
     # some labels
     ax.set_title(titles[i])
@@ -333,7 +485,7 @@ def plot_mfcc_only(mfcc, fs=16000, hop=160, plot_path=None, name='None', show_pl
     plt.show()
 
 
-def plot_mel_band_weights(w_f, w_mel, f, m, plot_path=None, name='weights', show_plot=False):
+def plot_mel_band_weights(w_f, w_mel, f, m, plot_path=None, name='None', show_plot=False):
   """
   mel band weights
   """

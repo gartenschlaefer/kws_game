@@ -6,7 +6,7 @@ import numpy as np
 import torch
 import time
 
-from conv_nets import ConvNetTrad, ConvNetFstride4
+from conv_nets import ConvNetTrad, ConvNetFstride4, ConvNetExperimental
 from adversarial_nets import G_experimental, D_experimental
 from score import TrainScore, EvalScore
 
@@ -25,7 +25,7 @@ class NetHandler():
           return super().__new__(AdversarialNetHandler)
 
     # cnn handler
-    elif nn_arch == 'conv-trad' or nn_arch == 'conv-fstride':
+    elif nn_arch == 'conv-trad' or nn_arch == 'conv-fstride' or nn_arch == 'conv-experimental':
       for child_cls in cls.__subclasses__():
         if child_cls.__name__ == 'CnnHandler':
           return super().__new__(CnnHandler)
@@ -43,15 +43,14 @@ class NetHandler():
     self.use_cpu = use_cpu
 
     # vars
-    self.num_print_per_epoch = 5
+    self.num_print_per_epoch = 2
 
     # set device
     self.device = torch.device("cuda:0" if (torch.cuda.is_available() and not self.use_cpu) else "cpu")
 
     # print msg
     print("device: ", self.device)
-    if torch.cuda.is_available() and not self.use_cpu:
-      print("use gpu: ", torch.cuda.get_device_name(self.device))
+    if torch.cuda.is_available() and not self.use_cpu: print("use gpu: ", torch.cuda.get_device_name(self.device))
 
     # models dictionary key: name, value: model
     self.models = {}
@@ -59,28 +58,15 @@ class NetHandler():
 
   def init_models(self):
     """
-    simply get the desired nn model
+    instantiate the requested models and sent them to the device
     """
 
     # select network architecture
-    if self.nn_arch == 'conv-trad':
-
-      #self.models_dict = {'cnn':0}
-      self.models = {'cnn':ConvNetTrad(self.n_classes, self.data_size)}
-
-    elif self.nn_arch == 'conv-fstride':
-
-      #self.models_dict = {'cnn':0}
-      self.models = {'cnn':ConvNetFstride4(self.n_classes, self.data_size)}
-
-    elif self.nn_arch == 'adv-experimental':
-
-      #self.models_dict = {'g':0, 'd':1}
-      self.models = {'g':G_experimental(), 'd':D_experimental()}
-
-    else:
-      # architecture not found
-      print("***Network Architecture not found!")
+    if self.nn_arch == 'conv-trad': self.models = {'cnn':ConvNetTrad(self.n_classes, self.data_size)}
+    elif self.nn_arch == 'conv-fstride': self.models = {'cnn':ConvNetFstride4(self.n_classes, self.data_size)}
+    elif self.nn_arch == 'conv-experimental': self.models = {'cnn':ConvNetExperimental(self.n_classes, self.data_size)}
+    elif self.nn_arch == 'adv-experimental': self.models = {'g':G_experimental(), 'd':D_experimental()}
+    else: print("***Network Architecture not found!")
 
     # send models to device
     self.models = dict((k, model.to(self.device)) for k, model in self.models.items())
@@ -393,6 +379,13 @@ class CnnHandler(NetHandler):
     return int(y_hat), o
 
 
+  def get_model_weights(self):
+    """
+    get model weights
+    """
+    return self.models['cnn'].get_weights()
+
+
 
 class AdversarialNetHandler(NetHandler):
   """
@@ -588,7 +581,7 @@ if __name__ == '__main__':
   #nn_arch = 'adv-experimental'
 
   # create an cnn handler
-  net_handler = NetHandler(nn_arch=nn_arch, n_classes=5, data_size=batch_archive.data_size, use_cpu=False)
+  net_handler = NetHandler(nn_arch=cfg['ml']['nn_arch'], n_classes=batch_archive.n_classes, data_size=batch_archive.data_size, use_cpu=cfg['ml']['use_cpu'])
   print(net_handler.models)
 
   # training
@@ -601,4 +594,7 @@ if __name__ == '__main__':
   y_hat, o = net_handler.classify_sample(np.random.randn(net_handler.data_size[1], net_handler.data_size[2]))
 
   print("classify: [{}]\noutput: [{}]".format(y_hat, o))
+
+  # analyze model weights
+  net_handler.analyze_model_weights()
 

@@ -7,12 +7,90 @@ import matplotlib.pyplot as plt
 
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
-# append paths
-import sys
-sys.path.append("../")
 
-from conv_nets import *
+class ConvNetCifar(nn.Module):
+  """
+  Cifar Conv Network from pytorch tutorial
+  """
+
+  def __init__(self):
+    """
+    define network architecture
+    """
+
+    super().__init__()
+    self.conv1 = nn.Conv2d(3, 6, 5)
+    self.pool = nn.MaxPool2d(2, 2)
+    self.conv2 = nn.Conv2d(6, 16, 5)
+    self.fc1 = nn.Linear(16 * 5 * 5, 120)
+    self.fc2 = nn.Linear(120, 84)
+    self.fc3 = nn.Linear(84, 10)
+
+  def forward(self, x):
+    """
+    forward pass
+    """
+    x = self.pool(F.relu(self.conv1(x)))
+    x = self.pool(F.relu(self.conv2(x)))
+    x = x.view(-1, 16 * 5 * 5)
+    x = F.relu(self.fc1(x))
+    x = F.relu(self.fc2(x))
+    x = self.fc3(x)
+    return x
+
+
+
+class ConvNetTutorial(nn.Module):
+  """
+  Simple convolutional network adapted from the
+  tutorial presented on the pytorch homepage
+  """
+
+  def __init__(self):
+    """
+    define neural network
+    """
+
+    # super: next method in line of method resolution order (MRO) 
+    # from the base model nn.Module -> clears multiple inheritance issue
+    super().__init__()
+
+    # 1. conv layer
+    self.conv1 = nn.Conv2d(1, 6, kernel_size=(3, 3), stride=(1, 1))
+
+    # 2. conv layer
+    self.conv2 = nn.Conv2d(6, 16, kernel_size=(3, 3), stride=(1, 1))
+
+    # fully connected layers with affine transformations: y = Wx + b
+    self.fc1 = nn.Linear(16 * 6 * 6, 120)
+    self.fc2 = nn.Linear(120, 84)
+    self.fc3 = nn.Linear(84, 10)
+
+
+  def forward(self, x):
+    """
+    forward pass
+    """
+
+    # max pooling of 1. conv layer
+    x = F.max_pool2d( F.relu(self.conv1(x)), kernel_size=(2, 2) )
+
+    # max pooling of 2. conv layer
+    x = F.max_pool2d( F.relu(self.conv2(x)), kernel_size=(2, 2) )
+
+    # flatten output from 2. conv layer
+    x = x.view(-1, np.product(x.shape[1:]))
+
+    # fully connected layers
+    x = F.relu(self.fc1(x))
+    x = F.relu(self.fc2(x))
+
+    # final fully connected layer
+    x = self.fc3(x)
+
+    return x
 
 
 def run_tutorial_net(net):
@@ -326,7 +404,7 @@ def cifar_imshow(img):
 if __name__ == '__main__':
 
   # net
-  #run_tutorial_net(ConvNetTutorial())
+  run_tutorial_net(ConvNetTutorial())
 
   # cifar tutorial
-  train_cifar10(ConvNetCifar(), retrain=False)
+  #train_cifar10(ConvNetCifar(), retrain=False)

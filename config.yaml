@@ -21,8 +21,9 @@ datasets:
       test: ./ignore/dataset/test/
       eval: ./ignore/dataset/eval/
 
-    # wav folder name
+    # folder names
     wav_folder: wavs/
+    annotation_folder: annotation/
 
     # split of dataset in training, test, eval (must be a prob. distribution)
     split_percs: [0.8, 0.1, 0.1]
@@ -71,8 +72,9 @@ datasets:
     data_paths:
       my: ./ignore/my_recordings/my/
 
-    # wav folder name
+    # folder names
     wav_folder: wavs/
+    annotation_folder: annotation/
 
     # split of dataset
     split_percs: [1.0]
@@ -167,7 +169,7 @@ ml:
     batch_size: 32
 
     # number of epochs
-    num_epochs: 5
+    num_epochs: 500
 
     # learning rate
     lr: 0.0001
@@ -179,11 +181,13 @@ ml:
   retrain: True
 
   # nn architecture available
-  nn_architectures: {1: 'conv-trad', 2: 'conv-fstride', 3: 'adv-experimental'}
+  nn_architectures: {1: 'conv-trad', 2: 'conv-fstride', 3: 'adv-experimental', 4: 'conv-experimental'}
 
   # chosen architecture
-  nn_arch: conv-fstride
+  nn_arch: conv-experimental
+  #nn_arch: conv-fstride
   #nn_arch: adv-experimental
+  #nn_arch: conv-trad
 
   # logging enable
   logging_enabled: True
@@ -215,7 +219,7 @@ mic_params:
   select_device: True
 
   # sel device id
-  device: 10
+  device: 6
 
   # sampling frequency of your microphone device (idealy this would be 16000, as it will be downsampled to it)
   fs_device: 48000

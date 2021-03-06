@@ -54,15 +54,17 @@ def create_folder(paths):
       os.makedirs(p)
 
 
-def delete_png_in_path(path):
+def delete_files_in_path(paths, file_ext='.png'):
   """
   delete png files in folder
   """
 
-  if os.path.isdir(path):
-    for file in os.listdir(path):
-      if file.endswith('.png'):
-        os.remove(path + file)
+  for p in paths:
+    if os.path.isdir(p):
+      for file in os.listdir(p):
+        if file.endswith(file_ext):
+          print("delete file: ", p + file)
+          os.remove(p + file)
 
 
 def s_to_hms_str(x):

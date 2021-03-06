@@ -17,28 +17,6 @@ from classifier import Classifier
 from skimage.util.shape import view_as_windows
 
 
-def eval_model(model):
-  """
-  evaluate model
-  """
-
-  print("\nmodel:\n", model)
-
-  print("weights: ", model.fc1.weight.detach().shape)
-
-  #print("conv weights: ", model.conv.weight.detach())
-  print("conv weights: ", model.conv.weight.detach().shape)
-
-  plt.figure(), plt.imshow(np.squeeze(model.conv.weight.detach().numpy()[0]), aspect='auto'), plt.colorbar()
-  plt.figure(), plt.imshow(np.squeeze(model.conv.weight.detach().numpy()[1]), aspect='auto'), plt.colorbar()
-  plt.figure(), plt.imshow(np.squeeze(model.conv.weight.detach().numpy()[2]), aspect='auto'), plt.colorbar()
-  plt.figure(), plt.imshow(np.squeeze(model.conv.weight.detach().numpy()[3]), aspect='auto'), plt.colorbar()
-
-  #plt.figure(), plt.imshow(model.fc1.weight.detach().numpy(), aspect='auto'), plt.colorbar()
-  #plt.figure(), plt.imshow(model.fc2.weight.detach().numpy(), aspect='auto'), plt.colorbar()
-  #plt.figure(), plt.imshow(model.fc4.weight.detach().numpy(), aspect='auto'), plt.colorbar()
-
-
 if __name__ == '__main__':
   """
   Insight file - gives insight in neural nets
@@ -62,14 +40,6 @@ if __name__ == '__main__':
   # wav file to evaluate
   #wav = './ignore/my_recordings/clean_records/down.wav'
   wav = './ignore/my_recordings/clean_records/up.wav'
-
-
-  # -- 
-  # model insights
-
-  # model visualization
-  #eval_model(model)
-
 
 
   # --

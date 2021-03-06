@@ -14,7 +14,7 @@ from shutil import copyfile
 # my stuff
 from feature_extraction import FeatureExtractor, calc_onsets
 from plots import plot_mfcc_profile, plot_damaged_file_score, plot_onsets, plot_waveform
-from common import check_folders_existance, create_folder
+from common import check_folders_existance, create_folder, delete_files_in_path
 
 
 class AudioDataset():
@@ -35,12 +35,14 @@ class AudioDataset():
     self.labels = []
     self.set_names = []
     self.set_audio_files = []
+    self.set_annotation_files = []
 
     # parameter path
     self.param_path = 'v{}_c-{}_n-{}_f-{}x{}/'.format(self.dataset_cfg['version_nr'], len(self.dataset_cfg['sel_labels']), self.dataset_cfg['n_examples'], self.feature_size, self.feature_params['frame_size'])
 
-    # wav folders
+    # folders
     self.wav_folders = [p + self.dataset_cfg['wav_folder'] for p in list(self.dataset_cfg['data_paths'].values())]
+    self.annotation_folders = [p + self.dataset_cfg['annotation_folder'] for p in list(self.dataset_cfg['data_paths'].values())]
 
     # feature folders
     self.feature_folders = [p + self.param_path for p in list(self.dataset_cfg['data_paths'].values())]
@@ -63,20 +65,20 @@ class AudioDataset():
     pass
 
 
-  def file_naming_extraction(self, audio_file):
+  def file_naming_extraction(self, audio_file, file_ext='.wav'):
     """
     extracts the file name, index and label of a file
     convention to filename: e.g. label123.wav
     """
 
     # extract filename
-    file_name = re.findall(r'[\w+ 0-9]+' + re.escape(self.dataset_cfg['file_ext']), audio_file)[0]
+    file_name = re.findall(r'[\w+ 0-9]+' + re.escape(file_ext), audio_file)[0]
 
     # extract file index from filename
-    file_index = re.sub(r'[a-z A-Z]|(' + re.escape(self.dataset_cfg['file_ext']) + r')', '', file_name)
+    file_index = re.sub(r'[a-z A-Z]|(' + re.escape(file_ext) + r')', '', file_name)
 
     # extract label from filename
-    label = re.sub(r'([0-9]+' + re.escape(self.dataset_cfg['file_ext']) + r')', '', file_name)
+    label = re.sub(r'([0-9]+' + re.escape(file_ext) + r')', '', file_name)
 
     return file_name, file_index, label
 
@@ -88,10 +90,13 @@ class AudioDataset():
     """
 
     # for all data paths (train, test, eval)
-    for dpi, data_path in enumerate(list(self.dataset_cfg['data_paths'].values())):
+    for dpi, wav_folder in enumerate(self.wav_folders):
+
+      # info
+      print("\nset wav folder: {}".format(wav_folder))
 
       # determine set name
-      self.set_names.append(re.sub(r'/', '', re.findall(r'[\w+ 0-9]+/', data_path)[-1]))
+      self.set_names.append(re.sub(r'/', '', re.findall(r'[\w+ 0-9]+/', wav_folder)[-2]))
 
       # init set files
       set_files = []
@@ -106,7 +111,7 @@ class AudioDataset():
         file_name_re = '*' + l + '[0-9]*' + self.dataset_cfg['file_ext']
 
         # get wavs
-        label_files = glob(data_path + self.dataset_cfg['wav_folder'] + file_name_re)
+        label_files = glob(wav_folder + file_name_re)
         set_files.append(label_files)
 
         # check length of label files
@@ -120,6 +125,37 @@ class AudioDataset():
 
       # update set audio files
       self.set_audio_files.append(set_files)
+
+
+  def get_annotation_files(self):
+    """
+    get annotation files
+    """
+
+    # for all data paths (train, test, eval)
+    for dpi, annotation_folder in enumerate(self.annotation_folders):
+
+      # info
+      print("\nset annotation folder: {}".format(annotation_folder))
+
+      # init set files
+      set_files = []
+
+      # get all wavs from selected labels
+      for l in self.dataset_cfg['sel_labels']:
+
+        # regex
+        file_name_re = '*' + l + '[0-9]*' + '.TextGrid'
+
+        # get wavs
+        label_files = glob(annotation_folder + file_name_re)
+        set_files.append(label_files)
+
+        # check length of label files
+        print("overall stat of anno: [{}]\tnum: [{}]".format(l, len(label_files)))
+
+      # update set audio files
+      self.set_annotation_files.append(set_files)
 
 
   def label_stats(self, y):
@@ -162,8 +198,14 @@ class SpeechCommandsDataset(AudioDataset):
     # minimum amount of samples per example
     self.min_samples = 16000
 
+    # create plot plaths if not already exists
+    create_folder(list(self.dataset_cfg['plot_paths'].values()))
+
     # recreate
     if self.dataset_cfg['recreate'] or not check_folders_existance(self.wav_folders, empty_check=True):
+
+      # delete old data
+      delete_files_in_path(self.wav_folders, file_ext=self.dataset_cfg['file_ext'])
 
       # create folder wav folders
       create_folder(self.wav_folders)
@@ -173,6 +215,7 @@ class SpeechCommandsDataset(AudioDataset):
 
     # get audio files from sets
     self.get_audiofiles()
+    self.get_annotation_files()
 
 
   def create_sets(self):
@@ -225,9 +268,9 @@ class SpeechCommandsDataset(AudioDataset):
     print("\n--feature extraction:")
 
     # create folder structure
-    create_folder(self.feature_folders + list(self.dataset_cfg['plot_paths'].values()))
+    create_folder(self.feature_folders)
 
-    for i, (set_name, wavs) in enumerate(zip(self.set_names, self.set_audio_files)):
+    for i, (set_name, wavs, annos) in enumerate(zip(self.set_names, self.set_audio_files, self.set_annotation_files)):
 
       print("{}) extract set: {} with label num: {}".format(i, set_name, len(wavs)))
 
@@ -235,7 +278,7 @@ class SpeechCommandsDataset(AudioDataset):
       n_examples = int(self.dataset_cfg['n_examples']*self.dataset_cfg['split_percs'][i])
 
       # extract data
-      x, y, index = self.extract_mfcc_data(wavs=wavs, n_examples=n_examples, set_name=set_name)
+      x, y, index = self.extract_mfcc_data(wavs=wavs, annos=annos, n_examples=n_examples, set_name=set_name)
 
       # print label stats
       self.label_stats(y)
@@ -245,7 +288,7 @@ class SpeechCommandsDataset(AudioDataset):
       print("--save data to: ", self.feature_files[i])
 
 
-  def extract_mfcc_data(self, wavs, n_examples, set_name=None):
+  def extract_mfcc_data(self, wavs, annos, n_examples, set_name=None):
     """
     extract mfcc data from wav-files
     wavs must be in a 2D-array [[wavs_class1], [wavs_class2]] so that n_examples will work properly
@@ -258,16 +301,23 @@ class SpeechCommandsDataset(AudioDataset):
     z_score_list, broken_file_list,  = np.array([]), []
 
     # extract class wavs
-    for class_wavs in wavs:
+    for class_wavs, class_annos in zip(wavs, annos):
+
+      # class annotation file names extraction
+      class_annos_file_names = [l + i for f, i, l in [self.file_naming_extraction(a, file_ext='.TextGrid') for a in class_annos]]
 
       # number of class examples
       num_class_examples = 0
 
       # run through each example in class wavs
       for wav in class_wavs:
-      
+        
         # extract file namings
-        file_name, file_index, label = self.file_naming_extraction(wav)
+        file_name, file_index, label = self.file_naming_extraction(wav, file_ext=self.dataset_cfg['file_ext'])
+
+        # get annotation if available
+        anno = None
+        if label + file_index in class_annos_file_names: anno = class_annos[class_annos_file_names.index(label + file_index)]
 
         # load and pre-process audio
         x = self.wav_pre_processing(wav)
@@ -284,7 +334,7 @@ class SpeechCommandsDataset(AudioDataset):
         z_score_list = np.append(z_score_list, z_score)
 
         # plot mfcc features
-        plot_mfcc_profile(x, self.feature_params['fs'], self.feature_extractor.N, self.feature_extractor.hop, mfcc, onsets=None, bon_pos=bon_pos, mient=None, minreg=None, frame_size=self.feature_params['frame_size'], plot_path=self.dataset_cfg['plot_paths']['mfcc'], name=label + str(file_index) + '_' + set_name, enable_plot=self.dataset_cfg['enable_plot'])
+        plot_mfcc_profile(x, self.feature_params['fs'], self.feature_extractor.N, self.feature_extractor.hop, mfcc, anno_file=anno, onsets=None, bon_pos=bon_pos, mient=None, minreg=None, frame_size=self.feature_params['frame_size'], plot_path=self.dataset_cfg['plot_paths']['mfcc'], name=label + str(file_index) + '_' + set_name, enable_plot=self.dataset_cfg['enable_plot'])
 
         # handle damaged files
         if z_damaged:
@@ -375,7 +425,7 @@ class MyRecordingsDataset(SpeechCommandsDataset):
       print("wav: ", wav)
 
       # filename extraction
-      file_name, file_index, label = self.file_naming_extraction(wav)
+      file_name, file_index, label = self.file_naming_extraction(wav, file_ext=self.dataset_cfg['file_ext'])
 
       # read audio from file
       x, _ = librosa.load(wav, sr=self.feature_params['fs'])
@@ -405,7 +455,7 @@ class MyRecordingsDataset(SpeechCommandsDataset):
     """
 
     # analytical frame size
-    analytic_frame_size = self.feature_params['frame_size'] * 5
+    analytic_frame_size = self.feature_params['frame_size'] * 3
 
     # save old onsets
     onsets = onsets.copy()
@@ -426,7 +476,7 @@ class MyRecordingsDataset(SpeechCommandsDataset):
 
       # clean
       if onset:
-        onsets[i:i+analytic_frame_size] = onset_filter
+        onsets[i:i+analytic_frame_size] = onset_filter[:len(onsets[i:i+analytic_frame_size])]
         clean_onsets[i] = 1
 
     return clean_onsets
