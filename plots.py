@@ -11,23 +11,15 @@ from glob import glob
 from praatio import tgio
 
 
-def plot_other_grid(x, plot_path=None, name='None', enable_plot=False):
+def plot_other_grid(x, grid_size=(8, 8), plot_path=None, name='None', show_plot=False):
   """
   plot mfcc extracted features from audio file
   mfcc: [m x l]
   """
 
-  # no plot generation
-  if plot_path is None or enable_plot is False:
-    return
-
-  n_col_grid = 8
-  n_row_grid = 8
-  #n_row_grid = int(np.ceil(x.shape[0] / 8))
-
   # make a grid
   n_im_rows, n_im_cols = x.shape[2], x.shape[3]
-  n_rows, n_cols = n_im_rows * n_row_grid + n_row_grid+1, n_im_cols * n_col_grid + n_col_grid+1
+  n_rows, n_cols = n_im_rows * grid_size[1] + grid_size[1]+1, n_im_cols * grid_size[0] + grid_size[0]+1
 
   fig = plt.figure(figsize=(8*n_cols/n_rows-0.5, 8))
   gs = plt.GridSpec(n_rows, n_cols, wspace=0.4, hspace=0.3)
@@ -44,7 +36,7 @@ def plot_other_grid(x, plot_path=None, name='None', enable_plot=False):
     ce = (i + 1) * n_im_cols
 
     # update indices
-    if not i % (8-1) and i: i, j = 0, j + 1
+    if not i % (grid_size[0]-1) and i: i, j = 0, j + 1
     else: i += 1
 
     # specify grid pos
@@ -59,7 +51,7 @@ def plot_other_grid(x, plot_path=None, name='None', enable_plot=False):
     plt.savefig(plot_path + 'mfcc-' + name + '.png', dpi=150)
     plt.close()
 
-  else:
+  elif show_plot:
     plt.show()
 
 
@@ -67,6 +59,9 @@ def plot_grid_images(x, padding=1, num_cols=8, title='grid', plot_path=None, nam
   """
   plot grid images
   """
+
+  # cast to numpy
+  x = np.array(x)
 
   # get dimensions
   n_kernels, n_channels, n_features, n_frames = x.shape

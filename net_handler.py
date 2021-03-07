@@ -572,13 +572,14 @@ if __name__ == '__main__':
   audio_set2 = AudioDataset(cfg['datasets']['my_recordings'], cfg['feature_params'])
 
   # create batches
-  batch_archive = SpeechCommandsBatchArchive(audio_set1.feature_files + audio_set2.feature_files, batch_size=32, batch_size_eval=4)
-  print("data: ", batch_archive.data_size)
+  batch_archive = SpeechCommandsBatchArchive(audio_set1.feature_files + audio_set2.feature_files, batch_size=32, batch_size_eval=5)
 
-  # choose architecture
-  nn_arch = 'conv-fstride'
-  #nn_arch = 'conv-trad'
-  #nn_arch = 'adv-experimental'
+  # reduce to label and add noise
+  batch_archive.reduce_to_label('up')
+  batch_archive.add_noise_data(shuffle=True)
+
+  print("data: ", batch_archive.data_size)
+  print("classes: ", batch_archive.n_classes)
 
   # create an cnn handler
   net_handler = NetHandler(nn_arch=cfg['ml']['nn_arch'], n_classes=batch_archive.n_classes, data_size=batch_archive.data_size, use_cpu=cfg['ml']['use_cpu'])
@@ -596,5 +597,11 @@ if __name__ == '__main__':
   print("classify: [{}]\noutput: [{}]".format(y_hat, o))
 
   # analyze model weights
-  net_handler.analyze_model_weights()
+  weights = net_handler.get_model_weights()
 
+  print("weights: ", weights['conv1'].shape)
+
+  from plots import plot_grid_images, plot_other_grid
+
+  # plot some examples
+  plot_grid_images(weights['conv1'], padding=1, num_cols=8, title='grid', show_plot=True)

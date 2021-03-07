@@ -13,11 +13,12 @@ class BatchArchive():
   x: data, y: label_num, z: index
   """
 
-  def __init__(self, batch_size=4, batch_size_eval=4):
+  def __init__(self, batch_size=32, batch_size_eval=5, to_torch=True):
 
-    # params
+    # arguments
     self.batch_size = batch_size
     self.batch_size_eval = batch_size_eval
+    self.to_torch = to_torch
 
     # training batches
     self.x_train = None
@@ -47,10 +48,13 @@ class BatchArchive():
     # data size
     self.data_size = None
 
+    # number of examples per class [train, val, test, my]
+    self.num_examples_per_class = [None, None, None, None]
+
 
   def create_class_dictionary(self, y):
     """
-    create class dict
+    create class dict with label names e.g. y = ['up', 'down']
     """
 
     # actual classes
@@ -61,6 +65,26 @@ class BatchArchive():
 
     # number of classes
     self.n_classes = len(self.classes)
+
+
+  def update_classes(self, new_labels):
+    """
+    update classes to new labels
+    """
+
+    # copy old dict
+    old_dict = self.class_dict.copy()
+
+    # recreate class directory
+    self.create_class_dictionary(new_labels)
+
+    # update y values
+    for k in old_dict.keys(): 
+      if k in self.class_dict.keys(): 
+        if self.y_train is not None: self.y_train[self.y_train == old_dict[k]] = self.class_dict[k]
+        if self.y_val is not None: self.y_val[self.y_val == old_dict[k]] = self.class_dict[k]
+        if self.y_test is not None: self.y_test[self.y_test == old_dict[k]] = self.class_dict[k]
+        if self.y_my is not None: self.y_my[self.y_my == old_dict[k]] = self.class_dict[k]
 
 
   def get_index_of_class(self, y, to_torch=False):
@@ -78,6 +102,13 @@ class BatchArchive():
     return y_index
 
 
+  def determine_num_examples(self):
+    """
+    determine number of examples in [train, val, test, my]
+    """
+    self.num_examples_per_class = [np.prod(y.shape) // self.n_classes for y in [self.y_train, self.y_val, self.y_test, self.y_my]]
+
+
   def reduce_to_label(self, label):
     """
     reduce to only one label
@@ -90,18 +121,28 @@ class BatchArchive():
 
     # training batches
     if self.y_train is not None:
-      self.x_train, self.y_train = self.reduce_to_label_algorithm(label, self.x_train, self.y_train)
+      self.x_train, self.y_train, self.z_train = self.reduce_to_label_algorithm(label, self.x_train, self.y_train, self.z_train, self.batch_size)
 
     # validation batches
     if self.y_val is not None:
-      self.x_val, self.y_val = self.reduce_to_label_algorithm(label, self.x_val, self.y_val)
+      self.x_val, self.y_val, self.z_val = self.reduce_to_label_algorithm(label, self.x_val, self.y_val, self.z_val, self.batch_size_eval)
 
     # test batches
     if self.y_test is not None:
-      self.x_test, self.y_test = self.reduce_to_label_algorithm(label, self.x_test, self.y_test)
+      self.x_test, self.y_test, self.z_test = self.reduce_to_label_algorithm(label, self.x_test, self.y_test, self.z_test, self.batch_size_eval)
+
+    # test batches
+    if self.y_my is not None:
+      self.x_my, self.y_my, self.z_my = self.reduce_to_label_algorithm(label, self.x_my, self.y_my, self.z_my, self.batch_size_eval)
+
+    # recreate class directory
+    self.update_classes([label])
+
+    # recount examples
+    self.determine_num_examples()
 
 
-  def reduce_to_label_algorithm(self, label, x, y):
+  def reduce_to_label_algorithm(self, label, x, y, z, batch_size):
     """
     reduce algorithm
     """
@@ -113,12 +154,73 @@ class BatchArchive():
     # get labels
     x = x[label_vector]
     y = y[label_vector]
+    z = z[label_vector]
 
     # reshape
-    x = x[:len(x)-len(x)%self.batch_size].reshape((-1, self.batch_size) + f_shape)
-    y = y[:len(y)-len(y)%self.batch_size].reshape((-1, self.batch_size))
+    x = x[:len(x)-len(x)%batch_size].reshape((-1, batch_size) + f_shape)
+    y = y[:len(y)-len(y)%batch_size].reshape((-1, batch_size))
+    z = z[:len(z)-len(z)%batch_size].reshape((-1, batch_size))
 
-    return x, y
+    return x, y, z
+
+
+  def add_noise_data(self, noise_label='noise', shuffle=True):
+    """
+    add noise to all data
+    """
+
+    # add noise to class dict
+    #self.create_class_dictionary(list(self.class_dict.keys()) + ['noise'])
+    self.update_classes(list(self.class_dict.keys()) + [noise_label])
+
+    # training batches
+    if self.y_train is not None:
+      self.x_train, self.y_train, self.z_train = self.add_noise_data_algorithm(self.x_train, self.y_train, self.z_train, noise_label, shuffle)
+
+    # validation batches
+    if self.y_val is not None:
+      self.x_val, self.y_val, self.z_val = self.add_noise_data_algorithm(self.x_val, self.y_val, self.z_val, noise_label, shuffle)
+
+    # test batches
+    if self.y_test is not None:
+      self.x_test, self.y_test, self.z_test = self.add_noise_data_algorithm(self.x_test, self.y_test, self.z_test, noise_label, shuffle)
+
+    # test batches
+    if self.y_my is not None:
+      self.x_my, self.y_my, self.z_my = self.add_noise_data_algorithm(self.x_my, self.y_my, self.z_my, noise_label, shuffle)
+
+    # recount examples
+    self.determine_num_examples()
+
+
+  def add_noise_data_algorithm(self, x, y, z, noise_label, shuffle=True):
+    """
+    add noisy batches
+    """
+
+    # torch
+    if self.to_torch: 
+
+      # vstack noise
+      x = torch.as_tensor(torch.vstack((x, torch.rand(x.shape))), dtype=x.dtype)
+      y = torch.as_tensor(torch.vstack((y, self.class_dict[noise_label] * torch.ones(y.shape))), dtype=y.dtype)
+
+      z_add = z.copy()
+      z_add[:] = noise_label
+      z = np.vstack((z, z_add))
+
+      # shuffle examples
+      if shuffle:
+
+        # indices for shuffling
+        indices = torch.randperm(y.nelement())
+
+        # shuffling
+        x = x.view((-1,) + x.shape[2:])[indices].view(x.shape)
+        y = y.view((-1,) + y.shape[2:])[indices].view(y.shape)
+        z = z.reshape((-1,) + z.shape[2:])[indices].reshape(z.shape)
+
+    return x, y, z
 
 
   def extract(self):
@@ -134,14 +236,13 @@ class SpeechCommandsBatchArchive(BatchArchive):
   creates batches from feature files saved as .npz [train, test, eval]
   """
 
-  def __init__(self, feature_files, batch_size=4, batch_size_eval=4, to_torch=True):
+  def __init__(self, feature_files, batch_size=32, batch_size_eval=5, to_torch=True):
 
     # parent init
-    super().__init__(batch_size, batch_size_eval)
+    super().__init__(batch_size, batch_size_eval, to_torch=to_torch)
 
     # params
     self.feature_files = feature_files
-    self.to_torch = to_torch
 
     # load files [0]: train, etc.
     self.data = [np.load(file, allow_pickle=True) for file in self.feature_files]
@@ -162,7 +263,8 @@ class SpeechCommandsBatchArchive(BatchArchive):
     # do extraction
     self.extract()
 
-    print("data: x_train: ", self.x_train.shape)
+    # num examples
+    self.determine_num_examples()
 
 
   def extract(self):
@@ -288,6 +390,17 @@ class SpeechCommandsBatchArchive(BatchArchive):
 
 
 
+def print_batch_infos(batch_archive):
+  """
+  simply print some infos
+  """
+
+  print("x_train: ", batch_archive.x_train.shape), print("y_train: ", batch_archive.y_train.shape), print("z_train: ", batch_archive.z_train.shape), print("x_val: ", batch_archive.x_val.shape), print("y_val: ", batch_archive.y_val.shape), print("z_val: ", batch_archive.z_val.shape), print("x_test: ", batch_archive.x_test.shape), print("y_test: ", batch_archive.y_test.shape), print("z_test: ", batch_archive.z_test.shape), print("x_my: ", batch_archive.x_my.shape), print("y_my: ", batch_archive.y_my.shape), print("z_my: ", batch_archive.z_my.shape)
+  print("num_examples_per_class: ", batch_archive.num_examples_per_class), print("class_dict: ", batch_archive.class_dict)
+  print("y: ", batch_archive.y_train)
+  print("y data type: ", batch_archive.y_train.dtype)
+
+
 if __name__ == '__main__':
   """
   batching test
@@ -306,39 +419,26 @@ if __name__ == '__main__':
   audio_set2 = AudioDataset(cfg['datasets']['my_recordings'], cfg['feature_params'])
 
   # create batches
-  batch_archive = SpeechCommandsBatchArchive(audio_set1.feature_files + audio_set2.feature_files, batch_size=32, batch_size_eval=4)
+  batch_archive = SpeechCommandsBatchArchive(audio_set1.feature_files + audio_set2.feature_files, batch_size=32, batch_size_eval=5)
 
-  print("x_train: ", batch_archive.x_train.shape)
-  print("y_train: ", batch_archive.y_train.shape)
-  print("z_train: ", batch_archive.z_train.shape)
+  # infos
+  #print("\ndata: "), print_batch_infos(batch_archive)
 
-  print("x_val: ", batch_archive.x_val.shape)
-  print("y_val: ", batch_archive.y_val.shape)
-  print("z_val: ", batch_archive.z_val.shape)
+  # reduce to label
+  r_label = "up"
+  batch_archive.reduce_to_label(r_label)
 
-  print("x_test: ", batch_archive.x_test.shape)
-  print("y_test: ", batch_archive.y_test.shape)
-  print("z_test: ", batch_archive.z_test.shape)
+  # infos
+  #print("\nreduced to label: ", r_label), print_batch_infos(batch_archive)
 
-  print("x_my: ", batch_archive.x_my.shape)
-  print("y_my: ", batch_archive.y_my.shape)
-  print("z_my: ", batch_archive.z_my.shape)
+  # add noise
+  batch_archive.add_noise_data(shuffle=False)
 
-  plot_mfcc_only(batch_archive.x_train[0, 0, 0], fs=16000, hop=160, plot_path=None, name=batch_archive.z_train[0, 0])
+  # infos
+  print("\nnoise added: "), print_batch_infos(batch_archive)
 
-  batch_archive.reduce_to_label("up")
-  print("\nreduced:")
+  from plots import plot_grid_images, plot_other_grid
 
-  print("x_train: ", batch_archive.x_train.shape)
-  print("y_train: ", batch_archive.y_train.shape)
-
-  print("x_val: ", batch_archive.x_val.shape)
-  print("y_val: ", batch_archive.y_val.shape)
-
-  print("x_test: ", batch_archive.x_test.shape)
-  print("y_test: ", batch_archive.y_test.shape)
-
-  print("x_my: ", batch_archive.x_my.shape)
-  print("y_my: ", batch_archive.y_my.shape)
-
-  plot_mfcc_only(batch_archive.x_train[0, 0, 0], fs=16000, hop=160, plot_path=None, name=batch_archive.z_train[0, 0], show_plot=True)
+  # plot some examples
+  plot_grid_images(batch_archive.x_train[0, :32], padding=1, num_cols=8, title='grid', show_plot=False)
+  plot_other_grid(batch_archive.x_train[-1, :32], grid_size=(8, 8), show_plot=True)
