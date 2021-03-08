@@ -81,7 +81,7 @@ class ML():
     
     # save training results
     self.net_handler.save_models(model_files=self.model_files)
-    self.net_handler.save_params(params_file=self.params_file, train_params=self.cfg_ml['train_params'], class_dict=self.batch_archive.class_dict)
+    self.net_handler.save_params(params_file=self.params_file, train_params=self.cfg_ml['train_params'], class_dict=self.batch_archive.class_dict, feature_params=audio_dataset.feature_params)
     self.net_handler.save_metrics(metrics_file=self.metrics_file, train_score=train_score)
 
     if self.cfg_ml['save_as_pre_model']:

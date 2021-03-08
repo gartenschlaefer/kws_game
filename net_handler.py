@@ -153,11 +153,11 @@ class NetHandler():
         print("\n***could not save model!!!\n")
 
 
-  def save_params(self, params_file, train_params, class_dict):
+  def save_params(self, params_file, train_params, class_dict, feature_params):
     """
     save parameter file
     """
-    np.savez(params_file, nn_arch=self.nn_arch, train_params=train_params, class_dict=class_dict, data_size=self.data_size)
+    np.savez(params_file, nn_arch=self.nn_arch, train_params=train_params, class_dict=class_dict, data_size=self.data_size, feature_params=feature_params)
 
 
   def save_metrics(self, metrics_file, train_score=None):

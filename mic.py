@@ -25,9 +25,11 @@ class Mic():
 
     # arguments
     self.classifier = classifier
-    self.feature_params = feature_params
     self.mic_params = mic_params
     self.is_audio_record = is_audio_record
+
+    # shortcuts
+    self.feature_params = classifier.feature_params
 
     # feature extractor
     self.feature_extractor = FeatureExtractor(self.feature_params)

@@ -38,8 +38,14 @@ class Classifier():
     try:
       self.data_size = data['data_size'][()]
     except:
-      print("old classifier model use fixed data size: (1, 39, 32)")
       self.data_size = (1, 39, 32)
+      print("old classifier model use fixed data size: {}".format(self.data_size))
+
+    try:
+      self.feature_params = data['feature_params'][()]
+    except:
+      self.feature_params = {'fs': 16000, 'N_s': 0.025, 'hop_s': 0.010, 'n_filter_bands': 32, 'n_ceps_coeff': 12, 'frame_size': 32, 'norm_features': False, 'compute_deltas': True}
+      print("old classifier model use fixed feature parameters: {}".format(self.feature_params))
 
     # print info
     if self.cfg_classifier['verbose']:
