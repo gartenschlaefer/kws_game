@@ -65,7 +65,7 @@ class NetHandler():
     if self.nn_arch == 'conv-trad': self.models = {'cnn':ConvNetTrad(self.n_classes, self.data_size)}
     elif self.nn_arch == 'conv-fstride': self.models = {'cnn':ConvNetFstride4(self.n_classes, self.data_size)}
     elif self.nn_arch == 'conv-experimental': self.models = {'cnn':ConvNetExperimental(self.n_classes, self.data_size)}
-    elif self.nn_arch == 'adv-experimental': self.models = {'g':G_experimental(), 'd':D_experimental()}
+    elif self.nn_arch == 'adv-experimental': self.models = {'g':G_experimental(self.n_classes, self.data_size), 'd':D_experimental(self.n_classes, self.data_size)}
     else: print("***Network Architecture not found!")
 
     # send models to device
@@ -228,6 +228,13 @@ class NetHandler():
     sets the eval mode (dropout layers are ignored)
     """
     pass
+
+
+  def get_model_weights(self):
+    """
+    get model weights
+    """
+    return None
 
 
 
@@ -408,24 +415,6 @@ class AdversarialNetHandler(NetHandler):
     self.real_label = 1.
     self.fake_label = 0.
 
-    # weights init
-    self.models['g'].apply(self.weights_init)
-    self.models['d'].apply(self.weights_init)
-
-
-  def weights_init(self, m):
-    """
-    custom weights initialization called on netG and netD
-    adapted form: https://pytorch.org/tutorials/beginner/dcgan_faces_tutorial.html
-    """
-
-    classname = m.__class__.__name__
-    if classname.find('Conv') != -1:
-      torch.nn.init.normal_(m.weight.data, 0.0, 0.02)
-    elif classname.find('BatchNorm') != -1:
-      torch.nn.init.normal_(m.weight.data, 1.0, 0.02)
-      torch.nn.init.constant_(m.bias.data, 0)
-
 
   def train_nn(self, train_params, batch_archive, callback_f=None):
     """
@@ -474,11 +463,8 @@ class AdversarialNetHandler(NetHandler):
         # --
         # train with fake batch
 
-        # create noise as input
-        noise = torch.randn(batch_archive.batch_size, self.models['g'].n_latent, device=self.device)
-
-        # create fakes through Generator
-        fakes = self.models['g'](noise)
+        # create fakes through Generator with noise as input
+        fakes = self.models['g'](torch.randn(batch_archive.batch_size, self.models['g'].n_latent, device=self.device))
 
         # create fake labels
         y.fill_(self.fake_label)
@@ -553,6 +539,12 @@ class AdversarialNetHandler(NetHandler):
     return fakes
 
 
+  def get_model_weights(self):
+    """
+    get model weights
+    """
+    return self.models['d'].get_weights()
+
 
 if __name__ == '__main__':
   """
@@ -576,10 +568,10 @@ if __name__ == '__main__':
 
   # reduce to label and add noise
   batch_archive.reduce_to_label('up')
-  batch_archive.add_noise_data(shuffle=True)
+  #batch_archive.add_noise_data(shuffle=True)
 
   print("data: ", batch_archive.data_size)
-  print("classes: ", batch_archive.n_classes)
+  print("classes: ", batch_archive.class_dict)
 
   # create an cnn handler
   net_handler = NetHandler(nn_arch=cfg['ml']['nn_arch'], n_classes=batch_archive.n_classes, data_size=batch_archive.data_size, use_cpu=cfg['ml']['use_cpu'])
