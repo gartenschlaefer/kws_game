@@ -9,7 +9,7 @@ import logging
 
 # my stuff
 from common import s_to_hms_str, create_folder, check_files_existance
-from plots import plot_val_acc, plot_train_loss, plot_confusion_matrix, plot_mfcc_only, plot_grid_images, plot_other_grid
+from plots import plot_train_score, plot_confusion_matrix, plot_mfcc_only, plot_grid_images, plot_other_grid
 
 
 class ML():
@@ -43,6 +43,7 @@ class ML():
     # params and metrics files
     self.params_file = self.model_path + self.cfg_ml['params_file_name']
     self.metrics_file = self.model_path + self.cfg_ml['metrics_file_name']
+    self.info_file = self.model_path + self.cfg_ml['info_file_name']
 
     # image list (for adversarial)
     self.img_list = []
@@ -81,16 +82,41 @@ class ML():
     
     # save training results
     self.net_handler.save_models(model_files=self.model_files)
-    self.net_handler.save_params(params_file=self.params_file, train_params=self.cfg_ml['train_params'], class_dict=self.batch_archive.class_dict, feature_params=audio_dataset.feature_params)
-    self.net_handler.save_metrics(metrics_file=self.metrics_file, train_score=train_score)
 
+    # save params, metrics and infos
+    self.save_params()
+    self.save_metrics(train_score=train_score)
+    self.save_infos()
+
+    # save as pre trained model
     if self.cfg_ml['save_as_pre_model']:
       self.net_handler.save_models(model_files=self.model_pre_files)
 
-    # plots
-    plot_train_loss(train_score.train_loss, train_score.val_loss, plot_path=self.model_path, name='train_loss')
-    plot_val_acc(train_score.val_acc, plot_path=self.model_path, name='val_acc')
+    # plot score
+    plot_train_score(train_score, plot_path=self.model_path)
 
+
+  def save_params(self):
+    """
+    save parameter file
+    """
+    np.savez(self.params_file, nn_arch=self.net_handler.nn_arch, train_params=self.cfg_ml['train_params'], class_dict=self.batch_archive.class_dict, data_size=self.net_handler.data_size, feature_params=self.audio_dataset.feature_params)
+
+
+  def save_metrics(self, train_score=None):
+    """
+    save training metrics
+    """
+    np.savez(self.metrics_file, train_score=train_score)
+
+
+  def save_infos(self):
+    """
+    save some infos to a text file, e.g. model structure
+    """
+    with open(self.info_file, 'w') as f:
+      print(self.net_handler.models, file=f)
+    
 
   def eval(self):
     """
@@ -109,7 +135,7 @@ class ML():
     eval_log = eval_score.info_log(do_print=False)
 
     # log to file
-    if cfg['ml']['logging_enabled']:
+    if self.cfg_ml['logging_enabled']:
       logging.info(eval_log)
 
     # print confusion matrix
@@ -143,23 +169,24 @@ class ML():
     weights = self.net_handler.get_model_weights()
 
     # weights are available
-    if weights is not None:
+    for k, v in weights.items():
 
-      # conv1
-      if 'conv1' in weights.keys():
+      print("k: ", k)
+      # convolutional layers
+      if k.startswith('conv'):
 
         # info
-        print("conv1 analyze: ", weights['conv1'].shape)
+        print("{} analyze: {}".format(k, v.shape))
         
         # plot images
-        plot_grid_images(x=weights['conv1'].numpy(), padding=1, num_cols=8, title='conv1 '+ self.param_path_ml.replace('/', ' '), plot_path=self.model_path, name='conv1', show_plot=False)
-        #plot_other_grid(x=weights['conv1'].numpy(), plot_path=None, name='None', enable_plot=True)
+        plot_grid_images(x=v.numpy(), padding=1, num_cols=8, title=k + self.param_path_ml.replace('/', ' '), plot_path=self.model_path, name=k, show_plot=False)
+        plot_other_grid(x=v.numpy(), title=k + self.param_path_ml.replace('/', ' '), plot_path=self.model_path, name=k, show_plot=False)
 
     # generate samples (for generative networks)
     self.generate_samples()
 
     # animation (for generative networks)
-    self.create_anim()
+    if self.cfg_ml['plot_animation']: self.create_anim()
 
 
   def generate_samples(self):
@@ -170,7 +197,7 @@ class ML():
     # generate samples from trained model
     fake = self.net_handler.generate_samples(num_samples=1, to_np=True)
     if fake is not None:
-      plot_mfcc_only(fake, fs=16000, hop=160, plot_path=self.model_path, name='gnerated_sample', show_plot=False)
+      plot_mfcc_only(fake, fs=16000, hop=160, plot_path=self.model_path, name='generated_sample', show_plot=False)
 
 
   def image_collect(self, x):
@@ -229,6 +256,10 @@ if __name__ == '__main__':
 
   # create batch archive
   batch_archive = SpeechCommandsBatchArchive(audio_set1.feature_files + audio_set2.feature_files, batch_size=cfg['ml']['train_params']['batch_size'])
+
+  # reduce to label and add noise
+  batch_archive.reduce_to_label('up')
+  #batch_archive.add_noise_data(shuffle=True)
 
   # print classes
   print("classes: ", batch_archive.classes)

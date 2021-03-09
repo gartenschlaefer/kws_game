@@ -11,7 +11,7 @@ from glob import glob
 from praatio import tgio
 
 
-def plot_other_grid(x, grid_size=(8, 8), plot_path=None, name='None', show_plot=False):
+def plot_other_grid(x, grid_size=(8, 8), title='grid', plot_path=None, name='None', show_plot=False):
   """
   plot mfcc extracted features from audio file
   mfcc: [m x l]
@@ -23,6 +23,8 @@ def plot_other_grid(x, grid_size=(8, 8), plot_path=None, name='None', show_plot=
 
   fig = plt.figure(figsize=(8*n_cols/n_rows-0.5, 8))
   gs = plt.GridSpec(n_rows, n_cols, wspace=0.4, hspace=0.3)
+  plt.title(title)
+  plt.axis("off")
 
   i, j = 0, 0
 
@@ -35,6 +37,9 @@ def plot_other_grid(x, grid_size=(8, 8), plot_path=None, name='None', show_plot=
     cs = i * n_im_cols + 1
     ce = (i + 1) * n_im_cols
 
+    # exception for one row images
+    if rs == re: re += 1
+
     # update indices
     if not i % (grid_size[0]-1) and i: i, j = 0, j + 1
     else: i += 1
@@ -46,13 +51,15 @@ def plot_other_grid(x, grid_size=(8, 8), plot_path=None, name='None', show_plot=
     im = ax.imshow(xi[0], aspect='equal')
     ax.axis("off")
 
-  # plot
-  if plot_path is not None:
-    plt.savefig(plot_path + 'mfcc-' + name + '.png', dpi=150)
-    plt.close()
+  # TODO:
+  # add colorbar
+  #ax = fig.add_subplot(gs[rs:re, n_cols-1])
+  #fig.colorbar(im, cax=ax)
 
-  elif show_plot:
-    plt.show()
+  # plot save and show
+  if plot_path is not None: plt.savefig(plot_path + 'grid1_' + name + '.png', dpi=150)
+  if show_plot: plt.show()
+  else: plt.close()
 
 
 def plot_grid_images(x, padding=1, num_cols=8, title='grid', plot_path=None, name='None', show_plot=False):
@@ -72,6 +79,7 @@ def plot_grid_images(x, padding=1, num_cols=8, title='grid', plot_path=None, nam
   # init images
   row_imgs = np.empty((n_channels, n_features, 0), dtype=x.dtype)
   grid_img = np.empty((n_channels, 0, n_frames * num_cols + num_cols + padding), dtype=x.dtype)
+  all_grid_img = np.empty((0, n_frames * num_cols + num_cols + padding), dtype=x.dtype)
 
   # padding init
   v_padding = np.ones((n_channels, n_features, 1)) * value_min
@@ -104,19 +112,21 @@ def plot_grid_images(x, padding=1, num_cols=8, title='grid', plot_path=None, nam
   # last padding
   grid_img = np.concatenate((grid_img, h_padding), axis=1)
 
+  # get all channels together
+  for ch_grid_img in grid_img:
+    all_grid_img = np.concatenate((all_grid_img, ch_grid_img), axis=0)
+
   # plot
   plt.figure()
   plt.axis("off")
   plt.title(title)
-  plt.imshow(grid_img[0], aspect='equal')
+  #plt.imshow(grid_img[0], aspect='equal')
+  plt.imshow(all_grid_img, aspect='equal')
 
-  # plot the fig
-  if plot_path is not None:
-    plt.savefig(plot_path + 'grid_' + name + '.png', dpi=150)
-    plt.close()
-
-  elif show_plot:
-    plt.show()
+  # plot save and show
+  if plot_path is not None: plt.savefig(plot_path + 'grid2_' + name + '.png', dpi=150)
+  if show_plot: plt.show()
+  else: plt.close()
 
   # torch grid (must be torch tensor)
   # import torchvision.utils as vutils
@@ -251,6 +261,42 @@ def plot_confusion_matrix(cm, classes, plot_path=None, name='None'):
 
   plt.xlabel('predicted labels')
   plt.ylabel('true labels')
+
+  # plot the fig
+  if plot_path is not None:
+    plt.savefig(plot_path + name + '.png', dpi=150)
+    plt.close()
+
+
+def plot_train_score(train_score, plot_path):
+  """
+  plot train scores
+  """
+
+  # usual loss in not adversarial nets
+  if not train_score.is_adv:
+    plot_train_loss(train_score.train_loss, train_score.val_loss, plot_path=plot_path, name='train_loss')
+    plot_val_acc(train_score.val_acc, plot_path=plot_path, name='val_acc')
+
+  # for adversarial nets
+  else:
+    plot_adv_train_loss(g_loss_fake=train_score.g_loss_fake, d_loss_fake=train_score.d_loss_fake, d_loss_real=train_score.d_loss_real, plot_path=plot_path, name='train_loss')
+
+
+def plot_adv_train_loss(g_loss_fake, d_loss_fake, d_loss_real, plot_path=None, name='train_loss'):
+  """
+  train loss for adversarial networ
+  """
+
+  # setup figure
+  fig = plt.figure(figsize=(8, 5))
+  plt.plot(g_loss_fake, label='g_loss_fake')
+  plt.plot(d_loss_fake, label='d_loss_fake')
+  plt.plot(d_loss_real, label='d_loss_real')
+  plt.ylabel("loss")
+  plt.xlabel("iterations")
+  plt.legend()
+  plt.grid()
 
   # plot the fig
   if plot_path is not None:

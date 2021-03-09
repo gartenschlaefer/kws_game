@@ -316,7 +316,7 @@ class ConvNetExperimental(nn.Module, ConvBasics):
     # self.kernel_sizes = [(self.n_features, 20)]
     # self.strides = [(1, 10)]
 
-    self.n_feature_maps = [16, 8]
+    self.n_feature_maps = [8, 4]
     self.kernel_sizes = [(self.n_features, 20), (1, 5)]
     self.strides = [(1, 5), (1, 1)]
 
@@ -386,6 +386,64 @@ class ConvNetExperimental(nn.Module, ConvBasics):
     get weights of model
     """
     return {'conv1': self.conv1.weight.detach().cpu()}
+    
+
+
+class ConvEncoder(nn.Module, ConvBasics):
+  """
+  Conv Net architecture with limited multipliers 
+  presented in [Sainath 2015] - cnn-one-fstride4
+  """
+
+  def __init__(self, n_classes, data_size):
+    """
+    define neural network architecture
+    input: [batch x channels x m x f]
+    m - features (MFCC)
+    f - frames
+    """
+
+    # parent init
+    super().__init__()
+
+    # arguments
+    self.n_classes = n_classes
+    self.data_size = data_size
+
+    # extract input size [channel x features x frames]
+    self.n_channels, self.n_features, self.n_frames = self.data_size
+
+    # params
+    self.n_feature_maps = [8, 4]
+    self.kernel_sizes = [(self.n_features, 20), (1, 5)]
+    self.strides = [(1, 1), (1, 5)]
+
+    # get layer dimensions
+    self.get_conv_layer_dimensions()
+
+    # conv layer
+    self.conv1 = nn.Conv2d(self.n_channels, self.n_feature_maps[0], kernel_size=self.kernel_sizes[0], stride=self.strides[0])
+    self.conv2 = nn.Conv2d(self.n_feature_maps[0], self.n_feature_maps[1], kernel_size=self.kernel_sizes[1], stride=self.strides[1])
+
+    # dropout layer
+    self.dropout_layer1 = nn.Dropout(p=0.5)
+
+
+  def forward(self, x):
+    """
+    forward pass
+    """
+
+    # 1. conv layer
+    x = self.conv1(x)
+    x = F.relu(x)
+
+    # 2. conv layer
+    x = self.conv2(x)
+    x = F.relu(x)
+    x = self.dropout_layer1(x)
+
+    return x
 
 
 if __name__ == '__main__':

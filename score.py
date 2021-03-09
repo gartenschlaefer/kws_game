@@ -10,11 +10,11 @@ class TrainScore():
   collection of scores
   """
 
-  def __init__(self, num_epochs, use_adv=False):
+  def __init__(self, num_epochs, is_adv=False):
 
     # params
     self.num_epochs = num_epochs
-    self.use_adv = use_adv
+    self.is_adv = is_adv
 
     # collect losses over epochs
     self.batch_loss = 0.0
@@ -23,7 +23,7 @@ class TrainScore():
     self.val_acc = np.zeros(self.num_epochs)
 
     # adversarial losses
-    self.g_batch_loss = None
+    self.g_batch_loss_fake = None
     self.d_batch_loss_real = None
     self.d_batch_loss_fake = None
     self.g_train_loss = None
@@ -31,8 +31,8 @@ class TrainScore():
     self.d_train_loss_fake = None
 
     # init if activated
-    if self.use_adv:
-      self.g_loss = np.zeros(self.num_epochs)
+    if self.is_adv:
+      self.g_loss_fake = np.zeros(self.num_epochs)
       self.d_loss_real = np.zeros(self.num_epochs)
       self.d_loss_fake = np.zeros(self.num_epochs)
 
@@ -52,28 +52,30 @@ class TrainScore():
     self.batch_loss = 0.0
 
     # for adversarial networks
-    if self.use_adv:
-      self.g_batch_loss = 0.0
+    if self.is_adv:
+      self.g_batch_loss_fake = 0.0
       self.d_batch_loss_real = 0.0
       self.d_batch_loss_fake = 0.0
 
 
-  def update_batch_losses(self, epoch, loss, g_loss=None, d_loss_real=None, d_loss_fake=None):
+  def update_batch_losses(self, epoch, loss, g_loss_fake=None, d_loss_real=None, d_loss_fake=None):
     """
     update losses
     """
 
+    # update losses
     self.batch_loss = loss
-    self.train_loss += loss 
+    self.train_loss[epoch] += loss 
 
-    if self.use_adv:
+    # adversarial net
+    if self.is_adv:
 
       # batch loss for score
-      self.g_batch_loss = g_loss
+      self.g_batch_loss_fake = g_loss_fake
       self.d_batch_loss_real = d_loss_real
       self.d_batch_loss_fake = d_loss_fake
 
-      self.g_loss[epoch] += g_loss
+      self.g_loss_fake[epoch] += g_loss_fake
       self.d_loss_real[epoch] += d_loss_real
       self.d_loss_fake[epoch] += d_loss_fake
 

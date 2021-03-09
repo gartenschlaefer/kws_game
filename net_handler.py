@@ -101,8 +101,8 @@ class NetHandler():
     if mini_batch % k_print == k_print-1 or do_print_anyway:
 
       # adversarial gets separate print
-      if train_score.use_adv:
-        print('epoch: {}, mini-batch: {}, G loss: [{:.5f}], D loss real: [{:.5f}], D loss fake: [{:.5f}]'.format(epoch + 1, mini_batch + 1, train_score.g_batch_loss / k_print, train_score.d_batch_loss_real / k_print, train_score.d_batch_loss_fake / k_print))
+      if train_score.is_adv:
+        print('epoch: {}, mini-batch: {}, G loss fake: [{:.5f}], D loss real: [{:.5f}], D loss fake: [{:.5f}]'.format(epoch + 1, mini_batch + 1, train_score.g_batch_loss_fake / k_print, train_score.d_batch_loss_real / k_print, train_score.d_batch_loss_fake / k_print))
 
       else:
         # print info
@@ -151,20 +151,6 @@ class NetHandler():
 
       except:
         print("\n***could not save model!!!\n")
-
-
-  def save_params(self, params_file, train_params, class_dict, feature_params):
-    """
-    save parameter file
-    """
-    np.savez(params_file, nn_arch=self.nn_arch, train_params=train_params, class_dict=class_dict, data_size=self.data_size, feature_params=feature_params)
-
-
-  def save_metrics(self, metrics_file, train_score=None):
-    """
-    save training metrics
-    """
-    np.savez(metrics_file, train_score=train_score)
 
 
   def train_nn(self, train_params, batch_archive, callback_f=None):
@@ -429,7 +415,7 @@ class AdversarialNetHandler(NetHandler):
     optimizer_g = torch.optim.Adam(self.models['g'].parameters(), lr=train_params['lr'], betas=(train_params['beta'], 0.999))
 
     # score collector
-    train_score = TrainScore(train_params['num_epochs'], use_adv=True)
+    train_score = TrainScore(train_params['num_epochs'], is_adv=True)
 
     print("\n--Training starts:")
 
@@ -458,7 +444,6 @@ class AdversarialNetHandler(NetHandler):
         # loss of D with reals
         d_loss_real = self.criterion(o, y)
         d_loss_real.backward()
-        #d_reals = o.mean().item()
 
         # --
         # train with fake batch
@@ -469,16 +454,12 @@ class AdversarialNetHandler(NetHandler):
         # create fake labels
         y.fill_(self.fake_label)
 
-        # fakes to D
+        # fakes to D (without gradient backprop)
         o = self.models['d'](fakes.detach()).view(-1)
 
         # loss of D with fakes
         d_loss_fake = self.criterion(o, y)
         d_loss_fake.backward()
-        #D_G_z1 = o.mean().item()
-
-        # cumulate all losses
-        #d_loss = loss_real + lossD_fake
 
         # optimizer step
         optimizer_d.step()
@@ -486,22 +467,24 @@ class AdversarialNetHandler(NetHandler):
         # --
         # update of G
 
+        # zero gradients
         self.models['g'].zero_grad()
 
+        # fakes should be real labels for G
         y.fill_(self.real_label)
 
+        # fakes to D
         o = self.models['d'](fakes).view(-1)
 
         # loss of G of D with fakes
-        g_loss = self.criterion(o, y)
-        g_loss.backward()
-        #D_G_z2 = o.mean().item()
+        g_loss_fake = self.criterion(o, y)
+        g_loss_fake.backward()
 
         # optimizer step
         optimizer_g.step()
 
         # update batch loss collection
-        train_score.update_batch_losses(epoch, loss=0.0, g_loss=g_loss.item(), d_loss_real=d_loss_real.item(), d_loss_fake=d_loss_fake.item())
+        train_score.update_batch_losses(epoch, loss=0.0, g_loss_fake=g_loss_fake.item(), d_loss_real=d_loss_real.item(), d_loss_fake=d_loss_fake.item())
 
         # print some infos
         self.print_train_info(epoch, i, train_score, k_print=batch_archive.y_train.shape[0] // self.num_print_per_epoch)

@@ -10,33 +10,13 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+from conv_nets import ConvBasics, ConvEncoder
 
-class AdvBasics():
+
+class AdvBasics(ConvBasics):
   """
   Convolutional networks Basic useful functions
   """
-
-  def get_conv_layer_dimensions(self):
-    """
-    get convolutional layer dimensions upon kernel sizes and strides
-    """
-
-    # layer dimensions
-    self.conv_layer_dim = []
-    self.conv_layer_dim.append((self.n_features, self.n_frames))
-
-    for i, (k, s) in enumerate(zip(self.kernel_sizes, self.strides)):
-      self.conv_layer_dim.append((int((self.conv_layer_dim[i][0] - k[0]) / s[0] + 1), int((self.conv_layer_dim[i][1] - k[1]) / s[1] + 1)))
-
-    print("conv layer dim: ", self.conv_layer_dim)
-
-
-  def get_weights(self):
-    """
-    analyze weights of model interface
-    """
-    return None
-
 
   def weights_init(self, module):
     """
@@ -47,20 +27,39 @@ class AdvBasics():
     # get class name from modules
     cls_name = module.__class__.__name__
 
-    # conv layer inít
-    if cls_name.find('Conv') != -1:
+    # conv layer init
+    if cls_name in ['Conv2d', 'ConvTranspose2d']:
       print("{}: {} weights init".format(self.__class__.__name__, cls_name))
-      torch.nn.init.normal_(module.weight.data, 0.0, 0.02)
+      nn.init.normal_(module.weight.data, 0.0, 0.02)
 
     # batch norm init
     elif cls_name.find('BatchNorm') != -1:
       print("{} weights init".format(cls_name))
-      torch.nn.init.normal_(module.weight.data, 1.0, 0.02)
-      torch.nn.init.constant_(module.bias.data, 0)
+      nn.init.normal_(module.weight.data, 1.0, 0.02)
+      nn.init.constant_(module.bias.data, 0)
 
 
 
-class G_experimental(nn.Module, AdvBasics):
+class GD_experimentalParams():
+  """
+  parameters for experimental
+  """
+
+  def params_init(self):
+    """
+    parameter initialisation
+    """
+    # extract input size [channel x features x frames]
+    self.n_channels, self.n_features, self.n_frames = self.data_size
+
+    # params (reversed order)
+    self.n_feature_maps = [8, 4]
+    self.kernel_sizes = [(self.n_features, 20), (1, 5)]
+    self.strides = [(1, 1), (1, 5)]
+
+
+
+class G_experimental(nn.Module, AdvBasics, GD_experimentalParams):
   """
   Generator for experimental purpose
   input: noise of size [n_latent]
@@ -79,13 +78,8 @@ class G_experimental(nn.Module, AdvBasics):
     self.data_size = data_size
     self.n_latent = n_latent
 
-    # extract input size [channel x features x frames]
-    self.n_channels, self.n_features, self.n_frames = self.data_size
-
-    # params (reversed order)
-    self.n_feature_maps = [8, 4]
-    self.kernel_sizes = [(self.n_features, 20), (1, 5)]
-    self.strides = [(1, 5), (1, 1)]
+    # init params
+    self.params_init()
 
     # get layer dimensions (reversed order for Generator)
     self.get_conv_layer_dimensions()
@@ -101,9 +95,12 @@ class G_experimental(nn.Module, AdvBasics):
     self.deconv2 = nn.ConvTranspose2d(in_channels=self.n_feature_maps[0], out_channels=1, kernel_size=self.kernel_sizes[0], stride=self.strides[0])
     #self.bn2 = nn.BatchNorm2d(self.n_classes)
 
+    # dropout layer
+    self.dropout_layer1 = nn.Dropout(p=0.5)
+
     # last layer activation
-    self.tanh = nn.Tanh()
-    #self.sigm = nn.Sigmoid()
+    #self.tanh = nn.Tanh()
+    self.sigm = nn.Sigmoid()
 
     # init weights
     self.apply(self.weights_init)
@@ -121,19 +118,24 @@ class G_experimental(nn.Module, AdvBasics):
     # reshape for conv layer
     x = torch.reshape(x, ((x.shape[0], self.n_feature_maps[1]) + self.conv_layer_dim[-1]))
 
-    # deconvolution
+    # 1. deconv layer
     x = self.deconv1(x)
+    x = F.relu(x)
+    #x = self.dropout_layer1(x)
+
+    # 2. deconv layer
     x = self.deconv2(x)
 
     # last layer activation
-    x = self.tanh(x)
-    #x = self.sigm(x)
+    #x = self.tanh(x)
+    x = self.sigm(x)
 
     return x
 
 
 
-class D_experimental(nn.Module, AdvBasics):
+class D_experimental(nn.Module, AdvBasics, GD_experimentalParams):
+#class D_experimental(nn.Module, AdvBasics, ConvEncoder):
   """
   Discriminator for experimental purpose
   input: [batch x channels x m x f]
@@ -151,30 +153,28 @@ class D_experimental(nn.Module, AdvBasics):
     self.n_classes = n_classes
     self.data_size = data_size
 
-    # extract input size [channel x features x frames]
-    self.n_channels, self.n_features, self.n_frames = self.data_size
+    # encoder model
+    self.conv_encoder = ConvEncoder(self.n_classes, self.data_size)
 
-    # params
-    self.n_feature_maps = [8, 4]
-    self.kernel_sizes = [(self.n_features, 20), (1, 5)]
-    self.strides = [(1, 5), (1, 1)]
+    # init params
+    #self.params_init()
 
     # get layer dimensions
-    self.get_conv_layer_dimensions()
+    #self.get_conv_layer_dimensions()
 
     # conv layer
-    self.conv1 = nn.Conv2d(self.n_channels, self.n_feature_maps[0], kernel_size=self.kernel_sizes[0], stride=self.strides[0])
+    #self.conv1 = nn.Conv2d(self.n_channels, self.n_feature_maps[0], kernel_size=self.kernel_sizes[0], stride=self.strides[0])
     #self.bn1 = nn.BatchNorm2d(self.n_feature_maps[0])
 
-    self.conv2 = nn.Conv2d(self.n_feature_maps[0], self.n_feature_maps[1], kernel_size=self.kernel_sizes[1], stride=self.strides[1])
+    #self.conv2 = nn.Conv2d(self.n_feature_maps[0], self.n_feature_maps[1], kernel_size=self.kernel_sizes[1], stride=self.strides[1])
     #self.bn2 = nn.BatchNorm2d(self.n_classes)
 
     # fully connected layers with affine transformations: y = Wx + b
-    self.fc1 = nn.Linear(np.prod(self.conv_layer_dim[-1]) * self.n_feature_maps[-1], 1)
+    #self.fc1 = nn.Linear(np.prod(self.conv_layer_dim[-1]) * self.n_feature_maps[-1], 1)
+    self.fc1 = nn.Linear(np.prod(self.conv_encoder.conv_layer_dim[-1]) * self.conv_encoder.n_feature_maps[-1], 1)
 
     # dropout layer
-    self.dropout_layer1 = nn.Dropout(p=0.5)
-    self.dropout_layer2 = nn.Dropout(p=0.2)
+    #self.dropout_layer1 = nn.Dropout(p=0.5)
 
     # last layer activation
     self.sigm = nn.Sigmoid()
@@ -189,16 +189,19 @@ class D_experimental(nn.Module, AdvBasics):
     """
 
     # 1. conv layer
-    x = self.conv1(x)
+    #x = self.conv1(x)
     #x = self.bn1(x)
-    x = F.relu(x)
+    #x = F.relu(x)
     #x = self.dropout_layer2(x)
 
     # 2. conv layer
-    x = self.conv2(x)
+    #x = self.conv2(x)
     #x = self.bn2(x)
-    x = F.relu(x)
-    x = self.dropout_layer1(x)
+    #x = F.relu(x)
+    #x = self.dropout_layer1(x)
+
+    # encoder model
+    x = self.conv_encoder(x)
 
     # flatten output from conv layer
     x = x.view(-1, np.product(x.shape[1:]))
@@ -221,7 +224,7 @@ class D_experimental(nn.Module, AdvBasics):
     """
     get weights of model
     """
-    return {'conv1': self.conv1.weight.detach().cpu()}
+    return {'conv1': self.conv_encoder.conv1.weight.detach().cpu(), 'conv2': self.conv_encoder.conv2.weight.detach().cpu()}
 
 
 if __name__ == '__main__':

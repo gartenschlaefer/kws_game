@@ -14,7 +14,6 @@ sys.path.append("../")
 from sklearn import svm
 
 # my stuff
-from plots import plot_val_acc, plot_train_loss, plot_confusion_matrix
 from batch_archive import SpeechCommandsBatchArchive
 from audio_dataset import AudioDataset
 
