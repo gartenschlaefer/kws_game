@@ -263,9 +263,6 @@ class SpeechCommandsBatchArchive(BatchArchive):
     # do extraction
     self.extract()
 
-    # num examples
-    self.determine_num_examples()
-
 
   def extract(self):
     """
@@ -273,7 +270,7 @@ class SpeechCommandsBatchArchive(BatchArchive):
     """
 
     # print some infos about data
-    print("\n--extract batches from data:\ntrain: {}\nval: {}\ntest: {}\n".format(self.data[0]['x'].shape, self.data[1]['x'].shape, self.data[2]['x'].shape))
+    #print("\n--extract batches from data:\ntrain: {}\nval: {}\ntest: {}\n".format(self.data[0]['x'].shape, self.data[1]['x'].shape, self.data[2]['x'].shape))
 
     # set data size
     self.data_size = self.data[0]['x'].shape[1:]
@@ -294,6 +291,9 @@ class SpeechCommandsBatchArchive(BatchArchive):
     # my data included
     if len(self.feature_files) == 4:
       self.x_my, self.y_my, self.z_my = self.create_batches(self.data[3], batch_size=1)
+
+    # num examples
+    self.determine_num_examples()
 
 
   def create_batches(self, data, batch_size=1, window_step=1, plot_shift=False):

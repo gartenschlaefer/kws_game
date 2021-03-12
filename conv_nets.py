@@ -15,8 +15,18 @@ import torch.nn.functional as F
 
 class ConvBasics():
   """
-  Convolutional networks Basic useful functions
+  Convolutional Networks Basics with useful functions
   """
+
+  def __init__(self, n_classes, data_size):
+
+    # arguments
+    self.n_classes = n_classes
+    self.data_size = data_size
+
+    # extract input size [channel x features x frames]
+    self.n_channels, self.n_features, self.n_frames = self.data_size
+
 
   def get_conv_layer_dimensions(self):
     """
@@ -44,25 +54,17 @@ class ConvNetTrad(nn.Module, ConvBasics):
   """
   Traditional Conv Net architecture 
   presented in [Sainath 2015] - cnn-trad-fpool3
+
+  input: [batch x channels x m x f]
+  m - features (MFCC)
+  f - frames
   """
 
   def __init__(self, n_classes, data_size):
-    """
-    define neural network architecture
-    input: [batch x channels x m x f]
-    m - features (MFCC)
-    f - frames
-    """
 
     # parent init
     super().__init__()
-
-    # arguments
-    self.n_classes = n_classes
-    self.data_size = data_size
-
-    # extract input size [channel x features x frames]
-    self.n_channels, self.n_features, self.n_frames = self.data_size
+    ConvBasics.__init__(self, n_classes, data_size)
 
     # params
     self.n_feature_maps = [64, 64]
@@ -136,25 +138,17 @@ class ConvNetFstride4(nn.Module, ConvBasics):
   """
   Conv Net architecture with limited multipliers 
   presented in [Sainath 2015] - cnn-one-fstride4
+
+  input: [batch x channels x m x f]
+  m - features (MFCC)
+  f - frames
   """
 
   def __init__(self, n_classes, data_size):
-    """
-    define neural network architecture
-    input: [batch x channels x m x f]
-    m - features (MFCC)
-    f - frames
-    """
 
     # parent init
     super().__init__()
-
-    # arguments
-    self.n_classes = n_classes
-    self.data_size = data_size
-
-    # extract input size [channel x features x frames]
-    self.n_channels, self.n_features, self.n_frames = self.data_size
+    ConvBasics.__init__(self, n_classes, data_size)
 
     # params
     self.n_feature_maps = [54]
@@ -213,27 +207,14 @@ class ConvNetFstride4(nn.Module, ConvBasics):
 
 class ConvNetExperimental1(nn.Module, ConvBasics):
   """
-  Conv Net architecture with limited multipliers 
-  presented in [Sainath 2015] - cnn-one-fstride4
+  Convolutional Net for experiments
   """
 
   def __init__(self, n_classes, data_size):
-    """
-    define neural network architecture
-    input: [batch x channels x m x f]
-    m - features (MFCC)
-    f - frames
-    """
 
     # parent init
     super().__init__()
-
-    # arguments
-    self.n_classes = n_classes
-    self.data_size = data_size
-
-    # extract input size [channel x features x frames]
-    self.n_channels, self.n_features, self.n_frames = self.data_size
+    ConvBasics.__init__(self, n_classes, data_size)
 
     # params
     self.n_feature_maps = [16]
@@ -289,27 +270,14 @@ class ConvNetExperimental1(nn.Module, ConvBasics):
 
 class ConvNetExperimental(nn.Module, ConvBasics):
   """
-  Conv Net architecture with limited multipliers 
-  presented in [Sainath 2015] - cnn-one-fstride4
+  Convolutional net for experiments
   """
 
   def __init__(self, n_classes, data_size):
-    """
-    define neural network architecture
-    input: [batch x channels x m x f]
-    m - features (MFCC)
-    f - frames
-    """
 
     # parent init
     super().__init__()
-
-    # arguments
-    self.n_classes = n_classes
-    self.data_size = data_size
-
-    # extract input size [channel x features x frames]
-    self.n_channels, self.n_features, self.n_frames = self.data_size
+    ConvBasics.__init__(self, n_classes, data_size)
 
     # params
     # self.n_feature_maps = [16]
@@ -389,37 +357,36 @@ class ConvNetExperimental(nn.Module, ConvBasics):
     
 
 
-class ConvEncoder(nn.Module, ConvBasics):
+class ConvEncoderDecoderParams(ConvBasics):
   """
-  Conv Net architecture with limited multipliers 
-  presented in [Sainath 2015] - cnn-one-fstride4
+  parameters for experimental
   """
 
   def __init__(self, n_classes, data_size):
-    """
-    define neural network architecture
-    input: [batch x channels x m x f]
-    m - features (MFCC)
-    f - frames
-    """
 
     # parent init
-    super().__init__()
+    super().__init__(n_classes, data_size)
 
-    # arguments
-    self.n_classes = n_classes
-    self.data_size = data_size
-
-    # extract input size [channel x features x frames]
-    self.n_channels, self.n_features, self.n_frames = self.data_size
-
-    # params
+    # params (reversed order)
     self.n_feature_maps = [8, 4]
     self.kernel_sizes = [(self.n_features, 20), (1, 5)]
     self.strides = [(1, 1), (1, 5)]
 
     # get layer dimensions
     self.get_conv_layer_dimensions()
+
+
+
+class ConvEncoder(nn.Module, ConvEncoderDecoderParams):
+  """
+  Convolutional encoder
+  """
+
+  def __init__(self, n_classes, data_size):
+
+    # parent init
+    super().__init__()
+    ConvEncoderDecoderParams.__init__(self, n_classes, data_size)
 
     # conv layer
     self.conv1 = nn.Conv2d(self.n_channels, self.n_feature_maps[0], kernel_size=self.kernel_sizes[0], stride=self.strides[0])
@@ -444,6 +411,165 @@ class ConvEncoder(nn.Module, ConvBasics):
     x = self.dropout_layer1(x)
 
     return x
+
+
+
+class ConvDecoder(nn.Module, ConvEncoderDecoderParams):
+  """
+  Convolutional decoder for adversarial nets
+  """
+
+  def __init__(self, n_classes, data_size):
+
+    # parent init
+    super().__init__()
+    ConvEncoderDecoderParams.__init__(self, n_classes, data_size)
+
+    # conv layer
+    self.deconv1 = nn.ConvTranspose2d(in_channels=self.n_feature_maps[1], out_channels=self.n_feature_maps[0], kernel_size=self.kernel_sizes[1], stride=self.strides[1])
+    #self.bn1 = nn.BatchNorm2d(self.n_feature_maps[0])
+
+    self.deconv2 = nn.ConvTranspose2d(in_channels=self.n_feature_maps[0], out_channels=1, kernel_size=self.kernel_sizes[0], stride=self.strides[0])
+    #self.bn2 = nn.BatchNorm2d(self.n_classes)
+
+
+  def forward(self, x):
+    """
+    forward pass
+    """
+
+    # 1. deconv layer
+    x = self.deconv1(x)
+    x = F.relu(x)
+
+    # 2. deconv layer
+    x = self.deconv2(x)
+
+    return x
+
+
+
+class CollectedConvEncoderNet(nn.Module):
+  """
+  Collected encoder networks
+  """
+
+  def __init__(self, encoder_models):
+
+    # parent init
+    super().__init__()
+
+    # arguments
+    self.encoder_models = encoder_models
+
+    # get last dimension and feature map
+    self.last_conv_layer_dims = [encoder_model.conv_layer_dim[-1] for encoder_model in self.encoder_models]
+    self.last_feature_maps = [encoder_model.n_feature_maps[-1] for encoder_model in self.encoder_models]
+
+    # calculate flatten output dimension
+    self.flatten_output_dim = np.sum([np.prod(d + (f,)) for d, f in zip(self.last_conv_layer_dims, self.last_feature_maps)])
+
+    # eval mode
+    #self.encoder_models = [encoder_model.eval() for encoder_model in self.encoder_models]
+
+
+  def forward(self, x):
+    """
+    forward pass
+    """
+
+    # models in parallel
+    x = torch.cat([encoder_model(x) for encoder_model in self.encoder_models], dim=1)
+    #for encoder_model in self.encoder_models:
+    #  x = encoder_model(x)
+
+    return x
+
+
+
+class ClassifierNet(nn.Module):
+  """
+  Classifier Network
+  """
+
+  def __init__(self, input_dim, output_dim):
+
+    # parent init
+    super().__init__()
+
+    # fully connected layers with affine transformations: y = Wx + b
+    self.fc1 = nn.Linear(input_dim, 64)
+    self.fc2 = nn.Linear(64, 32)
+    self.fc3 = nn.Linear(32, output_dim)
+
+    # dropout layer
+    self.dropout_layer1 = nn.Dropout(p=0.2)
+    #self.dropout_layer2 = nn.Dropout(p=0.5)
+
+    # softmax layer
+    self.softmax = nn.Softmax(dim=1)
+
+
+  def forward(self, x):
+    """
+    forward pass
+    """
+
+    # 1. fully connected layers [1 x 32]
+    x = self.fc1(x)
+    x = F.relu(x)
+
+    # 2. fully connected layers [1 x 128]
+    x = self.fc2(x)
+    x = F.relu(x)
+    x = self.dropout_layer1(x)
+
+    x = self.fc3(x)
+
+    # Softmax layer [1 x n_classes]
+    x = self.softmax(x)
+
+    return x
+
+
+
+class ConvEncoderClassifierNet(nn.Module, ConvBasics):
+  """
+  Collected encoder networks with consecutive classifier Network
+  """
+
+  def __init__(self, n_classes, data_size, encoder_models):
+
+    # parent init
+    super().__init__()
+    ConvBasics.__init__(self, n_classes, data_size)
+
+    # arguments
+    self.encoder_models = encoder_models
+
+    # conv encoder network
+    self.conv_encoder_net = CollectedConvEncoderNet(encoder_models)
+
+    # classifier net
+    self.classifier_net = ClassifierNet(self.conv_encoder_net.flatten_output_dim, n_classes)
+
+
+  def forward(self, x):
+    """
+    forward pass
+    """
+
+    # parallel conv encoder models
+    x = self.conv_encoder_net(x)
+
+    # flatten output from conv layer [1 x 432]
+    x = x.view(-1, np.product(x.shape[1:]))
+
+    # classifier net
+    x = self.classifier_net(x)
+
+    return x
+ 
 
 
 if __name__ == '__main__':

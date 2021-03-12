@@ -6,7 +6,7 @@ import numpy as np
 import torch
 import time
 
-from conv_nets import ConvNetTrad, ConvNetFstride4, ConvNetExperimental
+from conv_nets import ConvNetTrad, ConvNetFstride4, ConvNetExperimental, ConvEncoderClassifierNet
 from adversarial_nets import G_experimental, D_experimental
 from score import TrainScore, EvalScore
 
@@ -16,30 +16,41 @@ class NetHandler():
   Neural Network Handler with general functionalities and interfaces
   """
 
-  def __new__(cls, nn_arch, n_classes, data_size, use_cpu=False):
+  def __new__(cls, nn_arch, n_classes, data_size, encoder_models=None, use_cpu=False):
 
     # adversarial handler
-    if nn_arch == 'adv-experimental':
+    if nn_arch in ['adv-experimental']:
       for child_cls in cls.__subclasses__():
         if child_cls.__name__ == 'AdversarialNetHandler':
           return super().__new__(AdversarialNetHandler)
 
     # cnn handler
-    elif nn_arch == 'conv-trad' or nn_arch == 'conv-fstride' or nn_arch == 'conv-experimental':
+    elif nn_arch in ['conv-trad', 'conv-fstride', 'conv-experimental']:
       for child_cls in cls.__subclasses__():
         if child_cls.__name__ == 'CnnHandler':
           return super().__new__(CnnHandler)
+
+    # conv encoder handler
+    elif nn_arch in ['conv-encoder']:
+      for child_cls in cls.__subclasses__():
+        if child_cls.__name__ == 'ConvEncoderNetHandler':
+          return super().__new__(ConvEncoderNetHandler)
+
+        for child_child_cls in child_cls.__subclasses__():
+          if child_child_cls.__name__ == 'ConvEncoderNetHandler':
+            return super().__new__(ConvEncoderNetHandler)
 
     # handler specific
     return super().__new__(cls)
 
 
-  def __init__(self, nn_arch, n_classes, data_size, use_cpu=False):
+  def __init__(self, nn_arch, n_classes, data_size, encoder_models=None, use_cpu=False):
 
     # arguments
     self.nn_arch = nn_arch
     self.n_classes = n_classes
     self.data_size = data_size
+    self.encoder_models = encoder_models
     self.use_cpu = use_cpu
 
     # vars
@@ -66,6 +77,7 @@ class NetHandler():
     elif self.nn_arch == 'conv-fstride': self.models = {'cnn':ConvNetFstride4(self.n_classes, self.data_size)}
     elif self.nn_arch == 'conv-experimental': self.models = {'cnn':ConvNetExperimental(self.n_classes, self.data_size)}
     elif self.nn_arch == 'adv-experimental': self.models = {'g':G_experimental(self.n_classes, self.data_size), 'd':D_experimental(self.n_classes, self.data_size)}
+    elif self.nn_arch == 'conv-encoder': self.models = {'cnn':ConvEncoderClassifierNet(self.n_classes, self.data_size, self.encoder_models)}
     else: print("***Network Architecture not found!")
 
     # send models to device
@@ -132,7 +144,7 @@ class NetHandler():
       pass
 
 
-  def save_models(self, model_files):
+  def save_models(self, model_files, encoder_model_file=None, encoder_class_name='ConvEncoder'):
     """
     saves model
     """
@@ -151,6 +163,19 @@ class NetHandler():
 
       except:
         print("\n***could not save model!!!\n")
+
+      # skip if encoder model file is None
+      if encoder_model_file is None: continue
+
+      # go through all modules
+      for module in model.children():
+
+        # if module is encoder class
+        if module.__class__.__name__ == encoder_class_name:
+
+          # save and print info
+          torch.save(module.state_dict(), encoder_model_file)
+          print("save {} to file: {}".format(encoder_class_name, encoder_model_file))
 
 
   def train_nn(self, train_params, batch_archive, callback_f=None):
@@ -229,10 +254,10 @@ class CnnHandler(NetHandler):
   Neural Network Handler for CNNs
   """
 
-  def __init__(self, nn_arch, n_classes, data_size, use_cpu=False):
+  def __init__(self, nn_arch, n_classes, data_size, encoder_models=None, use_cpu=False):
 
     # parent class init
-    super().__init__(nn_arch, n_classes, data_size, use_cpu)
+    super().__init__(nn_arch, n_classes, data_size, encoder_models=encoder_models, use_cpu=use_cpu)
 
     # loss criterion
     self.criterion = torch.nn.CrossEntropyLoss()
@@ -386,10 +411,10 @@ class AdversarialNetHandler(NetHandler):
   adapted form: https://pytorch.org/tutorials/beginner/dcgan_faces_tutorial.html
   """
 
-  def __init__(self, nn_arch, n_classes, data_size, use_cpu=False):
+  def __init__(self, nn_arch, n_classes, data_size, encoder_models=None, use_cpu=False):
 
     # parent class init
-    super().__init__(nn_arch, n_classes, data_size, use_cpu)
+    super().__init__(nn_arch, n_classes, data_size, encoder_models=encoder_models, use_cpu=use_cpu)
 
     # loss criterion
     self.criterion = torch.nn.BCELoss()
@@ -527,6 +552,86 @@ class AdversarialNetHandler(NetHandler):
     get model weights
     """
     return self.models['d'].get_weights()
+
+
+
+class ConvEncoderNetHandler(CnnHandler):
+
+  """
+  Neural Network Handler for Convolutional Encoder Network
+  the conv encoders are pre-trained and only a consecutive classifier network is trained
+  """
+
+  def train_nn(self, train_params, batch_archive, callback_f=None):
+    """
+    train the neural network
+    train_params: {'num_epochs': [], 'lr': [], 'momentum': []}
+    """
+
+    print("----------train_conv_encoder")
+    self.models['cnn'].conv_encoder_net.eval()
+
+    # create optimizer
+    #optimizer = torch.optim.SGD(self.model.parameters(), lr=train_params['lr'], momentum=train_params['momentum'])
+
+    optimizer = torch.optim.Adam(self.models['cnn'].parameters(), lr=train_params['lr'])
+    #optimizer = torch.optim.Adam(self.models['cnn'].classifier_net.parameters(), lr=train_params['lr'])
+
+    #print("models: ", self.models['cnn'])
+    #print("models: ", self.models['cnn'].classifier_net.parameters())
+
+    #for m in self.models['cnn'].modules():
+    #  print("module: ", m)
+
+    # score collector
+    train_score = TrainScore(train_params['num_epochs'])
+
+    print("\n--Training starts:")
+
+    # start time
+    start_time = time.time()
+
+    # epochs
+    for epoch in range(train_params['num_epochs']):
+
+      # fetch data samples
+      for i, (x, y) in enumerate(zip(batch_archive.x_train.to(self.device), batch_archive.y_train.to(self.device))):
+
+        # zero parameter gradients
+        optimizer.zero_grad()
+
+        # forward pass o:[b x c]
+        o = self.models['cnn'](x)
+
+        # loss
+        loss = self.criterion(o, y)
+
+        # backward
+        loss.backward()
+
+        # optimizer step - update params
+        optimizer.step()
+
+        # update batch loss collection
+        train_score.update_batch_losses(epoch, loss.item())
+
+        # print some infos
+        self.print_train_info(epoch, i, train_score, k_print=batch_archive.y_train.shape[0] // self.num_print_per_epoch)
+        train_score.reset_batch_losses()
+
+      # valdiation
+      eval_score = self.eval_nn('val', batch_archive)
+
+      # update score collector
+      train_score.val_loss[epoch], train_score.val_acc[epoch] = eval_score.loss, eval_score.acc
+
+    print('--Training finished')
+
+    # log time
+    train_score.time_usage = time.time() - start_time 
+
+    return train_score
+
 
 
 if __name__ == '__main__':

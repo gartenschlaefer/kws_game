@@ -10,7 +10,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from conv_nets import ConvBasics, ConvEncoder
+from conv_nets import ConvBasics, ConvEncoder, ConvDecoder
 
 
 class AdvBasics(ConvBasics):
@@ -40,32 +40,13 @@ class AdvBasics(ConvBasics):
 
 
 
-class GD_experimentalParams():
-  """
-  parameters for experimental
-  """
-
-  def params_init(self):
-    """
-    parameter initialisation
-    """
-    # extract input size [channel x features x frames]
-    self.n_channels, self.n_features, self.n_frames = self.data_size
-
-    # params (reversed order)
-    self.n_feature_maps = [8, 4]
-    self.kernel_sizes = [(self.n_features, 20), (1, 5)]
-    self.strides = [(1, 1), (1, 5)]
-
-
-
-class G_experimental(nn.Module, AdvBasics, GD_experimentalParams):
+class G_experimental(nn.Module, AdvBasics):
   """
   Generator for experimental purpose
   input: noise of size [n_latent]
   output: [batch x channels x m x f]
-  m - features, e.g. (MFCC-39)
-  f - frames, e.g. (32)
+  m - features
+  f - frames
   """
 
   def __init__(self, n_classes, data_size, n_latent=100):
@@ -78,28 +59,14 @@ class G_experimental(nn.Module, AdvBasics, GD_experimentalParams):
     self.data_size = data_size
     self.n_latent = n_latent
 
-    # init params
-    self.params_init()
-
-    # get layer dimensions (reversed order for Generator)
-    self.get_conv_layer_dimensions()
+    # convolutional decoder
+    self.conv_decoder = ConvDecoder(self.n_classes, self.data_size)
 
     # fully connected layers
     self.fc1 = nn.Linear(self.n_latent, 32)
-    self.fc2 = nn.Linear(32, np.prod(self.conv_layer_dim[-1]) * self.n_feature_maps[1])
-
-    # conv layer
-    self.deconv1 = nn.ConvTranspose2d(in_channels=self.n_feature_maps[1], out_channels=self.n_feature_maps[0], kernel_size=self.kernel_sizes[1], stride=self.strides[1])
-    #self.bn1 = nn.BatchNorm2d(self.n_feature_maps[0])
-
-    self.deconv2 = nn.ConvTranspose2d(in_channels=self.n_feature_maps[0], out_channels=1, kernel_size=self.kernel_sizes[0], stride=self.strides[0])
-    #self.bn2 = nn.BatchNorm2d(self.n_classes)
-
-    # dropout layer
-    self.dropout_layer1 = nn.Dropout(p=0.5)
+    self.fc2 = nn.Linear(32, np.prod(self.conv_decoder.conv_layer_dim[-1]) * self.conv_decoder.n_feature_maps[1])
 
     # last layer activation
-    #self.tanh = nn.Tanh()
     self.sigm = nn.Sigmoid()
 
     # init weights
@@ -116,32 +83,25 @@ class G_experimental(nn.Module, AdvBasics, GD_experimentalParams):
     x = F.relu(self.fc2(x))
 
     # reshape for conv layer
-    x = torch.reshape(x, ((x.shape[0], self.n_feature_maps[1]) + self.conv_layer_dim[-1]))
+    x = torch.reshape(x, ((x.shape[0], self.conv_decoder.n_feature_maps[1]) + self.conv_decoder.conv_layer_dim[-1]))
 
-    # 1. deconv layer
-    x = self.deconv1(x)
-    x = F.relu(x)
-    #x = self.dropout_layer1(x)
-
-    # 2. deconv layer
-    x = self.deconv2(x)
+    # conv decoder
+    x = self.conv_decoder(x)
 
     # last layer activation
-    #x = self.tanh(x)
     x = self.sigm(x)
 
     return x
 
 
 
-class D_experimental(nn.Module, AdvBasics, GD_experimentalParams):
-#class D_experimental(nn.Module, AdvBasics, ConvEncoder):
+class D_experimental(nn.Module, AdvBasics):
   """
   Discriminator for experimental purpose
   input: [batch x channels x m x f]
   output: [1]
-  m - features (MFCC-39)
-  f - frames (32)
+  m - features
+  f - frames
   """
 
   def __init__(self, n_classes, data_size):
@@ -156,25 +116,8 @@ class D_experimental(nn.Module, AdvBasics, GD_experimentalParams):
     # encoder model
     self.conv_encoder = ConvEncoder(self.n_classes, self.data_size)
 
-    # init params
-    #self.params_init()
-
-    # get layer dimensions
-    #self.get_conv_layer_dimensions()
-
-    # conv layer
-    #self.conv1 = nn.Conv2d(self.n_channels, self.n_feature_maps[0], kernel_size=self.kernel_sizes[0], stride=self.strides[0])
-    #self.bn1 = nn.BatchNorm2d(self.n_feature_maps[0])
-
-    #self.conv2 = nn.Conv2d(self.n_feature_maps[0], self.n_feature_maps[1], kernel_size=self.kernel_sizes[1], stride=self.strides[1])
-    #self.bn2 = nn.BatchNorm2d(self.n_classes)
-
-    # fully connected layers with affine transformations: y = Wx + b
-    #self.fc1 = nn.Linear(np.prod(self.conv_layer_dim[-1]) * self.n_feature_maps[-1], 1)
+    # fully connected layers
     self.fc1 = nn.Linear(np.prod(self.conv_encoder.conv_layer_dim[-1]) * self.conv_encoder.n_feature_maps[-1], 1)
-
-    # dropout layer
-    #self.dropout_layer1 = nn.Dropout(p=0.5)
 
     # last layer activation
     self.sigm = nn.Sigmoid()
@@ -188,18 +131,6 @@ class D_experimental(nn.Module, AdvBasics, GD_experimentalParams):
     forward pass
     """
 
-    # 1. conv layer
-    #x = self.conv1(x)
-    #x = self.bn1(x)
-    #x = F.relu(x)
-    #x = self.dropout_layer2(x)
-
-    # 2. conv layer
-    #x = self.conv2(x)
-    #x = self.bn2(x)
-    #x = F.relu(x)
-    #x = self.dropout_layer1(x)
-
     # encoder model
     x = self.conv_encoder(x)
 
@@ -208,11 +139,6 @@ class D_experimental(nn.Module, AdvBasics, GD_experimentalParams):
 
     # fully connected layer
     x = self.fc1(x)
-    #x = F.relu(x)
-    #x = self.dropout_layer1(x)
-
-    # 2. fully connected layer
-    #x = self.fc2(x)
 
     # last layer activation
     x = self.sigm(x)
@@ -238,17 +164,28 @@ if __name__ == '__main__':
   # noise
   noise = torch.randn(2, n_latent)
 
-  # create net
-  G = G_experimental(n_latent=n_latent)
-  D = D_experimental()
-
-  # print some infos
-  print("Net: ", D)
-
   # generate random sample
   x = torch.randn((1, 1, 39, 32))
 
-  print("\nx: ", x.shape)
+  # create net
+  G = G_experimental(n_classes=1, data_size=x.shape[1:], n_latent=n_latent)
+  D = D_experimental(n_classes=1, data_size=x.shape[1:])
+
+  # print some infos
+  print("Net: ", D)
+  print("Encoder: ", D.conv_encoder)
+
+  # saving and loading of conv encoder
+  # torch.save(D.conv_encoder.state_dict(), './adv_conv_encoder.pth')
+  # from conv_nets import ConvEncoder
+  # conv_encoder = ConvEncoder(n_classes=1, data_size=x.shape[1:])
+  # conv_encoder.load_state_dict(torch.load('./adv_conv_encoder.pth'))
+
+  # go through all modules
+  for module in D.children():
+    print("module cls: ", module.__class__.__name__)
+    print("module: ", module)
+
 
   # test nets
   o_d = D(x)
