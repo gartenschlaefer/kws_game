@@ -40,14 +40,27 @@ class ConvBasics():
     for i, (k, s) in enumerate(zip(self.kernel_sizes, self.strides)):
       self.conv_layer_dim.append((int((self.conv_layer_dim[i][0] - k[0]) / s[0] + 1), int((self.conv_layer_dim[i][1] - k[1]) / s[1] + 1)))
 
-    print("conv layer dim: ", self.conv_layer_dim)
-
 
   def get_weights(self):
     """
-    analyze weights of model interface
+    analyze weights of model
     """
-    return None
+
+    # put weights in dictionary
+    weight_dict = {}
+
+    # run through each module
+    for name, module in self.named_children():
+    #for name, module in self.named_modules():
+      #print("name: ", name)
+      # all conv weights
+      if name in ['conv', 'conv1', 'conv2']:
+
+        #print("is saved: ", name)
+        weight_dict.update({name:module.weight.detach().cpu()})
+
+    return weight_dict
+
 
 
 class ConvNetTrad(nn.Module, ConvBasics):
@@ -260,13 +273,6 @@ class ConvNetExperimental1(nn.Module, ConvBasics):
     return x
 
 
-  def get_weights(self):
-    """
-    get weights of model
-    """
-    return {'conv1': self.conv.weight.detach().cpu()}
-
-
 
 class ConvNetExperimental(nn.Module, ConvBasics):
   """
@@ -280,13 +286,13 @@ class ConvNetExperimental(nn.Module, ConvBasics):
     ConvBasics.__init__(self, n_classes, data_size)
 
     # params
-    # self.n_feature_maps = [16]
-    # self.kernel_sizes = [(self.n_features, 20)]
-    # self.strides = [(1, 10)]
+    self.n_feature_maps = [4]
+    self.kernel_sizes = [(self.n_features, 20)]
+    self.strides = [(1, 1)]
 
-    self.n_feature_maps = [8, 4]
-    self.kernel_sizes = [(self.n_features, 20), (1, 5)]
-    self.strides = [(1, 5), (1, 1)]
+    # self.n_feature_maps = [8, 4]
+    # self.kernel_sizes = [(self.n_features, 20), (1, 5)]
+    # self.strides = [(1, 1), (1, 5)]
 
     # get layer dimensions
     self.get_conv_layer_dimensions()
@@ -295,18 +301,19 @@ class ConvNetExperimental(nn.Module, ConvBasics):
     self.conv1 = nn.Conv2d(self.n_channels, self.n_feature_maps[0], kernel_size=self.kernel_sizes[0], stride=self.strides[0])
     #self.bn1 = nn.BatchNorm2d(self.n_feature_maps[0])
 
-    self.conv2 = nn.Conv2d(self.n_feature_maps[0], self.n_feature_maps[1], kernel_size=self.kernel_sizes[1], stride=self.strides[1])
+    #self.conv2 = nn.Conv2d(self.n_feature_maps[0], self.n_feature_maps[1], kernel_size=self.kernel_sizes[1], stride=self.strides[1])
     #self.bn2 = nn.BatchNorm2d(self.n_classes)
 
     # fully connected layers with affine transformations: y = Wx + b
-    #self.fc1 = nn.Linear(np.prod(self.conv_layer_dim[-1]) * self.n_feature_maps[-1], 32)
     self.fc1 = nn.Linear(np.prod(self.conv_layer_dim[-1]) * self.n_feature_maps[-1], self.n_classes)
 
-    self.fc2 = nn.Linear(32, self.n_classes)
+    # two fully connected
+    #self.fc1 = nn.Linear(np.prod(self.conv_layer_dim[-1]) * self.n_feature_maps[-1], 32)
+    #self.fc2 = nn.Linear(32, self.n_classes)
 
     # dropout layer
     self.dropout_layer1 = nn.Dropout(p=0.5)
-    self.dropout_layer2 = nn.Dropout(p=0.2)
+    #self.dropout_layer2 = nn.Dropout(p=0.2)
 
     # softmax layer
     self.softmax = nn.Softmax(dim=1)
@@ -325,10 +332,10 @@ class ConvNetExperimental(nn.Module, ConvBasics):
     #print("x: ", x.shape)
 
     # 2. conv layer
-    x = self.conv2(x)
+    #x = self.conv2(x)
     #x = self.bn2(x)
-    x = F.relu(x)
-    x = self.dropout_layer1(x)
+    #x = F.relu(x)
+    #x = self.dropout_layer1(x)
 
     # flatten output from conv layer
     x = x.view(-1, np.product(x.shape[1:]))
@@ -344,17 +351,9 @@ class ConvNetExperimental(nn.Module, ConvBasics):
     # Softmax layer
     x = self.softmax(x)
     #x = torch.squeeze(x, axis=-1)
-    #x = torch.squeeze(x, axis=-1)
 
     return x
 
-
-  def get_weights(self):
-    """
-    get weights of model
-    """
-    return {'conv1': self.conv1.weight.detach().cpu()}
-    
 
 
 class ConvEncoderDecoderParams(ConvBasics):
@@ -392,8 +391,14 @@ class ConvEncoder(nn.Module, ConvEncoderDecoderParams):
     self.conv1 = nn.Conv2d(self.n_channels, self.n_feature_maps[0], kernel_size=self.kernel_sizes[0], stride=self.strides[0])
     self.conv2 = nn.Conv2d(self.n_feature_maps[0], self.n_feature_maps[1], kernel_size=self.kernel_sizes[1], stride=self.strides[1])
 
+    # fully connected layers
+    self.fc1 = nn.Linear(np.prod(self.conv_layer_dim[-1]) * self.n_feature_maps[-1], 1)
+
     # dropout layer
     self.dropout_layer1 = nn.Dropout(p=0.5)
+
+    # sigmoid
+    self.sigm = nn.Sigmoid()
 
 
   def forward(self, x):
@@ -409,6 +414,15 @@ class ConvEncoder(nn.Module, ConvEncoderDecoderParams):
     x = self.conv2(x)
     x = F.relu(x)
     x = self.dropout_layer1(x)
+
+    # flatten output from conv layer
+    x = x.view(-1, np.product(x.shape[1:]))
+
+    # fully connected layer
+    x = self.fc1(x)
+
+    # sigmoid activation
+    x = self.sigm(x)
 
     return x
 
@@ -449,44 +463,6 @@ class ConvDecoder(nn.Module, ConvEncoderDecoderParams):
 
 
 
-class CollectedConvEncoderNet(nn.Module):
-  """
-  Collected encoder networks
-  """
-
-  def __init__(self, encoder_models):
-
-    # parent init
-    super().__init__()
-
-    # arguments
-    self.encoder_models = encoder_models
-
-    # get last dimension and feature map
-    self.last_conv_layer_dims = [encoder_model.conv_layer_dim[-1] for encoder_model in self.encoder_models]
-    self.last_feature_maps = [encoder_model.n_feature_maps[-1] for encoder_model in self.encoder_models]
-
-    # calculate flatten output dimension
-    self.flatten_output_dim = np.sum([np.prod(d + (f,)) for d, f in zip(self.last_conv_layer_dims, self.last_feature_maps)])
-
-    # eval mode
-    #self.encoder_models = [encoder_model.eval() for encoder_model in self.encoder_models]
-
-
-  def forward(self, x):
-    """
-    forward pass
-    """
-
-    # models in parallel
-    x = torch.cat([encoder_model(x) for encoder_model in self.encoder_models], dim=1)
-    #for encoder_model in self.encoder_models:
-    #  x = encoder_model(x)
-
-    return x
-
-
-
 class ClassifierNet(nn.Module):
   """
   Classifier Network
@@ -515,18 +491,20 @@ class ClassifierNet(nn.Module):
     forward pass
     """
 
-    # 1. fully connected layers [1 x 32]
+    #print(x)
+    # 1. fully connected layer
     x = self.fc1(x)
     x = F.relu(x)
 
-    # 2. fully connected layers [1 x 128]
+    # 2. fully connected layer
     x = self.fc2(x)
     x = F.relu(x)
     x = self.dropout_layer1(x)
 
+    # 3. fully connected layer
     x = self.fc3(x)
 
-    # Softmax layer [1 x n_classes]
+    # Softmax layer
     x = self.softmax(x)
 
     return x
@@ -547,11 +525,17 @@ class ConvEncoderClassifierNet(nn.Module, ConvBasics):
     # arguments
     self.encoder_models = encoder_models
 
-    # conv encoder network
-    self.conv_encoder_net = CollectedConvEncoderNet(encoder_models)
+    # get last dimension and feature map
+    self.last_conv_layer_dims = [encoder_model.conv_layer_dim[-1] for encoder_model in self.encoder_models]
+    self.last_feature_maps = [encoder_model.n_feature_maps[-1] for encoder_model in self.encoder_models]
+
+    # calculate flatten output dimension
+    #self.flatten_output_dim = np.sum([np.prod(d + (f,)) for d, f in zip(self.last_conv_layer_dims, self.last_feature_maps)])
+    self.flatten_output_dim = len(self.encoder_models)
+    #self.flatten_output_dim = len(self.encoder_models) * 2
 
     # classifier net
-    self.classifier_net = ClassifierNet(self.conv_encoder_net.flatten_output_dim, n_classes)
+    self.classifier_net = ClassifierNet(self.flatten_output_dim, n_classes)
 
 
   def forward(self, x):
@@ -559,8 +543,8 @@ class ConvEncoderClassifierNet(nn.Module, ConvBasics):
     forward pass
     """
 
-    # parallel conv encoder models
-    x = self.conv_encoder_net(x)
+    # encoder models models in parallel
+    x = torch.cat([encoder_model(x) for encoder_model in self.encoder_models], dim=1)
 
     # flatten output from conv layer [1 x 432]
     x = x.view(-1, np.product(x.shape[1:]))

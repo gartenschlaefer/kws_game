@@ -57,9 +57,11 @@ def plot_other_grid(x, grid_size=(8, 8), title='grid', plot_path=None, name='Non
   #fig.colorbar(im, cax=ax)
 
   # plot save and show
-  if plot_path is not None: plt.savefig(plot_path + 'grid1_' + name + '.png', dpi=150)
+  if plot_path is not None: 
+    plt.savefig(plot_path + 'grid1_' + name + '.png', dpi=150)
+    plt.close()
+
   if show_plot: plt.show()
-  else: plt.close()
 
 
 def plot_grid_images(x, padding=1, num_cols=8, title='grid', plot_path=None, name='None', show_plot=False):
@@ -124,9 +126,11 @@ def plot_grid_images(x, padding=1, num_cols=8, title='grid', plot_path=None, nam
   plt.imshow(all_grid_img, aspect='equal')
 
   # plot save and show
-  if plot_path is not None: plt.savefig(plot_path + 'grid2_' + name + '.png', dpi=150)
+  if plot_path is not None: 
+    plt.savefig(plot_path + 'grid2_' + name + '.png', dpi=150)
+    plt.close()
+    
   if show_plot: plt.show()
-  else: plt.close()
 
   # torch grid (must be torch tensor)
   # import torchvision.utils as vutils

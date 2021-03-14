@@ -154,9 +154,6 @@ ml:
   metrics_file_name: metrics.npz
   info_file_name: info.txt
 
-  # adversarial model file names
-  adv_model_file_names: ['g_model.pth', d_model.pth]
-
   # encoder model file name
   encoder_model_file_name: encoder_model.pth
 
@@ -173,10 +170,10 @@ ml:
     batch_size: 32
 
     # number of epochs
-    num_epochs: 1000
+    num_epochs: 10
 
     # learning rate
-    lr: 0.0001
+    lr: 0.0002
 
     # momentum
     beta: 0.5

@@ -185,7 +185,7 @@ class BatchArchive():
     if self.y_test is not None:
       self.x_test, self.y_test, self.z_test = self.add_noise_data_algorithm(self.x_test, self.y_test, self.z_test, noise_label, shuffle)
 
-    # test batches
+    # my batches
     if self.y_my is not None:
       self.x_my, self.y_my, self.z_my = self.add_noise_data_algorithm(self.x_my, self.y_my, self.z_my, noise_label, shuffle)
 
@@ -210,24 +210,122 @@ class BatchArchive():
       z = np.vstack((z, z_add))
 
       # shuffle examples
-      if shuffle:
-
-        # indices for shuffling
-        indices = torch.randperm(y.nelement())
-
-        # shuffling
-        x = x.view((-1,) + x.shape[2:])[indices].view(x.shape)
-        y = y.view((-1,) + y.shape[2:])[indices].view(y.shape)
-        z = z.reshape((-1,) + z.shape[2:])[indices].reshape(z.shape)
+      if shuffle: x, y, z = self.xyz_shuffle(x, y, z)
 
     return x, y, z
 
+
+  def xyz_shuffle(self, x, y, z):
+    """
+    shuffle
+    """
+
+    # indices for shuffling
+    indices = torch.randperm(y.nelement())
+
+    # shuffling
+    x = x.view((-1,) + x.shape[2:])[indices].view(x.shape)
+    y = y.view((-1,) + y.shape[2:])[indices].view(y.shape)
+    z = z.reshape((-1,) + z.shape[2:])[indices].reshape(z.shape)
+
+    return x, y, z
 
   def extract(self):
     """
     extract data interface
     """
     pass
+
+
+  def one_against_all(self, label, others_label='other', shuffle=True):
+    """
+    one against all
+    """
+
+    # safety
+    if label not in self.class_dict.keys():
+      print("***unknown label")
+      return
+
+    #self.update_classes(list(self.class_dict.keys()) + [others_label])
+    self.class_dict.update({others_label:9999})
+
+    # training batches
+    if self.y_train is not None:
+      self.x_train, self.y_train, self.z_train = self.one_against_all_algorithm(label, others_label, self.x_train, self.y_train, self.z_train, self.batch_size, shuffle)
+
+    # validation batches
+    if self.y_val is not None:
+      self.x_val, self.y_val, self.z_val = self.one_against_all_algorithm(label, others_label, self.x_val, self.y_val, self.z_val, self.batch_size_eval, shuffle)
+
+    # test batches
+    if self.y_test is not None:
+      self.x_test, self.y_test, self.z_test = self.one_against_all_algorithm(label, others_label, self.x_test, self.y_test, self.z_test, self.batch_size_eval, shuffle)
+
+    # my batches
+    if self.y_my is not None:
+      self.x_my, self.y_my, self.z_my = self.one_against_all_algorithm(label, others_label, self.x_my, self.y_my, self.z_my, self.batch_size_eval, shuffle)
+
+    # recreate class directory
+    self.update_classes([label, others_label])
+
+    # recount examples
+    self.determine_num_examples()
+
+
+  def one_against_all_algorithm(self, label, others_label, x, y, z, batch_size, shuffle=True):
+    """
+    one against all algorithm
+    """
+
+    # get label vector and feature shape
+    label_vector = y == self.class_dict[label]
+    f_shape = x.shape[2:]
+
+    other_labels = list(self.class_dict.keys())
+    other_labels.remove(label)
+    other_labels.remove(others_label)
+
+    # one and others
+    x_one, y_one, z_one = x[label_vector], y[label_vector], z[label_vector]
+    x_other, y_other, z_other = torch.empty((0, batch_size) + f_shape), torch.empty((0, batch_size)), np.empty((0, batch_size))
+
+    # reshape
+    x_one = x_one[:len(x_one)-len(x_one)%batch_size].reshape((-1, batch_size) + f_shape)
+    y_one = y_one[:len(y_one)-len(y_one)%batch_size].reshape((-1, batch_size))
+    z_one = z_one[:len(z_one)-len(z_one)%batch_size].reshape((-1, batch_size))
+
+    # others
+    for l in other_labels:
+
+      # label vector
+      label_vector = y == self.class_dict[l]
+
+      # get labeled data
+      x_l, y_l, z_l = x[label_vector], y[label_vector], z[label_vector]
+
+      # reshape
+      x_l = x_l[:len(x_l)-len(x_l)%batch_size].reshape((-1, batch_size) + f_shape)
+      y_l = y_l[:len(y_l)-len(y_l)%batch_size].reshape((-1, batch_size))
+      z_l = z_l[:len(z_l)-len(z_l)%batch_size].reshape((-1, batch_size))
+
+      # label to others label
+      y_l[:] = self.class_dict[others_label]
+
+      # concatenate
+      x_other = torch.vstack((x_other, x_l[:int(np.ceil(y_one.shape[0] / (self.n_classes - 1)))]))
+      y_other = torch.vstack((y_other, y_l[:int(np.ceil(y_one.shape[0] / (self.n_classes - 1)))]))
+      z_other = np.vstack((z_other, z_l[:int(np.ceil(y_one.shape[0] / (self.n_classes - 1)))]))
+
+    # stack one and other
+    x = torch.as_tensor(torch.vstack((x_one, x_other)), dtype=x.dtype)
+    y = torch.as_tensor(torch.vstack((y_one, y_other)), dtype=y.dtype)
+    z = np.vstack((z_one, z_other))
+
+    # shuffle examples
+    if shuffle: x, y, z = self.xyz_shuffle(x, y, z)
+
+    return x, y, z 
 
 
 
@@ -399,6 +497,8 @@ def print_batch_infos(batch_archive):
   print("num_examples_per_class: ", batch_archive.num_examples_per_class), print("class_dict: ", batch_archive.class_dict)
   print("y: ", batch_archive.y_train)
   print("y data type: ", batch_archive.y_train.dtype)
+  print("y: ", batch_archive.y_test)
+  print("y: ", batch_archive.y_my)
 
 
 if __name__ == '__main__':
@@ -426,19 +526,24 @@ if __name__ == '__main__':
 
   # reduce to label
   r_label = "up"
-  batch_archive.reduce_to_label(r_label)
+  #batch_archive.reduce_to_label(r_label)
 
   # infos
   #print("\nreduced to label: ", r_label), print_batch_infos(batch_archive)
 
   # add noise
-  batch_archive.add_noise_data(shuffle=False)
+  #batch_archive.add_noise_data(shuffle=False)
 
   # infos
-  print("\nnoise added: "), print_batch_infos(batch_archive)
+  #print("\nnoise added: "), print_batch_infos(batch_archive)
+
+  batch_archive.one_against_all(r_label, others_label='other', shuffle=False)
+  print("\none against all: "), print_batch_infos(batch_archive)
 
   from plots import plot_grid_images, plot_other_grid
 
   # plot some examples
-  plot_grid_images(batch_archive.x_train[0, :32], padding=1, num_cols=8, title='grid', show_plot=False)
+  #plot_grid_images(batch_archive.x_train[0, :32], padding=1, num_cols=8, title='grid', show_plot=False)
+  plot_other_grid(batch_archive.x_train[0, :32], grid_size=(8, 8), show_plot=False)
+  plot_other_grid(batch_archive.x_train[-5, :32], grid_size=(8, 8), show_plot=False)
   plot_other_grid(batch_archive.x_train[-1, :32], grid_size=(8, 8), show_plot=True)

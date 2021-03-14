@@ -32,6 +32,10 @@ def check_files_existance(files):
   """
 
   for file in files:
+
+    # none type exception
+    if file is None: continue
+    
     if not os.path.isfile(file):
       print("File: {} does not exist!!".format(file))
       return False

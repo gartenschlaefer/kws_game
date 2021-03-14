@@ -130,7 +130,7 @@ class NetHandler():
     # safety check
     if len(model_files) != len(self.models):
       print("***len of model file names is not equal length of models")
-      return
+      return False
 
     # load models
     for model_file, (k, model) in zip(model_files, self.models.items()):
@@ -140,8 +140,10 @@ class NetHandler():
         model.load_state_dict(torch.load(model_file))
 
       except:
-        print("\n***could not load model!!!\n")   
-      pass
+        print("\n***could not load model!!!\n")
+        return False
+
+    return True
 
 
   def save_models(self, model_files, encoder_model_file=None, encoder_class_name='ConvEncoder'):
@@ -178,10 +180,18 @@ class NetHandler():
           print("save {} to file: {}".format(encoder_class_name, encoder_model_file))
 
 
+  def set_up_training(self, train_params):
+    """
+    setup training
+    """
+    pass
+
+
   def train_nn(self, train_params, batch_archive, callback_f=None):
     """
     train interface
     """
+    self.set_up_training(train_params)
     return TrainScore(train_params['num_epochs'])
 
 
@@ -266,15 +276,24 @@ class CnnHandler(NetHandler):
     self.init_models()
 
 
+  def set_up_training(self, train_params):
+    """
+    set optimizer in training
+    """
+
+    # create optimizer
+    #self.optimizer = torch.optim.SGD(self.model.parameters(), lr=train_params['lr'], momentum=train_params['momentum'])
+    self.optimizer = torch.optim.Adam(self.models['cnn'].parameters(), lr=train_params['lr'])
+
+
   def train_nn(self, train_params, batch_archive, callback_f=None):
     """
     train the neural network
     train_params: {'num_epochs': [], 'lr': [], 'momentum': []}
     """
 
-    # create optimizer
-    #optimizer = torch.optim.SGD(self.model.parameters(), lr=train_params['lr'], momentum=train_params['momentum'])
-    optimizer = torch.optim.Adam(self.models['cnn'].parameters(), lr=train_params['lr'])
+    # setup training
+    self.set_up_training(train_params)
 
     # score collector
     train_score = TrainScore(train_params['num_epochs'])
@@ -292,7 +311,7 @@ class CnnHandler(NetHandler):
       for i, (x, y) in enumerate(zip(batch_archive.x_train.to(self.device), batch_archive.y_train.to(self.device))):
 
         # zero parameter gradients
-        optimizer.zero_grad()
+        self.optimizer.zero_grad()
 
         # forward pass o:[b x c]
         o = self.models['cnn'](x)
@@ -304,7 +323,7 @@ class CnnHandler(NetHandler):
         loss.backward()
 
         # optimizer step - update params
-        optimizer.step()
+        self.optimizer.step()
 
         # update batch loss collection
         train_score.update_batch_losses(epoch, loss.item())
@@ -369,7 +388,7 @@ class CnnHandler(NetHandler):
         if verbose:
           if z_eval is not None:
             print("\nlabels: {}".format(z_eval[i]))
-          print("output: {}\npred: {}\nactu: {}, \t corr: {} ".format(o.data, y_hat, y, (y_hat == y).sum().item()))
+          print("output: {}\npred: {}, actu: {}, \t corr: {} ".format(o.data, y_hat, y, (y_hat == y).sum().item()))
 
     # finish up scores
     eval_score.finish()
@@ -427,17 +446,26 @@ class AdversarialNetHandler(NetHandler):
     self.fake_label = 0.
 
 
+  def set_up_training(self, train_params):
+    """
+    set optimizer in training
+    """
+
+    # Setup Adam optimizers for both G and D
+    self.optimizer_d = torch.optim.Adam(self.models['d'].parameters(), lr=train_params['lr'], betas=(train_params['beta'], 0.999))
+    self.optimizer_g = torch.optim.Adam(self.models['g'].parameters(), lr=train_params['lr'], betas=(train_params['beta'], 0.999))
+
+
   def train_nn(self, train_params, batch_archive, callback_f=None):
     """
     train adversarial nets
     """
 
+    # setup training
+    self.set_up_training(train_params)
+
     # Create batch of latent vectors that we will use to visualize the progression of the generator
     fixed_noise = torch.randn(32, self.models['g'].n_latent, device=self.device)
-
-    # Setup Adam optimizers for both G and D
-    optimizer_d = torch.optim.Adam(self.models['d'].parameters(), lr=train_params['lr'], betas=(train_params['beta'], 0.999))
-    optimizer_g = torch.optim.Adam(self.models['g'].parameters(), lr=train_params['lr'], betas=(train_params['beta'], 0.999))
 
     # score collector
     train_score = TrainScore(train_params['num_epochs'], is_adv=True)
@@ -455,7 +483,7 @@ class AdversarialNetHandler(NetHandler):
 
         # zero parameter gradients
         self.models['d'].zero_grad()
-        optimizer_d.zero_grad()
+        self.optimizer_d.zero_grad()
 
         # --
         # train with real batch
@@ -487,7 +515,7 @@ class AdversarialNetHandler(NetHandler):
         d_loss_fake.backward()
 
         # optimizer step
-        optimizer_d.step()
+        self.optimizer_d.step()
 
         # --
         # update of G
@@ -506,7 +534,7 @@ class AdversarialNetHandler(NetHandler):
         g_loss_fake.backward()
 
         # optimizer step
-        optimizer_g.step()
+        self.optimizer_g.step()
 
         # update batch loss collection
         train_score.update_batch_losses(epoch, loss=0.0, g_loss_fake=g_loss_fake.item(), d_loss_real=d_loss_real.item(), d_loss_fake=d_loss_fake.item())
@@ -525,6 +553,44 @@ class AdversarialNetHandler(NetHandler):
     train_score.time_usage = time.time() - start_time 
 
     return train_score
+
+
+  def eval_nn(self, eval_set, batch_archive, calc_cm=False, verbose=False):
+    """
+    evaluation of nn
+    use eval_set out of ['val', 'test', 'my']
+    """
+
+    # select the evaluation set
+    x_eval, y_eval, z_eval = self.eval_select_set(eval_set, batch_archive)
+
+    # init score
+    eval_score = EvalScore(calc_cm=False)
+
+    # if set does not exist
+    if x_eval is None or y_eval is None:
+      print("no eval set found")
+      return eval_score
+
+    # no gradients for eval
+    with torch.no_grad():
+
+      # load data
+      for i, (x, y) in enumerate(zip(x_eval.to(self.device), y_eval.to(self.device))):
+
+        # classify
+        o = self.models['d'](x)
+
+        # some prints
+        if verbose:
+          if z_eval is not None:
+            print("\nlabels: {}".format(z_eval[i]))
+          print("output: {} \nactu: {} ".format(o.data, y))
+
+    # finish up scores
+    eval_score.finish()
+
+    return eval_score
 
 
   def generate_samples(self, noise=None, num_samples=10, to_np=False):
@@ -562,75 +628,18 @@ class ConvEncoderNetHandler(CnnHandler):
   the conv encoders are pre-trained and only a consecutive classifier network is trained
   """
 
-  def train_nn(self, train_params, batch_archive, callback_f=None):
+  def set_up_training(self, train_params):
     """
-    train the neural network
-    train_params: {'num_epochs': [], 'lr': [], 'momentum': []}
+    set optimizer in training
     """
 
-    print("----------train_conv_encoder")
-    self.models['cnn'].conv_encoder_net.eval()
 
     # create optimizer
-    #optimizer = torch.optim.SGD(self.model.parameters(), lr=train_params['lr'], momentum=train_params['momentum'])
+    #self.optimizer = torch.optim.SGD(self.model.parameters(), lr=train_params['lr'], momentum=train_params['momentum'])
+    #self.optimizer = torch.optim.Adam(self.models['cnn'].parameters(), lr=train_params['lr'])
+    self.optimizer = torch.optim.Adam(self.models['cnn'].classifier_net.parameters(), lr=train_params['lr'])
+    self.models['cnn'].encoder_models.eval()
 
-    optimizer = torch.optim.Adam(self.models['cnn'].parameters(), lr=train_params['lr'])
-    #optimizer = torch.optim.Adam(self.models['cnn'].classifier_net.parameters(), lr=train_params['lr'])
-
-    #print("models: ", self.models['cnn'])
-    #print("models: ", self.models['cnn'].classifier_net.parameters())
-
-    #for m in self.models['cnn'].modules():
-    #  print("module: ", m)
-
-    # score collector
-    train_score = TrainScore(train_params['num_epochs'])
-
-    print("\n--Training starts:")
-
-    # start time
-    start_time = time.time()
-
-    # epochs
-    for epoch in range(train_params['num_epochs']):
-
-      # fetch data samples
-      for i, (x, y) in enumerate(zip(batch_archive.x_train.to(self.device), batch_archive.y_train.to(self.device))):
-
-        # zero parameter gradients
-        optimizer.zero_grad()
-
-        # forward pass o:[b x c]
-        o = self.models['cnn'](x)
-
-        # loss
-        loss = self.criterion(o, y)
-
-        # backward
-        loss.backward()
-
-        # optimizer step - update params
-        optimizer.step()
-
-        # update batch loss collection
-        train_score.update_batch_losses(epoch, loss.item())
-
-        # print some infos
-        self.print_train_info(epoch, i, train_score, k_print=batch_archive.y_train.shape[0] // self.num_print_per_epoch)
-        train_score.reset_batch_losses()
-
-      # valdiation
-      eval_score = self.eval_nn('val', batch_archive)
-
-      # update score collector
-      train_score.val_loss[epoch], train_score.val_acc[epoch] = eval_score.loss, eval_score.acc
-
-    print('--Training finished')
-
-    # log time
-    train_score.time_usage = time.time() - start_time 
-
-    return train_score
 
 
 

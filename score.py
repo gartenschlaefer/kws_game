@@ -133,6 +133,9 @@ class EvalScore():
 
     from sklearn.metrics import confusion_matrix
 
+    # safety for devision
+    if self.total == 0: self.total = 1
+
     # accuracy
     self.acc = 100 * self.correct / self.total
 

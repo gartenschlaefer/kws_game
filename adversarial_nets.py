@@ -29,12 +29,12 @@ class AdvBasics(ConvBasics):
 
     # conv layer init
     if cls_name in ['Conv2d', 'ConvTranspose2d']:
-      print("{}: {} weights init".format(self.__class__.__name__, cls_name))
+      #print("{}: {} weights init".format(self.__class__.__name__, cls_name))
       nn.init.normal_(module.weight.data, 0.0, 0.02)
 
     # batch norm init
     elif cls_name.find('BatchNorm') != -1:
-      print("{} weights init".format(cls_name))
+      #print("{} weights init".format(cls_name))
       nn.init.normal_(module.weight.data, 1.0, 0.02)
       nn.init.constant_(module.bias.data, 0)
 
@@ -117,10 +117,10 @@ class D_experimental(nn.Module, AdvBasics):
     self.conv_encoder = ConvEncoder(self.n_classes, self.data_size)
 
     # fully connected layers
-    self.fc1 = nn.Linear(np.prod(self.conv_encoder.conv_layer_dim[-1]) * self.conv_encoder.n_feature_maps[-1], 1)
+    #self.fc1 = nn.Linear(np.prod(self.conv_encoder.conv_layer_dim[-1]) * self.conv_encoder.n_feature_maps[-1], 1)
 
     # last layer activation
-    self.sigm = nn.Sigmoid()
+    #self.sigm = nn.Sigmoid()
 
     # init weights
     self.apply(self.weights_init)
@@ -134,14 +134,14 @@ class D_experimental(nn.Module, AdvBasics):
     # encoder model
     x = self.conv_encoder(x)
 
-    # flatten output from conv layer
-    x = x.view(-1, np.product(x.shape[1:]))
+    # # flatten output from conv layer
+    # x = x.view(-1, np.product(x.shape[1:]))
 
-    # fully connected layer
-    x = self.fc1(x)
+    # # fully connected layer
+    # x = self.fc1(x)
 
     # last layer activation
-    x = self.sigm(x)
+    #x = self.sigm(x)
 
     return x
 

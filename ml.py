@@ -35,17 +35,12 @@ class ML():
     if self.sub_model_path is not None and self.encoder_label is not None: self.model_path = self.model_path + sub_model_path + '_' + encoder_label + '/'
 
     # model file
-    self.model_files = [self.model_path + self.cfg_ml['model_file_name']]
-    self.model_pre_files = [self.cfg_ml['paths']['model_pre'] + '{}_c-{}.pth'.format(self.cfg_ml['nn_arch'], self.batch_archive.n_classes)]
+    self.model_files = [self.model_path + model_name + '_' + self.cfg_ml['model_file_name'] for model_name, v in net_handler.models.items()]
+    self.model_pre_files = [self.cfg_ml['paths']['model_pre'] + model_name + '_' + '{}_c-{}.pth'.format(self.cfg_ml['nn_arch'], self.batch_archive.n_classes) for model_name, v in net_handler.models.items()]
     
     # encoder model file
     self.encoder_model_file = None
     if self.cfg_ml['nn_arch'] in ['conv-encoder']: self.encoder_model_file = self.model_path + self.cfg_ml['encoder_model_file_name']
-
-    # adversarial model files (more than one)
-    if self.cfg_ml['nn_arch'].startswith('adv-') or encoder_label is not None:
-      self.model_files = [self.model_path + m for m in self.cfg_ml['adv_model_file_names']]
-      self.model_pre_files = [self.cfg_ml['paths']['model_pre'] + '{}_{}_c-{}.pth'.format(self.cfg_ml['nn_arch'], i, self.batch_archive.n_classes) for i in ['g', 'd']]
 
     # params and metrics files
     self.params_file = self.model_path + self.cfg_ml['params_file_name']
@@ -77,14 +72,12 @@ class ML():
     # check if model already exists
     if check_files_existance([self.encoder_model_file] + self.model_files) and not self.cfg_ml['retrain']:
 
-      # load model
-      self.net_handler.load_models(model_files=self.model_files)
-      return
+      # load model and check if it was possible
+      if self.net_handler.load_models(model_files=self.model_files): return
 
     # train
     train_score = self.net_handler.train_nn(train_params=self.cfg_ml['train_params'], batch_archive=self.batch_archive, callback_f=self.image_collect)
-    print(train_score)
-    print(train_score.time_usage)
+
     # training info
     logging.info('Traning on arch: [{}], train_params: {}, device: [{}], time: {}'.format(self.cfg_ml['nn_arch'], self.cfg_ml['train_params'], self.net_handler.device, s_to_hms_str(train_score.time_usage)))
     
@@ -189,7 +182,7 @@ class ML():
           
           # plot images
           plot_grid_images(x=v.numpy(), padding=1, num_cols=8, title=k + self.param_path_ml.replace('/', ' '), plot_path=self.model_path, name=k, show_plot=False)
-          plot_other_grid(x=v.numpy(), title=k + self.param_path_ml.replace('/', ' '), plot_path=self.model_path, name=k, show_plot=False)
+          #plot_other_grid(x=v.numpy(), title=k + self.param_path_ml.replace('/', ' '), plot_path=self.model_path, name=k, show_plot=False)
 
     # generate samples (for generative networks)
     self.generate_samples()
@@ -266,11 +259,14 @@ def train_conv_encoders(cfg, audio_set1, audio_set2):
 
     # batch archive for one label
     batch_archive = SpeechCommandsBatchArchive(audio_set1.feature_files + audio_set2.feature_files, batch_size=cfg['ml']['train_params']['batch_size'])
-    batch_archive.reduce_to_label(l)
+    
+    #batch_archive.reduce_to_label(l)
+    batch_archive.one_against_all(l, others_label='other', shuffle=True)
     print("classes: ", batch_archive.classes)
 
     # net handler
     net_handler = NetHandler(nn_arch='adv-experimental', n_classes=batch_archive.n_classes, data_size=batch_archive.data_size, use_cpu=cfg['ml']['use_cpu'])
+    #net_handler = NetHandler(nn_arch='conv-experimental', n_classes=batch_archive.n_classes, data_size=batch_archive.data_size, use_cpu=cfg['ml']['use_cpu'])
 
     # ml
     ml = ML(cfg_ml=cfg['ml'], audio_dataset=audio_set1, batch_archive=batch_archive, net_handler=net_handler, sub_model_path='conv_encoder', encoder_label=l)
@@ -281,6 +277,7 @@ def train_conv_encoders(cfg, audio_set1, audio_set2):
 
     # add encoder model
     encoder_models.append(net_handler.models['d'].conv_encoder)
+    #encoder_models.append(net_handler.models['cnn'])
 
   return encoder_models
 
@@ -315,13 +312,19 @@ if __name__ == '__main__':
   # create batch archive
   batch_archive = SpeechCommandsBatchArchive(audio_set1.feature_files + audio_set2.feature_files, batch_size=cfg['ml']['train_params']['batch_size'])
 
+  #if cfg['ml']['nn_arch'] in ['adv-experimental']:
+  #  batch_archive.reduce_to_label('up')
+  #batch_archive.reduce_to_label('up')
+  #batch_archive.add_noise_data(shuffle=True)
+  #batch_archive.one_against_all('down', others_label='other', shuffle=True)
+
   # print classes
   print("x_train: ", batch_archive.x_train.shape)
 
   # net handler
   net_handler = NetHandler(nn_arch=cfg['ml']['nn_arch'], n_classes=batch_archive.n_classes, data_size=batch_archive.data_size, encoder_models=encoder_models, use_cpu=cfg['ml']['use_cpu'])
 
-  #print("net_handler: ", net_handler.nn_arch)
+  # info about models
   print("net_handler: ", net_handler.models)
 
   # --
