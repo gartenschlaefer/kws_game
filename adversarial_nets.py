@@ -15,7 +15,7 @@ from conv_nets import ConvBasics, ConvEncoder, ConvDecoder
 
 class AdvBasics(ConvBasics):
   """
-  Convolutional networks Basic useful functions
+  Adversarial networks basic functions
   """
 
   def weights_init(self, module):
@@ -60,11 +60,11 @@ class G_experimental(nn.Module, AdvBasics):
     self.n_latent = n_latent
 
     # convolutional decoder
-    self.conv_decoder = ConvDecoder(self.n_classes, self.data_size)
+    self.conv_decoder = ConvDecoder(self.n_classes, self.data_size, n_latent=self.n_latent)
 
     # fully connected layers
     self.fc1 = nn.Linear(self.n_latent, 32)
-    self.fc2 = nn.Linear(32, np.prod(self.conv_decoder.conv_layer_dim[-1]) * self.conv_decoder.n_feature_maps[1])
+    self.fc2 = nn.Linear(32, np.prod(self.conv_decoder.conv_in_dim))
 
     # last layer activation
     self.sigm = nn.Sigmoid()
@@ -83,7 +83,7 @@ class G_experimental(nn.Module, AdvBasics):
     x = F.relu(self.fc2(x))
 
     # reshape for conv layer
-    x = torch.reshape(x, ((x.shape[0], self.conv_decoder.n_feature_maps[1]) + self.conv_decoder.conv_layer_dim[-1]))
+    x = torch.reshape(x, ((x.shape[0],) + self.conv_decoder.conv_in_dim))
 
     # conv decoder
     x = self.conv_decoder(x)
@@ -117,10 +117,13 @@ class D_experimental(nn.Module, AdvBasics):
     self.conv_encoder = ConvEncoder(self.n_classes, self.data_size)
 
     # fully connected layers
-    #self.fc1 = nn.Linear(np.prod(self.conv_encoder.conv_layer_dim[-1]) * self.conv_encoder.n_feature_maps[-1], 1)
+    self.fc1 = nn.Linear(np.prod(self.conv_encoder.conv_out_dim), 1)
 
-    # last layer activation
-    #self.sigm = nn.Sigmoid()
+    # dropout layer
+    self.dropout_layer1 = nn.Dropout(p=0.5)
+
+    # sigmoid
+    self.sigm = nn.Sigmoid()
 
     # init weights
     self.apply(self.weights_init)
@@ -134,23 +137,17 @@ class D_experimental(nn.Module, AdvBasics):
     # encoder model
     x = self.conv_encoder(x)
 
-    # # flatten output from conv layer
-    # x = x.view(-1, np.product(x.shape[1:]))
+    # flatten output from conv layer
+    x = x.view(-1, np.product(x.shape[1:]))
 
-    # # fully connected layer
-    # x = self.fc1(x)
+    # fully connected layer
+    x = self.fc1(x)
 
     # last layer activation
-    #x = self.sigm(x)
+    x = self.sigm(x)
 
     return x
 
-
-  def get_weights(self):
-    """
-    get weights of model
-    """
-    return {'conv1': self.conv_encoder.conv1.weight.detach().cpu(), 'conv2': self.conv_encoder.conv2.weight.detach().cpu()}
 
 
 if __name__ == '__main__':
@@ -175,17 +172,10 @@ if __name__ == '__main__':
   print("Net: ", D)
   print("Encoder: ", D.conv_encoder)
 
-  # saving and loading of conv encoder
-  # torch.save(D.conv_encoder.state_dict(), './adv_conv_encoder.pth')
-  # from conv_nets import ConvEncoder
-  # conv_encoder = ConvEncoder(n_classes=1, data_size=x.shape[1:])
-  # conv_encoder.load_state_dict(torch.load('./adv_conv_encoder.pth'))
-
   # go through all modules
   for module in D.children():
     print("module cls: ", module.__class__.__name__)
     print("module: ", module)
-
 
   # test nets
   o_d = D(x)

@@ -43,19 +43,24 @@ class ConvBasics():
 
   def get_weights(self):
     """
-    analyze weights of model
+    analyze weights of model, names are my standard definitions so keep care
     """
 
     # put weights in dictionary
     weight_dict = {}
 
     # run through each module
-    for name, module in self.named_children():
-    #for name, module in self.named_modules():
+    #for name, module in self.named_children():
+    for name, module in self.named_modules():
       #print("name: ", name)
       # all conv weights
       if name in ['conv', 'conv1', 'conv2']:
 
+        #print("is saved: ", name)
+        weight_dict.update({name:module.weight.detach().cpu()})
+
+      # for lists used in conv encoder
+      elif name.find('conv_layers.') != -1:
         #print("is saved: ", name)
         weight_dict.update({name:module.weight.detach().cpu()})
 
@@ -286,7 +291,7 @@ class ConvNetExperimental(nn.Module, ConvBasics):
     ConvBasics.__init__(self, n_classes, data_size)
 
     # params
-    self.n_feature_maps = [4]
+    self.n_feature_maps = [5]
     self.kernel_sizes = [(self.n_features, 20)]
     self.strides = [(1, 1)]
 
@@ -366,10 +371,17 @@ class ConvEncoderDecoderParams(ConvBasics):
     # parent init
     super().__init__(n_classes, data_size)
 
-    # params (reversed order)
-    self.n_feature_maps = [8, 4]
+    # params
+    #self.n_feature_maps = [8, 4]
+
+    # conv params
+    self.n_feature_maps = [(self.n_channels, 8), (8, 4)]
+    #self.n_feature_maps = [(self.n_channels, 16), (16, 4)]
     self.kernel_sizes = [(self.n_features, 20), (1, 5)]
-    self.strides = [(1, 1), (1, 5)]
+    self.strides = [(1, 1), (1, 1)]
+
+    # relu params (be carefull, last layer should be false)
+    self.relu_active = [True, False]
 
     # get layer dimensions
     self.get_conv_layer_dimensions()
@@ -378,7 +390,7 @@ class ConvEncoderDecoderParams(ConvBasics):
 
 class ConvEncoder(nn.Module, ConvEncoderDecoderParams):
   """
-  Convolutional encoder
+  Convolutional encoder for discriminator
   """
 
   def __init__(self, n_classes, data_size):
@@ -388,17 +400,16 @@ class ConvEncoder(nn.Module, ConvEncoderDecoderParams):
     ConvEncoderDecoderParams.__init__(self, n_classes, data_size)
 
     # conv layer
-    self.conv1 = nn.Conv2d(self.n_channels, self.n_feature_maps[0], kernel_size=self.kernel_sizes[0], stride=self.strides[0])
-    self.conv2 = nn.Conv2d(self.n_feature_maps[0], self.n_feature_maps[1], kernel_size=self.kernel_sizes[1], stride=self.strides[1])
+    self.conv_layers = torch.nn.ModuleList()
+    for f, k, s in zip(self.n_feature_maps, self.kernel_sizes, self.strides):
+      self.conv_layers.append(nn.Conv2d(f[0], f[1], kernel_size=k, stride=s))
 
-    # fully connected layers
-    self.fc1 = nn.Linear(np.prod(self.conv_layer_dim[-1]) * self.n_feature_maps[-1], 1)
+    # dimensions
+    self.conv_in_dim = self.data_size
+    self.conv_out_dim = ((self.n_feature_maps[-1][1],) + self.conv_layer_dim[-1])
 
-    # dropout layer
-    self.dropout_layer1 = nn.Dropout(p=0.5)
-
-    # sigmoid
-    self.sigm = nn.Sigmoid()
+    # # dropout layer
+    # self.dropout_layer1 = nn.Dropout(p=0.5)
 
 
   def forward(self, x):
@@ -406,23 +417,10 @@ class ConvEncoder(nn.Module, ConvEncoderDecoderParams):
     forward pass
     """
 
-    # 1. conv layer
-    x = self.conv1(x)
-    x = F.relu(x)
-
-    # 2. conv layer
-    x = self.conv2(x)
-    x = F.relu(x)
-    x = self.dropout_layer1(x)
-
-    # flatten output from conv layer
-    x = x.view(-1, np.product(x.shape[1:]))
-
-    # fully connected layer
-    x = self.fc1(x)
-
-    # sigmoid activation
-    x = self.sigm(x)
+    # convolutional layers
+    for conv, r in zip(self.conv_layers, self.relu_active):
+      x = conv(x)
+      if r: x = F.relu(x)
 
     return x
 
@@ -430,21 +428,28 @@ class ConvEncoder(nn.Module, ConvEncoderDecoderParams):
 
 class ConvDecoder(nn.Module, ConvEncoderDecoderParams):
   """
-  Convolutional decoder for adversarial nets
+  Convolutional decoder for adversarial nets Generator
   """
 
-  def __init__(self, n_classes, data_size):
+  def __init__(self, n_classes, data_size, n_latent):
 
     # parent init
     super().__init__()
     ConvEncoderDecoderParams.__init__(self, n_classes, data_size)
 
-    # conv layer
-    self.deconv1 = nn.ConvTranspose2d(in_channels=self.n_feature_maps[1], out_channels=self.n_feature_maps[0], kernel_size=self.kernel_sizes[1], stride=self.strides[1])
-    #self.bn1 = nn.BatchNorm2d(self.n_feature_maps[0])
+    # arguments
+    self.n_latent = n_latent
 
-    self.deconv2 = nn.ConvTranspose2d(in_channels=self.n_feature_maps[0], out_channels=1, kernel_size=self.kernel_sizes[0], stride=self.strides[0])
-    #self.bn2 = nn.BatchNorm2d(self.n_classes)
+    # deconv layers module list
+    self.deconv_layers = torch.nn.ModuleList()
+
+    # create deconv layers
+    for f, k, s in zip(reversed(self.n_feature_maps), reversed(self.kernel_sizes), reversed(self.strides)):
+      self.deconv_layers.append(nn.ConvTranspose2d(in_channels=f[1], out_channels=f[0], kernel_size=k, stride=s))
+
+    # dimensions
+    self.conv_in_dim = ((self.n_feature_maps[-1][1],) + self.conv_layer_dim[-1])
+    self.conv_out_dim = self.data_size
 
 
   def forward(self, x):
@@ -452,12 +457,10 @@ class ConvDecoder(nn.Module, ConvEncoderDecoderParams):
     forward pass
     """
 
-    # 1. deconv layer
-    x = self.deconv1(x)
-    x = F.relu(x)
-
-    # 2. deconv layer
-    x = self.deconv2(x)
+    # deconvolutional layers
+    for deconv, r in zip(self.deconv_layers, self.relu_active):
+      x = deconv(x)
+      if r: x = F.relu(x)
 
     return x
 
@@ -525,17 +528,11 @@ class ConvEncoderClassifierNet(nn.Module, ConvBasics):
     # arguments
     self.encoder_models = encoder_models
 
-    # get last dimension and feature map
-    self.last_conv_layer_dims = [encoder_model.conv_layer_dim[-1] for encoder_model in self.encoder_models]
-    self.last_feature_maps = [encoder_model.n_feature_maps[-1] for encoder_model in self.encoder_models]
-
-    # calculate flatten output dimension
-    #self.flatten_output_dim = np.sum([np.prod(d + (f,)) for d, f in zip(self.last_conv_layer_dims, self.last_feature_maps)])
-    self.flatten_output_dim = len(self.encoder_models)
-    #self.flatten_output_dim = len(self.encoder_models) * 2
+    # get flatten output dim
+    self.flatten_encoder_dim = np.sum([np.prod(encoder_model.conv_out_dim) for encoder_model in self.encoder_models])
 
     # classifier net
-    self.classifier_net = ClassifierNet(self.flatten_output_dim, n_classes)
+    self.classifier_net = ClassifierNet(self.flatten_encoder_dim, n_classes)
 
 
   def forward(self, x):

@@ -17,7 +17,7 @@ class ML():
   Machine Learning class
   """
 
-  def __init__(self, cfg_ml, audio_dataset, batch_archive, net_handler, sub_model_path=None, encoder_label=None):
+  def __init__(self, cfg_ml, audio_dataset, batch_archive, net_handler, sub_model_path=None, encoder_label=''):
 
     # arguments
     self.cfg_ml = cfg_ml
@@ -32,7 +32,7 @@ class ML():
 
     # model path
     self.model_path = self.cfg_ml['paths']['model'] + self.cfg_ml['nn_arch'] + '/' + self.audio_dataset.param_path + self.param_path_ml
-    if self.sub_model_path is not None and self.encoder_label is not None: self.model_path = self.model_path + sub_model_path + '_' + encoder_label + '/'
+    if self.sub_model_path is not None and len(self.encoder_label) is not None: self.model_path = self.model_path + sub_model_path + '_' + encoder_label + '/'
 
     # model file
     self.model_files = [self.model_path + model_name + '_' + self.cfg_ml['model_file_name'] for model_name, v in net_handler.models.items()]
@@ -175,31 +175,24 @@ class ML():
       for k, v in weights.items():
 
         # convolutional layers
-        if k.startswith('conv'):
+        if k.find('conv') != -1:
 
           # info
           print("{} analyze: {}".format(k, v.shape))
           
           # plot images
-          plot_grid_images(x=v.numpy(), padding=1, num_cols=8, title=k + self.param_path_ml.replace('/', ' '), plot_path=self.model_path, name=k, show_plot=False)
+          plot_grid_images(x=v.numpy(), padding=1, num_cols=8, title=k + self.param_path_ml.replace('/', ' ') + ' ' + self.encoder_label, plot_path=self.model_path, name=k, show_plot=False)
           #plot_other_grid(x=v.numpy(), title=k + self.param_path_ml.replace('/', ' '), plot_path=self.model_path, name=k, show_plot=False)
 
-    # generate samples (for generative networks)
-    self.generate_samples()
+    # generate samples from trained model (only for adversarial)
+    fakes = self.net_handler.generate_samples(num_samples=32, to_np=True)
+    if fakes is not None:
+      print("fakes: ", fakes.shape)
+      plot_grid_images(x=fakes, padding=1, num_cols=8, title='generated samples ' + self.encoder_label, plot_path=self.model_path, name='generated_samples_'+  self.encoder_label, show_plot=False)
+      plot_mfcc_only(fakes[0, 0], fs=16000, hop=160, plot_path=self.model_path, name='generated_sample_' + self.encoder_label, show_plot=False)
 
     # animation (for generative networks)
     if self.cfg_ml['plot_animation']: self.create_anim()
-
-
-  def generate_samples(self):
-    """
-    generate samples if it is a generative network
-    """
-
-    # generate samples from trained model
-    fake = self.net_handler.generate_samples(num_samples=1, to_np=True)
-    if fake is not None:
-      plot_mfcc_only(fake, fs=16000, hop=160, plot_path=self.model_path, name='generated_sample', show_plot=False)
 
 
   def image_collect(self, x):
@@ -208,7 +201,7 @@ class ML():
     """
 
     # append image
-    self.img_list.append(x)
+    self.img_list.append(x[0])
 
 
   def create_anim(self):
@@ -260,8 +253,8 @@ def train_conv_encoders(cfg, audio_set1, audio_set2):
     # batch archive for one label
     batch_archive = SpeechCommandsBatchArchive(audio_set1.feature_files + audio_set2.feature_files, batch_size=cfg['ml']['train_params']['batch_size'])
     
-    #batch_archive.reduce_to_label(l)
-    batch_archive.one_against_all(l, others_label='other', shuffle=True)
+    batch_archive.reduce_to_label(l)
+    #batch_archive.one_against_all(l, others_label='other', shuffle=True)
     print("classes: ", batch_archive.classes)
 
     # net handler
@@ -312,11 +305,11 @@ if __name__ == '__main__':
   # create batch archive
   batch_archive = SpeechCommandsBatchArchive(audio_set1.feature_files + audio_set2.feature_files, batch_size=cfg['ml']['train_params']['batch_size'])
 
-  #if cfg['ml']['nn_arch'] in ['adv-experimental']:
-  #  batch_archive.reduce_to_label('up')
-  #batch_archive.reduce_to_label('up')
-  #batch_archive.add_noise_data(shuffle=True)
-  #batch_archive.one_against_all('down', others_label='other', shuffle=True)
+  # adversarial training
+  if cfg['ml']['nn_arch'] in ['adv-experimental']:
+    batch_archive.reduce_to_label('up')
+    #batch_archive.add_noise_data(shuffle=True)
+    #batch_archive.one_against_all('down', others_label='other', shuffle=True)
 
   # print classes
   print("x_train: ", batch_archive.x_train.shape)

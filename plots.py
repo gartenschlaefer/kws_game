@@ -11,7 +11,7 @@ from glob import glob
 from praatio import tgio
 
 
-def plot_other_grid(x, grid_size=(8, 8), title='grid', plot_path=None, name='None', show_plot=False):
+def plot_other_grid(x, grid_size=(8, 8), title='grid1', plot_path=None, name='grid1', show_plot=False):
   """
   plot mfcc extracted features from audio file
   mfcc: [m x l]
@@ -58,13 +58,13 @@ def plot_other_grid(x, grid_size=(8, 8), title='grid', plot_path=None, name='Non
 
   # plot save and show
   if plot_path is not None: 
-    plt.savefig(plot_path + 'grid1_' + name + '.png', dpi=150)
+    plt.savefig(plot_path + name + '.png', dpi=150)
     plt.close()
 
   if show_plot: plt.show()
 
 
-def plot_grid_images(x, padding=1, num_cols=8, title='grid', plot_path=None, name='None', show_plot=False):
+def plot_grid_images(x, padding=1, num_cols=8, title='grid2', plot_path=None, name='grid2', show_plot=False):
   """
   plot grid images
   """
@@ -119,7 +119,7 @@ def plot_grid_images(x, padding=1, num_cols=8, title='grid', plot_path=None, nam
     all_grid_img = np.concatenate((all_grid_img, ch_grid_img), axis=0)
 
   # plot
-  plt.figure()
+  plt.figure(figsize=(8 * n_frames//n_features, 8))
   plt.axis("off")
   plt.title(title)
   #plt.imshow(grid_img[0], aspect='equal')
@@ -127,7 +127,7 @@ def plot_grid_images(x, padding=1, num_cols=8, title='grid', plot_path=None, nam
 
   # plot save and show
   if plot_path is not None: 
-    plt.savefig(plot_path + 'grid2_' + name + '.png', dpi=150)
+    plt.savefig(plot_path + name + '.png', dpi=150)
     plt.close()
     
   if show_plot: plt.show()
@@ -379,7 +379,7 @@ def plot_textGrid_annotation(anno_file, x=None, plot_text=False):
       if plot_text: plt.text(s + 0.01, h, l, color='k')
 
 
-def plot_mfcc_profile(x, fs, N, hop, mfcc, anno_file=None, onsets=None, bon_pos=None, mient=None, minreg=None, frame_size=32, plot_path=None, name='None', enable_plot=False):
+def plot_mfcc_profile(x, fs, N, hop, mfcc, anno_file=None, onsets=None, bon_pos=None, mient=None, minreg=None, frame_size=32, plot_path=None, name='mfcc_profile', enable_plot=False):
   """
   plot mfcc extracted features from audio file
   mfcc: [m x l]
@@ -466,11 +466,11 @@ def plot_mfcc_profile(x, fs, N, hop, mfcc, anno_file=None, onsets=None, bon_pos=
 
   # plot
   if plot_path is not None:
-    plt.savefig(plot_path + 'mfcc-' + name + '.png', dpi=150)
+    plt.savefig(plot_path + name + '.png', dpi=150)
   plt.close()
 
 
-def plot_mfcc_only(mfcc, fs=16000, hop=160, plot_path=None, name='None', show_plot=False):
+def plot_mfcc_only(mfcc, fs=16000, hop=160, plot_path=None, name='mfcc_only', show_plot=False):
   """
   plot mfcc extracted features only (no time series)
   mfcc: [m x l]
@@ -523,14 +523,14 @@ def plot_mfcc_only(mfcc, fs=16000, hop=160, plot_path=None, name='None', show_pl
 
   # plot the fig
   if plot_path is not None:
-    plt.savefig(plot_path + 'mfcc-only_' + name + '.png', dpi=150)
+    plt.savefig(plot_path + name + '.png', dpi=150)
     plt.close()
 
   elif show_plot:
     plt.show()
 
 
-def plot_mel_band_weights(w_f, w_mel, f, m, plot_path=None, name='None', show_plot=False):
+def plot_mel_band_weights(w_f, w_mel, f, m, plot_path=None, name='mel_bands', show_plot=False):
   """
   mel band weights
   """

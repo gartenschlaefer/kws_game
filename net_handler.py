@@ -187,6 +187,13 @@ class NetHandler():
     pass
 
 
+  def update_training_params(self, epoch, train_params):
+    """
+    update training parameters upon epoch
+    """
+    pass
+
+
   def train_nn(self, train_params, batch_archive, callback_f=None):
     """
     train interface
@@ -305,6 +312,9 @@ class CnnHandler(NetHandler):
 
     # epochs
     for epoch in range(train_params['num_epochs']):
+
+      # update training params if necessary
+      self.update_training_params(epoch, train_params)
 
       # TODO: do this with loader function from pytorch (maybe or not)
       # fetch data samples
@@ -604,7 +614,7 @@ class AdversarialNetHandler(NetHandler):
 
     # create fakes through Generator
     with torch.no_grad():
-      fakes = torch.squeeze(self.models['g'](noise).detach().cpu())
+      fakes = self.models['g'](noise).detach().cpu()
 
     # to numpy if necessary
     if to_np:
@@ -633,12 +643,22 @@ class ConvEncoderNetHandler(CnnHandler):
     set optimizer in training
     """
 
-
     # create optimizer
     #self.optimizer = torch.optim.SGD(self.model.parameters(), lr=train_params['lr'], momentum=train_params['momentum'])
     #self.optimizer = torch.optim.Adam(self.models['cnn'].parameters(), lr=train_params['lr'])
     self.optimizer = torch.optim.Adam(self.models['cnn'].classifier_net.parameters(), lr=train_params['lr'])
     self.models['cnn'].encoder_models.eval()
+
+
+  def update_training_params(self, epoch, train_params):
+    """
+    update training parameters upon epoch
+    """
+    
+    if epoch == 0:
+      print("update training params")
+      self.optimizer = torch.optim.Adam(self.models['cnn'].parameters(), lr=train_params['lr'])
+
 
 
 

@@ -501,6 +501,25 @@ def print_batch_infos(batch_archive):
   print("y: ", batch_archive.y_my)
 
 
+def plot_grid_examples(cfg, audio_set1, audio_set2):
+  """
+  plot examples from each label
+  """
+
+  for l in cfg['datasets']['speech_commands']['sel_labels']:
+
+    # create batches
+    batch_archive = SpeechCommandsBatchArchive(audio_set1.feature_files + audio_set2.feature_files, batch_size=32, batch_size_eval=5)
+
+    # reduce to label
+    batch_archive.reduce_to_label(l)
+
+    print("l: ", l)
+
+    # plot
+    plot_grid_images(batch_archive.x_train[0, :32], padding=1, num_cols=8, plot_path=cfg['datasets']['speech_commands']['plot_paths']['examples_grid'], title=l, name='grid_' + l, show_plot=False)
+
+
 if __name__ == '__main__':
   """
   batching test
@@ -526,10 +545,10 @@ if __name__ == '__main__':
 
   # reduce to label
   r_label = "up"
-  #batch_archive.reduce_to_label(r_label)
+  batch_archive.reduce_to_label(r_label)
 
   # infos
-  #print("\nreduced to label: ", r_label), print_batch_infos(batch_archive)
+  print("\nreduced to label: ", r_label), print_batch_infos(batch_archive)
 
   # add noise
   #batch_archive.add_noise_data(shuffle=False)
@@ -537,13 +556,14 @@ if __name__ == '__main__':
   # infos
   #print("\nnoise added: "), print_batch_infos(batch_archive)
 
-  batch_archive.one_against_all(r_label, others_label='other', shuffle=False)
-  print("\none against all: "), print_batch_infos(batch_archive)
+  #batch_archive.one_against_all(r_label, others_label='other', shuffle=False)
+  #print("\none against all: "), print_batch_infos(batch_archive)
 
   from plots import plot_grid_images, plot_other_grid
 
   # plot some examples
-  #plot_grid_images(batch_archive.x_train[0, :32], padding=1, num_cols=8, title='grid', show_plot=False)
-  plot_other_grid(batch_archive.x_train[0, :32], grid_size=(8, 8), show_plot=False)
-  plot_other_grid(batch_archive.x_train[-5, :32], grid_size=(8, 8), show_plot=False)
-  plot_other_grid(batch_archive.x_train[-1, :32], grid_size=(8, 8), show_plot=True)
+  #plot_grid_examples(cfg, audio_set1, audio_set2)
+  
+  #plot_other_grid(batch_archive.x_train[0, :32], grid_size=(8, 8), show_plot=True)
+  #plot_other_grid(batch_archive.x_train[-5, :32], grid_size=(8, 8), show_plot=False)
+  #plot_other_grid(batch_archive.x_train[-1, :32], grid_size=(8, 8), show_plot=True)
