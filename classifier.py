@@ -61,8 +61,7 @@ class Classifier():
     self.net_handler.set_eval_mode()
 
     # init to be faster
-    self.classify_sample(np.random.randn(39, 32))
-
+    self.classify_sample(np.random.randn(self.net_handler.data_size[1], self.net_handler.data_size[2]))
 
   def classify_sample(self, x):
     """
@@ -92,11 +91,14 @@ if __name__ == '__main__':
   # yaml config file
   cfg = yaml.safe_load(open("./config.yaml"))
 
+  # config adaptions
+  cfg['classifier']['verbose'] = True
+
   # create classifier
   classifier = Classifier(cfg_classifier=cfg['classifier'])
 
   # random sample
-  x = np.random.randn(39, 32)
+  x = np.random.randn(classifier.net_handler.data_size[1], classifier.net_handler.data_size[2])
 
   # classify
   classifier.classify_sample(x)

@@ -98,7 +98,7 @@ def plot_grid_images(x, padding=1, num_cols=8, title='grid2', plot_path=None, na
     col += 1
 
     # max row imgs
-    if col >= 8:
+    if col >= num_cols:
 
       row_imgs = np.concatenate((row_imgs, v_padding), axis=2)
       grid_img = np.concatenate((grid_img, h_padding, row_imgs), axis=1)
@@ -119,7 +119,7 @@ def plot_grid_images(x, padding=1, num_cols=8, title='grid2', plot_path=None, na
     all_grid_img = np.concatenate((all_grid_img, ch_grid_img), axis=0)
 
   # plot
-  plt.figure(figsize=(8 * n_frames//n_features, 8))
+  plt.figure(figsize=(np.clip(8 * n_frames//n_features, 4, 16), 8))
   plt.axis("off")
   plt.title(title)
   #plt.imshow(grid_img[0], aspect='equal')

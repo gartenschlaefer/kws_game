@@ -120,7 +120,7 @@ class D_experimental(nn.Module, AdvBasics):
     self.fc1 = nn.Linear(np.prod(self.conv_encoder.conv_out_dim), 1)
 
     # dropout layer
-    self.dropout_layer1 = nn.Dropout(p=0.5)
+    #self.dropout_layer1 = nn.Dropout(p=0.5)
 
     # sigmoid
     self.sigm = nn.Sigmoid()

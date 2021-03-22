@@ -40,7 +40,7 @@ class ML():
     
     # encoder model file
     self.encoder_model_file = None
-    if self.cfg_ml['nn_arch'] in ['conv-encoder']: self.encoder_model_file = self.model_path + self.cfg_ml['encoder_model_file_name']
+    if self.cfg_ml['nn_arch'] in ['conv-encoder'] and len(self.encoder_label): self.encoder_model_file = self.model_path + self.cfg_ml['encoder_model_file_name']
 
     # params and metrics files
     self.params_file = self.model_path + self.cfg_ml['params_file_name']
@@ -58,6 +58,8 @@ class ML():
 
     # disable unwanted logs
     logging.getLogger('matplotlib.font_manager').disabled = True
+    logging.getLogger('matplotlib.colorbar').disabled = True
+    logging.getLogger('matplotlib.animation').disabled = True
 
     # load pre trained model
     if self.cfg_ml['load_pre_model']:
@@ -126,9 +128,6 @@ class ML():
 
     print("\n--Evaluation on Test Set:")
 
-    # activate eval mode (no dropout layers)
-    self.net_handler.set_eval_mode()
-
     # evaluation of model
     eval_score = self.net_handler.eval_nn(eval_set='test', batch_archive=self.batch_archive, calc_cm=True, verbose=False)
 
@@ -161,7 +160,7 @@ class ML():
       plot_confusion_matrix(eval_score.cm, self.batch_archive.classes, plot_path=self.model_path, name='confusion_my')
 
 
-  def analyze(self):
+  def analyze(self, name_ext=''):
     """
     analyze function, e.g. analyze weights
     """
@@ -181,15 +180,15 @@ class ML():
           print("{} analyze: {}".format(k, v.shape))
           
           # plot images
-          plot_grid_images(x=v.numpy(), padding=1, num_cols=8, title=k + self.param_path_ml.replace('/', ' ') + ' ' + self.encoder_label, plot_path=self.model_path, name=k, show_plot=False)
+          plot_grid_images(x=v.numpy(), padding=1, num_cols=np.clip(v.shape[0], 1, 8), title=k + self.param_path_ml.replace('/', ' ') + ' ' + self.encoder_label  + name_ext, plot_path=self.model_path, name=k + name_ext, show_plot=False)
           #plot_other_grid(x=v.numpy(), title=k + self.param_path_ml.replace('/', ' '), plot_path=self.model_path, name=k, show_plot=False)
 
     # generate samples from trained model (only for adversarial)
     fakes = self.net_handler.generate_samples(num_samples=32, to_np=True)
     if fakes is not None:
       print("fakes: ", fakes.shape)
-      plot_grid_images(x=fakes, padding=1, num_cols=8, title='generated samples ' + self.encoder_label, plot_path=self.model_path, name='generated_samples_'+  self.encoder_label, show_plot=False)
-      plot_mfcc_only(fakes[0, 0], fs=16000, hop=160, plot_path=self.model_path, name='generated_sample_' + self.encoder_label, show_plot=False)
+      plot_grid_images(x=fakes, padding=1, num_cols=8, title='generated samples ' + self.encoder_label  + name_ext, plot_path=self.model_path, name='generated_samples_' +  self.encoder_label  + name_ext, show_plot=False)
+      plot_mfcc_only(fakes[0, 0], fs=16000, hop=160, plot_path=self.model_path, name='generated_sample_' + self.encoder_label  + name_ext, show_plot=False)
 
     # animation (for generative networks)
     if self.cfg_ml['plot_animation']: self.create_anim()
@@ -254,23 +253,36 @@ def train_conv_encoders(cfg, audio_set1, audio_set2):
     batch_archive = SpeechCommandsBatchArchive(audio_set1.feature_files + audio_set2.feature_files, batch_size=cfg['ml']['train_params']['batch_size'])
     
     batch_archive.reduce_to_label(l)
+    batch_archive.add_noise_data(shuffle=True)
     #batch_archive.one_against_all(l, others_label='other', shuffle=True)
     print("classes: ", batch_archive.classes)
 
     # net handler
-    net_handler = NetHandler(nn_arch='adv-experimental', n_classes=batch_archive.n_classes, data_size=batch_archive.data_size, use_cpu=cfg['ml']['use_cpu'])
-    #net_handler = NetHandler(nn_arch='conv-experimental', n_classes=batch_archive.n_classes, data_size=batch_archive.data_size, use_cpu=cfg['ml']['use_cpu'])
+    #net_handler = NetHandler(nn_arch='adv-experimental', n_classes=batch_archive.n_classes, data_size=batch_archive.data_size, use_cpu=cfg['ml']['use_cpu'])
+    net_handler = NetHandler(nn_arch='conv-experimental', n_classes=batch_archive.n_classes, data_size=batch_archive.data_size, use_cpu=cfg['ml']['use_cpu'])
 
     # ml
     ml = ML(cfg_ml=cfg['ml'], audio_dataset=audio_set1, batch_archive=batch_archive, net_handler=net_handler, sub_model_path='conv_encoder', encoder_label=l)
     
     # train and analyze
     ml.train()
-    ml.analyze()
+    #ml.analyze(name_ext='_adv')
+    ml.analyze(name_ext='_1_cnn')
+
+    # conv
+    batch_archive.reduce_to_label(l)
+    #batch_archive.add_noise_data(shuffle=True)
+    #net_handler = NetHandler(nn_arch='conv-experimental', n_classes=batch_archive.n_classes, data_size=batch_archive.data_size, encoder_models=[net_handler.models['d'].conv_encoder], use_cpu=cfg['ml']['use_cpu'])
+    net_handler = NetHandler(nn_arch='adv-experimental', n_classes=batch_archive.n_classes, data_size=batch_archive.data_size, encoder_models=[net_handler.models['cnn'].conv_encoder], use_cpu=cfg['ml']['use_cpu'])
+    ml = ML(cfg_ml=cfg['ml'], audio_dataset=audio_set1, batch_archive=batch_archive, net_handler=net_handler, sub_model_path='conv_encoder', encoder_label=l)
+
+    # train and analyze
+    ml.train()
+    ml.analyze(name_ext='_2_adv')
 
     # add encoder model
     encoder_models.append(net_handler.models['d'].conv_encoder)
-    #encoder_models.append(net_handler.models['cnn'])
+    #encoder_models.append(net_handler.models['cnn'].conv_encoder)
 
   return encoder_models
 
@@ -298,8 +310,7 @@ if __name__ == '__main__':
   encoder_models = None
 
   # conv encoder training
-  if cfg['ml']['nn_arch'] in ['conv-encoder']:
-    encoder_models = train_conv_encoders(cfg, audio_set1, audio_set2)
+  if cfg['ml']['nn_arch'] in ['conv-encoder']: encoder_models = train_conv_encoders(cfg, audio_set1, audio_set2)
 
 
   # create batch archive
@@ -307,9 +318,9 @@ if __name__ == '__main__':
 
   # adversarial training
   if cfg['ml']['nn_arch'] in ['adv-experimental']:
-    batch_archive.reduce_to_label('up')
+    #batch_archive.reduce_to_label('up')
     #batch_archive.add_noise_data(shuffle=True)
-    #batch_archive.one_against_all('down', others_label='other', shuffle=True)
+    batch_archive.one_against_all('up', others_label='other', shuffle=True)
 
   # print classes
   print("x_train: ", batch_archive.x_train.shape)
@@ -325,6 +336,9 @@ if __name__ == '__main__':
 
   # instance
   ml = ML(cfg_ml=cfg['ml'], audio_dataset=audio_set1, batch_archive=batch_archive, net_handler=net_handler)
+
+  # analyze init weights
+  ml.analyze(name_ext='_init')
 
   # training
   ml.train()

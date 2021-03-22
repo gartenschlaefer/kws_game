@@ -6,7 +6,7 @@ import numpy as np
 import torch
 import time
 
-from conv_nets import ConvNetTrad, ConvNetFstride4, ConvNetExperimental, ConvEncoderClassifierNet
+from conv_nets import ConvNetTrad, ConvNetFstride4, ConvNetExperimental, ConvEncoderClassifierNet, ConvStackedEncodersNet
 from adversarial_nets import G_experimental, D_experimental
 from score import TrainScore, EvalScore
 
@@ -21,8 +21,16 @@ class NetHandler():
     # adversarial handler
     if nn_arch in ['adv-experimental']:
       for child_cls in cls.__subclasses__():
+
+        # TODO:
+        #***keep care remove this later
         if child_cls.__name__ == 'AdversarialNetHandler':
           return super().__new__(AdversarialNetHandler)
+
+        # for child_child_cls in child_cls.__subclasses__():
+        #   if child_child_cls.__name__ == 'AdversarialNetHandlerExperimental':
+        #     return super().__new__(AdversarialNetHandlerExperimental)
+
 
     # cnn handler
     elif nn_arch in ['conv-trad', 'conv-fstride', 'conv-experimental']:
@@ -77,7 +85,8 @@ class NetHandler():
     elif self.nn_arch == 'conv-fstride': self.models = {'cnn':ConvNetFstride4(self.n_classes, self.data_size)}
     elif self.nn_arch == 'conv-experimental': self.models = {'cnn':ConvNetExperimental(self.n_classes, self.data_size)}
     elif self.nn_arch == 'adv-experimental': self.models = {'g':G_experimental(self.n_classes, self.data_size), 'd':D_experimental(self.n_classes, self.data_size)}
-    elif self.nn_arch == 'conv-encoder': self.models = {'cnn':ConvEncoderClassifierNet(self.n_classes, self.data_size, self.encoder_models)}
+    elif self.nn_arch == 'conv-encoder': self.models = {'cnn':ConvEncoderClassifierNet(self.n_classes, self.data_size)}
+    #elif self.nn_arch == 'conv-encoder': self.models = {'cnn':ConvStackedEncodersNet(self.n_classes, self.data_size, self.encoder_models)}
     else: print("***Network Architecture not found!")
 
     # send models to device
@@ -93,7 +102,7 @@ class NetHandler():
 
   def set_train_mode(self):
     """
-    sets the eval mode (dropout layers are ignored)
+    sets the training mode (dropout layers active)
     """
     self.models = dict((k, model.train()) for k, model in self.models.items())
 
@@ -231,7 +240,7 @@ class NetHandler():
 
     # set not found
     else:
-      print("wrong usage of eval_nn, select eval_set one out of ['val', 'test', 'my']")
+      print("wrong usage of eval nn, select eval_set one out of ['val', 'test', 'my']")
 
     return x_eval, y_eval, z_eval
 
@@ -249,13 +258,6 @@ class NetHandler():
     generate samples if it is a generative network
     """
     return None
-
-
-  def set_eval_mode(self):
-    """
-    sets the eval mode (dropout layers are ignored)
-    """
-    pass
 
 
   def get_model_weights(self):
@@ -281,6 +283,9 @@ class CnnHandler(NetHandler):
 
     # init models
     self.init_models()
+
+    # transfer conv weights from encoder models
+    if self.encoder_models is not None: self.models['cnn'].conv_encoder.transfer_conv_weights(self.encoder_models) 
 
 
   def set_up_training(self, train_params):
@@ -364,6 +369,9 @@ class CnnHandler(NetHandler):
     use eval_set out of ['val', 'test', 'my']
     """
 
+    # eval mode
+    self.set_eval_mode()
+
     # select the evaluation set
     x_eval, y_eval, z_eval = self.eval_select_set(eval_set, batch_archive)
 
@@ -402,6 +410,9 @@ class CnnHandler(NetHandler):
 
     # finish up scores
     eval_score.finish()
+
+    # train mode
+    self.set_train_mode()
 
     return eval_score
 
@@ -455,6 +466,9 @@ class AdversarialNetHandler(NetHandler):
     self.real_label = 1.
     self.fake_label = 0.
 
+    # transfer conv weights from encoder models
+    if self.encoder_models is not None: self.models['d'].conv_encoder.transfer_conv_weights(self.encoder_models) 
+
 
   def set_up_training(self, train_params):
     """
@@ -489,68 +503,13 @@ class AdversarialNetHandler(NetHandler):
     for epoch in range(train_params['num_epochs']):
 
       # fetch data samples
-      for i, x in enumerate(batch_archive.x_train.to(self.device)):
+      for batch_index, (x, y) in enumerate(zip(batch_archive.x_train.to(self.device), batch_archive.y_train.to(self.device))):
 
-        # zero parameter gradients
-        self.models['d'].zero_grad()
-        self.optimizer_d.zero_grad()
-
-        # --
-        # train with real batch
-
-        # labels for batch
-        y = torch.full((batch_archive.batch_size,), self.real_label, dtype=torch.float, device=self.device)
-
-        # forward pass o:[b x c]
-        o = self.models['d'](x).view(-1)
-
-        # loss of D with reals
-        d_loss_real = self.criterion(o, y)
-        d_loss_real.backward()
-
-        # --
-        # train with fake batch
-
-        # create fakes through Generator with noise as input
-        fakes = self.models['g'](torch.randn(batch_archive.batch_size, self.models['g'].n_latent, device=self.device))
-
-        # create fake labels
-        y.fill_(self.fake_label)
-
-        # fakes to D (without gradient backprop)
-        o = self.models['d'](fakes.detach()).view(-1)
-
-        # loss of D with fakes
-        d_loss_fake = self.criterion(o, y)
-        d_loss_fake.backward()
-
-        # optimizer step
-        self.optimizer_d.step()
-
-        # --
-        # update of G
-
-        # zero gradients
-        self.models['g'].zero_grad()
-
-        # fakes should be real labels for G
-        y.fill_(self.real_label)
-
-        # fakes to D
-        o = self.models['d'](fakes).view(-1)
-
-        # loss of G of D with fakes
-        g_loss_fake = self.criterion(o, y)
-        g_loss_fake.backward()
-
-        # optimizer step
-        self.optimizer_g.step()
-
-        # update batch loss collection
-        train_score.update_batch_losses(epoch, loss=0.0, g_loss_fake=g_loss_fake.item(), d_loss_real=d_loss_real.item(), d_loss_fake=d_loss_fake.item())
+        # update models
+        train_score = self.update_models(x, y, batch_archive.class_dict, epoch, train_score)
 
         # print some infos
-        self.print_train_info(epoch, i, train_score, k_print=batch_archive.y_train.shape[0] // self.num_print_per_epoch)
+        self.print_train_info(epoch, batch_index, train_score, k_print=batch_archive.y_train.shape[0] // self.num_print_per_epoch)
         train_score.reset_batch_losses()
 
       # check progess after epoch with callback function
@@ -565,11 +524,93 @@ class AdversarialNetHandler(NetHandler):
     return train_score
 
 
+  def update_models(self, x, y, class_dict, epoch, train_score):
+    """
+    model updates
+    """
+
+    # create fakes through Generator with noise as input
+    fakes = self.models['g'](torch.randn(x.shape[0], self.models['g'].n_latent, device=self.device))
+
+    # update discriminator
+    d_loss_real, d_loss_fake = self.update_d(x, y, class_dict, fakes)
+
+    # update generator
+    g_loss_fake = self.update_g(fakes)
+
+    # update batch loss collection
+    train_score.update_batch_losses(epoch, loss=0.0, g_loss_fake=g_loss_fake.item(), d_loss_real=d_loss_real.item(), d_loss_fake=d_loss_fake.item())
+
+    return train_score
+
+
+  def update_d(self, x, y, class_dict, fakes):
+    """
+    update discriminator D with real and fake data
+    """
+
+    # zero parameter gradients
+    self.models['d'].zero_grad()
+    self.optimizer_d.zero_grad()
+
+    # create real labels
+    y = torch.full((x.shape[0],), self.real_label, dtype=torch.float, device=self.device)
+
+    # forward pass o:[b x c]
+    o = self.models['d'](x).view(-1)
+
+    # loss of D with reals
+    d_loss_real = self.criterion(o, y)
+    d_loss_real.backward()
+
+    # create fake labels
+    y.fill_(self.fake_label)
+
+    # fakes to D (without gradient backprop)
+    o = self.models['d'](fakes.detach()).view(-1)
+
+    # loss of D with fakes
+    d_loss_fake = self.criterion(o, y) * 1
+    d_loss_fake.backward()
+
+    # optimizer step
+    self.optimizer_d.step()
+
+    return d_loss_real, d_loss_fake
+
+
+  def update_g(self, fakes):
+    """
+    update generator G
+    """
+
+    # zero gradients
+    self.models['g'].zero_grad()
+
+    # fakes should be real labels for G
+    y = torch.full((fakes.shape[0],), self.real_label, dtype=torch.float, device=self.device)
+
+    # fakes to D
+    o = self.models['d'](fakes).view(-1)
+
+    # loss of G of D with fakes
+    g_loss_fake = self.criterion(o, y)
+    g_loss_fake.backward()
+
+    # optimizer step
+    self.optimizer_g.step()
+
+    return g_loss_fake
+
+
   def eval_nn(self, eval_set, batch_archive, calc_cm=False, verbose=False):
     """
     evaluation of nn
     use eval_set out of ['val', 'test', 'my']
     """
+
+    # eval mode
+    self.set_eval_mode()
 
     # select the evaluation set
     x_eval, y_eval, z_eval = self.eval_select_set(eval_set, batch_archive)
@@ -599,6 +640,9 @@ class AdversarialNetHandler(NetHandler):
 
     # finish up scores
     eval_score.finish()
+
+    # train mode
+    self.set_train_mode()
 
     return eval_score
 
@@ -631,12 +675,110 @@ class AdversarialNetHandler(NetHandler):
 
 
 
-class ConvEncoderNetHandler(CnnHandler):
+class AdversarialNetHandlerExperimental(AdversarialNetHandler):
+  """
+  Experimental Adversarial Net Handler
+  """
 
+  def update_models(self, x, y, class_dict, epoch, train_score):
+    """
+    model updates
+    """
+
+    # create fakes through Generator with noise as input
+    fakes = self.models['g'](torch.randn(x.shape[0], self.models['g'].n_latent, device=self.device))
+
+    # update discriminator
+    d_loss_real, d_loss_fake = self.update_d(x, y, class_dict, fakes)
+
+    # update generator
+    g_loss_fake = self.update_g(fakes)
+
+    # update batch loss collection
+    train_score.update_batch_losses(epoch, loss=0.0, g_loss_fake=g_loss_fake.item(), d_loss_real=d_loss_real.item(), d_loss_fake=d_loss_fake.item())
+
+    return train_score
+
+
+  def update_d(self, x, y, class_dict, fakes):
+    """
+    update discriminator D with real and fake data
+    """
+
+    # zero parameter gradients
+    self.models['d'].zero_grad()
+    self.optimizer_d.zero_grad()
+
+    # print("x: ", x[y==class_dict['other']].shape)
+    # print("x: ", x[y==class_dict['up']].shape)
+    # print("y: ", y)
+    # print("c: ", class_dict)
+
+    label_list = list(class_dict.keys())
+    label_list.remove('other')
+    label = label_list[0]
+
+    x_label = x[y==class_dict[label]]
+    x_other = x[y==class_dict['other']]
+
+    # print("x: ", x_label.shape)
+    # print("x: ", x_other.shape)
+    # print("label: ", label)
+    # stop
+
+    # create real labels
+    y = torch.full((x_label.shape[0],), self.real_label, dtype=torch.float, device=self.device)
+
+    # forward pass o:[b x c]
+    o = self.models['d'](x_label).view(-1)
+
+    # loss of D with reals
+    d_loss_real = self.criterion(o, y)
+    d_loss_real.backward()
+
+
+    # create other labels
+    y = torch.full((x_other.shape[0],), self.real_label, dtype=torch.float, device=self.device)
+
+    # fakes to D (without gradient backprop)
+    o = self.models['d'](x_other).view(-1)
+
+    # loss of D with fakes
+    d_loss_other = self.criterion(o, y)
+    d_loss_other.backward()
+
+
+    # create fake labels
+    y = torch.full((x.shape[0],), self.fake_label, dtype=torch.float, device=self.device)
+
+    # fakes to D (without gradient backprop)
+    o = self.models['d'](fakes.detach()).view(-1)
+
+    # loss of D with fakes
+    d_loss_fake = self.criterion(o, y)
+    d_loss_fake.backward()
+
+    # optimizer step
+    self.optimizer_d.step()
+
+    return d_loss_real, d_loss_fake
+
+
+
+class ConvEncoderNetHandler(CnnHandler):
   """
   Neural Network Handler for Convolutional Encoder Network
   the conv encoders are pre-trained and only a consecutive classifier network is trained
   """
+
+  # def __init__(self, nn_arch, n_classes, data_size, encoder_models=None, use_cpu=False):
+
+  #   # parent class init
+  #   super().__init__(nn_arch, n_classes, data_size, encoder_models=encoder_models, use_cpu=use_cpu)
+
+  #   # transfer conv weights from encoder models
+  #   #if encoder_models is not None: self.models['cnn'].transfer_conv_weights(self.encoder_models) 
+
 
   def set_up_training(self, train_params):
     """
@@ -645,9 +787,9 @@ class ConvEncoderNetHandler(CnnHandler):
 
     # create optimizer
     #self.optimizer = torch.optim.SGD(self.model.parameters(), lr=train_params['lr'], momentum=train_params['momentum'])
-    #self.optimizer = torch.optim.Adam(self.models['cnn'].parameters(), lr=train_params['lr'])
-    self.optimizer = torch.optim.Adam(self.models['cnn'].classifier_net.parameters(), lr=train_params['lr'])
-    self.models['cnn'].encoder_models.eval()
+    self.optimizer = torch.optim.Adam(self.models['cnn'].parameters(), lr=train_params['lr'])
+    #self.optimizer = torch.optim.Adam(self.models['cnn'].classifier_net.parameters(), lr=train_params['lr'])
+    #self.models['cnn'].encoder_models.eval()
 
 
   def update_training_params(self, epoch, train_params):
@@ -657,9 +799,7 @@ class ConvEncoderNetHandler(CnnHandler):
     
     if epoch == 0:
       print("update training params")
-      self.optimizer = torch.optim.Adam(self.models['cnn'].parameters(), lr=train_params['lr'])
-
-
+      #self.optimizer = torch.optim.Adam(self.models['cnn'].encoder_models.parameters(), lr=train_params['lr'])
 
 
 

@@ -334,13 +334,14 @@ class SpeechCommandsBatchArchive(BatchArchive):
   creates batches from feature files saved as .npz [train, test, eval]
   """
 
-  def __init__(self, feature_files, batch_size=32, batch_size_eval=5, to_torch=True):
+  def __init__(self, feature_files, batch_size=32, batch_size_eval=5, to_torch=True, shuffle=True):
 
     # parent init
     super().__init__(batch_size, batch_size_eval, to_torch=to_torch)
 
     # params
     self.feature_files = feature_files
+    self.shuffle = shuffle
 
     # load files [0]: train, etc.
     self.data = [np.load(file, allow_pickle=True) for file in self.feature_files]
@@ -394,7 +395,7 @@ class SpeechCommandsBatchArchive(BatchArchive):
     self.determine_num_examples()
 
 
-  def create_batches(self, data, batch_size=1, window_step=1, plot_shift=False):
+  def create_batches(self, data, batch_size=1):
     """
     create batches for training N x [b x m x f]
     x: [n x m x l]
@@ -406,16 +407,15 @@ class SpeechCommandsBatchArchive(BatchArchive):
     """
 
     # extract data
-    x_data, y_data, z_data, params = data['x'], data['y'], data['index'], data['params']
+    x, y, z, params = data['x'], data['y'], data['index'], data['params']
 
     # get shape of things
-    n, m, l = x_data.shape
+    n, m, l = x.shape
 
     # randomize examples
-    indices = np.random.permutation(x_data.shape[0])
-    x = np.take(x_data, indices, axis=0)
-    y = np.take(y_data, indices, axis=0)
-    z = np.take(z_data, indices, axis=0)
+    if self.shuffle:
+      indices = np.random.permutation(x.shape[0])
+      x, y, z = np.take(x, indices, axis=0), np.take(y, indices, axis=0), np.take(z, indices, axis=0)
 
     # number of windows
     batch_nums = x.shape[0] // batch_size
@@ -498,7 +498,7 @@ def print_batch_infos(batch_archive):
   print("y: ", batch_archive.y_train)
   print("y data type: ", batch_archive.y_train.dtype)
   print("y: ", batch_archive.y_test)
-  print("y: ", batch_archive.y_my)
+  print("y_my: ", batch_archive.y_my)
 
 
 def plot_grid_examples(cfg, audio_set1, audio_set2):
@@ -519,6 +519,13 @@ def plot_grid_examples(cfg, audio_set1, audio_set2):
     # plot
     plot_grid_images(batch_archive.x_train[0, :32], padding=1, num_cols=8, plot_path=cfg['datasets']['speech_commands']['plot_paths']['examples_grid'], title=l, name='grid_' + l, show_plot=False)
 
+  # create batches for my data
+  batch_archive = SpeechCommandsBatchArchive(audio_set1.feature_files + audio_set2.feature_files, batch_size=32, batch_size_eval=5, shuffle=False)
+  print("\ndata: "), print_batch_infos(batch_archive)
+  
+  # plot my data
+  plot_grid_images(np.squeeze(batch_archive.x_my, axis=1), padding=1, num_cols=5, plot_path=cfg['datasets']['my_recordings']['plot_paths']['examples_grid'], title='grid', name='grid', show_plot=False)
+
 
 if __name__ == '__main__':
   """
@@ -527,7 +534,7 @@ if __name__ == '__main__':
 
   import yaml
   import matplotlib.pyplot as plt
-  from plots import plot_mfcc_only
+  from plots import plot_mfcc_only, plot_grid_images, plot_other_grid
   from audio_dataset import AudioDataset
 
   # yaml config file
@@ -541,14 +548,14 @@ if __name__ == '__main__':
   batch_archive = SpeechCommandsBatchArchive(audio_set1.feature_files + audio_set2.feature_files, batch_size=32, batch_size_eval=5)
 
   # infos
-  #print("\ndata: "), print_batch_infos(batch_archive)
+  print("\ndata: "), print_batch_infos(batch_archive)
 
   # reduce to label
-  r_label = "up"
-  batch_archive.reduce_to_label(r_label)
+  #r_label = "up"
+  #batch_archive.reduce_to_label(r_label)
 
   # infos
-  print("\nreduced to label: ", r_label), print_batch_infos(batch_archive)
+  #print("\nreduced to label: ", r_label), print_batch_infos(batch_archive)
 
   # add noise
   #batch_archive.add_noise_data(shuffle=False)
@@ -559,10 +566,8 @@ if __name__ == '__main__':
   #batch_archive.one_against_all(r_label, others_label='other', shuffle=False)
   #print("\none against all: "), print_batch_infos(batch_archive)
 
-  from plots import plot_grid_images, plot_other_grid
-
   # plot some examples
-  #plot_grid_examples(cfg, audio_set1, audio_set2)
+  plot_grid_examples(cfg, audio_set1, audio_set2)
   
   #plot_other_grid(batch_archive.x_train[0, :32], grid_size=(8, 8), show_plot=True)
   #plot_other_grid(batch_archive.x_train[-5, :32], grid_size=(8, 8), show_plot=False)

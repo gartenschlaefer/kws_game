@@ -32,6 +32,7 @@ datasets:
     plot_paths:
       mfcc: ./ignore/dataset/plots/mfcc/
       z_score: ./ignore/dataset/plots/z_score/
+      examples_grid: ./ignore/dataset/plots/
 
     # enable plot of each feature extraction
     enable_plot: False
@@ -85,6 +86,7 @@ datasets:
       z_score: ./ignore/my_recordings/plots/z_score/
       onsets: ./ignore/my_recordings/plots/onsets/
       waveform: ./ignore/my_recordings/plots/waveform/
+      examples_grid: ./ignore/my_recordings/plots/
 
     # enable plot of each feature extraction
     enable_plot: True
@@ -170,10 +172,10 @@ ml:
     batch_size: 32
 
     # number of epochs
-    num_epochs: 10
+    num_epochs: 1024
 
     # learning rate
-    lr: 0.0002
+    lr: 0.0001
 
     # momentum
     beta: 0.5
@@ -196,7 +198,7 @@ ml:
   logging_enabled: True
 
   # use cpu
-  use_cpu: False
+  use_cpu: True
 
   # plot animation
   plot_animation: False
@@ -207,7 +209,8 @@ ml:
 classifier:
 
   # path to model
-  model_path: 'models/conv-fstride/v3_c-5_n-2000/bs-32_it-1000_lr-1e-05/'
+  #model_path: 'models/conv-fstride/v3_c-5_n-2000/bs-32_it-1000_lr-1e-05/'
+  model_path: 'models/conv-encoder/v4_c-5_n-500_f-13x50/bs-32_it-1024_lr-0p0001/'
 
   # file names
   model_file_name: 'model.pth'
@@ -225,7 +228,7 @@ mic_params:
   select_device: True
 
   # sel device id
-  device: 0
+  device: 10
 
   # sampling frequency of your microphone device (idealy this would be 16000, as it will be downsampled to it)
   fs_device: 48000
