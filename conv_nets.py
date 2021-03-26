@@ -43,32 +43,6 @@ class ConvBasics():
       self.conv_layer_dim.append((int((self.conv_layer_dim[i][0] - k[0]) / s[0] + 1), int((self.conv_layer_dim[i][1] - k[1]) / s[1] + 1)))
 
 
-  def get_weights(self):
-    """
-    analyze weights of model, names are my standard definitions so keep care
-    """
-
-    # put weights in dictionary
-    weight_dict = {}
-
-    # run through each module
-    #for name, module in self.named_children():
-    for name, module in self.named_modules():
-      #print("name: ", name)
-      # all conv weights
-      if name in ['conv', 'conv1', 'conv2']:
-
-        #print("is saved: ", name)
-        weight_dict.update({name:module.weight.detach().cpu()})
-
-      # for lists used in conv encoder
-      elif name.find('conv_layers.') != -1:
-        #print("is saved: ", name)
-        weight_dict.update({name:module.weight.detach().cpu()})
-
-    return weight_dict
-
-
 
 class ConvNetTrad(nn.Module, ConvBasics):
   """
@@ -439,7 +413,6 @@ class ConvEncoderDecoderParams(ConvBasics):
 
     # conv params
     self.n_feature_maps = [(self.n_channels, 8), (8, 8)]
-    #self.n_feature_maps = [(self.n_channels, 16), (16, 4)]
     self.kernel_sizes = [(self.n_features, 20), (1, 5)]
     self.strides = [(1, 1), (1, 1)]
 
@@ -455,24 +428,44 @@ class ConvEncoderDecoderParams(ConvBasics):
 
   def transfer_conv_weights(self, conv_encoders):
     """
-    transfer convolutional weights from encoder models
+    transfer convolutional weights from encoder models to one concatenated model (use with care)
     """
 
     with torch.no_grad():
 
+      # regard every conv encoder
       for i, conv_encoder in enumerate(conv_encoders):
 
-        print("state dict keys: ", conv_encoder.state_dict().keys())
-        print("self. dict keys: ", self.state_dict().keys())
+        # go through all parameters
         for param_tensor in conv_encoder.state_dict():
 
-          #print("param tensor: {} shape: {}".format(param_tensor, conv_encoder.state_dict()[param_tensor].shape))
           # fist layer
           if param_tensor == 'conv_layers.0.weight':
             self.state_dict()[param_tensor][i*8:(i+1)*8] = conv_encoder.state_dict()[param_tensor]
 
+          # second layer
           elif param_tensor == 'conv_layers.1.weight':
             self.state_dict()[param_tensor][:, i*8:(i+1)*8] = conv_encoder.state_dict()[param_tensor]
+
+
+  def transfer_decoder_weights(self, conv_decoder):
+    """
+    transfer decoder weights (experimental) 
+    """
+
+    with torch.no_grad():
+
+      # go through all parameters
+      for param_tensor in conv_decoder.state_dict():
+
+        # first layer
+        if param_tensor == 'deconv_layers.0.weight':
+          self.state_dict()['conv_layers.1.weight'][:] = conv_decoder.state_dict()[param_tensor]
+
+        # second layer
+        elif param_tensor == 'deconv_layers.1.weight':
+          #print("yoa")
+          self.state_dict()['conv_layers.0.weight'][:] = conv_decoder.state_dict()[param_tensor]
 
 
 
@@ -526,11 +519,11 @@ class ConvDecoder(nn.Module, ConvEncoderDecoderParams):
   Convolutional decoder for adversarial nets Generator
   """
 
-  def __init__(self, n_classes, data_size, n_latent):
+  def __init__(self, n_classes, data_size, n_latent, is_collection_net=False):
 
     # parent init
     super().__init__()
-    ConvEncoderDecoderParams.__init__(self, n_classes, data_size)
+    ConvEncoderDecoderParams.__init__(self, n_classes, data_size, is_collection_net)
 
     # arguments
     self.n_latent = n_latent
@@ -540,7 +533,7 @@ class ConvDecoder(nn.Module, ConvEncoderDecoderParams):
 
     # create deconv layers
     for f, k, s in zip(reversed(self.n_feature_maps), reversed(self.kernel_sizes), reversed(self.strides)):
-      self.deconv_layers.append(nn.ConvTranspose2d(in_channels=f[1], out_channels=f[0], kernel_size=k, stride=s))
+      self.deconv_layers.append(nn.ConvTranspose2d(in_channels=f[1], out_channels=f[0], kernel_size=k, stride=s, bias=False))
 
     # dimensions
     self.conv_in_dim = ((self.n_feature_maps[-1][1],) + self.conv_layer_dim[-1])
@@ -571,12 +564,12 @@ class ClassifierNet(nn.Module):
     # parent init
     super().__init__()
 
-    # fully connected layers
-    self.fc1 = nn.Linear(input_dim, 64)
-    self.fc2 = nn.Linear(64, 32)
-    self.fc3 = nn.Linear(32, output_dim)
+    # # fully connected layers
+    # self.fc1 = nn.Linear(input_dim, 64)
+    # self.fc2 = nn.Linear(64, 32)
+    # self.fc3 = nn.Linear(32, output_dim)
 
-    #self.fc1 = nn.Linear(input_dim, output_dim)
+    self.fc1 = nn.Linear(input_dim, output_dim)
 
     # dropout layer
     #self.dropout_layer1 = nn.Dropout(p=0.2)
@@ -591,21 +584,20 @@ class ClassifierNet(nn.Module):
     forward pass
     """
 
-    # #print(x)
-    # 1. fully connected layer
+    # # 1. fully connected layer
+    # x = self.fc1(x)
+    # x = F.relu(x)
+
+    # # 2. fully connected layer
+    # x = self.fc2(x)
+    # x = F.relu(x)
+    # #x = self.dropout_layer1(x)
+    # x = self.dropout_layer2(x)
+
+    # # 3. fully connected layer
+    # x = self.fc3(x)
+
     x = self.fc1(x)
-    x = F.relu(x)
-
-    # 2. fully connected layer
-    x = self.fc2(x)
-    x = F.relu(x)
-    #x = self.dropout_layer1(x)
-    x = self.dropout_layer2(x)
-
-    # 3. fully connected layer
-    x = self.fc3(x)
-
-    #x = self.fc1(x)
 
     # Softmax layer
     x = self.softmax(x)
@@ -619,17 +611,17 @@ class ConvStackedEncodersNet(nn.Module, ConvBasics):
   Collected encoder networks with consecutive classifier Network
   """
 
-  def __init__(self, n_classes, data_size, encoder_models):
+  def __init__(self, n_classes, data_size, encoder_model):
 
     # parent init
     super().__init__()
     ConvBasics.__init__(self, n_classes, data_size)
 
     # arguments
-    self.encoder_models = encoder_models
+    self.encoder_model = encoder_model
 
     # get flatten output dim
-    self.flatten_encoder_dim = np.sum([np.prod(encoder_model.conv_out_dim) for encoder_model in self.encoder_models])
+    self.flatten_encoder_dim = np.sum([np.prod(encoder_model.conv_out_dim) for encoder_model in self.encoder_model])
 
     # classifier net
     self.classifier_net = ClassifierNet(self.flatten_encoder_dim, n_classes)
@@ -641,7 +633,7 @@ class ConvStackedEncodersNet(nn.Module, ConvBasics):
     """
 
     # encoder models models in parallel
-    x = torch.cat([encoder_model(x) for encoder_model in self.encoder_models], dim=1)
+    x = torch.cat([m(x) for m in self.encoder_model], dim=1)
 
     # flatten output from conv layer [1 x 432]
     x = x.view(-1, np.product(x.shape[1:]))
@@ -652,7 +644,7 @@ class ConvStackedEncodersNet(nn.Module, ConvBasics):
     return x
 
 
-#class ConvEncoderClassifierNet(nn.Module, ConvEncoderDecoderParams):
+
 class ConvEncoderClassifierNet(nn.Module, ConvBasics):
   """
   Collected encoder networks with consecutive classifier Network
@@ -666,11 +658,6 @@ class ConvEncoderClassifierNet(nn.Module, ConvBasics):
 
     self.conv_encoder = ConvEncoder(n_classes, data_size, is_collection_net=True)
 
-    #ConvEncoderDecoderParams.__init__(self, n_classes, data_size, is_collection_net=True)
-    # conv layer
-    #self.conv_layers = torch.nn.ModuleList()
-    #for f, k, s in zip(self.n_feature_maps, self.kernel_sizes, self.strides): self.conv_layers.append(nn.Conv2d(f[0], f[1], kernel_size=k, stride=s))
-
     # dimensions
     self.conv_in_dim, self.conv_out_dim  = self.data_size, ((self.conv_encoder.n_feature_maps[-1][1],) + self.conv_encoder.conv_layer_dim[-1])
 
@@ -678,40 +665,10 @@ class ConvEncoderClassifierNet(nn.Module, ConvBasics):
     self.classifier_net = ClassifierNet(np.prod(self.conv_out_dim), n_classes)
 
 
-  # def transfer_conv_weights(self, conv_encoders):
-  #   """
-  #   transfer convolutional weights from encoder models
-  #   """
-
-  #   with torch.no_grad():
-
-  #     for i, conv_encoder in enumerate(conv_encoders):
-
-  #       #print("state dict keys: ", conv_encoder.state_dict().keys())
-  #       #print("self. dict keys: ", self.state_dict().keys())
-  #       for param_tensor in conv_encoder.state_dict():
-
-  #         #print("param tensor: {} shape: {}".format(param_tensor, conv_encoder.state_dict()[param_tensor].shape))
-  #         # fist layer
-  #         if param_tensor == 'conv_layers.0.weight':
-  #           self.state_dict()[param_tensor][i*8:(i+1)*8] = conv_encoder.state_dict()[param_tensor]
-
-  #         elif param_tensor == 'conv_layers.1.weight':
-  #           self.state_dict()[param_tensor][:, i*8:(i+1)*8] = conv_encoder.state_dict()[param_tensor]
-
-
   def forward(self, x):
     """
     forward pass
     """
-
-    # # convolutional layers
-    # for conv, r in zip(self.conv_layers, self.relu_active):
-    #   x = conv(x)
-    #   if r: x = F.relu(x)
-
-    # # last relu
-    # x = F.relu(x)
 
     # encoder model
     x = self.conv_encoder(x)

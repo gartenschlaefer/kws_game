@@ -158,6 +158,7 @@ ml:
 
   # encoder model file name
   encoder_model_file_name: encoder_model.pth
+  encoder_model_init_file_name: encoder_model_init.pth
 
   # use a pre trained model at pre trained model path
   load_pre_model: False
@@ -172,7 +173,7 @@ ml:
     batch_size: 32
 
     # number of epochs
-    num_epochs: 1024
+    num_epochs: 61
 
     # learning rate
     lr: 0.0001

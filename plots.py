@@ -118,12 +118,21 @@ def plot_grid_images(x, padding=1, num_cols=8, title='grid2', plot_path=None, na
   for ch_grid_img in grid_img:
     all_grid_img = np.concatenate((all_grid_img, ch_grid_img), axis=0)
 
-  # plot
-  plt.figure(figsize=(np.clip(8 * n_frames//n_features, 4, 16), 8))
+  # plot init
+  fig = plt.figure(figsize=(np.clip(8 * n_frames//n_features, 4, 16), 8))
+
+  # image
+  ax = plt.axes()
+  im = ax.imshow(all_grid_img, aspect='equal', interpolation='none')
+
+  # design
   plt.axis("off")
   plt.title(title)
-  #plt.imshow(grid_img[0], aspect='equal')
-  plt.imshow(all_grid_img, aspect='equal')
+
+  # colorbar
+  cax = fig.add_axes([ax.get_position().x1 + 0.01, ax.get_position().y0, 0.02, ax.get_position().height])
+  plt.colorbar(im, cax=cax)
+
 
   # plot save and show
   if plot_path is not None: 
@@ -272,19 +281,19 @@ def plot_confusion_matrix(cm, classes, plot_path=None, name='None'):
     plt.close()
 
 
-def plot_train_score(train_score, plot_path):
+def plot_train_score(train_score, plot_path, name_ext=''):
   """
   plot train scores
   """
 
   # usual loss in not adversarial nets
   if not train_score.is_adv:
-    plot_train_loss(train_score.train_loss, train_score.val_loss, plot_path=plot_path, name='train_loss')
-    plot_val_acc(train_score.val_acc, plot_path=plot_path, name='val_acc')
+    plot_train_loss(train_score.train_loss, train_score.val_loss, plot_path=plot_path, name='train_loss' + name_ext)
+    plot_val_acc(train_score.val_acc, plot_path=plot_path, name='val_acc' + name_ext)
 
   # for adversarial nets
   else:
-    plot_adv_train_loss(g_loss_fake=train_score.g_loss_fake, d_loss_fake=train_score.d_loss_fake, d_loss_real=train_score.d_loss_real, plot_path=plot_path, name='train_loss')
+    plot_adv_train_loss(g_loss_fake=train_score.g_loss_fake, d_loss_fake=train_score.d_loss_fake, d_loss_real=train_score.d_loss_real, plot_path=plot_path, name='train_loss' + name_ext)
 
 
 def plot_adv_train_loss(g_loss_fake, d_loss_fake, d_loss_real, plot_path=None, name='train_loss'):

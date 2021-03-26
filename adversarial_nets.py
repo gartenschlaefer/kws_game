@@ -49,7 +49,7 @@ class G_experimental(nn.Module, AdvBasics):
   f - frames
   """
 
-  def __init__(self, n_classes, data_size, n_latent=100):
+  def __init__(self, n_classes, data_size, n_latent=100, is_collection_net=False):
 
     # parent init
     super().__init__()
@@ -60,7 +60,7 @@ class G_experimental(nn.Module, AdvBasics):
     self.n_latent = n_latent
 
     # convolutional decoder
-    self.conv_decoder = ConvDecoder(self.n_classes, self.data_size, n_latent=self.n_latent)
+    self.conv_decoder = ConvDecoder(self.n_classes, self.data_size, n_latent=self.n_latent, is_collection_net=is_collection_net)
 
     # fully connected layers
     self.fc1 = nn.Linear(self.n_latent, 32)
@@ -104,7 +104,7 @@ class D_experimental(nn.Module, AdvBasics):
   f - frames
   """
 
-  def __init__(self, n_classes, data_size):
+  def __init__(self, n_classes, data_size, out_dim=1, is_collection_net=False):
 
     # parent init
     super().__init__()
@@ -112,18 +112,20 @@ class D_experimental(nn.Module, AdvBasics):
     # arguments
     self.n_classes = n_classes
     self.data_size = data_size
+    self.out_dim = out_dim
 
     # encoder model
-    self.conv_encoder = ConvEncoder(self.n_classes, self.data_size)
+    self.conv_encoder = ConvEncoder(self.n_classes, self.data_size, is_collection_net=is_collection_net)
 
     # fully connected layers
-    self.fc1 = nn.Linear(np.prod(self.conv_encoder.conv_out_dim), 1)
+    self.fc1 = nn.Linear(np.prod(self.conv_encoder.conv_out_dim), self.out_dim)
 
     # dropout layer
     #self.dropout_layer1 = nn.Dropout(p=0.5)
 
-    # sigmoid
-    self.sigm = nn.Sigmoid()
+    # last activation function
+    if self.out_dim == 1: self.last_activation = nn.Sigmoid()
+    else: self.last_activation = nn.Softmax(dim=1)
 
     # init weights
     self.apply(self.weights_init)
@@ -144,7 +146,7 @@ class D_experimental(nn.Module, AdvBasics):
     x = self.fc1(x)
 
     # last layer activation
-    x = self.sigm(x)
+    x = self.last_activation(x)
 
     return x
 
