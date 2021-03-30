@@ -16,7 +16,7 @@ class NetHandler():
   Neural Network Handler with general functionalities and interfaces
   """
 
-  def __new__(cls, nn_arch, n_classes, data_size, encoder_model=None, use_cpu=False):
+  def __new__(cls, nn_arch, class_dict, data_size, encoder_model=None, use_cpu=False):
 
     # adversarial handler
     if nn_arch in ['adv-experimental', 'adv-collected-encoder']:
@@ -24,7 +24,7 @@ class NetHandler():
         if child_cls.__name__ == 'AdversarialNetHandler':
           return super().__new__(AdversarialNetHandler)
 
-
+    # experimental
     if nn_arch in ['adv-experimental3']:
       for child_cls in cls.__subclasses__():
         for child_child_cls in child_cls.__subclasses__():
@@ -51,16 +51,17 @@ class NetHandler():
     return super().__new__(cls)
 
 
-  def __init__(self, nn_arch, n_classes, data_size, encoder_model=None, use_cpu=False):
+  def __init__(self, nn_arch, class_dict, data_size, encoder_model=None, use_cpu=False):
 
     # arguments
     self.nn_arch = nn_arch
-    self.n_classes = n_classes
+    self.class_dict = class_dict
     self.data_size = data_size
     self.encoder_model = encoder_model
     self.use_cpu = use_cpu
 
     # vars
+    self.n_classes = len(self.class_dict)
     self.num_print_per_epoch = 2
 
     # set device
@@ -84,7 +85,7 @@ class NetHandler():
     elif self.nn_arch == 'conv-fstride': self.models = {'cnn':ConvNetFstride4(self.n_classes, self.data_size)}
     elif self.nn_arch == 'conv-experimental': self.models = {'cnn':ConvNetExperimental(self.n_classes, self.data_size)}
     elif self.nn_arch == 'adv-experimental': self.models = {'g':G_experimental(self.n_classes, self.data_size), 'd':D_experimental(self.n_classes, self.data_size)}
-    elif self.nn_arch == 'adv-experimental3': self.models = {'g':G_experimental(self.n_classes, self.data_size), 'd':D_experimental(self.n_classes, self.data_size, out_dim=3)}
+    elif self.nn_arch == 'adv-experimental3': self.models = {'g':G_experimental(self.n_classes, self.data_size), 'd':D_experimental(self.n_classes, self.data_size, out_dim=1)}
     elif self.nn_arch == 'adv-collected-encoder': self.models = {'g':G_experimental(self.n_classes, self.data_size, is_collection_net=True), 'd':D_experimental(self.n_classes, self.data_size, is_collection_net=True)}
     elif self.nn_arch == 'conv-encoder': self.models = {'cnn':ConvEncoderClassifierNet(self.n_classes, self.data_size)}
     #elif self.nn_arch == 'conv-encoder-stacked': self.models = {'cnn':ConvStackedEncodersNet(self.n_classes, self.data_size, self.encoder_model)}
@@ -250,8 +251,8 @@ class NetHandler():
     """
     classify a single sample
     """
-    y_hat, o = 0, 0
-    return y_hat, o
+    y_hat, o, label = 0, 0.0, 'nothing'
+    return y_hat, o, label
 
 
   def generate_samples(self, noise=None, num_samples=10, to_np=False):
@@ -267,10 +268,10 @@ class CnnHandler(NetHandler):
   Neural Network Handler for CNNs
   """
 
-  def __init__(self, nn_arch, n_classes, data_size, encoder_model=None, use_cpu=False):
+  def __init__(self, nn_arch, class_dict, data_size, encoder_model=None, use_cpu=False):
 
     # parent class init
-    super().__init__(nn_arch, n_classes, data_size, encoder_model=encoder_model, use_cpu=use_cpu)
+    super().__init__(nn_arch, class_dict, data_size, encoder_model=encoder_model, use_cpu=use_cpu)
 
     # loss criterion
     self.criterion = torch.nn.CrossEntropyLoss()
@@ -428,7 +429,13 @@ class CnnHandler(NetHandler):
       # prediction
       _, y_hat = torch.max(o.data, 1)
 
-    return int(y_hat), o
+    # int conversion
+    y_hat = int(y_hat)
+
+    # get label
+    label = list(self.class_dict.keys())[list(self.class_dict.values()).index(y_hat)]
+
+    return y_hat, o, label
 
 
 
@@ -438,10 +445,10 @@ class AdversarialNetHandler(NetHandler):
   adapted form: https://pytorch.org/tutorials/beginner/dcgan_faces_tutorial.html
   """
 
-  def __init__(self, nn_arch, n_classes, data_size, encoder_model=None, use_cpu=False):
+  def __init__(self, nn_arch, class_dict, data_size, encoder_model=None, use_cpu=False):
 
     # parent class init
-    super().__init__(nn_arch, n_classes, data_size, encoder_model=encoder_model, use_cpu=use_cpu)
+    super().__init__(nn_arch, class_dict, data_size, encoder_model=encoder_model, use_cpu=use_cpu)
 
     # loss criterion
     self.criterion = torch.nn.BCELoss()
@@ -660,19 +667,20 @@ class AdversarialNetHandlerExperimental(AdversarialNetHandler):
   Experimental Adversarial Net Handler
   """
 
-  def __init__(self, nn_arch, n_classes, data_size, encoder_model=None, use_cpu=False):
+  def __init__(self, nn_arch, class_dict, data_size, encoder_model=None, use_cpu=False):
 
     # parent class init
-    super().__init__(nn_arch, n_classes, data_size, encoder_model=encoder_model, use_cpu=use_cpu)
+    super().__init__(nn_arch, class_dict, data_size, encoder_model=encoder_model, use_cpu=use_cpu)
 
     # loss criterion
-    #self.criterion = torch.nn.BCELoss()
-    self.criterion = torch.nn.CrossEntropyLoss()
+    self.criterion = torch.nn.BCELoss()
 
     # labels
-    self.noise_label = 0
-    self.real_label = 1
-    self.fake_label = 2
+    self.real_label = 1.
+    self.fake_label = 0.
+
+    # cosine similarity
+    self.cos_sim = torch.nn.CosineSimilarity(dim=2, eps=1e-08)
 
 
   def update_models(self, x, y, class_dict, epoch, train_score):
@@ -687,10 +695,10 @@ class AdversarialNetHandlerExperimental(AdversarialNetHandler):
     d_loss_real, d_loss_fake = self.update_d(x, y, class_dict, fakes)
 
     # update generator
-    g_loss_fake = self.update_g(fakes, class_dict)
+    g_loss_fake, g_loss_sim = self.update_g(x, fakes, class_dict)
 
     # update batch loss collection
-    train_score.update_batch_losses(epoch, loss=0.0, g_loss_fake=g_loss_fake.item(), d_loss_real=d_loss_real.item(), d_loss_fake=d_loss_fake.item())
+    train_score.update_batch_losses(epoch, loss=0.0, g_loss_fake=g_loss_fake, g_loss_sim=g_loss_sim, d_loss_real=d_loss_real, d_loss_fake=d_loss_fake)
 
     return train_score
 
@@ -699,110 +707,71 @@ class AdversarialNetHandlerExperimental(AdversarialNetHandler):
     """
     update discriminator D with real and fake data
     """
-
+ 
     # zero parameter gradients
     self.models['d'].zero_grad()
     self.optimizer_d.zero_grad()
 
-    # print("x: ", x[y==class_dict['other']].shape)
-    # print("x: ", x[y==class_dict['up']].shape)
-    # print("y: ", y)
-    # print("c: ", class_dict)
+    # create real labels
+    y_real = torch.full((x.shape[0],), self.real_label, dtype=torch.float, device=self.device)
 
-    # label_list = list(class_dict.keys())
-    # label_list.remove('other')
-    # label = label_list[0]
+    # forward pass o:[b x c]
+    o_real = self.models['d'](x).view(-1)
 
-    # x_label = x[y==class_dict[label]]
-    # x_other = x[y==class_dict['other']]
-
-    # print("x: ", x_label.shape)
-    # print("x: ", x_other.shape)
-    # print("label: ", label)
-    # stop
-
-    # # create real labels
-    # y = torch.full((x_label.shape[0],), self.real_label, dtype=torch.float, device=self.device)
-
-    # # forward pass o:[b x c]
-    # o = self.models['d'](x_label).view(-1)
-
-    # # loss of D with reals
-    # d_loss_real = self.criterion(o, y)
-    # d_loss_real.backward()
-
-
-    # # create other labels
-    # y = torch.full((x_other.shape[0],), self.real_label, dtype=torch.float, device=self.device)
-
-    # # fakes to D (without gradient backprop)
-    # o = self.models['d'](x_other).view(-1)
-
-    # # loss of D with others
-    # d_loss_other = self.criterion(o, y)
-    # d_loss_other.backward()
-
-    # create other labels
-    #y = torch.full((x_other.shape[0],), self.real_label, dtype=torch.float, device=self.device)
-
-    # reals to D (without gradient backprop)
-    o = self.models['d'](x)
-
-    #print("d: ", self.models['d'])
-
-    # print("o: ", o)
-    # print("o: ", o.shape)
-    # print("y: ", y)
-    # print("y: ", y.shape)
-    # loss of D with fakes
-    d_loss_real = self.criterion(o, y)
-    d_loss_real.backward()
-
+    # loss of D with reals
+    d_loss_real = self.criterion(o_real, y_real)
 
     # create fake labels
-    y = torch.full((x.shape[0],), self.fake_label, dtype=torch.long, device=self.device)
+    y_fake = torch.full((x.shape[0],), self.fake_label, dtype=torch.float, device=self.device)
 
     # fakes to D (without gradient backprop)
-    o = self.models['d'](fakes.detach())
+    o_fake = self.models['d'](fakes.detach()).view(-1)
 
     # loss of D with fakes
-    d_loss_fake = self.criterion(o, y) * 0.3
-    d_loss_fake.backward()
+    d_loss_fake = self.criterion(o_fake, y_fake)
+
+    # loss
+    d_loss = d_loss_real + d_loss_fake
+
+    # backward
+    d_loss.backward()
 
     # optimizer step
     self.optimizer_d.step()
 
-    return d_loss_real, d_loss_fake
+    return d_loss_real.item(), d_loss_fake.item()
 
 
-  def update_g(self, fakes, class_dict):
+  def update_g(self, reals, fakes, class_dict):
     """
     update generator G
     """
-
-    label_list = list(class_dict.keys())
-    label_list.remove('noise')
-    label = label_list[0]
-
-    #print("label: ", label)
 
     # zero gradients
     self.models['g'].zero_grad()
 
     # fakes should be real labels for G
-    y = torch.full((fakes.shape[0],), class_dict[label], dtype=torch.long, device=self.device)
+    y = torch.full((fakes.shape[0],), self.real_label, dtype=torch.float, device=self.device)
 
     # fakes to D
-    o = self.models['d'](fakes)
+    o = self.models['d'](fakes).view(-1)
 
     # loss of G of D with fakes
     g_loss_fake = self.criterion(o, y)
-    g_loss_fake.backward()
+
+    # similarity measure
+    g_loss_sim = (1 - torch.mean(self.cos_sim(reals, fakes)))
+
+    # loss
+    g_loss = g_loss_fake + g_loss_sim * 5
+
+    # backward
+    g_loss.backward()
 
     # optimizer step
     self.optimizer_g.step()
 
-    return g_loss_fake
+    return g_loss_fake.item(), g_loss_sim.item() * 5
 
 
 
@@ -864,7 +833,7 @@ if __name__ == '__main__':
   print("classes: ", batch_archive.class_dict)
 
   # create an cnn handler
-  net_handler = NetHandler(nn_arch=cfg['ml']['nn_arch'], n_classes=batch_archive.n_classes, data_size=batch_archive.data_size, use_cpu=cfg['ml']['use_cpu'])
+  net_handler = NetHandler(nn_arch=cfg['ml']['nn_arch'], class_dict=batch_archive.class_dict, data_size=batch_archive.data_size, use_cpu=cfg['ml']['use_cpu'])
   print(net_handler.models)
 
   # training
@@ -874,7 +843,7 @@ if __name__ == '__main__':
   net_handler.eval_nn(eval_set='val', batch_archive=batch_archive, calc_cm=False, verbose=False)
 
   # classify sample
-  y_hat, o = net_handler.classify_sample(np.random.randn(net_handler.data_size[1], net_handler.data_size[2]))
+  y_hat, o, label = net_handler.classify_sample(np.random.randn(net_handler.data_size[1], net_handler.data_size[2]))
 
   # print classify result
-  print("classify: [{}]\noutput: [{}]".format(y_hat, o))
+  print("classify: [{}]\noutput: [{}]\nlabel: [{}]".format(y_hat, o, label))

@@ -247,7 +247,7 @@ def train_conv_encoders(cfg, audio_set1, audio_set2):
   batch_archive = SpeechCommandsBatchArchive(audio_set1.feature_files + audio_set2.feature_files, batch_size=cfg['ml']['train_params']['batch_size'])
 
   # dummy net handler
-  net_handler = NetHandler(nn_arch='none', n_classes=batch_archive.n_classes, data_size=batch_archive.data_size)
+  net_handler = NetHandler(nn_arch='none', class_dict=batch_archive.class_dict, data_size=batch_archive.data_size)
 
   # collected encoder
   ml_collected = ML(cfg_ml=cfg['ml'], audio_dataset=audio_set1, batch_archive=batch_archive, net_handler=net_handler)
@@ -259,6 +259,14 @@ def train_conv_encoders(cfg, audio_set1, audio_set2):
   if check_files_existance([ml_collected.model_path + cfg['ml']['encoder_model_init_file_name']]):
     collected_encoder_model.load_state_dict(torch.load(ml_collected.model_path + cfg['ml']['encoder_model_init_file_name']))
     print("encoder model exists and loaded")
+
+    # # add noise to each weight
+    # with torch.no_grad():
+    #   for param in encoder_model.parameters():
+    #     param.add_(torch.randn(param.shape) * 0.01)
+
+    #torch.nn.init.xavier_uniform_(collected_encoder_model.conv_layers[1].weight, gain=torch.nn.init.calculate_gain('relu'))
+
     return collected_encoder_model
 
 
@@ -267,11 +275,13 @@ def train_conv_encoders(cfg, audio_set1, audio_set2):
 
   #nn_archs = ['conv-experimental', 'adv-experimental']
   #nn_archs = ['conv-experimental']
-  nn_archs = ['adv-experimental']
-  #nn_archs = ['adv-experimental3']
+  #nn_archs = ['adv-experimental']
+  #nn_archs = ['conv-experimental', 'adv-experimental3']
+  #nn_archs = ['adv-experimental3', 'conv-experimental']
+  nn_archs = ['adv-experimental3']
 
   # number of iterations for algorithm
-  num_iterations = 2
+  num_iterations = 1
 
   # conv encoder for classes
   for l in cfg['datasets']['speech_commands']['sel_labels']:
@@ -293,7 +303,8 @@ def train_conv_encoders(cfg, audio_set1, audio_set2):
         batch_archive.reduce_to_label(l)
 
         # add noise data for conv-exp
-        if nn_arch in ['conv-experimental', 'adv-experimental3']:
+        #if nn_arch in ['conv-experimental', 'adv-experimental3']:
+        if nn_arch in ['conv-experimental']:
           #batch_archive.one_against_all(l, others_label='other', shuffle=True)
           batch_archive.add_noise_data(shuffle=True)
 
@@ -301,16 +312,16 @@ def train_conv_encoders(cfg, audio_set1, audio_set2):
         print("classes: ", batch_archive.classes)
 
         # net handler
-        net_handler = NetHandler(nn_arch=nn_arch, n_classes=batch_archive.n_classes, data_size=batch_archive.data_size, encoder_model=encoder_model, use_cpu=cfg['ml']['use_cpu'])
+        net_handler = NetHandler(nn_arch=nn_arch, class_dict=batch_archive.class_dict, data_size=batch_archive.data_size, encoder_model=encoder_model, use_cpu=cfg['ml']['use_cpu'])
 
         # ml
         ml = ML(cfg_ml=cfg['ml'], audio_dataset=audio_set1, batch_archive=batch_archive, net_handler=net_handler, sub_model_path='conv_encoder', encoder_label=l)
 
         # change train params
         train_params = cfg['ml']['train_params'].copy()
-        if nn_arch == 'conv-experimental': train_params['num_epochs'] = 25
-        elif nn_arch == 'adv-experimental': train_params['num_epochs'] = 5
-        elif nn_arch == 'adv-experimental3': train_params['num_epochs'] = 25
+        if nn_arch == 'conv-experimental': train_params['num_epochs'] = 20
+        elif nn_arch == 'adv-experimental': train_params['num_epochs'] = 25
+        elif nn_arch == 'adv-experimental3': train_params['num_epochs'] = 5000
 
         # train and analyze
         name_ext = '_{}-{}_{}'.format(i, j, nn_arch)
@@ -320,10 +331,13 @@ def train_conv_encoders(cfg, audio_set1, audio_set2):
         # update encoder models
         if nn_arch == 'conv-experimental': encoder_model = net_handler.models['cnn'].conv_encoder
         elif nn_arch == 'adv-experimental': encoder_model = net_handler.models['d'].conv_encoder
-        # elif nn_arch == 'adv-experimental': 
-        #   net_handler.models['d'].conv_encoder.transfer_decoder_weights(net_handler.models['g'].conv_decoder)
-        #   encoder_model = net_handler.models['d'].conv_encoder
-        elif nn_arch == 'adv-experimental3': encoder_model = net_handler.models['d'].conv_encoder
+        #elif nn_arch == 'adv-experimental3': encoder_model = net_handler.models['d'].conv_encoder
+
+        # use decoder weights
+        elif nn_arch == 'adv-experimental3': 
+          net_handler.models['d'].conv_encoder.transfer_decoder_weights(net_handler.models['g'].conv_decoder)
+          encoder_model = net_handler.models['d'].conv_encoder
+
         #ml.analyze(name_ext=name_ext + '_after')
 
     # add encoder model
@@ -333,13 +347,21 @@ def train_conv_encoders(cfg, audio_set1, audio_set2):
   collected_encoder_model.transfer_conv_weights(encoder_models)
 
 
+  # # add noise to each weight
+  # with torch.no_grad():
+  #   for param in encoder_model.parameters():
+  #     param.add_(torch.randn(param.shape) * 0.01)
+
+  #torch.nn.init.xavier_uniform_(collected_encoder_model.conv_layers[1].weight, gain=torch.nn.init.calculate_gain('relu'))
+
+
   # # pre train
 
   # # batch archive
   # batch_archive = SpeechCommandsBatchArchive(audio_set1.feature_files + audio_set2.feature_files, batch_size=cfg['ml']['train_params']['batch_size'])
 
   # # dummy net handler
-  # net_handler = NetHandler(nn_arch='adv-collected-encoder', n_classes=batch_archive.n_classes, data_size=batch_archive.data_size, encoder_model=collected_encoder_model, use_cpu=cfg['ml']['use_cpu'])
+  # net_handler = NetHandler(nn_arch='adv-collected-encoder', class_dict=batch_archive.class_dict, data_size=batch_archive.data_size, encoder_model=collected_encoder_model, use_cpu=cfg['ml']['use_cpu'])
 
   # # collected encoder
   # ml = ML(cfg_ml=cfg['ml'], audio_dataset=audio_set1, batch_archive=batch_archive, net_handler=net_handler)
@@ -395,7 +417,7 @@ if __name__ == '__main__':
   print("x_train: ", batch_archive.x_train.shape)
 
   # net handler
-  net_handler = NetHandler(nn_arch=cfg['ml']['nn_arch'], n_classes=batch_archive.n_classes, data_size=batch_archive.data_size, encoder_model=encoder_model, use_cpu=cfg['ml']['use_cpu'])
+  net_handler = NetHandler(nn_arch=cfg['ml']['nn_arch'], class_dict=batch_archive.class_dict, data_size=batch_archive.data_size, encoder_model=encoder_model, use_cpu=cfg['ml']['use_cpu'])
 
   # info about models
   print("net_handler: ", net_handler.models)

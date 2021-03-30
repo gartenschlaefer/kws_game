@@ -24,6 +24,7 @@ class TrainScore():
 
     # adversarial losses
     self.g_batch_loss_fake = None
+    self.g_batch_loss_sim = None
     self.d_batch_loss_real = None
     self.d_batch_loss_fake = None
     self.g_train_loss = None
@@ -33,6 +34,7 @@ class TrainScore():
     # init if activated
     if self.is_adv:
       self.g_loss_fake = np.zeros(self.num_epochs)
+      self.g_loss_sim = np.zeros(self.num_epochs)
       self.d_loss_real = np.zeros(self.num_epochs)
       self.d_loss_fake = np.zeros(self.num_epochs)
 
@@ -54,11 +56,12 @@ class TrainScore():
     # for adversarial networks
     if self.is_adv:
       self.g_batch_loss_fake = 0.0
+      self.g_batch_loss_lim = 0.0
       self.d_batch_loss_real = 0.0
       self.d_batch_loss_fake = 0.0
 
 
-  def update_batch_losses(self, epoch, loss, g_loss_fake=None, d_loss_real=None, d_loss_fake=None):
+  def update_batch_losses(self, epoch, loss, g_loss_fake=None, g_loss_sim=None, d_loss_real=None, d_loss_fake=None):
     """
     update losses
     """
@@ -72,10 +75,12 @@ class TrainScore():
 
       # batch loss for score
       self.g_batch_loss_fake = g_loss_fake
+      self.g_batch_loss_fake = g_loss_sim
       self.d_batch_loss_real = d_loss_real
       self.d_batch_loss_fake = d_loss_fake
 
       self.g_loss_fake[epoch] += g_loss_fake
+      self.g_loss_sim[epoch] += g_loss_sim
       self.d_loss_real[epoch] += d_loss_real
       self.d_loss_fake[epoch] += d_loss_fake
 

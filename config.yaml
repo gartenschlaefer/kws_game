@@ -13,13 +13,13 @@ datasets:
     file_ext: '.wav'
 
     # path to speech command dataset
-    dataset_path: ./ignore/dataset/speech_commands_v0.01/
+    dataset_path: ignore/dataset/speech_commands_v0.01/
 
     # paths to save training, testing and eval data
     data_paths:
-      train: ./ignore/dataset/train/
-      test: ./ignore/dataset/test/
-      eval: ./ignore/dataset/eval/
+      train: ignore/dataset/train/
+      test: ignore/dataset/test/
+      eval: ignore/dataset/eval/
 
     # folder names
     wav_folder: wavs/
@@ -30,9 +30,9 @@ datasets:
 
     # plot path root
     plot_paths:
-      mfcc: ./ignore/dataset/plots/mfcc/
-      z_score: ./ignore/dataset/plots/z_score/
-      examples_grid: ./ignore/dataset/plots/
+      mfcc: ignore/dataset/plots/mfcc/
+      z_score: ignore/dataset/plots/z_score/
+      examples_grid: ignore/dataset/plots/
 
     # enable plot of each feature extraction
     enable_plot: False
@@ -67,11 +67,11 @@ datasets:
     file_ext: '.wav'
 
     # path to speech command dataset
-    dataset_path: ./ignore/my_recordings/raw/
+    dataset_path: ignore/my_recordings/raw/
 
     # paths to save training, testing and eval data
     data_paths:
-      my: ./ignore/my_recordings/my/
+      my: ignore/my_recordings/my/
 
     # folder names
     wav_folder: wavs/
@@ -82,11 +82,11 @@ datasets:
 
     # plot path root
     plot_paths:
-      mfcc: ./ignore/my_recordings/plots/mfcc/
-      z_score: ./ignore/my_recordings/plots/z_score/
-      onsets: ./ignore/my_recordings/plots/onsets/
-      waveform: ./ignore/my_recordings/plots/waveform/
-      examples_grid: ./ignore/my_recordings/plots/
+      mfcc: ignore/my_recordings/plots/mfcc/
+      z_score: ignore/my_recordings/plots/z_score/
+      onsets: ignore/my_recordings/plots/onsets/
+      waveform: ignore/my_recordings/plots/waveform/
+      examples_grid: ignore/my_recordings/plots/
 
     # enable plot of each feature extraction
     enable_plot: True
@@ -173,7 +173,7 @@ ml:
     batch_size: 32
 
     # number of epochs
-    num_epochs: 61
+    num_epochs: 577
 
     # learning rate
     lr: 0.0001
@@ -203,6 +203,39 @@ ml:
 
   # plot animation
   plot_animation: False
+
+
+# --
+# test bench
+test_bench:
+
+  # plot path
+  paths:
+    main_path: ignore/test_bench/
+    models_path: ignore/test_bench/models/
+
+  # plot path root
+  plot_paths:
+    shift: ignore/test_bench/plots/shift/
+    shift_wavs: ignore/test_bench/plots/shift/wavs/
+    noise: ignore/test_bench/plots/noise/
+    noise_wavs: ignore/test_bench/plots/noise/wavs/
+
+  # test wavs
+  test_wavs:
+    - ignore/my_recordings/clean_records/left.wav
+    - ignore/my_recordings/clean_records/right.wav
+    - ignore/my_recordings/clean_records/up.wav
+    - ignore/my_recordings/clean_records/down.wav
+    - ignore/my_recordings/clean_records/go.wav
+
+  # path to model
+  #test_model_path: ignore/test_bench/models/test_model1/
+  test_model_path: ignore/test_bench/models/test_model2/
+
+  # file names
+  model_file_name: 'model.pth'
+  params_file_name: 'params.npz'
 
 
 # --

@@ -525,6 +525,9 @@ class ConvDecoder(nn.Module, ConvEncoderDecoderParams):
     super().__init__()
     ConvEncoderDecoderParams.__init__(self, n_classes, data_size, is_collection_net)
 
+    # adapt params if necessary
+    #self.n_feature_maps = [(self.n_channels, 12), (12, 8)]
+
     # arguments
     self.n_latent = n_latent
 

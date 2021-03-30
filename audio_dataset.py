@@ -22,11 +22,12 @@ class AudioDataset():
   audio dataset interface with some useful functions
   """
 
-  def __init__(self, dataset_cfg, feature_params):
+  def __init__(self, dataset_cfg, feature_params, root_path='./'):
 
     # params
     self.dataset_cfg = dataset_cfg
     self.feature_params = feature_params
+    self.root_path = root_path
 
     # extracted vars
     self.feature_size = (self.feature_params['n_ceps_coeff'] + 1) * (1 + 2 * self.feature_params['compute_deltas'])
@@ -37,15 +38,21 @@ class AudioDataset():
     self.set_audio_files = []
     self.set_annotation_files = []
 
+    # dataset path
+    self.dataset_path = self.root_path + self.dataset_cfg['dataset_path']
+
+    # plot paths
+    self.plot_paths = dict((k, self.root_path + v) for k, v in self.dataset_cfg['plot_paths'].items())
+
     # parameter path
     self.param_path = 'v{}_c-{}_n-{}_f-{}x{}/'.format(self.dataset_cfg['version_nr'], len(self.dataset_cfg['sel_labels']), self.dataset_cfg['n_examples'], self.feature_size, self.feature_params['frame_size'])
 
     # folders
-    self.wav_folders = [p + self.dataset_cfg['wav_folder'] for p in list(self.dataset_cfg['data_paths'].values())]
-    self.annotation_folders = [p + self.dataset_cfg['annotation_folder'] for p in list(self.dataset_cfg['data_paths'].values())]
+    self.wav_folders = [self.root_path + p + self.dataset_cfg['wav_folder'] for p in list(self.dataset_cfg['data_paths'].values())]
+    self.annotation_folders = [self.root_path + p + self.dataset_cfg['annotation_folder'] for p in list(self.dataset_cfg['data_paths'].values())]
 
     # feature folders
-    self.feature_folders = [p + self.param_path for p in list(self.dataset_cfg['data_paths'].values())]
+    self.feature_folders = [self.root_path + p + self.param_path for p in list(self.dataset_cfg['data_paths'].values())]
 
     # feature files
     self.feature_files = [p + '{}.npz'.format(self.dataset_cfg['feature_file_name']) for p in self.feature_folders]
@@ -199,7 +206,7 @@ class SpeechCommandsDataset(AudioDataset):
     self.min_samples = 16000
 
     # create plot plaths if not already exists
-    create_folder(list(self.dataset_cfg['plot_paths'].values()))
+    create_folder(list(self.plot_paths.values()))
 
     # recreate
     if self.dataset_cfg['recreate'] or not check_folders_existance(self.wav_folders, empty_check=True):
@@ -224,7 +231,7 @@ class SpeechCommandsDataset(AudioDataset):
     """
 
     # get all class directories except the ones starting with _
-    class_dirs = glob(self.dataset_cfg['dataset_path'] + '[!_]*/')
+    class_dirs = glob(self.dataset_path + '[!_]*/')
 
     # run through all class directories
     for class_dir in class_dirs:
@@ -334,7 +341,7 @@ class SpeechCommandsDataset(AudioDataset):
         z_score_list = np.append(z_score_list, z_score)
 
         # plot mfcc features
-        plot_mfcc_profile(x, self.feature_params['fs'], self.feature_extractor.N, self.feature_extractor.hop, mfcc, anno_file=anno, onsets=None, bon_pos=bon_pos, mient=None, minreg=None, frame_size=self.feature_params['frame_size'], plot_path=self.dataset_cfg['plot_paths']['mfcc'], name=label + str(file_index) + '_' + set_name, enable_plot=self.dataset_cfg['enable_plot'])
+        plot_mfcc_profile(x, self.feature_params['fs'], self.feature_extractor.N, self.feature_extractor.hop, mfcc, anno_file=anno, onsets=None, bon_pos=bon_pos, mient=None, minreg=None, frame_size=self.feature_params['frame_size'], plot_path=self.plot_paths['mfcc'], name=label + str(file_index) + '_' + set_name, enable_plot=self.dataset_cfg['enable_plot'])
 
         # handle damaged files
         if z_damaged:
@@ -356,7 +363,7 @@ class SpeechCommandsDataset(AudioDataset):
           break
 
     # broken file info
-    plot_damaged_file_score(z_score_list, plot_path=self.dataset_cfg['plot_paths']['z_score'], name='z_score_n-{}_{}'.format(n_examples, set_name), enable_plot=self.dataset_cfg['enable_plot'])
+    plot_damaged_file_score(z_score_list, plot_path=self.plot_paths['z_score'], name='z_score_n-{}_{}'.format(n_examples, set_name), enable_plot=self.dataset_cfg['enable_plot'])
     
     if self.verbose:
       print("\nbroken file list: [{}] with length: [{}]".format(broken_file_list, len(broken_file_list)))
@@ -417,7 +424,7 @@ class MyRecordingsDataset(SpeechCommandsDataset):
     print("wav: ", self.wav_folders)
 
     # get all .wav files
-    raw_wavs = glob(self.dataset_cfg['dataset_path'] + '*' + self.dataset_cfg['file_ext'])
+    raw_wavs = glob(self.dataset_path + '*' + self.dataset_cfg['file_ext'])
 
     # get all wav files and save them
     for i, wav in enumerate(raw_wavs):
@@ -438,12 +445,12 @@ class MyRecordingsDataset(SpeechCommandsDataset):
       x_cut = self.cut_signal(x, onsets, time=1, alpha=0.4)
 
       # plot onsets
-      plot_onsets(x, self.feature_params['fs'], self.N, self.hop, onsets, title=label, plot_path=self.dataset_cfg['plot_paths']['onsets'], name='onsets_{}'.format(label))
+      plot_onsets(x, self.feature_params['fs'], self.N, self.hop, onsets, title=label, plot_path=self.plot_paths['onsets'], name='onsets_{}'.format(label))
 
       for j, xj in enumerate(x_cut):
 
         # plot
-        plot_waveform(xj, self.feature_params['fs'], title='{}-{}'.format(label, j), plot_path=self.dataset_cfg['plot_paths']['waveform'], name='example_{}-{}'.format(label, j))
+        plot_waveform(xj, self.feature_params['fs'], title='{}-{}'.format(label, j), plot_path=self.plot_paths['waveform'], name='example_{}-{}'.format(label, j))
 
         # save file
         soundfile.write('{}{}{}.wav'.format(self.wav_folders[0], label, j), xj, self.feature_params['fs'], subtype=None, endian=None, format=None, closefd=True)

@@ -52,7 +52,7 @@ class Classifier():
       print("\nExtract model with architecture: [{}]\nparams: [{}]\nand class dict: [{}]".format(self.nn_arch, self.train_params, self.class_dict))
     
     # init net handler
-    self.net_handler = NetHandler(nn_arch=self.nn_arch, n_classes=len(self.class_dict), data_size=self.data_size, use_cpu=True)
+    self.net_handler = NetHandler(nn_arch=self.nn_arch, class_dict=self.class_dict, data_size=self.data_size, use_cpu=True)
 
     # load model
     self.net_handler.load_models(model_files=[self.classifier_model_file])
@@ -61,18 +61,16 @@ class Classifier():
     self.net_handler.set_eval_mode()
 
     # init to be faster
-    self.classify_sample(np.random.randn(self.net_handler.data_size[1], self.net_handler.data_size[2]))
+    self.classify(np.random.randn(self.net_handler.data_size[1], self.net_handler.data_size[2]))
+    
 
-  def classify_sample(self, x):
+  def classify(self, x):
     """
     classification of a single sample
     """
 
     # classify
-    y_hat, o = self.net_handler.classify_sample(x)
-
-    # get label
-    label = list(self.class_dict.keys())[list(self.class_dict.values()).index(int(y_hat))]
+    y_hat, o, label = self.net_handler.classify_sample(x)
 
     # print infos
     if self.cfg_classifier['verbose']:
@@ -101,4 +99,4 @@ if __name__ == '__main__':
   x = np.random.randn(classifier.net_handler.data_size[1], classifier.net_handler.data_size[2])
 
   # classify
-  classifier.classify_sample(x)
+  classifier.classify(x)

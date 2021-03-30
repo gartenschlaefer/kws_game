@@ -11,6 +11,83 @@ from glob import glob
 from praatio import tgio
 
 
+def plot_test_bench_noise(x, y, snrs, title='noise', plot_path=None, name='noise', show_plot=False):
+  """
+  shiftinvariant test
+  """
+
+  # plot init
+  fig = plt.figure(figsize=(12, 6))
+
+  # image
+  ax = plt.axes()
+  #im = ax.imshow(x, aspect='equal', interpolation='none')
+
+  im = ax.pcolormesh(x, edgecolors='k', linewidth=1, vmax=1, vmin=0)
+
+  # design
+  plt.title(title)
+  plt.xlabel("SNR [dB]")
+
+  # tick adjustment
+  ax.set_yticks(np.arange(0.5, len(y), 1))
+  ax.set_yticklabels(y)
+
+  ax.set_xticks(np.arange(0.5, len(snrs), 1))
+  ax.set_xticklabels(snrs)
+
+  # aspect
+  ax.set_aspect('equal')
+
+  # colorbar
+  cax = fig.add_axes([ax.get_position().x1 + 0.01, ax.get_position().y0, 0.02, ax.get_position().height])
+  plt.colorbar(im, cax=cax)
+
+  # plot save and show
+  if plot_path is not None: 
+    plt.savefig(plot_path + name + '.png', dpi=150)
+    plt.close()
+    
+  if show_plot: plt.show()
+
+
+def plot_test_bench_shift(x, y, title='shift', plot_path=None, name='shift', show_plot=False):
+  """
+  shiftinvariant test
+  """
+
+  # plot init
+  fig = plt.figure(figsize=(12, 6))
+
+  # image
+  ax = plt.axes()
+  #im = ax.imshow(x, aspect='equal', interpolation='none')
+
+  im = ax.pcolormesh(x, edgecolors='k', linewidth=1)
+
+  # design
+  plt.title(title)
+  plt.xlabel("shift index")
+
+  # tick adjustment
+  ax.set_yticks(np.arange(0.5, len(y), 1))
+  ax.set_yticklabels(y)
+
+  # aspect
+  ax.set_aspect('equal')
+
+  # colorbar
+  cax = fig.add_axes([ax.get_position().x1 + 0.01, ax.get_position().y0, 0.02, ax.get_position().height])
+  plt.colorbar(im, cax=cax)
+
+  # plot save and show
+  if plot_path is not None: 
+    plt.savefig(plot_path + name + '.png', dpi=150)
+    plt.close()
+    
+  if show_plot: plt.show()
+
+
 def plot_other_grid(x, grid_size=(8, 8), title='grid1', plot_path=None, name='grid1', show_plot=False):
   """
   plot mfcc extracted features from audio file
@@ -64,7 +141,7 @@ def plot_other_grid(x, grid_size=(8, 8), title='grid1', plot_path=None, name='gr
   if show_plot: plt.show()
 
 
-def plot_grid_images(x, padding=1, num_cols=8, title='grid2', plot_path=None, name='grid2', show_plot=False):
+def plot_grid_images(x, padding=1, num_cols=8, cmap=None, color_balance=False, title='grid2', plot_path=None, name='grid2', show_plot=False):
   """
   plot grid images
   """
@@ -72,11 +149,15 @@ def plot_grid_images(x, padding=1, num_cols=8, title='grid2', plot_path=None, na
   # cast to numpy
   x = np.array(x)
 
+  # max value
+  vmax = np.max(np.abs(x)) if color_balance else None
+  vmin = -vmax if color_balance else None
+
   # get dimensions
   n_kernels, n_channels, n_features, n_frames = x.shape
 
   # determine minimum value
-  value_min = np.min(x)
+  value_min = vmin if color_balance else np.min(x)
 
   # init images
   row_imgs = np.empty((n_channels, n_features, 0), dtype=x.dtype)
@@ -123,7 +204,7 @@ def plot_grid_images(x, padding=1, num_cols=8, title='grid2', plot_path=None, na
 
   # image
   ax = plt.axes()
-  im = ax.imshow(all_grid_img, aspect='equal', interpolation='none')
+  im = ax.imshow(all_grid_img, aspect='equal', interpolation='none', cmap=cmap, vmax=vmax, vmin=vmin)
 
   # design
   plt.axis("off")
@@ -150,6 +231,8 @@ def plot_grid_images(x, padding=1, num_cols=8, title='grid2', plot_path=None, na
   # plt.imshow(img)
   # plt.show()
 
+  return fig
+
 
 def plot_damaged_file_score(z, plot_path=None, name='z_score', enable_plot=False):
   """
@@ -173,7 +256,7 @@ def plot_damaged_file_score(z, plot_path=None, name='z_score', enable_plot=False
     plt.close()
 
 
-def plot_waveform(x, fs, e=None, hop=None, onset_frames=None, title='none', xlim=None, ylim=None, plot_path=None, name='None'):
+def plot_waveform(x, fs, e=None, hop=None, onset_frames=None, title='none', xlim=None, ylim=None, plot_path=None, name='None', show_plot=False):
   """
   just a simple waveform
   """
@@ -210,6 +293,8 @@ def plot_waveform(x, fs, e=None, hop=None, onset_frames=None, title='none', xlim
   if plot_path is not None:
     plt.savefig(plot_path + name + '.png', dpi=150)
     plt.close()
+
+  if show_plot: plt.show()
 
 
 def plot_onsets(x, fs, N, hop, onsets, title='none', plot_path=None, name='None'):
@@ -293,23 +378,25 @@ def plot_train_score(train_score, plot_path, name_ext=''):
 
   # for adversarial nets
   else:
-    plot_adv_train_loss(g_loss_fake=train_score.g_loss_fake, d_loss_fake=train_score.d_loss_fake, d_loss_real=train_score.d_loss_real, plot_path=plot_path, name='train_loss' + name_ext)
+    plot_adv_train_loss(train_score=train_score, plot_path=plot_path, name='train_loss' + name_ext)
 
 
-def plot_adv_train_loss(g_loss_fake, d_loss_fake, d_loss_real, plot_path=None, name='train_loss'):
+def plot_adv_train_loss(train_score, plot_path=None, name='train_loss'):
   """
   train loss for adversarial networ
   """
 
   # setup figure
   fig = plt.figure(figsize=(8, 5))
-  plt.plot(g_loss_fake, label='g_loss_fake')
-  plt.plot(d_loss_fake, label='d_loss_fake')
-  plt.plot(d_loss_real, label='d_loss_real')
-  plt.ylabel("loss")
-  plt.xlabel("iterations")
-  plt.legend()
-  plt.grid()
+
+  # plot scores
+  if train_score.g_loss_fake is not None: plt.plot(train_score.g_loss_fake, label='g_loss_fake')
+  if train_score.g_loss_sim is not None: plt.plot(train_score.g_loss_sim, label='g_loss_sim')
+  if train_score.d_loss_fake is not None: plt.plot(train_score.d_loss_fake, label='d_loss_fake')
+  if train_score.d_loss_real is not None: plt.plot(train_score.d_loss_real, label='d_loss_real')
+
+  # layout
+  plt.ylabel("loss"), plt.xlabel("iterations"), plt.legend(), plt.grid()
 
   # plot the fig
   if plot_path is not None:

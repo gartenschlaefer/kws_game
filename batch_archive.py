@@ -567,8 +567,42 @@ if __name__ == '__main__':
   #print("\none against all: "), print_batch_infos(batch_archive)
 
   # plot some examples
-  plot_grid_examples(cfg, audio_set1, audio_set2)
+  #plot_grid_examples(cfg, audio_set1, audio_set2)
   
   #plot_other_grid(batch_archive.x_train[0, :32], grid_size=(8, 8), show_plot=True)
   #plot_other_grid(batch_archive.x_train[-5, :32], grid_size=(8, 8), show_plot=False)
   #plot_other_grid(batch_archive.x_train[-1, :32], grid_size=(8, 8), show_plot=True)
+
+  x1 = batch_archive.x_train[0, 0, 0]
+  x2 = batch_archive.x_train[0, 1, 0]
+
+  print("x1: ", x1.shape)
+  print("x2: ", x2.shape)
+  print("x1: ", batch_archive.z_train[0, 0])
+  print("x2: ", batch_archive.z_train[0, 1])
+
+  n1 = torch.randn(x1.shape)
+  n2 = torch.randn(x2.shape)
+
+  print("n1: ", n1.shape)
+
+  cos_sim = torch.nn.CosineSimilarity(dim=1, eps=1e-08)
+
+  o1 = cos_sim(x1, x1)
+  o2 = cos_sim(x1, x2)
+  o3 = cos_sim(n1, n2)
+  o4 = cos_sim(x1, n1)
+  o5 = cos_sim(x2, n2)
+
+  # cosine sim definition
+  #o = x1[0] @ x2[0].T / np.max(np.linalg.norm(x1[0]) * np.linalg.norm(x2[0]))
+
+  print("o1: ", o1)
+  print("o2: ", o2)
+  print("o3: ", o3)
+  print("o4: ", o4)
+  print("o5: ", o4)
+
+
+  plot_mfcc_only(x1, fs=16000, hop=160, plot_path=None, name=batch_archive.z_train[0, 0], show_plot=False)
+  plot_mfcc_only(x2, fs=16000, hop=160, plot_path=None, name=batch_archive.z_train[0, 1], show_plot=True)

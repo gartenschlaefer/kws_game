@@ -62,9 +62,11 @@ class G_experimental(nn.Module, AdvBasics):
     # convolutional decoder
     self.conv_decoder = ConvDecoder(self.n_classes, self.data_size, n_latent=self.n_latent, is_collection_net=is_collection_net)
 
-    # fully connected layers
-    self.fc1 = nn.Linear(self.n_latent, 32)
-    self.fc2 = nn.Linear(32, np.prod(self.conv_decoder.conv_in_dim))
+    # # fully connected layers
+    # self.fc1 = nn.Linear(self.n_latent, 32)
+    # self.fc2 = nn.Linear(32, np.prod(self.conv_decoder.conv_in_dim))
+
+    self.fc1 = nn.Linear(self.n_latent, np.prod(self.conv_decoder.conv_in_dim))
 
     # last layer activation
     self.sigm = nn.Sigmoid()
@@ -78,9 +80,11 @@ class G_experimental(nn.Module, AdvBasics):
     forward pass
     """
 
-    # fully connected layers
+    # # fully connected layers
+    # x = self.fc1(x)
+    # x = F.relu(self.fc2(x))
+    
     x = self.fc1(x)
-    x = F.relu(self.fc2(x))
 
     # reshape for conv layer
     x = torch.reshape(x, ((x.shape[0],) + self.conv_decoder.conv_in_dim))

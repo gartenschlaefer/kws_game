@@ -157,7 +157,7 @@ if __name__ == '__main__':
   print("data size: ", batch_archive.data_size)
 
   # net handler
-  net_handler = CnnHandler(nn_arch='mini', n_classes=2, data_size=batch_archive.data_size, use_cpu=True)
+  net_handler = CnnHandler(nn_arch='mini', class_dict=batch_archive.class_dict, data_size=batch_archive.data_size, use_cpu=True)
 
   # init model
   net_handler.models = {'cnn':ConvPixelCharacters(n_classes=2)}
