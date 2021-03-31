@@ -11,7 +11,7 @@ import sys
 sys.path.append("../")
 
 import yaml
-from plots import plot_mfcc_only, plot_grid_images
+from plots import plot_mfcc_only, plot_grid_images, plot_waveform
 from audio_dataset import AudioDataset
 from batch_archive import SpeechCommandsBatchArchive
 from net_handler import NetHandler
@@ -19,8 +19,6 @@ from net_handler import NetHandler
 # qualitative colors
 from palettable.colorbrewer.qualitative import Dark2_7
 
-# --
-# mfcc:
 
 # sequential colors
 #from palettable.colorbrewer.sequential import Purples_4
@@ -52,10 +50,7 @@ from palettable.cubehelix import red_16
 from palettable.scientific.sequential import Tokyo_20
 
 
-# --
-# weights
-
-# diverging colors
+# diverging
 from palettable.cmocean.diverging import Balance_20
 from palettable.cmocean.diverging import Balance_19
 from palettable.cmocean.diverging import Curl_20
@@ -70,11 +65,21 @@ from palettable.colorbrewer.diverging import PuOr_5
 from palettable.colorbrewer.diverging import PuOr_11
 
 
+# qualitative
+from palettable.cartocolors.qualitative import Prism_8
+from palettable.cartocolors.qualitative import Vivid_10
+from palettable.cartocolors.qualitative import Antique_4
+
+from palettable.colorbrewer.qualitative import Accent_4
+
+
 # --
-# global cmaps
+# global colors
+
+colors_waveform = (None, Prism_8.mpl_colors[0], Prism_8.mpl_colors[1], Prism_8.mpl_colors[2], Prism_8.mpl_colors[3], Prism_8.mpl_colors[4])
 
 # cmaps
-cmaps_weights = (None, red_16.mpl_colormap, purple_16.mpl_colormap, Cork_20.mpl_colormap, Balance_19.mpl_colormap, Delta_20.mpl_colormap)
+cmaps_weights = (None, red_16.mpl_colormap, purple_16.mpl_colormap, Cork_20.mpl_colormap, jim_special_16.mpl_colormap, Delta_20.mpl_colormap)
 #cmaps_weights = (None, red_16.mpl_colormap, Broc_19.mpl_colormap, Balance_19.mpl_colormap, Curl_19.mpl_colormap, Delta_19.mpl_colormap)
 
 cmaps_mfcc = (None, Dense_20.mpl_colormap.reversed(), Tokyo_20.mpl_colormap, Deep_20.mpl_colormap.reversed(), red_16.mpl_colormap, jim_special_16.mpl_colormap)
@@ -84,6 +89,22 @@ cmaps_mfcc = (None, Dense_20.mpl_colormap.reversed(), Tokyo_20.mpl_colormap, Dee
 #cmaps = (None, Ice_20.mpl_colormap, Matter_20.mpl_colormap.reversed(), Deep_20.mpl_colormap.reversed(), Dense_20.mpl_colormap.reversed(), Tempo_20.mpl_colormap.reversed())
 #cmaps = (None, Ice_20.mpl_colormap, Matter_20.mpl_colormap.reversed(), Deep_20.mpl_colormap.reversed(), Dense_20.mpl_colormap.reversed(), Solar_20.mpl_colormap)
 #cmaps = (None, Algae_20.mpl_colormap.reversed(), Amp_20.mpl_colormap.reversed(), Deep_20.mpl_colormap.reversed(), Dense_20.mpl_colormap.reversed(), Haline_20.mpl_colormap)
+
+
+def show_waveform_colors(x, colors):
+  """
+  waveform colors
+  """
+
+  for i, color in enumerate(colors):
+
+    # plot weight matrices
+    fig = plot_waveform(x, 16000, e=None, color=color, hop=None, onset_frames=None, title='none', xlim=None, ylim=None, plot_path=None, name='None', show_plot=False)
+    
+    # positioning
+    if i >= 3: i, j = i%3, 600
+    else: i, j = i, 0
+    fig.canvas.manager.window.setGeometry(i*600, j, 600, 500)
 
 
 def show_weights_colormaps(x, cmaps):
@@ -112,7 +133,6 @@ def show_mfcc_colormaps(x, cmaps):
     # image config
     fig = plt.figure()
     ax = plt.axes()
-    #ax.set_prop_cycle('color', Dark2_7.mpl_colors)
 
     # image
     #im = ax.imshow(x, cmap=cmap, vmax=vmax, vmin=-vmax)
@@ -133,6 +153,8 @@ if __name__ == '__main__':
   """
   color tests
   """
+
+  import librosa
 
   # yaml config file
   cfg = yaml.safe_load(open("../config.yaml"))
@@ -165,10 +187,35 @@ if __name__ == '__main__':
   n1 = torch.randn(x1.shape)
   n2 = torch.randn(x2.shape)
 
+  # read audio from file
+  x_wav, _ = librosa.load('../ignore/my_recordings/clean_records/down.wav', sr=16000)
+
   # mfcc colormaps
   #show_mfcc_colormaps(x1, cmaps_mfcc)
   show_weights_colormaps(net_handler.models['cnn'].state_dict()['conv_encoder.conv_layers.0.weight'], cmaps_weights)
   #show_weights_colormaps(net_handler.models['cnn'].state_dict()['conv_encoder.conv_layers.1.weight'], cmaps_weights)
+  #show_waveform_colors(x_wav, colors_waveform)
+
+
+  # vmax = np.max(np.abs(x_wav))
+
+  # plt.figure()
+  # ax = plt.axes()
+  # #ax.set_prop_cycle('color', Vivid_10.mpl_colors[:2])
+  # #ax.set_prop_cycle('color', Prism_8.mpl_colors)
+  # #ax.plot(x_wav, color=Prism_8.mpl_colors[0])
+  # ax.plot(x_wav, color=Antique_4.mpl_colors[0])
+  # plt.ylim(vmax + 0.1 * vmax, -vmax - 0.1 * vmax)
+  # #ax.plot(x_wav, color=red_16.mpl_colors[5])
+  # for i in range(10):
+  #   #ax.plot(np.ones(len(x_wav)) * i * 0.005)
+
+  #   #ax.axvline(x=2000*i, dashes=(5, 1), color=Prism_8.mpl_colors[0])
+  #   ax.axvline(x=2000*i, dashes=(5, 1), color=red_16.mpl_colors[13])
+  #   #ax.axvline(x=2100*i, dashes=(5, 1), color=Antique_4.mpl_colors[0])
+  #   #ax.axvline(x=1000*i, dashes=(5, 1), color=Accent_4.mpl_colors[0])
+
+  # plt.grid()
 
   plt.show()
 

@@ -10,6 +10,23 @@ from feature_extraction import onsets_to_onset_times, frames_to_time
 from glob import glob
 from praatio import tgio
 
+# color palettes
+from palettable.cubehelix import red_16
+from palettable.scientific.diverging import Cork_20
+from palettable.cubehelix import jim_special_16
+
+
+def get_colormap_from_context(context='none'):
+  """
+  my colormaps
+  """
+
+  if context == 'mfcc': return red_16.mpl_colormap
+  elif context == 'weight0': return jim_special_16.mpl_colormap
+  elif context == 'weight1': return Cork_20.mpl_colormap
+
+  return None
+
 
 def plot_test_bench_noise(x, y, snrs, title='noise', plot_path=None, name='noise', show_plot=False):
   """
@@ -141,10 +158,13 @@ def plot_other_grid(x, grid_size=(8, 8), title='grid1', plot_path=None, name='gr
   if show_plot: plt.show()
 
 
-def plot_grid_images(x, padding=1, num_cols=8, cmap=None, color_balance=False, title='grid2', plot_path=None, name='grid2', show_plot=False):
+def plot_grid_images(x, padding=1, num_cols=8, cmap=None, context='none', color_balance=False, title='grid2', plot_path=None, name='grid2', show_plot=False):
   """
   plot grid images
   """
+
+  # get cmap
+  if cmap is None: cmap = get_colormap_from_context(context=context)
 
   # cast to numpy
   x = np.array(x)
@@ -256,7 +276,7 @@ def plot_damaged_file_score(z, plot_path=None, name='z_score', enable_plot=False
     plt.close()
 
 
-def plot_waveform(x, fs, e=None, hop=None, onset_frames=None, title='none', xlim=None, ylim=None, plot_path=None, name='None', show_plot=False):
+def plot_waveform(x, fs, e=None, color=None, hop=None, onset_frames=None, title='none', xlim=None, ylim=None, plot_path=None, name='None', show_plot=False):
   """
   just a simple waveform
   """
@@ -266,7 +286,7 @@ def plot_waveform(x, fs, e=None, hop=None, onset_frames=None, title='none', xlim
 
   # setup figure
   fig = plt.figure(figsize=(9, 5))
-  plt.plot(t, x)
+  plt.plot(t, x, color=color)
 
   # energy plot
   if e is not None:
@@ -295,6 +315,8 @@ def plot_waveform(x, fs, e=None, hop=None, onset_frames=None, title='none', xlim
     plt.close()
 
   if show_plot: plt.show()
+
+  return fig
 
 
 def plot_onsets(x, fs, N, hop, onsets, title='none', plot_path=None, name='None'):
