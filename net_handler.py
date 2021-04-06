@@ -6,7 +6,7 @@ import numpy as np
 import torch
 import time
 
-from conv_nets import ConvNetTrad, ConvNetFstride4, ConvNetExperimental, ConvEncoderClassifierNet, ConvStackedEncodersNet
+from conv_nets import ConvNetTrad, ConvNetFstride4, ConvNetExperimental, ConvEncoderClassifierNet, ConvStackedEncodersNet, ConvLatentClassifier
 from adversarial_nets import G_experimental, D_experimental
 from score import TrainScore, EvalScore
 
@@ -16,16 +16,16 @@ class NetHandler():
   Neural Network Handler with general functionalities and interfaces
   """
 
-  def __new__(cls, nn_arch, class_dict, data_size, encoder_model=None, use_cpu=False):
+  def __new__(cls, nn_arch, class_dict, data_size, encoder_model=None, decoder_model=None, use_cpu=False):
 
     # adversarial handler
-    if nn_arch in ['adv-experimental', 'adv-collected-encoder']:
+    if nn_arch in ['adv-experimental']:
       for child_cls in cls.__subclasses__():
         if child_cls.__name__ == 'AdversarialNetHandler':
           return super().__new__(AdversarialNetHandler)
 
-    # experimental
-    if nn_arch in ['adv-experimental3']:
+    # experimental2
+    if nn_arch in ['adv-experimental3', 'adv-collected-encoder', 'adv-lim-encoder']:
       for child_cls in cls.__subclasses__():
         for child_child_cls in child_cls.__subclasses__():
           if child_child_cls.__name__ == 'AdversarialNetHandlerExperimental':
@@ -38,7 +38,7 @@ class NetHandler():
           return super().__new__(CnnHandler)
 
     # conv encoder handler
-    elif nn_arch in ['conv-encoder']:
+    elif nn_arch in ['conv-encoder', 'conv-lim-encoder', 'conv-latent']:
       for child_cls in cls.__subclasses__():
         if child_cls.__name__ == 'ConvEncoderNetHandler':
           return super().__new__(ConvEncoderNetHandler)
@@ -51,13 +51,14 @@ class NetHandler():
     return super().__new__(cls)
 
 
-  def __init__(self, nn_arch, class_dict, data_size, encoder_model=None, use_cpu=False):
+  def __init__(self, nn_arch, class_dict, data_size, encoder_model=None, decoder_model=None, use_cpu=False):
 
     # arguments
     self.nn_arch = nn_arch
     self.class_dict = class_dict
     self.data_size = data_size
     self.encoder_model = encoder_model
+    self.decoder_model = decoder_model
     self.use_cpu = use_cpu
 
     # vars
@@ -80,15 +81,26 @@ class NetHandler():
     instantiate the requested models and sent them to the device
     """
 
-    # select network architecture
+    # traditionals
     if self.nn_arch == 'conv-trad': self.models = {'cnn':ConvNetTrad(self.n_classes, self.data_size)}
     elif self.nn_arch == 'conv-fstride': self.models = {'cnn':ConvNetFstride4(self.n_classes, self.data_size)}
     elif self.nn_arch == 'conv-experimental': self.models = {'cnn':ConvNetExperimental(self.n_classes, self.data_size)}
+    
+    # adversarials
     elif self.nn_arch == 'adv-experimental': self.models = {'g':G_experimental(self.n_classes, self.data_size), 'd':D_experimental(self.n_classes, self.data_size)}
     elif self.nn_arch == 'adv-experimental3': self.models = {'g':G_experimental(self.n_classes, self.data_size), 'd':D_experimental(self.n_classes, self.data_size, out_dim=1)}
-    elif self.nn_arch == 'adv-collected-encoder': self.models = {'g':G_experimental(self.n_classes, self.data_size, is_collection_net=True), 'd':D_experimental(self.n_classes, self.data_size, is_collection_net=True)}
+    elif self.nn_arch == 'adv-collected-encoder': self.models = {'g':G_experimental(self.n_classes, self.data_size, net_class='label-collect-encoder'), 'd':D_experimental(self.n_classes, self.data_size, net_class='label-collect-encoder')}
+    
+    # cnns
     elif self.nn_arch == 'conv-encoder': self.models = {'cnn':ConvEncoderClassifierNet(self.n_classes, self.data_size)}
-    #elif self.nn_arch == 'conv-encoder-stacked': self.models = {'cnn':ConvStackedEncodersNet(self.n_classes, self.data_size, self.encoder_model)}
+    elif self.nn_arch == 'conv-encoder-stacked': self.models = {'cnn':ConvStackedEncodersNet(self.n_classes, self.data_size, self.encoder_model)}
+    elif self.nn_arch == 'conv-latent': self.models = {'cnn':ConvLatentClassifier(self.n_classes, self.data_size)}
+    
+    # limited encoders
+    elif self.nn_arch == 'adv-lim-encoder': self.models = {'g':G_experimental(self.n_classes, self.data_size, net_class='lim-encoder'), 'd':D_experimental(self.n_classes, self.data_size, net_class='lim-encoder')}
+    elif self.nn_arch == 'conv-lim-encoder': self.models = {'cnn':ConvEncoderClassifierNet(self.n_classes, self.data_size, net_class='lim-encoder')}
+    
+    # not found
     else: print("***Network Architecture not found!")
 
     # send models to device
@@ -157,7 +169,7 @@ class NetHandler():
     return True
 
 
-  def save_models(self, model_files, encoder_model_file=None, encoder_class_name='ConvEncoder'):
+  def save_models(self, model_files, encoder_model_file=None, decoder_model_file=None, encoder_class_name='ConvEncoder', decoder_class_name='ConvDecoder'):
     """
     saves model
     """
@@ -178,7 +190,7 @@ class NetHandler():
         print("\n***could not save model!!!\n")
 
       # skip if encoder model file is None
-      if encoder_model_file is None: continue
+      if encoder_model_file is None and decoder_model_file is None: continue
 
       # go through all modules
       for module in model.children():
@@ -189,6 +201,13 @@ class NetHandler():
           # save and print info
           torch.save(module.state_dict(), encoder_model_file)
           print("save {} to file: {}".format(encoder_class_name, encoder_model_file))
+
+        # if module is encoder class
+        elif module.__class__.__name__ == decoder_class_name:
+
+          # save and print info
+          torch.save(module.state_dict(), decoder_model_file)
+          print("save {} to file: {}".format(decoder_class_name, decoder_model_file))   
 
 
   def set_up_training(self, train_params):
@@ -268,10 +287,10 @@ class CnnHandler(NetHandler):
   Neural Network Handler for CNNs
   """
 
-  def __init__(self, nn_arch, class_dict, data_size, encoder_model=None, use_cpu=False):
+  def __init__(self, nn_arch, class_dict, data_size, encoder_model=None, decoder_model=None, use_cpu=False):
 
     # parent class init
-    super().__init__(nn_arch, class_dict, data_size, encoder_model=encoder_model, use_cpu=use_cpu)
+    super().__init__(nn_arch, class_dict, data_size, encoder_model=encoder_model, decoder_model=decoder_model, use_cpu=use_cpu)
 
     # loss criterion
     self.criterion = torch.nn.CrossEntropyLoss()
@@ -279,8 +298,28 @@ class CnnHandler(NetHandler):
     # init models
     self.init_models()
 
-    # transfer conv weights from encoder models
-    if self.encoder_model is not None: self.models['cnn'].conv_encoder.load_state_dict(encoder_model.state_dict())
+    # load encoder decoder models
+    self.load_coder_models()
+
+
+  def load_coder_models(self):
+
+    # using encoder or decoder model, one should be not None
+    if bool(self.encoder_model is None) ^ bool(self.decoder_model is None):
+
+      # encoder model
+      if self.encoder_model is not None: self.models['cnn'].conv_encoder.load_state_dict(self.encoder_model.state_dict())
+
+      # transfer conv weights from encoder models
+      elif self.decoder_model is not None: 
+        #print("decoder: ", decoder_model.state_dict().keys())
+        self.models['cnn'].conv_encoder.transfer_decoder_weights(self.decoder_model.conv_decoder)
+
+        # for latent space (might be removed)
+        with torch.no_grad():
+          if 'fc_latent.weight' in self.models['cnn'].state_dict().keys() and 'fc1.weight' in self.decoder_model.state_dict().keys(): 
+            self.models['cnn'].state_dict()['fc_latent.weight'][:] = decoder_model.state_dict()[param_tensor].T
+            print("latent yeah")
 
 
   def set_up_training(self, train_params):
@@ -445,10 +484,10 @@ class AdversarialNetHandler(NetHandler):
   adapted form: https://pytorch.org/tutorials/beginner/dcgan_faces_tutorial.html
   """
 
-  def __init__(self, nn_arch, class_dict, data_size, encoder_model=None, use_cpu=False):
+  def __init__(self, nn_arch, class_dict, data_size, encoder_model=None, decoder_model=None, use_cpu=False):
 
     # parent class init
-    super().__init__(nn_arch, class_dict, data_size, encoder_model=encoder_model, use_cpu=use_cpu)
+    super().__init__(nn_arch, class_dict, data_size, encoder_model=encoder_model, decoder_model=decoder_model, use_cpu=use_cpu)
 
     # loss criterion
     self.criterion = torch.nn.BCELoss()
@@ -461,7 +500,8 @@ class AdversarialNetHandler(NetHandler):
     self.fake_label = 0.
 
     # transfer conv weights from encoder models
-    if self.encoder_model is not None: self.models['d'].conv_encoder.load_state_dict(encoder_model.state_dict())
+    if self.encoder_model is not None: self.models['d'].conv_encoder.load_state_dict(encoder_model.conv_encoder.state_dict())
+    if self.decoder_model is not None: self.models['g'].conv_decoder.load_state_dict(decoder_model.conv_decoder.state_dict())
 
 
   def set_up_training(self, train_params):
@@ -667,10 +707,10 @@ class AdversarialNetHandlerExperimental(AdversarialNetHandler):
   Experimental Adversarial Net Handler
   """
 
-  def __init__(self, nn_arch, class_dict, data_size, encoder_model=None, use_cpu=False):
+  def __init__(self, nn_arch, class_dict, data_size, encoder_model=None, decoder_model=None, use_cpu=False):
 
     # parent class init
-    super().__init__(nn_arch, class_dict, data_size, encoder_model=encoder_model, use_cpu=use_cpu)
+    super().__init__(nn_arch, class_dict, data_size, encoder_model=encoder_model, decoder_model=decoder_model, use_cpu=use_cpu)
 
     # loss criterion
     self.criterion = torch.nn.BCELoss()
@@ -742,7 +782,7 @@ class AdversarialNetHandlerExperimental(AdversarialNetHandler):
     return d_loss_real.item(), d_loss_fake.item()
 
 
-  def update_g(self, reals, fakes, class_dict):
+  def update_g(self, reals, fakes, class_dict, lam=7):
     """
     update generator G
     """
@@ -763,7 +803,7 @@ class AdversarialNetHandlerExperimental(AdversarialNetHandler):
     g_loss_sim = (1 - torch.mean(self.cos_sim(reals, fakes)))
 
     # loss
-    g_loss = g_loss_fake + g_loss_sim * 5
+    g_loss = g_loss_fake + g_loss_sim * lam
 
     # backward
     g_loss.backward()
@@ -771,7 +811,7 @@ class AdversarialNetHandlerExperimental(AdversarialNetHandler):
     # optimizer step
     self.optimizer_g.step()
 
-    return g_loss_fake.item(), g_loss_sim.item() * 5
+    return g_loss_fake.item(), g_loss_sim.item() * lam
 
 
 

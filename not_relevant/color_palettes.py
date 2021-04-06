@@ -76,10 +76,10 @@ from palettable.colorbrewer.qualitative import Accent_4
 # --
 # global colors
 
-colors_waveform = (None, Prism_8.mpl_colors[0], Prism_8.mpl_colors[1], Prism_8.mpl_colors[2], Prism_8.mpl_colors[3], Prism_8.mpl_colors[4])
+colors_waveform = (None, Prism_8.mpl_colors[0:], Antique_4.mpl_colors[0:], purple_16.mpl_colors[3:])
 
 # cmaps
-cmaps_weights = (None, red_16.mpl_colormap, purple_16.mpl_colormap, Cork_20.mpl_colormap, jim_special_16.mpl_colormap, Delta_20.mpl_colormap)
+cmaps_weights = (None, red_16.mpl_colormap, purple_16.mpl_colormap, Deep_20.mpl_colormap.reversed(), jim_special_16.mpl_colormap, Delta_20.mpl_colormap)
 #cmaps_weights = (None, red_16.mpl_colormap, Broc_19.mpl_colormap, Balance_19.mpl_colormap, Curl_19.mpl_colormap, Delta_19.mpl_colormap)
 
 cmaps_mfcc = (None, Dense_20.mpl_colormap.reversed(), Tokyo_20.mpl_colormap, Deep_20.mpl_colormap.reversed(), red_16.mpl_colormap, jim_special_16.mpl_colormap)
@@ -91,15 +91,15 @@ cmaps_mfcc = (None, Dense_20.mpl_colormap.reversed(), Tokyo_20.mpl_colormap, Dee
 #cmaps = (None, Algae_20.mpl_colormap.reversed(), Amp_20.mpl_colormap.reversed(), Deep_20.mpl_colormap.reversed(), Dense_20.mpl_colormap.reversed(), Haline_20.mpl_colormap)
 
 
-def show_waveform_colors(x, colors):
+def show_waveform_colors(x, cmaps):
   """
   waveform colors
   """
 
-  for i, color in enumerate(colors):
+  for i, cmap in enumerate(cmaps):
 
     # plot weight matrices
-    fig = plot_waveform(x, 16000, e=None, color=color, hop=None, onset_frames=None, title='none', xlim=None, ylim=None, plot_path=None, name='None', show_plot=False)
+    fig = plot_waveform(x, 16000, e=None, cmap=cmap, hop=None, onset_frames=None, title='none', xlim=None, ylim=None, plot_path=None, name='None', show_plot=False)
     
     # positioning
     if i >= 3: i, j = i%3, 600
@@ -170,7 +170,8 @@ if __name__ == '__main__':
   net_handler = NetHandler(nn_arch='conv-encoder', class_dict=batch_archive.class_dict, data_size=batch_archive.data_size, use_cpu=cfg['ml']['use_cpu'])
 
   # load model files
-  net_handler.load_models(model_files=['/world/cavern/git/kws_game/not_relevant/ignore/models/bs-32_it-1077_lr-0p0001/cnn_model.pth'])
+  #net_handler.load_models(model_files=['/world/cavern/git/kws_game/not_relevant/ignore/models/bs-32_it-1077_lr-0p0001/cnn_model.pth'])
+  net_handler.load_models(model_files=['./ignore/models/bs-32_it-500_lr-0p0001//cnn_model.pth'])
 
   print(net_handler.models['cnn'].state_dict().keys())
 
@@ -191,8 +192,8 @@ if __name__ == '__main__':
   x_wav, _ = librosa.load('../ignore/my_recordings/clean_records/down.wav', sr=16000)
 
   # mfcc colormaps
-  #show_mfcc_colormaps(x1, cmaps_mfcc)
-  show_weights_colormaps(net_handler.models['cnn'].state_dict()['conv_encoder.conv_layers.0.weight'], cmaps_weights)
+  show_mfcc_colormaps(x1, cmaps_mfcc)
+  #show_weights_colormaps(net_handler.models['cnn'].state_dict()['conv_encoder.conv_layers.0.weight'], cmaps_weights)
   #show_weights_colormaps(net_handler.models['cnn'].state_dict()['conv_encoder.conv_layers.1.weight'], cmaps_weights)
   #show_waveform_colors(x_wav, colors_waveform)
 

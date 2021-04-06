@@ -5,6 +5,7 @@ plot some figures
 import numpy as np
 import matplotlib.pyplot as plt
 
+from matplotlib.colors import ListedColormap
 from sklearn.metrics import confusion_matrix
 from feature_extraction import onsets_to_onset_times, frames_to_time
 from glob import glob
@@ -12,8 +13,11 @@ from praatio import tgio
 
 # color palettes
 from palettable.cubehelix import red_16
-from palettable.scientific.diverging import Cork_20
+from palettable.cubehelix import purple_16
 from palettable.cubehelix import jim_special_16
+from palettable.scientific.diverging import Cork_20
+from palettable.cartocolors.qualitative import Antique_4
+from palettable.cartocolors.qualitative import Prism_8
 
 
 def get_colormap_from_context(context='none'):
@@ -22,25 +26,50 @@ def get_colormap_from_context(context='none'):
   """
 
   if context == 'mfcc': return red_16.mpl_colormap
-  elif context == 'weight0': return jim_special_16.mpl_colormap
-  elif context == 'weight1': return Cork_20.mpl_colormap
+
+  elif context == 'confusion': return ListedColormap(purple_16.mpl_colormap.reversed()(np.linspace(0, 0.8, 25)), name='purpletonian')
+
+  #elif context == 'weight0': return jim_special_16.mpl_colormap
+  elif context == 'weight0': return red_16.mpl_colormap
+  elif context == 'weight0-div': return ListedColormap(np.vstack((purple_16.mpl_colormap(np.linspace(0, 1, 16)), red_16.mpl_colormap.reversed()(np.linspace(0, 0.8, 16)))), name='rp-div')
+  
+  #elif context == 'weight1': return Cork_20.mpl_colormap
+  elif context == 'weight1': return red_16.mpl_colormap
+  elif context == 'weight1-div': return ListedColormap(np.vstack((purple_16.mpl_colormap(np.linspace(0, 1, 16)), red_16.mpl_colormap.reversed()(np.linspace(0, 0.8, 16)))), name='rp-div')
+  
+  elif context == 'wav': return Antique_4.mpl_colors
+  elif context == 'loss': return Prism_8.mpl_colors
+  elif context == 'adv-loss': return Prism_8.mpl_colors[:2] + Prism_8.mpl_colors[6:]
+  elif context == 'acc': return Prism_8.mpl_colors[5:]
+
+  #elif context == 'bench-noise': return ListedColormap(purple_16.mpl_colormap.reversed()(np.linspace(0, 0.5, 100)), name='purple_short')
+  elif context == 'bench-noise': return ListedColormap(purple_16.mpl_colormap.reversed()(np.linspace(0, 0.6, 10)), name='purple_short')
+  #elif context == 'bench-noise': return ListedColormap(np.vstack((purple_16.mpl_colormap.reversed()(np.linspace(0, 0, 5)), purple_16.mpl_colormap.reversed()(np.linspace(0.1, 0.6, 5)))), name='purple_short')
+  
+  #elif context == 'bench-shift': return ListedColormap(red_16.mpl_colormap.reversed()(np.linspace(0, 0.5, 100)), name='red_short')
+  elif context == 'bench-shift': return ListedColormap(red_16.mpl_colormap.reversed()(np.linspace(0, 0.6, 10)), name='red_short')
+  #elif context == 'bench-shift': return ListedColormap(np.vstack((red_16.mpl_colormap.reversed()(np.linspace(0, 0, 5)), red_16.mpl_colormap.reversed()(np.linspace(0.2, 0.6, 5)))), name='red_short')
+  #elif context == 'bench': return purple_16.mpl_colormap.reversed()
+  #elif context == 'bench': return purple_16.mpl_colormap.reversed()
 
   return None
 
 
-def plot_test_bench_noise(x, y, snrs, title='noise', plot_path=None, name='noise', show_plot=False):
+def plot_test_bench_noise(x, y, snrs, cmap=None, context='bench-noise', title='noise', plot_path=None, name='noise', show_plot=False):
   """
   shiftinvariant test
   """
 
+  # get cmap
+  if cmap is None: cmap = get_colormap_from_context(context=context)
+
   # plot init
   fig = plt.figure(figsize=(12, 6))
 
+  print("x: ", x)
   # image
   ax = plt.axes()
-  #im = ax.imshow(x, aspect='equal', interpolation='none')
-
-  im = ax.pcolormesh(x, edgecolors='k', linewidth=1, vmax=1, vmin=0)
+  im = ax.pcolormesh(x, edgecolors='k', linewidth=1, vmax=1, vmin=0, cmap=cmap)
 
   # design
   plt.title(title)
@@ -68,10 +97,13 @@ def plot_test_bench_noise(x, y, snrs, title='noise', plot_path=None, name='noise
   if show_plot: plt.show()
 
 
-def plot_test_bench_shift(x, y, title='shift', plot_path=None, name='shift', show_plot=False):
+def plot_test_bench_shift(x, y, cmap=None, context='bench-shift', title='shift', plot_path=None, name='shift', show_plot=False):
   """
   shiftinvariant test
   """
+
+  # get cmap
+  if cmap is None: cmap = get_colormap_from_context(context=context)
 
   # plot init
   fig = plt.figure(figsize=(12, 6))
@@ -80,7 +112,7 @@ def plot_test_bench_shift(x, y, title='shift', plot_path=None, name='shift', sho
   ax = plt.axes()
   #im = ax.imshow(x, aspect='equal', interpolation='none')
 
-  im = ax.pcolormesh(x, edgecolors='k', linewidth=1)
+  im = ax.pcolormesh(x, edgecolors='k', linewidth=1, vmax=1, vmin=0, cmap=cmap)
 
   # design
   plt.title(title)
@@ -276,7 +308,7 @@ def plot_damaged_file_score(z, plot_path=None, name='z_score', enable_plot=False
     plt.close()
 
 
-def plot_waveform(x, fs, e=None, color=None, hop=None, onset_frames=None, title='none', xlim=None, ylim=None, plot_path=None, name='None', show_plot=False):
+def plot_waveform(x, fs, e=None, hop=None, onset_frames=None, cmap=None, context='wav', title='none', xlim=None, ylim=None, plot_path=None, name='None', show_plot=False):
   """
   just a simple waveform
   """
@@ -286,11 +318,20 @@ def plot_waveform(x, fs, e=None, color=None, hop=None, onset_frames=None, title=
 
   # setup figure
   fig = plt.figure(figsize=(9, 5))
-  plt.plot(t, x, color=color)
+
+  # create axis
+  ax = plt.axes()
+
+  # get cmap
+  if cmap is None: cmap = get_colormap_from_context(context=context)
+  if cmap is not None: ax.set_prop_cycle('color', cmap)
+
+  # plot signal
+  ax.plot(t, x)
 
   # energy plot
   if e is not None:
-    plt.plot(np.arange(0, len(x)/fs, 1/fs * hop), e)
+    ax.plot(np.arange(0, len(x)/fs, 1/fs * hop), e)
 
   # draw onsets
   if onset_frames is not None:
@@ -340,17 +381,26 @@ def plot_onsets(x, fs, N, hop, onsets, title='none', plot_path=None, name='None'
     plt.close()
 
 
-def plot_confusion_matrix(cm, classes, plot_path=None, name='None'):
+def plot_confusion_matrix(cm, classes, cmap=None, plot_path=None, name='None'):
   """
   plot confusion matrix
   """
 
+  # return if emtpy
   if cm is None:
     return
 
+  # get cmap
+  if cmap is None: cmap = get_colormap_from_context(context='confusion')
+
   # init plot
-  fig, ax = plt.subplots( figsize=(8, 8) )
-  im = ax.imshow(cm, cmap=plt.cm.Blues)
+  fig = plt.figure(figsize=(8, 8))
+
+  # axis
+  ax = plt.axes()
+
+  #im = ax.imshow(cm, cmap=plt.cm.Blues)
+  im = ax.imshow(cm, cmap=cmap, vmin=0, vmax=np.sum(cm, axis=1)[0])
 
   # text handling
   for predict in range(len(classes)):
@@ -381,6 +431,10 @@ def plot_confusion_matrix(cm, classes, plot_path=None, name='None'):
 
   plt.xlabel('predicted labels')
   plt.ylabel('true labels')
+
+  # colorbar
+  cax = fig.add_axes([ax.get_position().x1 + 0.01, ax.get_position().y0, 0.02, ax.get_position().height])
+  plt.colorbar(im, cax=cax)
 
   # plot the fig
   if plot_path is not None:
@@ -497,14 +551,18 @@ def plot_textGrid_annotation(anno_file, x=None, plot_text=False):
       if plot_text: plt.text(s + 0.01, h, l, color='k')
 
 
-def plot_mfcc_profile(x, fs, N, hop, mfcc, anno_file=None, onsets=None, bon_pos=None, mient=None, minreg=None, frame_size=32, plot_path=None, name='mfcc_profile', enable_plot=False):
+def plot_mfcc_profile(x, fs, N, hop, mfcc, cmap=None, cmap_wav=None, anno_file=None, onsets=None, bon_pos=None, mient=None, minreg=None, frame_size=32, plot_path=None, name='mfcc_profile', enable_plot=True):
   """
   plot mfcc extracted features from audio file
   mfcc: [m x l]
   """
 
+  # get cmap
+  if cmap is None: cmap = get_colormap_from_context(context='mfcc')
+  if cmap_wav is None: cmap_wav = get_colormap_from_context(context='wav')
+
   # no plot generation
-  if plot_path is None or enable_plot is False:
+  if enable_plot is False:
     return
 
   # time vector
@@ -519,6 +577,8 @@ def plot_mfcc_profile(x, fs, N, hop, mfcc, anno_file=None, onsets=None, bon_pos=
 
   # time series plot
   ax = fig.add_subplot(gs[0:n_im_rows-1, :n_cols-2])
+
+  if cmap_wav is not None: ax.set_prop_cycle('color', cmap_wav)
   ax.plot(t[:len(x)], x)
 
   # annotation
@@ -566,7 +626,7 @@ def plot_mfcc_profile(x, fs, N, hop, mfcc, anno_file=None, onsets=None, bon_pos=
     ax = fig.add_subplot(gs[rs:re, :n_cols-2])
 
     # plot image coeffs
-    im = ax.imshow(mfcc[c], aspect='auto', extent=[0, t[-1], c[-1], c[0]])
+    im = ax.imshow(mfcc[c], aspect='auto', extent=[0, t[-1], c[-1], c[0]], cmap=cmap)
 
     # annotation
     plot_textGrid_annotation(anno_file)
@@ -585,14 +645,17 @@ def plot_mfcc_profile(x, fs, N, hop, mfcc, anno_file=None, onsets=None, bon_pos=
   # plot
   if plot_path is not None:
     plt.savefig(plot_path + name + '.png', dpi=150)
-  plt.close()
+    plt.close()
 
 
-def plot_mfcc_only(mfcc, fs=16000, hop=160, plot_path=None, name='mfcc_only', show_plot=False):
+def plot_mfcc_only(mfcc, fs=16000, hop=160, cmap=None, context='mfcc', plot_path=None, name='mfcc_only', show_plot=False):
   """
   plot mfcc extracted features only (no time series)
   mfcc: [m x l]
   """
+
+  # get cmap
+  if cmap is None: cmap = get_colormap_from_context(context=context)
 
   # get shape
   m, l = mfcc.shape
@@ -626,7 +689,7 @@ def plot_mfcc_only(mfcc, fs=16000, hop=160, plot_path=None, name='mfcc_only', sh
     ax = fig.add_subplot(gs[rs:re, :n_cols-2])
 
     # plot selected mfcc
-    im = ax.imshow(mfcc[c], aspect='auto', extent = [0, t[-1], c[-1], c[0]])
+    im = ax.imshow(mfcc[c], aspect='auto', extent=[0, t[-1], c[-1], c[0]], cmap=cmap)
 
     # some labels
     ax.set_title(titles[i])

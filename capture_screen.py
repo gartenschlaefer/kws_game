@@ -14,26 +14,27 @@ class ScreenCapturer():
   screen capture class for recording pygame screens
   """
 
-  def __init__(self, screen, screen_size, fps, capture_path='./ignore/capture/', frame_path='frames/', frame_name='frame', enabled=True):
+  def __init__(self, screen, cfg_game, frame_name='frame', enabled=True, root_path='./'):
 
-    # params
+    # arguments
     self.screen = screen
-    self.screen_size = screen_size
-    self.fps = fps
+    self.cfg_game = cfg_game
+    self.frame_name = frame_name
+    self.enabled = enabled
+    self.root_path = root_path
+
+    # shortcuts
+    self.screen_size = cfg_game['screen_size']
+    self.fps = cfg_game['fps']
 
     # paths
-    self.capture_path = capture_path
-    self.frame_path = frame_path
-    self.frame_name = frame_name
-
-    # enabled
-    self.enabled = enabled
+    self.paths = dict((k, self.root_path + v) for k, v in self.cfg_game['paths'].items())
 
     # delete old data
-    delete_files_in_path([self.capture_path + self.frame_path], file_ext='.png')
+    delete_files_in_path([self.paths['frame_path']], file_ext='.png')
 
     # create folder for captured frames
-    create_folder([self.capture_path + self.frame_path])
+    create_folder(list(self.paths.values()))
 
     # vars
     self.actual_frame_num = 0
@@ -76,17 +77,17 @@ class ScreenCapturer():
     for i, frame in enumerate(self.frame_container):
 
       # save image
-      pygame.image.save(pygame.image.fromstring(frame, (self.screen_size[0], self.screen_size[1]), 'RGB'), '{}{}{}.png'.format(self.capture_path + self.frame_path, self.frame_name, i))
+      pygame.image.save(pygame.image.fromstring(frame, (self.screen_size[0], self.screen_size[1]), 'RGB'), '{}{}{}.png'.format(self.paths['frame_path'], self.frame_name, i))
 
     # audio
     if mic is not None:
 
       # save audio
-      soundfile.write('{}out_audio.wav'.format(self.capture_path), mic.collector.x_all, mic.feature_params['fs'], subtype=None, endian=None, format=None, closefd=True)
+      soundfile.write('{}out_audio.wav'.format(self.paths['capture_path']), mic.collector.x_all, mic.feature_params['fs'], subtype=None, endian=None, format=None, closefd=True)
 
     # convert to video format
     try:
-      os.system("ffmpeg -framerate {} -start_number 0 -i {}%d.png -i {}out_audio.wav -vcodec mpeg4 {}.avi".format(self.fps // self.downsample, self.capture_path + self.frame_path + self.frame_name, self.capture_path, self.capture_path + 'out'))
+      os.system("ffmpeg -framerate {} -start_number 0 -i {}%d.png -i {}out_audio.wav -vcodec mpeg4 {}.avi".format(self.fps // self.downsample, self.paths['frame_path'] + self.frame_name, self.paths['capture_path'], self.paths['capture_path'] + 'out'))
     except:
       print("***Problem with conversions of frames to video")
 
@@ -130,7 +131,8 @@ if __name__ == '__main__':
   screen = pygame.display.set_mode(cfg['game']['screen_size'])
 
   # init screen capturer
-  screen_capturer = ScreenCapturer(screen, cfg['game']['screen_size'], cfg['game']['fps'], capture_path=cfg['game']['capture_path'])
+  #screen_capturer = ScreenCapturer(screen, cfg['game']['screen_size'], cfg['game']['fps'], capture_path=cfg['game']['capture_path'])
+  screen_capturer = ScreenCapturer(screen, cfg['game'])
 
   # text
   text = Text(screen)

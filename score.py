@@ -61,7 +61,7 @@ class TrainScore():
       self.d_batch_loss_fake = 0.0
 
 
-  def update_batch_losses(self, epoch, loss, g_loss_fake=None, g_loss_sim=None, d_loss_real=None, d_loss_fake=None):
+  def update_batch_losses(self, epoch, loss, g_loss_fake=0.0, g_loss_sim=0.0, d_loss_real=0.0, d_loss_fake=0.0):
     """
     update losses
     """

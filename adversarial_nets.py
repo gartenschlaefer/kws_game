@@ -49,7 +49,7 @@ class G_experimental(nn.Module, AdvBasics):
   f - frames
   """
 
-  def __init__(self, n_classes, data_size, n_latent=100, is_collection_net=False):
+  def __init__(self, n_classes, data_size, n_latent=100, net_class='label-encoder'):
 
     # parent init
     super().__init__()
@@ -60,7 +60,7 @@ class G_experimental(nn.Module, AdvBasics):
     self.n_latent = n_latent
 
     # convolutional decoder
-    self.conv_decoder = ConvDecoder(self.n_classes, self.data_size, n_latent=self.n_latent, is_collection_net=is_collection_net)
+    self.conv_decoder = ConvDecoder(self.n_classes, self.data_size, n_latent=self.n_latent, net_class=net_class)
 
     # # fully connected layers
     # self.fc1 = nn.Linear(self.n_latent, 32)
@@ -108,7 +108,7 @@ class D_experimental(nn.Module, AdvBasics):
   f - frames
   """
 
-  def __init__(self, n_classes, data_size, out_dim=1, is_collection_net=False):
+  def __init__(self, n_classes, data_size, out_dim=1, net_class='label-encoder'):
 
     # parent init
     super().__init__()
@@ -119,7 +119,7 @@ class D_experimental(nn.Module, AdvBasics):
     self.out_dim = out_dim
 
     # encoder model
-    self.conv_encoder = ConvEncoder(self.n_classes, self.data_size, is_collection_net=is_collection_net)
+    self.conv_encoder = ConvEncoder(self.n_classes, self.data_size, net_class=net_class)
 
     # fully connected layers
     self.fc1 = nn.Linear(np.prod(self.conv_encoder.conv_out_dim), self.out_dim)

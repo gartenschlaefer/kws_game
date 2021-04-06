@@ -33,7 +33,7 @@ class AudioDataset():
     self.feature_size = (self.feature_params['n_ceps_coeff'] + 1) * (1 + 2 * self.feature_params['compute_deltas'])
 
     # variables
-    self.labels = []
+    self.labels = self.dataset_cfg['sel_labels']
     self.set_names = []
     self.set_audio_files = []
     self.set_annotation_files = []
@@ -45,7 +45,7 @@ class AudioDataset():
     self.plot_paths = dict((k, self.root_path + v) for k, v in self.dataset_cfg['plot_paths'].items())
 
     # parameter path
-    self.param_path = 'v{}_c-{}_n-{}_f-{}x{}/'.format(self.dataset_cfg['version_nr'], len(self.dataset_cfg['sel_labels']), self.dataset_cfg['n_examples'], self.feature_size, self.feature_params['frame_size'])
+    self.param_path = 'v{}_c-{}_n-{}_f-{}x{}/'.format(self.dataset_cfg['version_nr'], len(self.labels), self.dataset_cfg['n_examples'], self.feature_size, self.feature_params['frame_size'])
 
     # folders
     self.wav_folders = [self.root_path + p + self.dataset_cfg['wav_folder'] for p in list(self.dataset_cfg['data_paths'].values())]
@@ -109,10 +109,7 @@ class AudioDataset():
       set_files = []
 
       # get all wavs from selected labels
-      for l in self.dataset_cfg['sel_labels']:
-
-        # append to labels
-        self.labels.append(l)
+      for l in self.labels:
 
         # regex
         file_name_re = '*' + l + '[0-9]*' + self.dataset_cfg['file_ext']
@@ -149,7 +146,7 @@ class AudioDataset():
       set_files = []
 
       # get all wavs from selected labels
-      for l in self.dataset_cfg['sel_labels']:
+      for l in self.labels:
 
         # regex
         file_name_re = '*' + l + '[0-9]*' + '.TextGrid'
@@ -539,10 +536,14 @@ if __name__ == '__main__':
   audio_set1.extract_features()
   audio_set2.extract_features()
 
+  # select feature files
+  all_feature_files = audio_set1.feature_files + audio_set2.feature_files if len(audio_set1.labels) == len(audio_set2.labels) else audio_set1.feature_files
+
   # batches
-  batch_archive = SpeechCommandsBatchArchive(feature_files=audio_set1.feature_files, batch_size=32, batch_size_eval=4, to_torch=False)
+  batch_archive = SpeechCommandsBatchArchive(feature_files=all_feature_files, batch_size=32, batch_size_eval=4, to_torch=False)
 
   print("archive: ", batch_archive.x_train.shape)
+  print("archive: ", batch_archive.num_examples_per_class)
   plot_mfcc_only(batch_archive.x_train[0, 0], name=batch_archive.z_train[0, 0], show_plot=True)
 
 

@@ -403,30 +403,32 @@ class ConvEncoderDecoderParams(ConvBasics):
   parameters for experimental
   """
 
-  def __init__(self, n_classes, data_size, is_collection_net=False):
+  #def __init__(self, n_classes, data_size, is_collection_net=False):
+  def __init__(self, n_classes, data_size, net_class='label-encoder'):
 
     # parent init
     super().__init__(n_classes, data_size)
 
     # arguments
-    self.is_collection_net = is_collection_net
+    self.net_class = net_class
+
+    # feature maps regarding
+    if self.net_class == 'label-encoder': self.n_feature_maps = [(self.n_channels, 8), (8, 8)]
+    elif self.net_class == 'label-collect-encoder': self.n_feature_maps = [(self.n_channels, 8 * self.n_classes), (8 * self.n_classes, 8)]
+    elif self.net_class == 'lim-encoder': self.n_feature_maps = [(self.n_channels, 8 * 5), (8 * 5, 8)]
 
     # conv params
-    self.n_feature_maps = [(self.n_channels, 8), (8, 8)]
     self.kernel_sizes = [(self.n_features, 20), (1, 5)]
     self.strides = [(1, 1), (1, 1)]
 
     # relu params (be carefull, last layer should be false)
     self.relu_active = [True, False]
 
-    # network which puts enocders together
-    if self.is_collection_net: self.n_feature_maps = [(self.n_channels, 8 * self.n_classes), (8 * self.n_classes, 8)]
-
     # get layer dimensions
     self.get_conv_layer_dimensions()
 
 
-  def transfer_conv_weights(self, conv_encoders):
+  def transfer_conv_weights_label_coders(self, conv_coders):
     """
     transfer convolutional weights from encoder models to one concatenated model (use with care)
     """
@@ -434,18 +436,27 @@ class ConvEncoderDecoderParams(ConvBasics):
     with torch.no_grad():
 
       # regard every conv encoder
-      for i, conv_encoder in enumerate(conv_encoders):
+      for i, conv_coder in enumerate(conv_coders):
 
+        #print("stat: ", conv_coder.state_dict().keys())
         # go through all parameters
-        for param_tensor in conv_encoder.state_dict():
+        for param_tensor in conv_coder.state_dict():
 
-          # fist layer
+          # encoder fist layer
           if param_tensor == 'conv_layers.0.weight':
-            self.state_dict()[param_tensor][i*8:(i+1)*8] = conv_encoder.state_dict()[param_tensor]
+            self.state_dict()[param_tensor][i*8:(i+1)*8] = conv_coder.state_dict()[param_tensor]
 
-          # second layer
+          # encoder second layer
           elif param_tensor == 'conv_layers.1.weight':
-            self.state_dict()[param_tensor][:, i*8:(i+1)*8] = conv_encoder.state_dict()[param_tensor]
+            self.state_dict()[param_tensor][:, i*8:(i+1)*8] = conv_coder.state_dict()[param_tensor]
+
+          # decoder first layer
+          elif param_tensor == 'deconv_layers.0.weight':
+            self.state_dict()[param_tensor][:, i*8:(i+1)*8] = conv_coder.state_dict()[param_tensor]
+
+          # decoder second layer
+          elif param_tensor == 'deconv_layers.1.weight':
+            self.state_dict()[param_tensor][i*8:(i+1)*8] = conv_coder.state_dict()[param_tensor]
 
 
   def transfer_decoder_weights(self, conv_decoder):
@@ -474,11 +485,11 @@ class ConvEncoder(nn.Module, ConvEncoderDecoderParams):
   Convolutional encoder for discriminator
   """
 
-  def __init__(self, n_classes, data_size, is_collection_net=False):
+  def __init__(self, n_classes, data_size, net_class='label-encoder'):
 
     # parent init
     super().__init__()
-    ConvEncoderDecoderParams.__init__(self, n_classes, data_size, is_collection_net)
+    ConvEncoderDecoderParams.__init__(self, n_classes, data_size, net_class)
 
     # conv layer
     self.conv_layers = torch.nn.ModuleList()
@@ -519,11 +530,11 @@ class ConvDecoder(nn.Module, ConvEncoderDecoderParams):
   Convolutional decoder for adversarial nets Generator
   """
 
-  def __init__(self, n_classes, data_size, n_latent, is_collection_net=False):
+  def __init__(self, n_classes, data_size, n_latent=100, net_class='label-encoder'):
 
     # parent init
     super().__init__()
-    ConvEncoderDecoderParams.__init__(self, n_classes, data_size, is_collection_net)
+    ConvEncoderDecoderParams.__init__(self, n_classes, data_size, net_class)
 
     # adapt params if necessary
     #self.n_feature_maps = [(self.n_channels, 12), (12, 8)]
@@ -653,13 +664,13 @@ class ConvEncoderClassifierNet(nn.Module, ConvBasics):
   Collected encoder networks with consecutive classifier Network
   """
 
-  def __init__(self, n_classes, data_size):
+  def __init__(self, n_classes, data_size, net_class='label-collect-encoder'):
 
     # parent init
     super().__init__()
     ConvBasics.__init__(self, n_classes, data_size)
 
-    self.conv_encoder = ConvEncoder(n_classes, data_size, is_collection_net=True)
+    self.conv_encoder = ConvEncoder(n_classes, data_size, net_class=net_class)
 
     # dimensions
     self.conv_in_dim, self.conv_out_dim  = self.data_size, ((self.conv_encoder.n_feature_maps[-1][1],) + self.conv_encoder.conv_layer_dim[-1])
@@ -684,6 +695,50 @@ class ConvEncoderClassifierNet(nn.Module, ConvBasics):
 
     return x
  
+
+
+class ConvLatentClassifier(nn.Module, ConvBasics):
+  """
+  Collected encoder networks with consecutive classifier Network
+  """
+
+  def __init__(self, n_classes, data_size, net_class='lim-encoder', n_latent=100):
+
+    # parent init
+    super().__init__()
+    ConvBasics.__init__(self, n_classes, data_size)
+
+    # encoder model
+    self.conv_encoder = ConvEncoder(n_classes, data_size, net_class=net_class)
+
+    # dimensions
+    self.conv_in_dim, self.conv_out_dim  = self.data_size, ((self.conv_encoder.n_feature_maps[-1][1],) + self.conv_encoder.conv_layer_dim[-1])
+
+    # latent
+    self.fc_latent = self.fc1 = nn.Linear(np.prod(self.conv_out_dim), n_latent)
+
+    # classifier net
+    self.classifier_net = ClassifierNet(n_latent, n_classes)
+
+
+  def forward(self, x):
+    """
+    forward pass
+    """
+
+    # encoder model
+    x = self.conv_encoder(x)
+
+    # flatten output from conv layer
+    x = x.view(-1, np.product(x.shape[1:]))
+
+    # latent space
+    x = self.fc_latent(x)
+
+    # classifier net
+    x = self.classifier_net(x)
+
+    return x
 
 
 if __name__ == '__main__':

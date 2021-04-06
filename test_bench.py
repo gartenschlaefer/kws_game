@@ -114,6 +114,7 @@ class TestBench():
 
     # init lists
     all_labels, all_corrects_shift, all_corrects_noise = [], [], []
+    all_probs_shift, all_probs_noise = [], []
 
     # test model
     print("test model: ", self.test_model_name)
@@ -134,22 +135,29 @@ class TestBench():
 
 
       # shift invariance
-      corrects_shift = self.test_shift_invariance(x_wav, actual_label)
+      corrects_shift, probs_shift = self.test_shift_invariance(x_wav, actual_label)
 
       # noise invariance
-      corrects_noise = self.test_noise_invariance(x_wav, actual_label, mu=0)
+      corrects_noise, probs_noise = self.test_noise_invariance(x_wav, actual_label, mu=0)
 
 
       # collect corrects
       all_corrects_shift.append(corrects_shift)
       all_corrects_noise.append(corrects_noise)
 
-    print("all: ", np.array(all_corrects_shift))
-    print("all: ", all_labels)
+      all_probs_shift.append(probs_shift)
+      all_probs_noise.append(probs_noise)
+
+    print("\nall_corrects_shift:\n", all_corrects_shift)
+    print("\nall_corrects_noise:\n", all_corrects_noise)
+    print("\nall labels: ", all_labels)
 
     # plots
-    plot_test_bench_shift(x=all_corrects_shift, y=all_labels, title='shift ' + self.test_model_name, plot_path=self.plot_paths['shift'], name='shift ' + self.test_model_name, show_plot=False)
-    plot_test_bench_noise(x=all_corrects_noise, y=all_labels, snrs=self.snrs, title='noise ' + self.test_model_name, plot_path=self.plot_paths['noise'], name='noise ' + self.test_model_name, show_plot=False)
+    plot_test_bench_shift(x=all_corrects_shift, y=all_labels, title='shift ' + self.test_model_name, plot_path=self.plot_paths['shift'], name=self.test_model_name + '_shift', show_plot=False)
+    plot_test_bench_shift(x=all_probs_shift, y=all_labels, title='shift ' + self.test_model_name, plot_path=self.plot_paths['shift'], name=self.test_model_name + '_shift-prob', show_plot=False)
+
+    plot_test_bench_noise(x=all_corrects_noise, y=all_labels, snrs=self.snrs, title='noise ' + self.test_model_name, plot_path=self.plot_paths['noise'], name=self.test_model_name + '_noise', show_plot=False)
+    plot_test_bench_noise(x=all_probs_noise, y=all_labels, snrs=self.snrs, title='noise ' + self.test_model_name, plot_path=self.plot_paths['noise'], name=self.test_model_name + '_noise-prob', show_plot=False)
 
 
   def test_noise_invariance(self, x_wav, actual_label, mu=0):
@@ -157,8 +165,8 @@ class TestBench():
     test model against noise invariance
     """
 
-    # predicted label list
-    pred_label_list = []
+    # init lists
+    pred_label_list, probs = [], []
 
     # origin
     #plot_waveform(x_wav, self.feature_params['fs'], title='origin actual: [{}]'.format(actual_label), plot_path=self.plot_paths['noise_wavs'], name='{}_origin'.format(actual_label))
@@ -192,8 +200,9 @@ class TestBench():
       # classify
       y_hat, o, pred_label = self.net_handler.classify_sample(x_mfcc)
 
-      # append predicted label
+      # append predicted label and probs
       pred_label_list.append(pred_label)
+      probs.append(float(o[0, self.class_dict[actual_label]]))
 
       # plot wavs
       #plot_waveform(x_noise, self.feature_params['fs'], title='snr: [{}] actual: [{}] pred: [{}]'.format(snr, actual_label, pred_label), plot_path=self.plot_paths['noise_wavs'], name='{}_snr{}'.format(actual_label, snr))
@@ -203,7 +212,7 @@ class TestBench():
 
     print("noise acc: ", np.sum(corrects) / len(corrects))
 
-    return corrects
+    return corrects, probs
 
 
   def test_shift_invariance(self, x_wav, actual_label):
@@ -211,12 +220,14 @@ class TestBench():
     test model against shift invariance
     """
 
+    # init lists
+    pred_label_list, probs = [], []
+
     # feature extraction
     x_mfcc, _ = self.feature_extractor.extract_mfcc39(x_wav, reduce_to_best_onset=False)
 
     # windowed
     x_win = np.squeeze(view_as_windows(x_mfcc, self.data_size[1:], step=self.window_step))
-    label_list = []
 
     for i, x in enumerate(x_win):
 
@@ -224,7 +235,8 @@ class TestBench():
       y_hat, o, pred_label = self.net_handler.classify_sample(x)
 
       # append predicted label
-      label_list.append(pred_label)
+      pred_label_list.append(pred_label)
+      probs.append(float(o[0, self.class_dict[actual_label]]))
 
       # plot
       time_s = frames_to_sample(i * self.window_step, self.feature_params['fs'], self.feature_extractor.hop)
@@ -234,12 +246,12 @@ class TestBench():
       #plot_waveform(x_wav[time_s:time_e], self.feature_params['fs'], title='frame{} actual: [{}] pred: [{}]'.format(i, actual_label, pred_label), plot_path=self.plot_paths['shift_wavs'], name='{}_frame{}'.format(actual_label, i))
 
     # correct list
-    corrects = [int(actual_label == l) for l in label_list]
+    corrects = [int(actual_label == l) for l in pred_label_list]
 
     #print("shift corrects: ", corrects)
     print("shift acc: ", np.sum(corrects) / len(corrects))
 
-    return corrects
+    return corrects, probs
 
 
   def file_naming_extraction(self, file, file_ext='.wav'):

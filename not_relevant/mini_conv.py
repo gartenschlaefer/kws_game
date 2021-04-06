@@ -17,6 +17,7 @@ sys.path.append("../")
 
 from batch_archive import BatchArchive
 from net_handler import CnnHandler
+from conv_nets import ConvBasics
 
 
 class PixelCharactersBatchArchive(BatchArchive):
@@ -29,13 +30,12 @@ class PixelCharactersBatchArchive(BatchArchive):
     super().__init__(batch_size, batch_size_eval)
 
 
-class ConvPixelCharacters(nn.Module):
+class ConvPixelCharacters(nn.Module, ConvBasics):
   """
-  Conv Net architecture with limited multipliers 
-  presented in [Sainath 2015] - cnn-one-fstride4
+  Conv Net architecture
   """
 
-  def __init__(self, n_classes):
+  def __init__(self, n_classes, data_size):
     """
     define neural network architecture
     input: [batch x channels x m x f]
@@ -45,18 +45,30 @@ class ConvPixelCharacters(nn.Module):
 
     # parent init
     super().__init__()
+    ConvBasics.__init__(self, n_classes, data_size)
+
+    # conv params
+    self.n_feature_maps = [(4, 8)]
+    self.kernel_sizes = [(5, 5)]
+    self.strides = [(1, 1)]
+
+    # relu params (be carefull, last layer should be false)
+    self.relu_active = [True]
+
+    # get layer dimensions
+    self.get_conv_layer_dimensions()
 
     # conv layer
-    self.conv = nn.Conv2d(4, 32, kernel_size=(3, 3), stride=(1, 1))
+    self.conv_layers = torch.nn.ModuleList()
+    for f, k, s in zip(self.n_feature_maps, self.kernel_sizes, self.strides):
+      self.conv_layers.append(nn.Conv2d(f[0], f[1], kernel_size=k, stride=s, bias=False))
+
+    # dimensions
+    self.conv_in_dim = self.data_size
+    self.conv_out_dim = ((self.n_feature_maps[-1][1],) + self.conv_layer_dim[-1])
 
     # fully connected layers with affine transformations: y = Wx + b
-    self.fc1 = nn.Linear(6272, 512)
-    self.fc2 = nn.Linear(512, 128)
-    self.fc3 = nn.Linear(128, n_classes)
-
-    # dropout layer
-    self.dropout_layer1 = nn.Dropout(p=0.2)
-    self.dropout_layer2 = nn.Dropout(p=0.5)
+    self.fc1 = nn.Linear(np.prod(self.conv_out_dim), self.n_classes)
 
     # softmax layer
     self.softmax = nn.Softmax(dim=1)
@@ -67,22 +79,19 @@ class ConvPixelCharacters(nn.Module):
     forward pass
     """
 
-    # conv 1
-    x = F.relu(self.conv(x))
+    # convolutional layers
+    for conv, r in zip(self.conv_layers, self.relu_active):
+      x = conv(x)
+      if r: x = F.relu(x)
 
     # flatten output from conv layer
     x = x.view(-1, np.product(x.shape[1:]))
 
-    # 1. fully connected layers [1 x 32]
+    # fc
     x = self.fc1(x)
-    x = self.dropout_layer1(x)
 
-    # 2. fully connected layers [1 x 128]
-    x = F.relu(self.fc2(x))
-    x = self.dropout_layer2(x)
-
-    # Softmax layer [1 x n_classes]
-    x = self.softmax(self.fc3(x))
+    # softmax
+    x = self.softmax(x)
 
     return x
 
@@ -160,7 +169,7 @@ if __name__ == '__main__':
   net_handler = CnnHandler(nn_arch='mini', class_dict=batch_archive.class_dict, data_size=batch_archive.data_size, use_cpu=True)
 
   # init model
-  net_handler.models = {'cnn':ConvPixelCharacters(n_classes=2)}
+  net_handler.models = {'cnn':ConvPixelCharacters(n_classes=2, data_size=batch_archive.data_size)}
   net_handler.init_models()
   #net_handler.model.to(net_handler.device)
   #net_handler.model(batch_archive.x_train[0])
@@ -168,7 +177,7 @@ if __name__ == '__main__':
 
   train_params = cfg['ml']['train_params']
   train_params['num_epochs'] = 100
-  train_params['lr'] = 0.00005
+  train_params['lr'] = 0.0001
 
   # training
   net_handler.train_nn(cfg['ml']['train_params'], batch_archive=batch_archive)

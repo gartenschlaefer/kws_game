@@ -106,7 +106,7 @@ class BatchArchive():
     """
     determine number of examples in [train, val, test, my]
     """
-    self.num_examples_per_class = [np.prod(y.shape) // self.n_classes for y in [self.y_train, self.y_val, self.y_test, self.y_my]]
+    self.num_examples_per_class = [np.prod(y.shape) // self.n_classes if y is not None else 0 for y in [self.y_train, self.y_val, self.y_test, self.y_my]]
 
 
   def reduce_to_label(self, label):
@@ -517,14 +517,14 @@ def plot_grid_examples(cfg, audio_set1, audio_set2):
     print("l: ", l)
 
     # plot
-    plot_grid_images(batch_archive.x_train[0, :32], padding=1, num_cols=8, plot_path=cfg['datasets']['speech_commands']['plot_paths']['examples_grid'], title=l, name='grid_' + l, show_plot=False)
+    plot_grid_images(batch_archive.x_train[0, :30], context='mfcc', padding=1, num_cols=5, plot_path=cfg['datasets']['speech_commands']['plot_paths']['examples_grid'], title=l, name='grid_' + l, show_plot=False)
 
   # create batches for my data
   batch_archive = SpeechCommandsBatchArchive(audio_set1.feature_files + audio_set2.feature_files, batch_size=32, batch_size_eval=5, shuffle=False)
   print("\ndata: "), print_batch_infos(batch_archive)
   
   # plot my data
-  plot_grid_images(np.squeeze(batch_archive.x_my, axis=1), padding=1, num_cols=5, plot_path=cfg['datasets']['my_recordings']['plot_paths']['examples_grid'], title='grid', name='grid', show_plot=False)
+  plot_grid_images(np.squeeze(batch_archive.x_my, axis=1), context='mfcc', padding=1, num_cols=5, plot_path=cfg['datasets']['my_recordings']['plot_paths']['examples_grid'], title='grid', name='grid', show_plot=False)
 
 
 if __name__ == '__main__':
@@ -534,7 +534,7 @@ if __name__ == '__main__':
 
   import yaml
   import matplotlib.pyplot as plt
-  from plots import plot_mfcc_only, plot_grid_images, plot_other_grid
+  from plots import plot_mfcc_only, plot_grid_images, plot_other_grid, plot_mfcc_profile
   from audio_dataset import AudioDataset
 
   # yaml config file
@@ -566,9 +566,11 @@ if __name__ == '__main__':
   #batch_archive.one_against_all(r_label, others_label='other', shuffle=False)
   #print("\none against all: "), print_batch_infos(batch_archive)
 
+
   # plot some examples
-  #plot_grid_examples(cfg, audio_set1, audio_set2)
+  plot_grid_examples(cfg, audio_set1, audio_set2)
   
+
   #plot_other_grid(batch_archive.x_train[0, :32], grid_size=(8, 8), show_plot=True)
   #plot_other_grid(batch_archive.x_train[-5, :32], grid_size=(8, 8), show_plot=False)
   #plot_other_grid(batch_archive.x_train[-1, :32], grid_size=(8, 8), show_plot=True)
@@ -603,6 +605,6 @@ if __name__ == '__main__':
   print("o4: ", o4)
   print("o5: ", o4)
 
-
-  plot_mfcc_only(x1, fs=16000, hop=160, plot_path=None, name=batch_archive.z_train[0, 0], show_plot=False)
-  plot_mfcc_only(x2, fs=16000, hop=160, plot_path=None, name=batch_archive.z_train[0, 1], show_plot=True)
+  #plot_mfcc_profile(x=np.ones(16000), fs=16000, N=400, hop=160, mfcc=x1)
+  #plot_mfcc_only(x1, fs=16000, hop=160, plot_path=None, name=batch_archive.z_train[0, 0], show_plot=False)
+  #plot_mfcc_only(x2, fs=16000, hop=160, plot_path=None, name=batch_archive.z_train[0, 1], show_plot=True)

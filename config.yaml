@@ -42,7 +42,7 @@ datasets:
 
     # selected labels of the whole set
     sel_labels: ['left', 'right', 'up', 'down', 'go']
-    #sel_labels = ['eight', 'sheila', 'nine', 'yes', 'one', 'no', 'left', 'tree', 'bed', 'bird', 'go', 'wow', 'seven', 'marvin', 'dog', 'three', 'two', 'house', 'down', 'six', 'five', 'off', 'right', 'cat', 'zero', 'four', 'stop', 'up', 'on', 'happy']
+    #sel_labels: ['eight', 'sheila', 'nine', 'yes', 'one', 'no', 'left', 'tree', 'bed', 'bird', 'go', 'wow', 'seven', 'marvin', 'dog', 'three', 'two', 'house', 'down', 'six', 'five', 'off', 'right', 'cat', 'zero', 'four', 'stop', 'up', 'on', 'happy']
 
     # --
     # version
@@ -96,7 +96,7 @@ datasets:
 
     # selected labels of the whole set
     sel_labels: ['left', 'right', 'up', 'down', 'go']
-    #sel_labels = ['eight', 'sheila', 'nine', 'yes', 'one', 'no', 'left', 'tree', 'bed', 'bird', 'go', 'wow', 'seven', 'marvin', 'dog', 'three', 'two', 'house', 'down', 'six', 'five', 'off', 'right', 'cat', 'zero', 'four', 'stop', 'up', 'on', 'happy']
+    #sel_labels: ['eight', 'sheila', 'nine', 'yes', 'one', 'no', 'left', 'tree', 'bed', 'bird', 'go', 'wow', 'seven', 'marvin', 'dog', 'three', 'two', 'house', 'down', 'six', 'five', 'off', 'right', 'cat', 'zero', 'four', 'stop', 'up', 'on', 'happy']
 
     # --
     # version
@@ -146,9 +146,13 @@ ml:
 
   # paths
   paths:
-    log: ./ignore/logs/
-    model: ./ignore/models/ 
-    model_pre: ./ignore/models/pre/
+    log: ignore/logs/
+    model: ignore/models/ 
+    model_pre: ignore/models/pre/
+
+  # folders in model path
+  model_path_folders:
+    diff_plots: diff_plots/ 
 
   # file names
   model_file_name: model.pth
@@ -158,7 +162,9 @@ ml:
 
   # encoder model file name
   encoder_model_file_name: encoder_model.pth
+  decoder_model_file_name: decoder_model.pth
   encoder_model_init_file_name: encoder_model_init.pth
+  decoder_model_init_file_name: decoder_model_init.pth
 
   # use a pre trained model at pre trained model path
   load_pre_model: False
@@ -171,15 +177,36 @@ ml:
 
     # batch size
     batch_size: 32
+    #batch_size: 128
 
     # number of epochs
-    num_epochs: 577
+    num_epochs: 5
 
     # learning rate
     lr: 0.0001
 
     # momentum
     beta: 0.5
+
+  # adversarial parameters
+  adv_params:
+
+    # train each label with adv
+    label_train: True
+
+    # adv pre-training of full network
+    pre_train: True
+
+    # label epochs
+    num_epochs_label: 25
+
+    # pre epochs
+    num_epochs_pre: 10
+
+    # use decoder weights for further training
+    use_decoder_weights: True
+
+
 
   # retrain existing model
   #retrain: True
@@ -194,6 +221,8 @@ ml:
   #nn_arch: conv-fstride
   #nn_arch: conv-trad
   nn_arch: conv-encoder
+  #nn_arch: conv-lim-encoder
+  #nn_arch: conv-latent
 
   # logging enable
   logging_enabled: True
@@ -212,7 +241,7 @@ test_bench:
   # plot path
   paths:
     main_path: ignore/test_bench/
-    models_path: ignore/test_bench/models/
+    models_path: ignore/test_bench/test_models/
 
   # plot path root
   plot_paths:
@@ -231,10 +260,15 @@ test_bench:
 
   # path to model
   #test_model_path: ignore/test_bench/models/test_model1/
-  test_model_path: ignore/test_bench/models/test_model2/
+  #test_model_path: ignore/test_bench/models/test_model2/
+  #test_model_path: ignore/test_bench/test_models/conv-fstride/
+  test_model_path: ignore/test_bench/test_models/conv-encoder/
+  #test_model_path: ignore/test_bench/test_models/conv-trad/
+
 
   # file names
-  model_file_name: 'model.pth'
+  #model_file_name: 'model.pth'
+  model_file_name: 'cnn_model.pth'
   params_file_name: 'params.npz'
 
 
@@ -243,8 +277,8 @@ test_bench:
 classifier:
 
   # path to model
-  #model_path: 'models/conv-fstride/v3_c-5_n-2000/bs-32_it-1000_lr-1e-05/'
-  model_path: 'models/conv-encoder/v4_c-5_n-500_f-13x50/bs-32_it-1024_lr-0p0001/'
+  model_path: 'models/conv-fstride/v3_c-5_n-2000/bs-32_it-1000_lr-1e-05/'
+  #model_path: 'models/conv-encoder/v4_c-5_n-500_f-13x50/bs-32_it-1024_lr-0p0001/'
 
   # file names
   model_file_name: 'model.pth'
@@ -262,7 +296,7 @@ mic_params:
   select_device: True
 
   # sel device id
-  device: 10
+  device: 0
 
   # sampling frequency of your microphone device (idealy this would be 16000, as it will be downsampled to it)
   fs_device: 48000
@@ -280,7 +314,7 @@ mic_params:
   frames_post: 32
 
   # plot of mic
-  plot_path: './ignore/mic/'
+  plot_path: 'ignore/mic/'
 
   # enable plot (set false when playing, just for debugging)
   enable_plot: False
@@ -300,7 +334,9 @@ game:
   capture_enabled: False
 
   # capture path
-  capture_path: ./ignore/capture/
+  paths:
+    capture_path: ignore/capture/
+    frame_path: ignore/capture/frames/
 
 
 

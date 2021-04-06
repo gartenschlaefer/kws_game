@@ -7,12 +7,13 @@ import queue
 
 # sound stuff
 import sounddevice as sd
+import soundfile
 
 # my stuff
 from feature_extraction import FeatureExtractor
 from collector import Collector
 from classifier import Classifier
-
+from common import create_folder
 from plots import plot_mfcc_profile
 
 
@@ -21,12 +22,19 @@ class Mic():
   Mic class
   """
 
-  def __init__(self, classifier, feature_params, mic_params, is_audio_record=False):
+  def __init__(self, classifier, feature_params, mic_params, is_audio_record=False, root_path='./'):
 
     # arguments
     self.classifier = classifier
     self.mic_params = mic_params
     self.is_audio_record = is_audio_record
+    self.root_path = root_path
+
+    # plot path
+    self.plot_path = self.root_path + self.mic_params['plot_path']
+
+    # create folder for plot path
+    create_folder([self.plot_path])
 
     # shortcuts
     self.feature_params = classifier.feature_params
@@ -165,7 +173,7 @@ class Mic():
       y_hat, label = self.classifier.classify(mfcc_bon)
 
       # plot
-      plot_mfcc_profile(x_onset[bon_pos*self.hop:(bon_pos+self.feature_params['frame_size'])*self.hop], self.feature_params['fs'], self.N, self.hop, mfcc_bon, frame_size=self.feature_params['frame_size'], plot_path=self.mic_params['plot_path'], name='collect-{}_label-{}'.format(self.collector.collection_counter, label), enable_plot=self.mic_params['enable_plot'])
+      plot_mfcc_profile(x_onset[bon_pos*self.hop:(bon_pos+self.feature_params['frame_size'])*self.hop], self.feature_params['fs'], self.N, self.hop, mfcc_bon, frame_size=self.feature_params['frame_size'], plot_path=self.plot_path, name='collect-{}_label-{}'.format(self.collector.collection_counter, label), enable_plot=self.mic_params['enable_plot'])
 
       # clear read queue
       self.clear_mic_queue()
@@ -196,7 +204,7 @@ class Mic():
     import soundfile
 
     # save audio
-    soundfile.write('{}out_audio.wav'.format(self.mic_params['plot_path']), self.collector.x_all, self.feature_params['fs'], subtype=None, endian=None, format=None, closefd=True)
+    soundfile.write('{}out_audio.wav'.format(self.plot_path), self.collector.x_all, self.feature_params['fs'], subtype=None, endian=None, format=None, closefd=True)
 
 
 if __name__ == '__main__':
@@ -205,17 +213,10 @@ if __name__ == '__main__':
   """
 
   import yaml
-  import matplotlib.pyplot as plt
-  import soundfile
-
   from plots import plot_waveform
-  from common import create_folder
 
   # yaml config file
   cfg = yaml.safe_load(open("./config.yaml"))
-
-  # create folder
-  create_folder([cfg['mic_params']['plot_path']])
 
   # classifier
   classifier = Classifier(cfg_classifier=cfg['classifier'])
@@ -247,10 +248,7 @@ if __name__ == '__main__':
   print("on_all: ", mic.collector.on_all.shape)
 
   # plot waveform
-  plot_waveform(mic.collector.x_all, cfg['feature_params']['fs'], mic.collector.e_all * 10, mic.hop, mic.collector.on_all, title='input stream', ylim=(-1, 1), plot_path=None, name='None')
+  plot_waveform(mic.collector.x_all, cfg['feature_params']['fs'], e=mic.collector.e_all * 10, hop=mic.hop, onset_frames=mic.collector.on_all, title='input stream', ylim=(-1, 1), plot_path=None, name='None', show_plot=True)
 
   # save audio
   mic.save_audio_file()
-
-  # show plots
-  plt.show()
