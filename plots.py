@@ -37,8 +37,9 @@ def get_colormap_from_context(context='none'):
   elif context == 'weight1': return red_16.mpl_colormap
   elif context == 'weight1-div': return ListedColormap(np.vstack((purple_16.mpl_colormap(np.linspace(0, 1, 16)), red_16.mpl_colormap.reversed()(np.linspace(0, 0.8, 16)))), name='rp-div')
   
+  # colors
   elif context == 'wav': return Antique_4.mpl_colors
-  elif context == 'loss': return Prism_8.mpl_colors
+  elif context == 'loss': return [Prism_8.mpl_colors[2]] + [Prism_8.mpl_colors[5]]
   elif context == 'adv-loss': return Prism_8.mpl_colors[:2] + Prism_8.mpl_colors[6:]
   elif context == 'acc': return Prism_8.mpl_colors[5:]
 
@@ -480,10 +481,13 @@ def plot_adv_train_loss(train_score, plot_path=None, name='train_loss'):
     plt.close()
 
 
-def plot_train_loss(train_loss, val_loss, plot_path=None, name='None'):
+def plot_train_loss(train_loss, val_loss, cmap=None, plot_path=None, name='None', show_plot=False):
   """
   plot train vs. validation loss
   """
+
+  # get cmap
+  if cmap is None: cmap = get_colormap_from_context(context='loss')
 
   # normalize
   if np.linalg.norm(train_loss, ord=np.infty):
@@ -494,37 +498,61 @@ def plot_train_loss(train_loss, val_loss, plot_path=None, name='None'):
 
   # setup figure
   fig = plt.figure(figsize=(8, 5))
-  plt.plot(train_loss, label='train loss')
-  plt.plot(val_loss, label='val loss')
-  plt.ylabel("normalized loss")
-  plt.xlabel("iterations")
-  #plt.ylim([0, 1])
-  plt.legend()
-  plt.grid()
+
+  # create axis
+  ax = plt.axes()
+  if cmap is not None: ax.set_prop_cycle('color', cmap)
+
+  # plot
+  ax.plot(train_loss, label='train loss'), ax.plot(val_loss, label='val loss')
+
+  # layout
+  plt.ylabel("normalized loss"), plt.xlabel("iterations")
+  plt.legend(), plt.grid()
 
   # plot the fig
   if plot_path is not None:
     plt.savefig(plot_path + name + '.png', dpi=150)
     plt.close()
 
+  # show plot
+  if show_plot: plt.show()
 
-def plot_val_acc(val_acc, plot_path=None, name='None'):
+  return fig
+
+
+def plot_val_acc(val_acc, cmap=None, plot_path=None, name='None', show_plot=False):
   """
   plot train vs. validation loss
   """
 
+  # get cmap
+  if cmap is None: cmap = get_colormap_from_context(context='acc')
+
   # setup figure
   fig = plt.figure(figsize=(8, 5))
-  plt.plot(val_acc, label='val acc')
-  plt.ylabel("accuracy")
-  plt.xlabel("iterations")
-  plt.legend()
-  plt.grid()
+
+  # create axis
+  ax = plt.axes()
+  if cmap is not None: ax.set_prop_cycle('color', cmap)
+
+  # plot
+  ax.plot(val_acc, label='val acc')
+
+  # layout
+  plt.ylabel("accuracy"), plt.xlabel("iterations")
+  plt.ylim(0, 100)
+  plt.legend(), plt.grid()
 
   # plot the fig
   if plot_path is not None:
     plt.savefig(plot_path + name + '.png', dpi=150)
     plt.close()
+
+  # show plot
+  if show_plot: plt.show()
+
+  return fig
 
 
 def plot_textGrid_annotation(anno_file, x=None, plot_text=False):
