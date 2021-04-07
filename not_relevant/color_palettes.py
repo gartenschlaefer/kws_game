@@ -7,14 +7,7 @@ import torch
 
 import matplotlib.pyplot as plt
 
-import sys
-sys.path.append("../")
 
-import yaml
-from plots import plot_mfcc_only, plot_grid_images, plot_waveform
-from audio_dataset import AudioDataset
-from batch_archive import SpeechCommandsBatchArchive
-from net_handler import NetHandler
 
 # qualitative colors
 from palettable.colorbrewer.qualitative import Dark2_7
@@ -76,7 +69,7 @@ from palettable.colorbrewer.qualitative import Accent_4
 # --
 # global colors
 
-colors_waveform = (None, Prism_8.mpl_colors[0:], Antique_4.mpl_colors[0:], purple_16.mpl_colors[3:])
+colors_waveform = (None, Prism_8.mpl_colors[0:], Antique_4.mpl_colors[0:], purple_16.mpl_colors[3:], purple_16.mpl_colors[::5][1:])
 
 # cmaps
 cmaps_weights = (None, red_16.mpl_colormap, purple_16.mpl_colormap, Deep_20.mpl_colormap.reversed(), jim_special_16.mpl_colormap, Delta_20.mpl_colormap)
@@ -89,6 +82,23 @@ cmaps_mfcc = (None, Dense_20.mpl_colormap.reversed(), Tokyo_20.mpl_colormap, Dee
 #cmaps = (None, Ice_20.mpl_colormap, Matter_20.mpl_colormap.reversed(), Deep_20.mpl_colormap.reversed(), Dense_20.mpl_colormap.reversed(), Tempo_20.mpl_colormap.reversed())
 #cmaps = (None, Ice_20.mpl_colormap, Matter_20.mpl_colormap.reversed(), Deep_20.mpl_colormap.reversed(), Dense_20.mpl_colormap.reversed(), Solar_20.mpl_colormap)
 #cmaps = (None, Algae_20.mpl_colormap.reversed(), Amp_20.mpl_colormap.reversed(), Deep_20.mpl_colormap.reversed(), Dense_20.mpl_colormap.reversed(), Haline_20.mpl_colormap)
+
+
+def show_train_score_colors(x1, x2, cmaps):
+  """
+  waveform colors
+  """
+
+  for i, cmap in enumerate(cmaps):
+
+    # plot weight matrices
+    #fig = plot_val_acc(x1, cmap=cmap)
+    fig = plot_train_loss(x1, x2, cmap=cmap)
+    
+    # positioning
+    if i >= 3: i, j = i%3, 600
+    else: i, j = i, 0
+    fig.canvas.manager.window.setGeometry(i*600, j, 600, 500)
 
 
 def show_waveform_colors(x, cmaps):
@@ -154,7 +164,16 @@ if __name__ == '__main__':
   color tests
   """
 
+  import yaml
   import librosa
+
+  import sys
+  sys.path.append("../")
+
+  from plots import plot_mfcc_only, plot_grid_images, plot_waveform, plot_val_acc, plot_train_loss
+  from audio_dataset import AudioDataset
+  from batch_archive import SpeechCommandsBatchArchive
+  from net_handler import NetHandler
 
   # yaml config file
   cfg = yaml.safe_load(open("../config.yaml"))
@@ -171,7 +190,7 @@ if __name__ == '__main__':
 
   # load model files
   #net_handler.load_models(model_files=['/world/cavern/git/kws_game/not_relevant/ignore/models/bs-32_it-1077_lr-0p0001/cnn_model.pth'])
-  net_handler.load_models(model_files=['./ignore/models/bs-32_it-500_lr-0p0001//cnn_model.pth'])
+  net_handler.load_models(model_files=['./ignore/models/bs-32_it-500_lr-0p0001/cnn_model.pth'])
 
   print(net_handler.models['cnn'].state_dict().keys())
 
@@ -191,12 +210,16 @@ if __name__ == '__main__':
   # read audio from file
   x_wav, _ = librosa.load('../ignore/my_recordings/clean_records/down.wav', sr=16000)
 
+  x_sine1 = np.sin(np.linspace(0, 2 * np.pi, 25)) * 10 + 50
+  x_sine2 = np.sin(np.linspace(0, 2 * np.pi * 2, 25)) * 10 + 50
+
   # mfcc colormaps
-  show_mfcc_colormaps(x1, cmaps_mfcc)
+  #show_mfcc_colormaps(x1, cmaps_mfcc)
   #show_weights_colormaps(net_handler.models['cnn'].state_dict()['conv_encoder.conv_layers.0.weight'], cmaps_weights)
   #show_weights_colormaps(net_handler.models['cnn'].state_dict()['conv_encoder.conv_layers.1.weight'], cmaps_weights)
   #show_waveform_colors(x_wav, colors_waveform)
 
+  show_train_score_colors(x_sine1, x_sine2, colors_waveform)
 
   # vmax = np.max(np.abs(x_wav))
 
