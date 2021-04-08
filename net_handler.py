@@ -69,8 +69,8 @@ class NetHandler():
     self.device = torch.device("cuda:0" if (torch.cuda.is_available() and not self.use_cpu) else "cpu")
 
     # print msg
-    print("device: ", self.device)
-    if torch.cuda.is_available() and not self.use_cpu: print("use gpu: ", torch.cuda.get_device_name(self.device))
+    #print("device: ", self.device)
+    #if torch.cuda.is_available() and not self.use_cpu: print("use gpu: ", torch.cuda.get_device_name(self.device))
 
     # models dictionary key: name, value: model
     self.models = {}

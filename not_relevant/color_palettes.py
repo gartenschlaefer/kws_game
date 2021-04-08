@@ -2,16 +2,8 @@
 choosing colormaps
 """
 
-import numpy as np
-import torch
-
-import matplotlib.pyplot as plt
-
-
-
 # qualitative colors
 from palettable.colorbrewer.qualitative import Dark2_7
-
 
 # sequential colors
 #from palettable.colorbrewer.sequential import Purples_4
@@ -69,7 +61,11 @@ from palettable.colorbrewer.qualitative import Accent_4
 # --
 # global colors
 
-colors_waveform = (None, Prism_8.mpl_colors[0:], Antique_4.mpl_colors[0:], purple_16.mpl_colors[3:], purple_16.mpl_colors[::5][1:])
+#reds = [red_16.mpl_colors[2], red_16.mpl_colors[5], red_16.mpl_colors[8], red_16.mpl_colors[11]]
+reds4 = [red_16.mpl_colors[2], red_16.mpl_colors[5], red_16.mpl_colors[8], red_16.mpl_colors[11]]
+reds4_2 = [red_16.mpl_colors[3], red_16.mpl_colors[5], red_16.mpl_colors[7], red_16.mpl_colors[10]]
+
+colors_waveform = (None, Prism_8.mpl_colors[0:], Antique_4.mpl_colors[0:], purple_16.mpl_colors[::2][1:], reds4_2, reds4)
 
 # cmaps
 cmaps_weights = (None, red_16.mpl_colormap, purple_16.mpl_colormap, Deep_20.mpl_colormap.reversed(), jim_special_16.mpl_colormap, Delta_20.mpl_colormap)
@@ -84,16 +80,20 @@ cmaps_mfcc = (None, Dense_20.mpl_colormap.reversed(), Tokyo_20.mpl_colormap, Dee
 #cmaps = (None, Algae_20.mpl_colormap.reversed(), Amp_20.mpl_colormap.reversed(), Deep_20.mpl_colormap.reversed(), Dense_20.mpl_colormap.reversed(), Haline_20.mpl_colormap)
 
 
-def show_train_score_colors(x1, x2, cmaps):
+def show_train_score_colors(x1, x2, x3, x4, cmaps):
   """
   waveform colors
   """
 
   for i, cmap in enumerate(cmaps):
 
+    train_score = TrainScore(len(x1), is_adv=True)
+    train_score.g_loss_fake, train_score.g_loss_sim, train_score.d_loss_real, train_score.d_loss_fake = x1, x2, x3, x4
+
     # plot weight matrices
     #fig = plot_val_acc(x1, cmap=cmap)
-    fig = plot_train_loss(x1, x2, cmap=cmap)
+    #fig = plot_train_loss(x1, x2, cmap=cmap)
+    fig = plot_adv_train_loss(train_score, cmap=cmap)
     
     # positioning
     if i >= 3: i, j = i%3, 600
@@ -164,16 +164,20 @@ if __name__ == '__main__':
   color tests
   """
 
+  import torch
+  import numpy as np
+  import matplotlib.pyplot as plt
   import yaml
   import librosa
 
   import sys
   sys.path.append("../")
 
-  from plots import plot_mfcc_only, plot_grid_images, plot_waveform, plot_val_acc, plot_train_loss
+  from plots import plot_mfcc_only, plot_grid_images, plot_waveform, plot_val_acc, plot_train_loss, plot_adv_train_loss
   from audio_dataset import AudioDataset
   from batch_archive import SpeechCommandsBatchArchive
   from net_handler import NetHandler
+  from score import TrainScore
 
   # yaml config file
   cfg = yaml.safe_load(open("../config.yaml"))
@@ -210,8 +214,10 @@ if __name__ == '__main__':
   # read audio from file
   x_wav, _ = librosa.load('../ignore/my_recordings/clean_records/down.wav', sr=16000)
 
-  x_sine1 = np.sin(np.linspace(0, 2 * np.pi, 25)) * 10 + 50
-  x_sine2 = np.sin(np.linspace(0, 2 * np.pi * 2, 25)) * 10 + 50
+  x_sine1 = np.sin(np.linspace(0, 2 * np.pi, 100)) * 10 + 50
+  x_sine2 = np.sin(np.linspace(0, 2 * np.pi * 2, 100)) * 10 + 50
+  x_sine3 = np.sin(np.linspace(0, 2 * np.pi * 3, 100)) * 10 + 50
+  x_sine4 = np.sin(np.linspace(0, 2 * np.pi * 4, 100)) * 10 + 50
 
   # mfcc colormaps
   #show_mfcc_colormaps(x1, cmaps_mfcc)
@@ -219,7 +225,7 @@ if __name__ == '__main__':
   #show_weights_colormaps(net_handler.models['cnn'].state_dict()['conv_encoder.conv_layers.1.weight'], cmaps_weights)
   #show_waveform_colors(x_wav, colors_waveform)
 
-  show_train_score_colors(x_sine1, x_sine2, colors_waveform)
+  show_train_score_colors(x_sine1, x_sine2, x_sine3, x_sine4, colors_waveform)
 
   # vmax = np.max(np.abs(x_wav))
 

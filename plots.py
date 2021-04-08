@@ -25,6 +25,8 @@ def get_colormap_from_context(context='none'):
   my colormaps
   """
 
+  #reds4 = [red_16.mpl_colors[2], red_16.mpl_colors[5], red_16.mpl_colors[8], red_16.mpl_colors[11]]
+
   if context == 'mfcc': return red_16.mpl_colormap
 
   elif context == 'confusion': return ListedColormap(purple_16.mpl_colormap.reversed()(np.linspace(0, 0.8, 25)), name='purpletonian')
@@ -39,9 +41,14 @@ def get_colormap_from_context(context='none'):
   
   # colors
   elif context == 'wav': return Antique_4.mpl_colors
-  elif context == 'loss': return [Prism_8.mpl_colors[2]] + [Prism_8.mpl_colors[5]]
-  elif context == 'adv-loss': return Prism_8.mpl_colors[:2] + Prism_8.mpl_colors[6:]
+  #elif context == 'loss': return [Prism_8.mpl_colors[2]] + [Prism_8.mpl_colors[5]]
+  #elif context == 'loss': return [Prism_8.mpl_colors[2]] + [Prism_8.mpl_colors[5]]
+  elif context == 'loss': return [red_16.mpl_colors[5]] + [red_16.mpl_colors[10]]
+  #elif context == 'adv-loss': return [red_16.mpl_colors[2], red_16.mpl_colors[5], red_16.mpl_colors[8], red_16.mpl_colors[11]]
+  elif context == 'adv-loss': return [red_16.mpl_colors[3], red_16.mpl_colors[5], red_16.mpl_colors[7], red_16.mpl_colors[10]]
+  #elif context == 'adv-loss': return Prism_8.mpl_colors[:2] + Prism_8.mpl_colors[6:]
   elif context == 'acc': return Prism_8.mpl_colors[5:]
+  #elif context == 'acc': return Prism_8.mpl_colors[5:]
 
   #elif context == 'bench-noise': return ListedColormap(purple_16.mpl_colormap.reversed()(np.linspace(0, 0.5, 100)), name='purple_short')
   elif context == 'bench-noise': return ListedColormap(purple_16.mpl_colormap.reversed()(np.linspace(0, 0.6, 10)), name='purple_short')
@@ -245,12 +252,12 @@ def plot_grid_images(x, padding=1, num_cols=8, cmap=None, context='none', color_
     grid_img = np.concatenate((grid_img, h_padding, row_imgs), axis=1)
     row_imgs = np.empty((n_channels, n_features, 0), dtype=x.dtype)
 
-  # last padding
-  grid_img = np.concatenate((grid_img, h_padding), axis=1)
-
   # get all channels together
   for ch_grid_img in grid_img:
     all_grid_img = np.concatenate((all_grid_img, ch_grid_img), axis=0)
+
+  # last padding
+  all_grid_img = np.concatenate((all_grid_img, h_padding[0]), axis=0)
 
   # plot init
   fig = plt.figure(figsize=(np.clip(8 * n_frames//n_features, 4, 16), 8))
@@ -458,19 +465,26 @@ def plot_train_score(train_score, plot_path, name_ext=''):
     plot_adv_train_loss(train_score=train_score, plot_path=plot_path, name='train_loss' + name_ext)
 
 
-def plot_adv_train_loss(train_score, plot_path=None, name='train_loss'):
+def plot_adv_train_loss(train_score, cmap=None, plot_path=None, name='adv_train_loss', show_plot=False):
   """
   train loss for adversarial networ
   """
 
+  # get cmap
+  if cmap is None: cmap = get_colormap_from_context(context='adv-loss')
+
   # setup figure
   fig = plt.figure(figsize=(8, 5))
 
+  # create axis
+  ax = plt.axes()
+  if cmap is not None: ax.set_prop_cycle('color', cmap)
+
   # plot scores
-  if train_score.g_loss_fake is not None: plt.plot(train_score.g_loss_fake, label='g_loss_fake')
-  if train_score.g_loss_sim is not None: plt.plot(train_score.g_loss_sim, label='g_loss_sim')
-  if train_score.d_loss_fake is not None: plt.plot(train_score.d_loss_fake, label='d_loss_fake')
-  if train_score.d_loss_real is not None: plt.plot(train_score.d_loss_real, label='d_loss_real')
+  if train_score.g_loss_fake is not None: ax.plot(train_score.g_loss_fake, label='g_loss_fake')
+  if train_score.g_loss_sim is not None: ax.plot(train_score.g_loss_sim, label='g_loss_sim')
+  if train_score.d_loss_fake is not None: ax.plot(train_score.d_loss_fake, label='d_loss_fake')
+  if train_score.d_loss_real is not None: ax.plot(train_score.d_loss_real, label='d_loss_real')
 
   # layout
   plt.ylabel("loss"), plt.xlabel("iterations"), plt.legend(), plt.grid()
@@ -479,6 +493,10 @@ def plot_adv_train_loss(train_score, plot_path=None, name='train_loss'):
   if plot_path is not None:
     plt.savefig(plot_path + name + '.png', dpi=150)
     plt.close()
+
+  # show plot
+  if show_plot: plt.show()
+  return fig
 
 
 def plot_train_loss(train_loss, val_loss, cmap=None, plot_path=None, name='None', show_plot=False):

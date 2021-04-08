@@ -152,7 +152,7 @@ ml:
 
   # folders in model path
   model_path_folders:
-    diff_plots: diff_plots/ 
+    diff_plots: diff_plots/
 
   # file names
   model_file_name: model.pth
@@ -163,8 +163,8 @@ ml:
   # encoder model file name
   encoder_model_file_name: encoder_model.pth
   decoder_model_file_name: decoder_model.pth
-  encoder_model_init_file_name: encoder_model_init.pth
-  decoder_model_init_file_name: decoder_model_init.pth
+  #encoder_model_init_file_name: encoder_model_init.pth
+  #decoder_model_init_file_name: decoder_model_init.pth
 
   # use a pre trained model at pre trained model path
   load_pre_model: False
@@ -180,7 +180,7 @@ ml:
     #batch_size: 128
 
     # number of epochs
-    num_epochs: 5
+    num_epochs: 500
 
     # learning rate
     lr: 0.0001
@@ -191,22 +191,34 @@ ml:
   # adversarial parameters
   adv_params:
 
+    # conv coder folders
+    conv_folder: 'conv_coder/'
+
     # train each label with adv
     label_train: True
 
     # adv pre-training of full network
     pre_train: True
 
+    # iterating algorithm of label: num_iterations_label x num_epochs_label
+    num_iterations_label: 2
+
     # label epochs
-    num_epochs_label: 25
+    num_epochs_label: 500
+
+    # archs for label train:
+    #nn_archs_label: ['conv-experimental', 'adv-experimental']
+    #nn_archs_label: ['conv-experimental']
+    #nn_archs_label: ['adv-experimental']
+    #nn_archs_label: ['conv-experimental', 'adv-experimental3']
+    #nn_archs_label: ['adv-experimental3', 'conv-experimental']
+    nn_archs_label: ['adv-experimental3']
 
     # pre epochs
-    num_epochs_pre: 10
+    num_epochs_pre: 500
 
     # use decoder weights for further training
     use_decoder_weights: True
-
-
 
   # retrain existing model
   #retrain: True
