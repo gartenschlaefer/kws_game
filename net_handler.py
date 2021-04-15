@@ -308,7 +308,7 @@ class CnnHandler(NetHandler):
     if bool(self.encoder_model is None) ^ bool(self.decoder_model is None):
 
       # encoder model
-      if self.encoder_model is not None: self.models['cnn'].conv_encoder.load_state_dict(self.encoder_model.state_dict())
+      if self.encoder_model is not None: self.models['cnn'].conv_encoder.load_state_dict(self.encoder_model.conv_encoder.state_dict())
 
       # transfer conv weights from encoder models
       elif self.decoder_model is not None: 

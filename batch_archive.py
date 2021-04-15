@@ -230,6 +230,7 @@ class BatchArchive():
 
     return x, y, z
 
+
   def extract(self):
     """
     extract data interface
@@ -350,7 +351,7 @@ class SpeechCommandsBatchArchive(BatchArchive):
     self.feature_params = self.data[0]['params']
 
     # feature size
-    self.feature_size = (self.feature_params[()]['n_ceps_coeff'] + 1) * (1 + 2 * self.feature_params[()]['compute_deltas'])
+    self.feature_size = (self.feature_params[()]['n_ceps_coeff'] + 1 * self.feature_params[()]['compute_energy_features']) * (1 + 2 * self.feature_params[()]['compute_deltas'])
     self.frame_size = self.feature_params[()]['frame_size']
 
     # get classes
@@ -527,6 +528,26 @@ def plot_grid_examples(cfg, audio_set1, audio_set2):
   plot_grid_images(np.squeeze(batch_archive.x_my, axis=1), context='mfcc', padding=1, num_cols=5, plot_path=cfg['datasets']['my_recordings']['plot_paths']['examples_grid'], title='grid', name='grid', show_plot=False)
 
 
+def similarity_measures(x1, x2):
+  """
+  similarities
+  """
+
+  # noise
+  n1, n2 = torch.randn(x1.shape), torch.randn(x2.shape)
+
+  # similarity
+  cos_sim = torch.nn.CosineSimilarity(dim=1, eps=1e-08)
+
+  # similarity measure
+  o1, o2, o3, o4, o5 = cos_sim(x1, x1), cos_sim(x1, x2), cos_sim(n1, n2), cos_sim(x1, n1), cos_sim(x2, n2)
+
+  # cosine sim definition
+  #o = x1[0] @ x2[0].T / np.max(np.linalg.norm(x1[0]) * np.linalg.norm(x2[0]))
+
+  print("o1: ", o1), print("o2: ", o2), print("o3: ", o3), print("o4: ", o4), print("o5: ", o4)
+
+
 if __name__ == '__main__':
   """
   batching test
@@ -534,7 +555,7 @@ if __name__ == '__main__':
 
   import yaml
   import matplotlib.pyplot as plt
-  from plots import plot_mfcc_only, plot_grid_images, plot_other_grid, plot_mfcc_profile
+  from plots import plot_mfcc_only, plot_grid_images, plot_other_grid, plot_mfcc_profile, plot_mfcc_equal_aspect
   from audio_dataset import AudioDataset
 
   # yaml config file
@@ -545,7 +566,7 @@ if __name__ == '__main__':
   audio_set2 = AudioDataset(cfg['datasets']['my_recordings'], cfg['feature_params'])
 
   # create batches
-  batch_archive = SpeechCommandsBatchArchive(audio_set1.feature_files + audio_set2.feature_files, batch_size=32, batch_size_eval=5)
+  batch_archive = SpeechCommandsBatchArchive(audio_set1.feature_files + audio_set2.feature_files, batch_size=32, batch_size_eval=5, shuffle=False)
 
   # infos
   print("\ndata: "), print_batch_infos(batch_archive)
@@ -568,7 +589,7 @@ if __name__ == '__main__':
 
 
   # plot some examples
-  plot_grid_examples(cfg, audio_set1, audio_set2)
+  #plot_grid_examples(cfg, audio_set1, audio_set2)
   
 
   #plot_other_grid(batch_archive.x_train[0, :32], grid_size=(8, 8), show_plot=True)
@@ -577,34 +598,23 @@ if __name__ == '__main__':
 
   x1 = batch_archive.x_train[0, 0, 0]
   x2 = batch_archive.x_train[0, 1, 0]
+  x3 = batch_archive.x_my[0, 0, 0]
 
   print("x1: ", x1.shape)
   print("x2: ", x2.shape)
   print("x1: ", batch_archive.z_train[0, 0])
   print("x2: ", batch_archive.z_train[0, 1])
 
-  n1 = torch.randn(x1.shape)
-  n2 = torch.randn(x2.shape)
+  # similarity measure
+  #similarity_measures(x1, x2)
 
-  print("n1: ", n1.shape)
-
-  cos_sim = torch.nn.CosineSimilarity(dim=1, eps=1e-08)
-
-  o1 = cos_sim(x1, x1)
-  o2 = cos_sim(x1, x2)
-  o3 = cos_sim(n1, n2)
-  o4 = cos_sim(x1, n1)
-  o5 = cos_sim(x2, n2)
-
-  # cosine sim definition
-  #o = x1[0] @ x2[0].T / np.max(np.linalg.norm(x1[0]) * np.linalg.norm(x2[0]))
-
-  print("o1: ", o1)
-  print("o2: ", o2)
-  print("o3: ", o3)
-  print("o4: ", o4)
-  print("o5: ", o4)
 
   #plot_mfcc_profile(x=np.ones(16000), fs=16000, N=400, hop=160, mfcc=x1)
   #plot_mfcc_only(x1, fs=16000, hop=160, plot_path=None, name=batch_archive.z_train[0, 0], show_plot=False)
   #plot_mfcc_only(x2, fs=16000, hop=160, plot_path=None, name=batch_archive.z_train[0, 1], show_plot=True)
+
+  #plot_mfcc_equal_aspect(x2, fs=16000, hop=160, cmap=None, context='mfcc', plot_path=None, name=batch_archive.z_train[0, 1], show_plot=True)
+  #plot_mfcc_equal_aspect(x3, fs=16000, hop=160, cmap=None, context='mfcc', plot_path=None, name=batch_archive.z_my[0, 0], gizmos_off=True, show_plot=True)
+  plot_mfcc_equal_aspect(x3, fs=16000, hop=160, cmap=None, context='mfcc', plot_path=None, name=batch_archive.z_my[0, 0], gizmos_off=False, show_plot=True)
+
+  

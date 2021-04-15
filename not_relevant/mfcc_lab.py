@@ -2,6 +2,13 @@
 mfcc test functions
 """
 
+import numpy as np
+import matplotlib.pyplot as plt
+import time
+import librosa.display
+import soundfile
+
+
 def some_test_signal(fs, t=1, f=500, sig_type='modulated', save_to_file=False):
   """
   test signal adapted from https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.stft.html
@@ -182,29 +189,77 @@ def time_measurements(x, u, feature_params):
   print("delta_time: ", np.mean(delta_time_list))
 
 
+def time_measure_callable(x, callback_f):
+  """
+  time measurement with callable
+  """
+
+  # n measurements
+  delta_time_list = []
+
+  for i in range(100):
+
+    # measure extraction time - start
+    start_time = time.time()
+
+    # callable function
+    callback_f(x)
+
+    # result of measured time difference
+    delta_time_list.append(time.time() - start_time)
+
+  # times
+  print("f: [{}] mean time: [{}]".format(callback_f.__name__, np.mean(delta_time_list)))
+
+
+def energy_with_sum(x):
+  """
+  energy calculation with sum
+  """
+
+  e = np.sum(x**2, axis=0)
+  return e / np.max(e)
+
+
+def energy_with_matrix(x):
+  """
+  matrix calculation
+  """
+  e = np.diag(x.T @ x)
+  return e / np.max(e)
+
+
+def energy_einsum(x):
+  """
+  einsum energy
+  """
+  e = np.einsum('ij,ji->j', x, x.T)
+  return e / np.max(e)
+
+
+
 if __name__ == '__main__':
   """
   main file of feature extraction and how to use it
   """
   
   import yaml
-  import time
-  import matplotlib.pyplot as plt
-  import librosa.display
 
-  import soundfile
+  import sys
+  sys.path.append("../")
 
   from common import create_folder
   from plots import plot_mel_band_weights
+  from feature_extraction import FeatureExtractor
 
   # plot path
-  plot_path = './ignore/plots/fe/'
+  #plot_path = './ignore/plots/fe/'
 
   # create folder
-  create_folder([plot_path])
+  #create_folder([plot_path])
 
   # yaml config file
-  cfg = yaml.safe_load(open("./config.yaml"))
+  cfg = yaml.safe_load(open("../config.yaml"))
 
 
   # init feature extractor
@@ -230,8 +285,19 @@ if __name__ == '__main__':
   # mfcc
   mfcc, _ = feature_extractor.extract_mfcc39(x)
 
-  print("mfcc: ", mfcc.shape)
+  e_sum = energy_with_sum(mfcc)
+  e_m = energy_with_matrix(mfcc)
+  e_e = energy_einsum(mfcc)
 
+  print("mfcc: ", mfcc.shape)
+  print("e_sum: ", e_sum)
+  print("e_m: ", e_m)
+  print("e_e: ", e_e)
+
+  print("\ntime measures: ")
+  time_measure_callable(mfcc, energy_einsum)
+  time_measure_callable(mfcc, energy_with_sum)
+  time_measure_callable(mfcc, energy_with_matrix)
 
   # --
   # workflow

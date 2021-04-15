@@ -6,14 +6,29 @@
 # dataset config
 datasets:
 
+  # --
+  # version description
+  # 1: better onset detection
+  # 2: energy frame onset detection
+  # 3: data extraction with min energy and randomize onsets
+  # 4: normalized features
+  # 5: no energy features, detection on first mfcc, dataset randomized
+
   # speech commands dataset
   speech_commands:
 
     # file extension for audio files
     file_ext: '.wav'
 
+    # number of samples
+    sample_num_normal: 16000
+    sample_num_mininmal: 8000
+
     # path to speech command dataset
     dataset_path: ignore/dataset/speech_commands_v0.01/
+
+    # shuffle wavs for dataset separation
+    shuffle_wavs: True
 
     # paths to save training, testing and eval data
     data_paths:
@@ -33,6 +48,7 @@ datasets:
       mfcc: ignore/dataset/plots/mfcc/
       z_score: ignore/dataset/plots/z_score/
       examples_grid: ignore/dataset/plots/
+      damaged_files: ignore/dataset/damaged_files/
 
     # enable plot of each feature extraction
     enable_plot: False
@@ -42,22 +58,26 @@ datasets:
 
     # selected labels of the whole set
     sel_labels: ['left', 'right', 'up', 'down', 'go']
+    #sel_labels: ['yes', 'no', 'left', 'go', 'down', 'off', 'right', 'stop', 'up', 'on']
     #sel_labels: ['eight', 'sheila', 'nine', 'yes', 'one', 'no', 'left', 'tree', 'bed', 'bird', 'go', 'wow', 'seven', 'marvin', 'dog', 'three', 'two', 'house', 'down', 'six', 'five', 'off', 'right', 'cat', 'zero', 'four', 'stop', 'up', 'on', 'happy']
 
-    # --
+    # add noise to dataset
+    add_noise: True
+    noise_label: 'noise'
+
     # version
-    # 1: better onset detection
-    # 2: energy frame onset detection
-    # 3: data extraction with min energy and randomize onsets
-    # 4: normalized features
-    version_nr: 4
+    version_nr: 5
 
     # number of examples picked from dataset
     #n_examples: 10
     n_examples: 500
+    #n_examples: 2000
 
     # file name for saved feature files
     feature_file_name: mfcc_data
+
+    # filter damaged files
+    filter_damaged_files: False
 
 
   # my recordings dataset
@@ -66,8 +86,15 @@ datasets:
     # file extension for audio files
     file_ext: '.wav'
 
+    # number of samples
+    sample_num_normal: 16000
+    sample_num_mininmal: 8000
+
     # path to speech command dataset
     dataset_path: ignore/my_recordings/raw/
+
+    # shuffle wavs for dataset separation
+    shuffle_wavs: False
 
     # paths to save training, testing and eval data
     data_paths:
@@ -89,7 +116,7 @@ datasets:
       examples_grid: ignore/my_recordings/plots/
 
     # enable plot of each feature extraction
-    enable_plot: True
+    enable_plot: False
 
     # recreate all datasets (copy wavs to data_paths - not necessary except the dataset is changed)
     recreate: False
@@ -98,13 +125,12 @@ datasets:
     sel_labels: ['left', 'right', 'up', 'down', 'go']
     #sel_labels: ['eight', 'sheila', 'nine', 'yes', 'one', 'no', 'left', 'tree', 'bed', 'bird', 'go', 'wow', 'seven', 'marvin', 'dog', 'three', 'two', 'house', 'down', 'six', 'five', 'off', 'right', 'cat', 'zero', 'four', 'stop', 'up', 'on', 'happy']
 
-    # --
-    # version
-    # 1: better onset detection
-    # 2: energy frame onset detection
-    # 3: data extraction with min energy and randomize onsets
-    # 4: normalized features
-    version_nr: 4
+    # add noise to dataset
+    add_noise: True
+    noise_label: 'noise'
+    
+    #version
+    version_nr: 5
 
     # number of examples picked from dataset
     n_examples: 5
@@ -112,6 +138,8 @@ datasets:
     # file name for saved feature files
     feature_file_name: mfcc_data_my
 
+    # filter damaged files
+    filter_damaged_files: False
 
 # --
 # feature params for dataset extraction
@@ -134,10 +162,15 @@ feature_params:
 
   # normalized features -> [0, 1] over frames
   norm_features: True
+  #norm_features: False
 
   # with deltas
   compute_deltas: False
   #compute_deltas: True
+
+  # use energy feature
+  compute_energy_features: False
+  #compute_energy_features: True
 
 
 # --
@@ -163,8 +196,6 @@ ml:
   # encoder model file name
   encoder_model_file_name: encoder_model.pth
   decoder_model_file_name: decoder_model.pth
-  #encoder_model_init_file_name: encoder_model_init.pth
-  #decoder_model_init_file_name: decoder_model_init.pth
 
   # use a pre trained model at pre trained model path
   load_pre_model: False
@@ -177,6 +208,7 @@ ml:
 
     # batch size
     batch_size: 32
+    #batch_size: 64
     #batch_size: 128
 
     # number of epochs
@@ -188,23 +220,32 @@ ml:
     # momentum
     beta: 0.5
 
+  # conv coder folders
+  conv_folder: 'conv_coder/'
+
   # adversarial parameters
   adv_params:
 
-    # conv coder folders
-    conv_folder: 'conv_coder/'
-
     # train each label with adv
-    label_train: True
+    label_train: False
+
+    # normalize label weights
+    norm_label_weights: False
 
     # adv pre-training of full network
-    pre_train: True
+    pre_train: False
+
+    # use decoder weights for further training
+    use_decoder_weights: True
 
     # iterating algorithm of label: num_iterations_label x num_epochs_label
     num_iterations_label: 2
 
     # label epochs
     num_epochs_label: 500
+
+    # pre epochs
+    num_epochs_pre: 500
 
     # archs for label train:
     #nn_archs_label: ['conv-experimental', 'adv-experimental']
@@ -213,12 +254,6 @@ ml:
     #nn_archs_label: ['conv-experimental', 'adv-experimental3']
     #nn_archs_label: ['adv-experimental3', 'conv-experimental']
     nn_archs_label: ['adv-experimental3']
-
-    # pre epochs
-    num_epochs_pre: 500
-
-    # use decoder weights for further training
-    use_decoder_weights: True
 
   # retrain existing model
   #retrain: True

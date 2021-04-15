@@ -142,6 +142,7 @@ class ML():
     """
     with open(self.info_file, 'w') as f:
       print(self.net_handler.models, file=f)
+      print("\n", self.cfg_ml['adv_params'], file=f)
     
 
   def eval(self):
@@ -322,7 +323,7 @@ def label_train_conv_encoder(cfg, all_feature_files, model_path, data_size):
         net_handler = NetHandler(nn_arch=nn_arch, class_dict=batch_archive.class_dict, data_size=batch_archive.data_size, encoder_model=encoder_model, decoder_model=decoder_model, use_cpu=cfg['ml']['use_cpu'])
 
         # ml
-        ml = ML(cfg_ml=cfg['ml'], audio_dataset=audio_set1, batch_archive=batch_archive, net_handler=net_handler, sub_model_path=cfg['ml']['adv_params']['conv_folder'], encoder_label=l)
+        ml = ML(cfg_ml=cfg['ml'], audio_dataset=audio_set1, batch_archive=batch_archive, net_handler=net_handler, sub_model_path=cfg['ml']['conv_folder'], encoder_label=l)
 
         # change train params
         train_params = cfg['ml']['train_params'].copy()
@@ -359,7 +360,7 @@ def train_conv_encoders(cfg, audio_set1, all_feature_files, encoder_model=None, 
     net_handler = NetHandler(nn_arch='adv-collected-encoder', class_dict=batch_archive.class_dict, data_size=batch_archive.data_size, encoder_model=encoder_model, decoder_model=decoder_model, use_cpu=cfg['ml']['use_cpu'])
 
   # ml
-  ml = ML(cfg_ml=cfg['ml'], audio_dataset=audio_set1, batch_archive=batch_archive, net_handler=net_handler, sub_model_path=cfg['ml']['adv_params']['conv_folder'])
+  ml = ML(cfg_ml=cfg['ml'], audio_dataset=audio_set1, batch_archive=batch_archive, net_handler=net_handler, sub_model_path=cfg['ml']['conv_folder'])
 
 
   # check if encoder file exists
@@ -385,6 +386,23 @@ def train_conv_encoders(cfg, audio_set1, all_feature_files, encoder_model=None, 
     # transfer coder weights
     net_handler.models['d'].conv_encoder.transfer_conv_weights_label_coders(encoder_models)
     net_handler.models['g'].conv_decoder.transfer_conv_weights_label_coders(decoder_models)
+
+    ml.analyze(name_ext='_0-0_pre_norm')
+
+    # normalize if requested
+    if cfg['ml']['adv_params']['norm_label_weights']:
+      for encoder_model, decoder_model in zip(encoder_models, decoder_models):
+        with torch.no_grad():
+          encoder_model.conv_layers[0].weight.div_(torch.norm(encoder_model.conv_layers[0].weight, keepdim=True))
+          encoder_model.conv_layers[1].weight.div_(torch.norm(encoder_model.conv_layers[1].weight, keepdim=True))
+          decoder_model.deconv_layers[0].weight.div_(torch.norm(decoder_model.deconv_layers[0].weight, keepdim=True))
+          decoder_model.deconv_layers[1].weight.div_(torch.norm(decoder_model.deconv_layers[1].weight, keepdim=True))
+
+      # transfer coder weights
+      net_handler.models['d'].conv_encoder.transfer_conv_weights_label_coders(encoder_models)
+      net_handler.models['g'].conv_decoder.transfer_conv_weights_label_coders(decoder_models)
+
+      ml.analyze(name_ext='_0-1_post_norm')
 
     # # add noise to each weight
     # with torch.no_grad():

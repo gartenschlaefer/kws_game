@@ -23,8 +23,11 @@ class FeatureExtractor():
     self.N, self.hop = int(self.feature_params['N_s'] * self.feature_params['fs']), int(self.feature_params['hop_s'] * self.feature_params['fs'])
 
     # feature size
-    self.feature_size = (self.feature_params['n_ceps_coeff'] + 1) * (1 + 2 * self.feature_params['compute_deltas'])
-    self.energy_feature_pos = self.feature_size - 1 * (1 + 2 * self.feature_params['compute_deltas'])
+    self.feature_size = (self.feature_params['n_ceps_coeff'] + 1 * self.feature_params['compute_energy_features']) * (1 + 2 * self.feature_params['compute_deltas'])
+    
+    # position of energy vector (for energy region)
+    #self.energy_feature_pos = self.feature_size - 1 * (1 + 2 * self.feature_params['compute_deltas'])
+    self.energy_feature_pos = 0
 
     # calculate weights
     self.w_f, self.w_mel, self.f, self.m = mel_band_weights(self.feature_params['n_filter_bands'], self.feature_params['fs'], self.N//2+1)
@@ -47,20 +50,26 @@ class FeatureExtractor():
       # compute double deltas [feature x frames]
       double_deltas = self.compute_deltas(deltas)
 
-      # compute energies [1 x frames]
-      e_mfcc = np.vstack((
-        np.sum(mfcc**2, axis=0) / np.max(np.sum(mfcc**2, axis=0)), 
-        np.sum(deltas**2, axis=0) / np.max(np.sum(deltas**2, axis=0)), 
-        np.sum(double_deltas**2, axis=0) / np.max(np.sum(double_deltas**2, axis=0))
-        ))
+      # stack deltas
+      mfcc = np.vstack((mfcc, deltas, double_deltas))
 
-      # stack and get best onset
-      mfcc = np.vstack((mfcc, deltas, double_deltas, e_mfcc))
+      # energy features
+      if self.feature_params['compute_energy_features']:
+        # compute energies [1 x frames]
+        e_mfcc = np.vstack((
+          np.sum(mfcc**2, axis=0) / np.max(np.sum(mfcc**2, axis=0)), 
+          np.sum(deltas**2, axis=0) / np.max(np.sum(deltas**2, axis=0)), 
+          np.sum(double_deltas**2, axis=0) / np.max(np.sum(double_deltas**2, axis=0))
+          ))
+
+        # stack energies
+        mfcc = np.vstack((mfcc, e_mfcc))
 
     # no deltas
     else:
-      e_mfcc = np.sum(mfcc**2, axis=0) / np.max(np.sum(mfcc**2, axis=0))
-      mfcc = np.vstack((mfcc, e_mfcc))
+      if self.feature_params['compute_energy_features']:
+        e_mfcc = np.sum(mfcc**2, axis=0) / np.max(np.sum(mfcc**2, axis=0))
+        mfcc = np.vstack((mfcc, e_mfcc))
 
     # norm -> [0, 1]
     if self.feature_params['norm_features']:
@@ -71,8 +80,7 @@ class FeatureExtractor():
     _, bon_pos = self.find_min_energy_region(mfcc)
 
     # return best onset
-    if reduce_to_best_onset:
-      return mfcc[:, bon_pos:bon_pos+self.feature_params['frame_size']], bon_pos
+    if reduce_to_best_onset: return mfcc[:, bon_pos:bon_pos+self.feature_params['frame_size']], bon_pos
 
     return mfcc, bon_pos
 
@@ -167,8 +175,18 @@ class FeatureExtractor():
     # windowed [r x m x f]
     x_win = np.squeeze(view_as_windows(mfcc[self.energy_feature_pos], self.feature_params['frame_size'], step=1))
 
+    # # energy calc
+    # e = np.einsum('ij,ji->j', mfcc, mfcc.T)
+    # e = e / np.max(e)
+    # e_win = np.squeeze(view_as_windows(e, self.feature_params['frame_size'], step=1))
+
     # best onset position
-    bon_pos = np.argmin(np.sum(x_win, axis=1))
+    #bon_pos = np.argmin(np.sum(x_win, axis=1))
+
+    #if self.energy_feature_pos == 0: bon_pos = np.argmax(np.sum(x_win, axis=1) - np.sum(e_win, axis=1))
+    #if self.energy_feature_pos == 0: bon_pos = np.argmax(np.sum(x_win, axis=1) - 0.5 * np.sum(e_win, axis=1))
+    if self.energy_feature_pos == 0: bon_pos = np.argmax(np.sum(x_win, axis=1))
+    else: bon_pos = np.argmin(np.sum(x_win, axis=1))
 
     # randomize a bit
     if randomize:
@@ -637,11 +655,13 @@ if __name__ == '__main__':
   import yaml
   import time
   import matplotlib.pyplot as plt
+  import librosa
   import librosa.display
   import soundfile
 
+  from glob import glob
   from common import create_folder
-  from plots import plot_mel_band_weights
+  from plots import plot_mel_band_weights, plot_mfcc_profile
 
   # yaml config file
   cfg = yaml.safe_load(open("./config.yaml"))
@@ -649,13 +669,23 @@ if __name__ == '__main__':
   # init feature extractor
   feature_extractor = FeatureExtractor(cfg['feature_params'])
 
-  # mfcc
-  mfcc, _ = feature_extractor.extract_mfcc39(np.random.randn(16000))
-
-  print("mfcc: ", mfcc.shape)
-
   # plot stuff
-  plot_mel_band_weights(feature_extractor.w_f, feature_extractor.w_mel, feature_extractor.f, feature_extractor.m, plot_path=None, name='weights', show_plot=True)
+  #plot_mel_band_weights(feature_extractor.w_f, feature_extractor.w_mel, feature_extractor.f, feature_extractor.m, plot_path=None, name='weights', show_plot=True)
+
+
+  # analyze some wavs
+  for wav in glob('./' + cfg['datasets']['speech_commands']['plot_paths']['damaged_files'] + '*.wav'):
+    print("wav: ", wav)
+    x, _ = librosa.load(wav, sr=16000)
+    mfcc, bon_pos = feature_extractor.extract_mfcc39(x, reduce_to_best_onset=False)
+    plot_mfcc_profile(x, 16000, feature_extractor.N, feature_extractor.hop, mfcc, diff_plot=True, bon_pos=bon_pos, frame_size=cfg['feature_params']['frame_size'], name=wav.split('/')[-1], show_plot=False)
+
+  # mfcc
+  x = np.random.randn(16000)
+  mfcc, bon_pos = feature_extractor.extract_mfcc39(x, reduce_to_best_onset=False)
+  plot_mfcc_profile(x, 16000, feature_extractor.N, feature_extractor.hop, mfcc, diff_plot=True, bon_pos=bon_pos, name='rand', show_plot=True)
+
+
 
 
 

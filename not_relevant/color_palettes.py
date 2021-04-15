@@ -61,6 +61,8 @@ from palettable.colorbrewer.qualitative import Accent_4
 # --
 # global colors
 
+hist_colors = Antique_4.mpl_colors
+
 #reds = [red_16.mpl_colors[2], red_16.mpl_colors[5], red_16.mpl_colors[8], red_16.mpl_colors[11]]
 reds4 = [red_16.mpl_colors[2], red_16.mpl_colors[5], red_16.mpl_colors[8], red_16.mpl_colors[11]]
 reds4_2 = [red_16.mpl_colors[3], red_16.mpl_colors[5], red_16.mpl_colors[7], red_16.mpl_colors[10]]
@@ -78,6 +80,22 @@ cmaps_mfcc = (None, Dense_20.mpl_colormap.reversed(), Tokyo_20.mpl_colormap, Dee
 #cmaps = (None, Ice_20.mpl_colormap, Matter_20.mpl_colormap.reversed(), Deep_20.mpl_colormap.reversed(), Dense_20.mpl_colormap.reversed(), Tempo_20.mpl_colormap.reversed())
 #cmaps = (None, Ice_20.mpl_colormap, Matter_20.mpl_colormap.reversed(), Deep_20.mpl_colormap.reversed(), Dense_20.mpl_colormap.reversed(), Solar_20.mpl_colormap)
 #cmaps = (None, Algae_20.mpl_colormap.reversed(), Amp_20.mpl_colormap.reversed(), Deep_20.mpl_colormap.reversed(), Dense_20.mpl_colormap.reversed(), Haline_20.mpl_colormap)
+
+
+def show_hist_colors(x, colors):
+  """
+  histogram
+  """
+
+  for i, c in enumerate(colors):
+
+    fig = plot_histogram(x, bins=None, color=c, y_log_scale=False, x_log_scale=False, context='None', title='', plot_path=None, name='hist', show_plot=False)
+    
+    # positioning
+    if i >= 3: i, j = i%3, 600
+    else: i, j = i, 0
+    fig.canvas.manager.window.setGeometry(i*600, j, 600, 500)
+
 
 
 def show_train_score_colors(x1, x2, x3, x4, cmaps):
@@ -173,7 +191,7 @@ if __name__ == '__main__':
   import sys
   sys.path.append("../")
 
-  from plots import plot_mfcc_only, plot_grid_images, plot_waveform, plot_val_acc, plot_train_loss, plot_adv_train_loss
+  from plots import plot_mfcc_only, plot_grid_images, plot_waveform, plot_val_acc, plot_train_loss, plot_adv_train_loss, plot_histogram
   from audio_dataset import AudioDataset
   from batch_archive import SpeechCommandsBatchArchive
   from net_handler import NetHandler
@@ -224,8 +242,9 @@ if __name__ == '__main__':
   #show_weights_colormaps(net_handler.models['cnn'].state_dict()['conv_encoder.conv_layers.0.weight'], cmaps_weights)
   #show_weights_colormaps(net_handler.models['cnn'].state_dict()['conv_encoder.conv_layers.1.weight'], cmaps_weights)
   #show_waveform_colors(x_wav, colors_waveform)
+  #show_train_score_colors(x_sine1, x_sine2, x_sine3, x_sine4, colors_waveform)
 
-  show_train_score_colors(x_sine1, x_sine2, x_sine3, x_sine4, colors_waveform)
+  show_hist_colors(x_sine1, hist_colors)
 
   # vmax = np.max(np.abs(x_wav))
 
