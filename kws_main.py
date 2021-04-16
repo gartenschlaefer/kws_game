@@ -48,7 +48,7 @@ if __name__ == '__main__':
   screen = pygame.display.set_mode(cfg['game']['screen_size'])
 
   # init screen capturer
-  screen_capturer = ScreenCapturer(screen, cfg['game']['screen_size'], cfg['game']['fps'], capture_path=cfg['game']['capture_path'], enabled=cfg['game']['capture_enabled'])
+  screen_capturer = ScreenCapturer(screen, cfg['game'])
 
   # text
   text = Text(screen)

@@ -65,6 +65,7 @@ class ML():
     self.params_file = self.model_path + self.cfg_ml['params_file_name']
     self.metrics_file = self.model_path + self.cfg_ml['metrics_file_name']
     self.info_file = self.model_path + self.cfg_ml['info_file_name']
+    self.score_file = self.model_path + self.cfg_ml['score_file_name']
 
     # image list (for adversarial)
     self.img_list = []
@@ -103,7 +104,7 @@ class ML():
     train_score = self.net_handler.train_nn(train_params=train_params, batch_archive=self.batch_archive, callback_f=self.image_collect)
 
     # training info
-    if log_on: logging.info('Traning on arch: [{}], train_params: {}, device: [{}], time: {}'.format(self.cfg_ml['nn_arch'], self.cfg_ml['train_params'], self.net_handler.device, s_to_hms_str(train_score.time_usage)))
+    if log_on: logging.info('Traning on arch: [{}], audio set param string: [{}], train_params: {}, device: [{}], time: {}'.format(self.cfg_ml['nn_arch'], self.audio_dataset.param_path, self.cfg_ml['train_params'], self.net_handler.device, s_to_hms_str(train_score.time_usage)))
     
     # save models and params
     if save_models:
@@ -153,14 +154,13 @@ class ML():
     print("\n--Evaluation on Test Set:")
 
     # evaluation of model
-    eval_score = self.net_handler.eval_nn(eval_set='test', batch_archive=self.batch_archive, calc_cm=True, verbose=False)
+    eval_score = self.net_handler.eval_nn(eval_set='test', batch_archive=self.batch_archive, collect_things=True, verbose=False)
 
-    # print accuracy
-    eval_log = eval_score.info_log(do_print=False)
+    # score print of collected
+    eval_score.info_collected(info_file=self.score_file, do_print=False)
 
     # log to file
-    if self.cfg_ml['logging_enabled']:
-      logging.info(eval_log)
+    if self.cfg_ml['logging_enabled']: logging.info(eval_score.info_log(do_print=False))
 
     # print confusion matrix
     print("confusion matrix:\n{}\n".format(eval_score.cm))
@@ -177,7 +177,12 @@ class ML():
       print("\n--Evaluation on My Set:")
 
       # evaluation of model
-      eval_score = self.net_handler.eval_nn(eval_set='my', batch_archive=self.batch_archive, calc_cm=True, verbose=True)
+      eval_score = self.net_handler.eval_nn(eval_set='my', batch_archive=self.batch_archive, collect_things=True, verbose=True)
+      
+      # score print of collected
+      eval_score.info_collected(info_file=self.score_file, do_print=False)
+
+      # confusion matrix
       print("confusion matrix:\n{}\n".format(eval_score.cm))
 
       # plot confusion matrix

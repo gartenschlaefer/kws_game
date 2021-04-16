@@ -22,6 +22,9 @@ class FeatureExtractor():
     # windowing params
     self.N, self.hop = int(self.feature_params['N_s'] * self.feature_params['fs']), int(self.feature_params['hop_s'] * self.feature_params['fs'])
 
+    # legacy for feature params
+    if 'compute_energy_features' not in self.feature_params.keys(): self.feature_params.update({'compute_energy_features': True})
+
     # feature size
     self.feature_size = (self.feature_params['n_ceps_coeff'] + 1 * self.feature_params['compute_energy_features']) * (1 + 2 * self.feature_params['compute_deltas'])
     

@@ -187,9 +187,6 @@ def plot_test_bench_shift(x, y, cmap=None, context='bench-shift', title='shift',
   if show_plot: plt.show()
 
 
-
-
-
 def plot_wav_grid(wavs, feature_params, grid_size=(8, 8), cmap=None, title='', plot_path=None, name='wav_grid', show_plot=False):
   """
   plot mfcc extracted features from audio file
@@ -206,8 +203,10 @@ def plot_wav_grid(wavs, feature_params, grid_size=(8, 8), cmap=None, title='', p
   if cmap is None: cmap = get_colormap_from_context(context='wav')
 
   # make a grid
-  n_im_rows, n_im_cols = 5, 10
-  n_rows, n_cols = n_im_rows * grid_size[1] + grid_size[1]+1, n_im_cols * grid_size[0] + grid_size[0]+1
+  n_im_rows, n_im_cols, r_space, c_space = 3, 5, 1, 1
+  #n_rows, n_cols = n_im_rows * grid_size[1] + grid_size[1]+1, n_im_cols * grid_size[0] + grid_size[0]+1
+  n_rows, n_cols = n_im_rows * grid_size[1] + r_space * grid_size[1] - 1, n_im_cols * grid_size[0] + c_space * grid_size[0] - 1
+  #print("row: {}, col: {}".format(n_rows, n_cols))
 
   # init figure
   fig = plt.figure(figsize=(8, 8))
@@ -219,15 +218,15 @@ def plot_wav_grid(wavs, feature_params, grid_size=(8, 8), cmap=None, title='', p
   # indices init
   i, j = 0, 0
 
-
   # mfcc plots
   for x, y, bon_pos in wavs:
 
     # row start and stop
-    rs = j * n_im_rows + 1
-    re = (j + 1) * n_im_rows
-    cs = i * n_im_cols + 1
-    ce = (i + 1) * n_im_cols
+    rs = j * n_im_rows + j * r_space
+    re = (j + 1) * n_im_rows + j * r_space
+    cs = i * n_im_cols + i * c_space
+    ce = (i + 1) * n_im_cols + i * c_space
+    #print("rs: {}, re: {}, cs: {}, ce: {}".format(rs, re, cs, ce))
 
     # exception for one row images
     if rs == re: re += 1
@@ -248,18 +247,20 @@ def plot_wav_grid(wavs, feature_params, grid_size=(8, 8), cmap=None, title='', p
       best_onset_times = frames_to_time(np.array([bon_pos, bon_pos+frame_size]), fs, hop)
       for onset in best_onset_times: plt.axvline(x=float(onset), dashes=(3, 2), color=get_colormap_from_context(context='wav-hline'), lw=2)
 
+    ax.set_ylim([-1, 1])
     ax.axis('off')
-    ax.set_title(y, fontsize=5)
+    ax.set_title(y, fontsize=6)
+
+  # tight plot
+  #plt.tight_layout()
+  plt.subplots_adjust(left=0.01, bottom=0.01, right=0.99, top=0.97, wspace=0, hspace=0)
+  #plt.margins(x=10, y=10)
 
   # plot save and show
   if plot_path is not None: 
     plt.savefig(plot_path + name + '.png', dpi=150)
-    plt.close()
 
   if show_plot: plt.show()
-
-
-
 
 
 def plot_other_grid(x, grid_size=(8, 8), title='grid1', plot_path=None, name='grid1', show_plot=False):

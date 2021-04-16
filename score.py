@@ -91,27 +91,26 @@ class EvalScore():
   typical scores for evaluation
   """
 
-  def __init__(self, label_dtype=np.int32, calc_cm=False):
+  def __init__(self, eval_set_name='', collect_things=False):
 
     # params
-    self.label_dtype = label_dtype
-    self.calc_cm = calc_cm
+    self.eval_set_name = eval_set_name
+    self.collect_things = collect_things
 
     # init vars
-    self.loss = 0.0
-    self.correct = 0
-    self.total = 0
-    self.acc = 0.0
-    self.cm = None
+    self.loss, self.correct, self.total, self.acc, self.cm = 0.0, 0, 0, 0.0, None
 
-    # all labels from batches
-    self.y_all = np.empty(shape=(0), dtype=self.label_dtype)
+    # all actual and predicted labels from batches
+    self.y_all, self.y_hat_all = [], []
+    
+    # all outputs and names
+    self.o_all, self.z_all = [], []
 
-    # all predicted labels
-    self.y_hat_all = np.empty(shape=(0), dtype=self.label_dtype)
+    # wrongly classified sample list
+    self.wrong_list = []
 
 
-  def update(self, loss, y, y_hat):
+  def update(self, loss, y, y_hat, z, o):
     """
     update score (batch update)
     """
@@ -125,10 +124,15 @@ class EvalScore():
     # check if correctly predicted
     self.correct += (y_hat == y).sum().item()
 
-    # collect labels for confusion matrix
-    if self.calc_cm:
-      self.y_all = np.append(self.y_all, y)
-      self.y_hat_all = np.append(self.y_hat_all, y_hat)
+    # collect everything (not efficient so keep care of collect flag)
+    if self.collect_things:
+      wrong_vector = (y_hat != y).numpy()
+      if wrong_vector.any(): self.wrong_list.append(z[wrong_vector].tolist())
+      self.y_all.append(y.tolist())
+      self.y_hat_all.append(y_hat.tolist())
+      self.o_all.append(o.tolist())
+      self.z_all.append(z.tolist())
+
 
 
   def finish(self):
@@ -147,12 +151,11 @@ class EvalScore():
     # print eval results
     self.info_log(do_print=True)
 
-    # no cm was required
-    if not self.calc_cm:
-      return
+    # collecting check
+    if not self.collect_things: return
 
     # confusion matrix
-    self.cm = confusion_matrix(self.y_all, self.y_hat_all)
+    self.cm = confusion_matrix(np.concatenate(self.y_all), np.concatenate(self.y_hat_all))
 
 
   def info_log(self, do_print=True):
@@ -161,10 +164,37 @@ class EvalScore():
     """
 
     # message
-    eval_log = "Eval: correct: [{} / {}] acc: [{:.4f}] with loss: [{:.4f}]\n".format(self.correct, self.total, self.acc, self.loss)
+    eval_log = "Eval{}: correct: [{} / {}] acc: [{:.4f}] with loss: [{:.4f}]\n".format(' ' + self.eval_set_name, self.correct, self.total, self.acc, self.loss)
 
     # print
-    if do_print:
-      print(eval_log)
+    if do_print: print(eval_log)
 
     return eval_log
+
+
+  def info_collected(self, info_file=None, do_print=False):
+    """
+    show infos
+    """
+
+    # collecting check
+    if not self.collect_things:
+      print("collection flag was not set")
+      return
+
+    # formating of outputs
+    self.o_all = [[['{:.4e}'.format(iii) for iii in ii] for ii in i] for i in self.o_all]
+
+    # file print
+    if info_file is not None:
+      with open(info_file, 'a') as f:
+        print("\n--eval {}".format(self.eval_set_name), file=f)
+        print("wrongs: ", np.concatenate(self.wrong_list), file=f)
+        for y, y_hat, o, z in zip(self.y_all, self.y_hat_all, self.o_all, self.z_all): print("\nz: {}\noutput: {}\npred: {}, actu: {}, \t corr: {} ".format(z, o, y_hat, y, (np.array(y_hat) == np.array(y)).astype('int')), file=f)
+
+    # command line print
+    if do_print:
+      print("\n--eval {}".format(self.eval_set_name))
+      print("wrongs: ", np.concatenate(self.wrong_list))
+      for y, y_hat, o, z in zip(self.y_all, self.y_hat_all, self.o_all, self.z_all): print("\nz: {}\noutput: {}\npred: {}, actu: {}, \t corr: {} ".format(z, o, y_hat, y, (np.array(y_hat) == np.array(y)).astype('int')))
+

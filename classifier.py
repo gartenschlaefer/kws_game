@@ -44,7 +44,7 @@ class Classifier():
     try:
       self.feature_params = data['feature_params'][()]
     except:
-      self.feature_params = {'fs': 16000, 'N_s': 0.025, 'hop_s': 0.010, 'n_filter_bands': 32, 'n_ceps_coeff': 12, 'frame_size': 32, 'norm_features': False, 'compute_deltas': True}
+      self.feature_params = {'fs': 16000, 'N_s': 0.025, 'hop_s': 0.010, 'n_filter_bands': 32, 'n_ceps_coeff': 12, 'frame_size': 32, 'norm_features': False, 'compute_deltas': True, 'compute_energy_features': True}
       print("old classifier model use fixed feature parameters: {}".format(self.feature_params))
 
     # print info

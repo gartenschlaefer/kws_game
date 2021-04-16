@@ -46,7 +46,7 @@ class AudioDataset():
     self.plot_paths = dict((k, self.root_path + v) for k, v in self.dataset_cfg['plot_paths'].items())
 
     # parameter path
-    self.param_path = 'v{}_c-{}_n-{}_f-{}x{}_nl-{}/'.format(self.dataset_cfg['version_nr'], len(self.labels), self.dataset_cfg['n_examples'], self.feature_size, self.feature_params['frame_size'], int(self.dataset_cfg['add_noise']))
+    self.param_path = 'v{}_c-{}_n-{}_f-{}x{}_n{}d{}e{}_nl-{}/'.format(self.dataset_cfg['version_nr'], len(self.labels), self.dataset_cfg['n_examples'], self.feature_size, self.feature_params['frame_size'], int(self.feature_params['norm_features']), int(self.feature_params['compute_deltas']), int(self.feature_params['compute_energy_features']), int(self.dataset_cfg['add_noise']))
 
     # folders
     self.wav_folders = [self.root_path + p + self.dataset_cfg['wav_folder'] for p in list(self.dataset_cfg['data_paths'].values())]
@@ -97,9 +97,9 @@ class AudioDataset():
     """
 
     # histogram
-    plot_histogram(self.file_energy_list, bins=np.logspace(np.log10(0.0001),np.log10(10000), 50), y_log_scale=True, x_log_scale=True, context='None', title='Energy', plot_path=self.plot_paths['z_score'], name='energy_hist_n-{}'.format(self.dataset_cfg['n_examples']))
-    plot_histogram(self.file_num_sample_list, bins=20, y_log_scale=True, context='None', title='Num Samples', plot_path=self.plot_paths['z_score'], name='num_sample_hist_n-{}'.format(self.dataset_cfg['n_examples']))
-    plot_histogram(self.damaged_score_list, bins=50, y_log_scale=True, context='None', title='Damaged Score', plot_path=self.plot_paths['z_score'], name='z_score_hist_n-{}'.format(self.dataset_cfg['n_examples']))
+    if len(self.file_energy_list): plot_histogram(self.file_energy_list, bins=np.logspace(np.log10(0.0001),np.log10(10000), 50), y_log_scale=True, x_log_scale=True, context='None', title='Energy', plot_path=self.plot_paths['z_score'], name='energy_hist_n-{}'.format(self.dataset_cfg['n_examples']))
+    if len(self.file_num_sample_list): plot_histogram(self.file_num_sample_list, bins=20, y_log_scale=True, context='None', title='Num Samples', plot_path=self.plot_paths['z_score'], name='num_sample_hist_n-{}'.format(self.dataset_cfg['n_examples']))
+    if len(self.damaged_score_list): plot_histogram(self.damaged_score_list, bins=50, y_log_scale=True, context='None', title='Damaged Score', plot_path=self.plot_paths['z_score'], name='z_score_hist_n-{}'.format(self.dataset_cfg['n_examples']))
 
     print("\n--Analyze damaged files of ", self.__class__.__name__)
     print("too short files num: {}".format(len(self.short_file_list)))
@@ -110,9 +110,7 @@ class AudioDataset():
     if self.__class__.__name__ == 'SpeechCommandsDataset':
       all_speakers_files = [re.sub(r'(\./)|(\w+/)|(\w+--)|(_nohash_[0-9]+.wav)', '', i) for i in list(np.concatenate(np.concatenate(np.array(self.set_audio_files, dtype='object'))))]
       all_speakers = np.unique(all_speakers_files)
-      print("number of audio files: ", len(all_speakers_files))
-      print("speakers: ", all_speakers)
-      print("number of speakers: ", len(all_speakers))
+      print("number of audio files: ", len(all_speakers_files)), print("speakers: ", all_speakers), print("number of speakers: ", len(all_speakers))
 
     # prints to files
     with open(self.info_file_damaged, 'w') as f: [print(i, file=f) for i in self.damaged_file_list]
@@ -664,7 +662,7 @@ if __name__ == '__main__':
   #plot_mfcc_only(batch_archive.x_train[0, 0], name=batch_archive.z_train[0, 0], show_plot=True)
 
   # plot wav grid
-  plot_wav_grid(audio_set2.pre_wavs, feature_params=audio_set2.feature_params, grid_size=(5, 5), cmap=None, title='', plot_path=cfg['datasets']['my_recordings']['plot_paths']['examples_grid'], name='wav_grid', show_plot=True)
+  plot_wav_grid(audio_set2.pre_wavs, feature_params=audio_set2.feature_params, grid_size=(5, 5), cmap=None, title='', plot_path=cfg['datasets']['my_recordings']['plot_paths']['examples_grid'], name='wav_grid_my', show_plot=True)
 
 
 

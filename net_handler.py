@@ -232,7 +232,7 @@ class NetHandler():
     return TrainScore(train_params['num_epochs'])
 
 
-  def eval_nn(self, eval_set, batch_archive, calc_cm=False, verbose=False):
+  def eval_nn(self, eval_set, batch_archive, collect_things=False, verbose=False):
     """
     evaluation interface
     """
@@ -397,7 +397,7 @@ class CnnHandler(NetHandler):
     return train_score
 
 
-  def eval_nn(self, eval_set, batch_archive, calc_cm=False, verbose=False):
+  def eval_nn(self, eval_set, batch_archive, collect_things=False, verbose=False):
     """
     evaluation of nn
     use eval_set out of ['val', 'test', 'my']
@@ -412,17 +412,17 @@ class CnnHandler(NetHandler):
     # if set does not exist
     if x_eval is None or y_eval is None:
       print("no eval set found")
-      return EvalScore(calc_cm=calc_cm)
+      return EvalScore(eval_set_name=eval_set, collect_things=collect_things)
 
     # init score
-    eval_score = EvalScore(calc_cm=calc_cm)
+    eval_score = EvalScore(eval_set_name=eval_set, collect_things=collect_things)
 
 
     # no gradients for eval
     with torch.no_grad():
 
       # load data
-      for i, (x, y) in enumerate(zip(x_eval.to(self.device), y_eval.to(self.device))):
+      for i, (x, y, z) in enumerate(zip(x_eval.to(self.device), y_eval.to(self.device), z_eval)):
 
         # classify
         o = self.models['cnn'](x)
@@ -434,13 +434,7 @@ class CnnHandler(NetHandler):
         _, y_hat = torch.max(o.data, 1)
 
         # update eval score
-        eval_score.update(loss, y.cpu(), y_hat.cpu())
-
-        # some prints
-        if verbose:
-          if z_eval is not None:
-            print("\nlabels: {}".format(z_eval[i]))
-          print("output: {}\npred: {}, actu: {}, \t corr: {} ".format(o.data, y_hat, y, (y_hat == y).sum().item()))
+        eval_score.update(loss, y.cpu(), y_hat.cpu(), z, o.data)
 
     # finish up scores
     eval_score.finish()
@@ -637,7 +631,7 @@ class AdversarialNetHandler(NetHandler):
     return g_loss_fake
 
 
-  def eval_nn(self, eval_set, batch_archive, calc_cm=False, verbose=False):
+  def eval_nn(self, eval_set, batch_archive, collect_things=False, verbose=False):
     """
     evaluation of nn
     use eval_set out of ['val', 'test', 'my']
@@ -650,7 +644,7 @@ class AdversarialNetHandler(NetHandler):
     x_eval, y_eval, z_eval = self.eval_select_set(eval_set, batch_archive)
 
     # init score
-    eval_score = EvalScore(calc_cm=False)
+    eval_score = EvalScore(collect_things=False)
 
     # if set does not exist
     if x_eval is None or y_eval is None:
@@ -880,7 +874,7 @@ if __name__ == '__main__':
   net_handler.train_nn(cfg['ml']['train_params'], batch_archive=batch_archive)
 
   # validation
-  net_handler.eval_nn(eval_set='val', batch_archive=batch_archive, calc_cm=False, verbose=False)
+  net_handler.eval_nn(eval_set='val', batch_archive=batch_archive, collect_things=False, verbose=False)
 
   # classify sample
   y_hat, o, label = net_handler.classify_sample(np.random.randn(net_handler.data_size[1], net_handler.data_size[2]))

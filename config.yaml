@@ -12,7 +12,7 @@ datasets:
   # 2: energy frame onset detection
   # 3: data extraction with min energy and randomize onsets
   # 4: normalized features
-  # 5: no energy features, detection on first mfcc, dataset randomized
+  # 5: no energy features, detection on first mfcc, dataset shuffled
 
   # speech commands dataset
   speech_commands:
@@ -161,16 +161,16 @@ feature_params:
   frame_size: 50
 
   # normalized features -> [0, 1] over frames
-  norm_features: True
-  #norm_features: False
+  #norm_features: True
+  norm_features: False
 
   # with deltas
-  compute_deltas: False
-  #compute_deltas: True
+  #compute_deltas: False
+  compute_deltas: True
 
   # use energy feature
-  compute_energy_features: False
-  #compute_energy_features: True
+  #compute_energy_features: False
+  compute_energy_features: True
 
 
 # --
@@ -192,6 +192,7 @@ ml:
   params_file_name: params.npz
   metrics_file_name: metrics.npz
   info_file_name: info.txt
+  score_file_name: info_score.txt
 
   # encoder model file name
   encoder_model_file_name: encoder_model.pth

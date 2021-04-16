@@ -14,13 +14,12 @@ class ScreenCapturer():
   screen capture class for recording pygame screens
   """
 
-  def __init__(self, screen, cfg_game, frame_name='frame', enabled=True, root_path='./'):
+  def __init__(self, screen, cfg_game, frame_name='frame', root_path='./'):
 
     # arguments
     self.screen = screen
     self.cfg_game = cfg_game
     self.frame_name = frame_name
-    self.enabled = enabled
     self.root_path = root_path
 
     # shortcuts
@@ -51,7 +50,7 @@ class ScreenCapturer():
     """
 
     # return if deactivated
-    if not self.enabled:
+    if not self.cfg_game['capture_enabled']:
       return
 
     # add image to container
@@ -70,7 +69,7 @@ class ScreenCapturer():
     """
 
     # return if deactivated
-    if not self.enabled:
+    if not self.cfg_game['capture_enabled']:
       return
 
     # restore all images and save them
