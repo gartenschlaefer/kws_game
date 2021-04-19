@@ -23,6 +23,12 @@ class FeatureExtractor():
     # windowing params
     self.N, self.hop = int(self.feature_params['N_s'] * self.feature_params['fs']), int(self.feature_params['hop_s'] * self.feature_params['fs'])
 
+    # energy calculation
+    self.use_e_norm, self.use_e_sqrt = False, True
+
+    # position of energy vector (for energy region)
+    self.energy_feature_pos = 0
+
     # legacy
     self.legacy_adjustments()
 
@@ -35,11 +41,25 @@ class FeatureExtractor():
     # zero does not work
     if self.feature_size == 0 or self.channel_size == 0: print("feature size is zero -> select features in config"), sys.exit()
 
-    # position of energy vector (for energy region)
-    self.energy_feature_pos = 0
-
     # calculate weights
     self.w_f, self.w_mel, self.f, self.m = mel_band_weights(self.feature_params['n_filter_bands'], self.feature_params['fs'], self.N//2+1)
+
+
+  def legacy_adjustments(self):
+    """
+    yes we need legacy unfortunately:(
+    """
+
+    # about energy features ()
+    if 'use_energy_features' not in self.feature_params.keys(): self.use_e_norm, self.use_e_sqrt = True, False
+
+    # all feature params adjustments
+    if 'use_channels' not in self.feature_params.keys(): self.feature_params.update({'use_channels': False})
+    if 'use_cepstral_features' not in self.feature_params.keys(): self.feature_params.update({'use_cepstral_features': True})
+    if 'use_delta_features' not in self.feature_params.keys(): self.feature_params.update({'use_delta_features': True})
+    if 'use_double_delta_features' not in self.feature_params.keys(): self.feature_params.update({'use_double_delta_features': True})
+    if 'compute_deltas' in self.feature_params.keys(): self.feature_params.update({'use_delta_features': self.feature_params['compute_deltas'], 'use_double_delta_features': self.feature_params['compute_deltas']})
+    if 'use_energy_features' not in self.feature_params.keys(): self.feature_params.update({'use_energy_features': True})
 
 
   def extract_mfcc(self, x, reduce_to_best_onset=True):
@@ -60,7 +80,7 @@ class FeatureExtractor():
     double_deltas = self.compute_deltas(deltas)
 
     # compute energy of mfcc
-    e_mfcc, e_deltas, e_double_deltas = self.calc_energy(mfcc, normalize=False), self.calc_energy(deltas, normalize=False), self.calc_energy(double_deltas, normalize=False)
+    e_mfcc, e_deltas, e_double_deltas = self.calc_energy(mfcc), self.calc_energy(deltas), self.calc_energy(double_deltas)
 
     # stack as features
     if self.channel_size == 1:
@@ -87,13 +107,13 @@ class FeatureExtractor():
     return mfcc_all, bon_pos
 
 
-  def calc_energy(self, x, normalize=True, use_sqrt=True):
+  def calc_energy(self, x):
     """
     energy calculation
     """
     e = np.einsum('ij,ji->j', x, x.T)
-    if use_sqrt: e = np.sqrt(e)
-    if normalize: e = e / np.max(e)
+    if self.use_e_sqrt: e = np.sqrt(e)
+    if self.use_e_norm: e = e / np.max(e)
     return e[np.newaxis, :]
 
 
@@ -257,17 +277,6 @@ class FeatureExtractor():
 
     # return best onset
     return mfcc[:, bon_pos:bon_pos+self.frame_size], bon_pos
-
-
-  def legacy_adjustments(self):
-    """
-    yes we need legacy :(
-    """
-    if 'use_channels' not in self.feature_params.keys(): self.feature_params.update({'use_channels': False})
-    if 'use_cepstral_features' not in self.feature_params.keys(): self.feature_params.update({'use_cepstral_features': True})
-    if 'use_delta_features' not in self.feature_params.keys(): self.feature_params.update({'use_delta_features': True})
-    if 'use_double_delta_features' not in self.feature_params.keys(): self.feature_params.update({'use_double_delta_features': True})
-    if 'use_energy_features' not in self.feature_params.keys(): self.feature_params.update({'use_energy_features': True})
 
 
 

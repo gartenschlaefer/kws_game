@@ -55,7 +55,8 @@ def get_colormap_from_context(context='none'):
   #elif context == 'acc': return Prism_8.mpl_colors[5:]
 
   #elif context == 'bench-noise': return ListedColormap(purple_16.mpl_colormap.reversed()(np.linspace(0, 0.5, 100)), name='purple_short')
-  elif context == 'bench-noise': return ListedColormap(purple_16.mpl_colormap.reversed()(np.linspace(0, 0.6, 10)), name='purple_short')
+  #elif context == 'bench-noise': return ListedColormap(purple_16.mpl_colormap.reversed()(np.linspace(0, 0.6, 10)), name='purple_short')
+  elif context == 'bench-noise': return ListedColormap(purple_16.mpl_colormap.reversed()(np.linspace(0, 0.6, 10)), name='red_short')
   #elif context == 'bench-noise': return ListedColormap(np.vstack((purple_16.mpl_colormap.reversed()(np.linspace(0, 0, 5)), purple_16.mpl_colormap.reversed()(np.linspace(0.1, 0.6, 5)))), name='purple_short')
   
   #elif context == 'bench-shift': return ListedColormap(red_16.mpl_colormap.reversed()(np.linspace(0, 0.5, 100)), name='red_short')
@@ -98,7 +99,7 @@ def plot_histogram(x, bins=None, color=None, y_log_scale=False, x_log_scale=Fals
   return fig
 
 
-def plot_test_bench_noise(x, y, snrs, cmap=None, context='bench-noise', title='noise', plot_path=None, name='noise', show_plot=False):
+def plot_test_bench_noise(x, y, snrs, cmap=None, context='bench-noise', title='noise', plot_path=None, name='test_bench_noise', show_plot=False):
   """
   shiftinvariant test
   """
@@ -109,7 +110,6 @@ def plot_test_bench_noise(x, y, snrs, cmap=None, context='bench-noise', title='n
   # plot init
   fig = plt.figure(figsize=(12, 6))
 
-  print("x: ", x)
   # image
   ax = plt.axes()
   im = ax.pcolormesh(x, edgecolors='k', linewidth=1, vmax=1, vmin=0, cmap=cmap)
@@ -144,7 +144,7 @@ def plot_test_bench_noise(x, y, snrs, cmap=None, context='bench-noise', title='n
   if show_plot: plt.show()
 
 
-def plot_test_bench_shift(x, y, cmap=None, context='bench-shift', title='shift', plot_path=None, name='shift', show_plot=False):
+def plot_test_bench_shift(x, y, cmap=None, context='bench-shift', title='shift', plot_path=None, name='test_bench_shift', show_plot=False):
   """
   shiftinvariant test
   """

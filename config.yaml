@@ -296,14 +296,12 @@ test_bench:
   # plot path
   paths:
     main_path: ignore/test_bench/
-    models_path: ignore/test_bench/test_models/
+    #models_path: ignore/test_bench/test_models/
+    shift_wavs: ignore/test_bench/plots/shift_wavs/
+    noise_wavs: ignore/test_bench/plots/noise_wavs/
 
-  # plot path root
-  plot_paths:
-    shift: ignore/test_bench/plots/shift/
-    shift_wavs: ignore/test_bench/plots/shift/wavs/
-    noise: ignore/test_bench/plots/noise/
-    noise_wavs: ignore/test_bench/plots/noise/wavs/
+  # enable plot
+  enable_plot: False
 
   # test wavs
   test_wavs:
@@ -313,15 +311,15 @@ test_bench:
     - ignore/my_recordings/clean_records/down.wav
     - ignore/my_recordings/clean_records/go.wav
 
-  # path to model
-  #test_model_path: ignore/test_bench/test_models/conv-fstride/
-  test_model_path: ignore/test_bench/test_models/conv-encoder/
-  #test_model_path: ignore/test_bench/test_models/conv-trad/
-
   # file names
-  #model_file_name: 'model.pth'
   model_file_name: 'cnn_model.pth'
   params_file_name: 'params.npz'
+
+  # snrs
+  snrs: [16, 13, 10, 6, 3, 0, -3, -6, -10, -13, -16]
+
+  # shift frames by steps
+  shift_frame_step: 1
 
 
 # --
