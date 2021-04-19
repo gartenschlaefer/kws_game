@@ -5,6 +5,7 @@ feature extraction tools
 import numpy as np
 import librosa
 import scipy
+import sys
 
 from skimage.util.shape import view_as_windows
 
@@ -22,70 +23,78 @@ class FeatureExtractor():
     # windowing params
     self.N, self.hop = int(self.feature_params['N_s'] * self.feature_params['fs']), int(self.feature_params['hop_s'] * self.feature_params['fs'])
 
-    # legacy for feature params
-    if 'compute_energy_features' not in self.feature_params.keys(): self.feature_params.update({'compute_energy_features': True})
+    # legacy
+    self.legacy_adjustments()
+
+    # channel size
+    self.channel_size = 1 if not self.feature_params['use_channels'] else int(self.feature_params['use_cepstral_features']) + int(self.feature_params['use_delta_features']) +  int(self.feature_params['use_double_delta_features'])
 
     # feature size
-    self.feature_size = (self.feature_params['n_ceps_coeff'] + 1 * self.feature_params['compute_energy_features']) * (1 + 2 * self.feature_params['compute_deltas'])
-    
+    self.feature_size = (self.feature_params['n_ceps_coeff'] + int(self.feature_params['use_energy_features'])) * int(self.feature_params['use_cepstral_features']) + (self.feature_params['n_ceps_coeff'] + int(self.feature_params['use_energy_features'])) * int(self.feature_params['use_delta_features']) + (self.feature_params['n_ceps_coeff'] + int(self.feature_params['use_energy_features'])) * int(self.feature_params['use_double_delta_features']) if not self.feature_params['use_channels'] else (self.feature_params['n_ceps_coeff'] + int(self.feature_params['use_energy_features']))
+
+    # zero does not work
+    if self.feature_size == 0 or self.channel_size == 0: print("feature size is zero -> select features in config"), sys.exit()
+
     # position of energy vector (for energy region)
-    #self.energy_feature_pos = self.feature_size - 1 * (1 + 2 * self.feature_params['compute_deltas'])
     self.energy_feature_pos = 0
 
     # calculate weights
     self.w_f, self.w_mel, self.f, self.m = mel_band_weights(self.feature_params['n_filter_bands'], self.feature_params['fs'], self.N//2+1)
 
 
-  def extract_mfcc39(self, x, reduce_to_best_onset=True):
+  def extract_mfcc(self, x, reduce_to_best_onset=True):
     """
-    extract mfcc features fast
+    extract mfcc features fast return [c, m, n], best onset pos
     """
 
     # calculate mfcc
     mfcc = self.calc_mfcc(x)
 
-    # deltas
-    if self.feature_params['compute_deltas']:
+    # mfcc collected
+    mfcc_all = np.empty(shape=(1, 0, mfcc.shape[1]), dtype=np.float32) if self.channel_size == 1 else np.empty(shape=(0, self.feature_size, mfcc.shape[1]), dtype=np.float32)
 
-      # compute deltas [feature x frames]
-      deltas = self.compute_deltas(mfcc)
+    # compute deltas [feature x frames]
+    deltas = self.compute_deltas(mfcc)
 
-      # compute double deltas [feature x frames]
-      double_deltas = self.compute_deltas(deltas)
+    # compute double deltas [feature x frames]
+    double_deltas = self.compute_deltas(deltas)
 
-      # stack deltas
-      mfcc = np.vstack((mfcc, deltas, double_deltas))
+    # compute energy of mfcc
+    e_mfcc, e_deltas, e_double_deltas = self.calc_energy(mfcc, normalize=False), self.calc_energy(deltas, normalize=False), self.calc_energy(double_deltas, normalize=False)
 
-      # energy features
-      if self.feature_params['compute_energy_features']:
-        # compute energies [1 x frames]
-        e_mfcc = np.vstack((
-          np.sum(mfcc**2, axis=0) / np.max(np.sum(mfcc**2, axis=0)), 
-          np.sum(deltas**2, axis=0) / np.max(np.sum(deltas**2, axis=0)), 
-          np.sum(double_deltas**2, axis=0) / np.max(np.sum(double_deltas**2, axis=0))
-          ))
+    # stack as features
+    if self.channel_size == 1:
+      if self.feature_params['use_cepstral_features']: mfcc_all = np.concatenate((mfcc_all, mfcc[np.newaxis, :]), axis=1) if not self.feature_params['use_energy_features'] else np.concatenate((mfcc_all, mfcc[np.newaxis, :], e_mfcc[np.newaxis, :]), axis=1)
+      if self.feature_params['use_delta_features']: mfcc_all = np.concatenate((mfcc_all, deltas[np.newaxis, :]), axis=1) if not self.feature_params['use_energy_features'] else np.concatenate((mfcc_all, deltas[np.newaxis, :], e_deltas[np.newaxis, :]), axis=1)
+      if self.feature_params['use_double_delta_features']: mfcc_all = np.concatenate((mfcc_all, double_deltas[np.newaxis, :]), axis=1) if not self.feature_params['use_energy_features'] else np.concatenate((mfcc_all, double_deltas[np.newaxis, :], e_double_deltas[np.newaxis, :]), axis=1)
 
-        # stack energies
-        mfcc = np.vstack((mfcc, e_mfcc))
-
-    # no deltas
+    # stack as channels
     else:
-      if self.feature_params['compute_energy_features']:
-        e_mfcc = np.sum(mfcc**2, axis=0) / np.max(np.sum(mfcc**2, axis=0))
-        mfcc = np.vstack((mfcc, e_mfcc))
+      if self.feature_params['use_cepstral_features']: mfcc_all = np.concatenate((mfcc_all, mfcc[np.newaxis, :]), axis=0) if not self.feature_params['use_energy_features'] else np.concatenate((mfcc_all, np.vstack((mfcc, e_mfcc))[np.newaxis, :]), axis=0)
+      if self.feature_params['use_delta_features']: mfcc_all = np.concatenate((mfcc_all, deltas[np.newaxis, :]), axis=0) if not self.feature_params['use_energy_features'] else np.concatenate((mfcc_all, np.vstack((deltas, e_deltas))[np.newaxis, :]), axis=0)
+      if self.feature_params['use_double_delta_features']: mfcc_all = np.concatenate((mfcc_all, double_deltas[np.newaxis, :]), axis=0) if not self.feature_params['use_energy_features'] else np.concatenate((mfcc_all, np.vstack((double_deltas, e_double_deltas))[np.newaxis, :]), axis=0)
 
     # norm -> [0, 1]
-    if self.feature_params['norm_features']:
-      for i, m in enumerate(mfcc):
-        mfcc[i] = (m + np.abs(np.min(m))) / np.linalg.norm(m + np.abs(np.min(m)), ord=np.infty)
+    if self.feature_params['norm_features']: 
+      for i, m in enumerate(mfcc_all[0, :]): mfcc_all[0, i] = (m + np.abs(np.min(m))) / np.linalg.norm(m + np.abs(np.min(m)), ord=np.infty)
 
     # find best onset
-    _, bon_pos = self.find_min_energy_region(mfcc)
+    _, bon_pos = self.find_max_energy_region(mfcc[self.energy_feature_pos, :])
 
     # return best onset
-    if reduce_to_best_onset: return mfcc[:, bon_pos:bon_pos+self.feature_params['frame_size']], bon_pos
+    if reduce_to_best_onset: return mfcc_all[:, :, bon_pos:bon_pos+self.feature_params['frame_size']], bon_pos
 
-    return mfcc, bon_pos
+    return mfcc_all, bon_pos
+
+
+  def calc_energy(self, x, normalize=True, use_sqrt=True):
+    """
+    energy calculation
+    """
+    e = np.einsum('ij,ji->j', x, x.T)
+    if use_sqrt: e = np.sqrt(e)
+    if normalize: e = e / np.max(e)
+    return e[np.newaxis, :]
 
 
   def calc_mfcc(self, x):
@@ -109,6 +118,21 @@ class FeatureExtractor():
     mfcc = scipy.fftpack.dct(np.log(u), type=2, n=self.feature_params['n_filter_bands'], axis=1, norm=None, overwrite_x=False).T[:self.feature_params['n_ceps_coeff']]
 
     return mfcc
+
+
+  def calc_spectogram(self, x):
+    """
+    spectogram (power spectrum)
+    """
+
+    # pre processing
+    x_pre = self.pre_processing(x)
+
+    # stft
+    x_stft = 2 / self.N * librosa.stft(x_pre, n_fft=self.N, hop_length=self.hop, win_length=self.N, window='hann', center=False).T
+
+    # power spectrum
+    return np.abs(x_stft * np.conj(x_stft))
 
 
   def pre_processing(self, x):
@@ -170,34 +194,24 @@ class FeatureExtractor():
     return d
 
 
-  def find_min_energy_region(self, mfcc, randomize=False, rand_frame=5):
+  def find_max_energy_region(self, x, randomize=False, rand_frame=5):
     """
     find frame with least amount of energy
     """
 
     # windowed [r x m x f]
-    x_win = np.squeeze(view_as_windows(mfcc[self.energy_feature_pos], self.feature_params['frame_size'], step=1))
+    x_win = np.squeeze(view_as_windows(x, self.feature_params['frame_size'], step=1))
 
-    # # energy calc
-    # e = np.einsum('ij,ji->j', mfcc, mfcc.T)
-    # e = e / np.max(e)
-    # e_win = np.squeeze(view_as_windows(e, self.feature_params['frame_size'], step=1))
-
-    # best onset position
-    #bon_pos = np.argmin(np.sum(x_win, axis=1))
-
-    #if self.energy_feature_pos == 0: bon_pos = np.argmax(np.sum(x_win, axis=1) - np.sum(e_win, axis=1))
-    #if self.energy_feature_pos == 0: bon_pos = np.argmax(np.sum(x_win, axis=1) - 0.5 * np.sum(e_win, axis=1))
+    # energy region
     if self.energy_feature_pos == 0: bon_pos = np.argmax(np.sum(x_win, axis=1))
     else: bon_pos = np.argmin(np.sum(x_win, axis=1))
 
     # randomize a bit
     if randomize:
       bon_pos += np.random.randint(-rand_frame, rand_frame)
-      if bon_pos > x_win.shape[0]-1:
-        bon_pos = x_win.shape[0]-1
-      elif bon_pos < 0:
-        bon_pos = 0
+      if bon_pos >= x_win.shape[0]: bon_pos = x_win.shape[0]# - 1
+      #if bon_pos > x_win.shape[0]-1: bon_pos = x_win.shape[0]-1
+      elif bon_pos < 0: bon_pos = 0
 
     return frames_to_time(bon_pos, self.feature_params['fs'], self.hop), bon_pos
 
@@ -239,10 +253,21 @@ class FeatureExtractor():
     mfcc = np.vstack((mfcc, deltas, double_deltas, e_mfcc))
 
     # find best onset
-    _, bon_pos = self.find_min_energy_region(mfcc, self.fs, self.hop)
+    _, bon_pos = self.find_max_energy_region(mfcc[self.energy_feature_pos, :], self.fs, self.hop)
 
     # return best onset
     return mfcc[:, bon_pos:bon_pos+self.frame_size], bon_pos
+
+
+  def legacy_adjustments(self):
+    """
+    yes we need legacy :(
+    """
+    if 'use_channels' not in self.feature_params.keys(): self.feature_params.update({'use_channels': False})
+    if 'use_cepstral_features' not in self.feature_params.keys(): self.feature_params.update({'use_cepstral_features': True})
+    if 'use_delta_features' not in self.feature_params.keys(): self.feature_params.update({'use_delta_features': True})
+    if 'use_double_delta_features' not in self.feature_params.keys(): self.feature_params.update({'use_double_delta_features': True})
+    if 'use_energy_features' not in self.feature_params.keys(): self.feature_params.update({'use_energy_features': True})
 
 
 
@@ -250,7 +275,6 @@ def find_min_energy_time(mfcc, fs, hop):
   """
   find min  energy time position
   """
-
   return frames_to_time(np.argmin(mfcc[36, :]), fs, hop)
 
 
@@ -304,7 +328,6 @@ def frames_to_time(x, fs, hop):
   """
   transfer from frame space into time space (choose beginning of frame)
   """
-
   return x * hop / fs
 
 
@@ -312,7 +335,6 @@ def frames_to_sample(x, fs, hop):
   """
   frame to sample space
   """
-
   return x * hop
 
 
@@ -366,16 +388,18 @@ def custom_mfcc(x, fs, N=1024, hop=512, n_filter_bands=8):
   return custom_dct(np.log(u), n_filter_bands).T
 
 
+def custom_dct_matrix(N):
+  """
+  get custom dct matrix
+  """
+  return np.cos(np.pi / N * np.outer((np.arange(N) + 0.5), np.arange(N)))
+
+
 def custom_dct(x, N):
   """
-  discrete cosine transform
+  discrete cosine transform of matrix [MxN]
   """
-  
-  # transformation matrix
-  H = np.cos(np.pi / N * np.outer((np.arange(N) + 0.5), np.arange(N)))
-
-  # transformed signal
-  return np.dot(x, H)
+  return np.dot(x, custom_dct_matrix(N))
 
 
 def mel_to_f(m):
@@ -398,8 +422,7 @@ def triangle(M, N, same=True):
   """
 
   # ensure int
-  M = int(M)
-  N = int(N)
+  M, N = int(M), int(N)
 
   # triangle
   tri = np.concatenate((np.linspace(0, 1, M), np.linspace(1 - 1 / N, 0, N - 1)))
@@ -411,12 +434,10 @@ def triangle(M, N, same=True):
     k = M - N
 
     # zeros at beginning
-    if k < 0:
-      return np.pad(tri, (int(np.abs(k)), 0))
+    if k < 0: return np.pad(tri, (int(np.abs(k)), 0))
 
     # zeros at end
-    else:
-      return np.pad(tri, (0, int(np.abs(k))))
+    else: return np.pad(tri, (0, int(np.abs(k))))
 
   return tri
 
@@ -588,7 +609,6 @@ def princarg(p):
   """
   principle argument
   """
-
   return np.mod(p + np.pi, -2 * np.pi) + np.pi
 
 
@@ -648,8 +668,6 @@ def create_frames(x, N, hop):
 
 
 
-
-
 if __name__ == '__main__':
   """
   main file of feature extraction and how to use it
@@ -675,18 +693,30 @@ if __name__ == '__main__':
   # plot stuff
   #plot_mel_band_weights(feature_extractor.w_f, feature_extractor.w_mel, feature_extractor.f, feature_extractor.m, plot_path=None, name='weights', show_plot=True)
 
-
+  # dct
+  #plt.figure(), plt.imshow(custom_dct_matrix(cfg['feature_params']['n_filter_bands'])), plt.show()
+ 
   # analyze some wavs
   for wav in glob('./' + cfg['datasets']['speech_commands']['plot_paths']['damaged_files'] + '*.wav'):
     print("wav: ", wav)
     x, _ = librosa.load(wav, sr=16000)
-    mfcc, bon_pos = feature_extractor.extract_mfcc39(x, reduce_to_best_onset=False)
-    plot_mfcc_profile(x, 16000, feature_extractor.N, feature_extractor.hop, mfcc, diff_plot=True, bon_pos=bon_pos, frame_size=cfg['feature_params']['frame_size'], name=wav.split('/')[-1], show_plot=False)
+    mfcc, bon_pos = feature_extractor.extract_mfcc(x, reduce_to_best_onset=False)
+    plot_mfcc_profile(x, 16000, feature_extractor.N, feature_extractor.hop, mfcc, diff_plot=False, bon_pos=bon_pos, frame_size=cfg['feature_params']['frame_size'], name=wav.split('/')[-1], show_plot=True)
+
+    # # spec
+    # x_spec = feature_extractor.calc_spectogram(x)
+
+    # plt.figure()
+    # librosa.display.specshow(x_spec.T, sr=16000, hop_length=160, x_axis='time')
+
+    # plt.figure()
+    # plt.imshow(x_spec.T)
+    # plt.show()
 
   # mfcc
   x = np.random.randn(16000)
-  mfcc, bon_pos = feature_extractor.extract_mfcc39(x, reduce_to_best_onset=False)
-  plot_mfcc_profile(x, 16000, feature_extractor.N, feature_extractor.hop, mfcc, diff_plot=True, bon_pos=bon_pos, name='rand', show_plot=True)
+  mfcc, bon_pos = feature_extractor.extract_mfcc(x, reduce_to_best_onset=False)
+  plot_mfcc_profile(x, 16000, feature_extractor.N, feature_extractor.hop, mfcc, bon_pos=bon_pos, name='rand', show_plot=True)
 
 
 

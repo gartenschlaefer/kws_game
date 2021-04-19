@@ -12,7 +12,7 @@ class TrainScore():
 
   def __init__(self, num_epochs, is_adv=False):
 
-    # params
+    # arguments
     self.num_epochs = num_epochs
     self.is_adv = is_adv
 
@@ -93,7 +93,7 @@ class EvalScore():
 
   def __init__(self, eval_set_name='', collect_things=False):
 
-    # params
+    # arguments
     self.eval_set_name = eval_set_name
     self.collect_things = collect_things
 
@@ -134,7 +134,6 @@ class EvalScore():
       self.z_all.append(z.tolist())
 
 
-
   def finish(self):
     """
     finishing procedure
@@ -170,6 +169,13 @@ class EvalScore():
     if do_print: print(eval_log)
 
     return eval_log
+
+
+  def info_detail_log(self, arch, param_string, train_params):
+    """
+    detail log
+    """
+    return "Eval{} on arch: [{}], audio set param string: [{}], train_params: {}, correct: [{} / {}] acc: [{:.4f}] with loss: [{:.4f}]".format(' ' + self.eval_set_name, arch, param_string, train_params, self.correct, self.total, self.acc, self.loss)
 
 
   def info_collected(self, info_file=None, do_print=False):

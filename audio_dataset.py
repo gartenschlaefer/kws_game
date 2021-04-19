@@ -30,9 +30,12 @@ class AudioDataset():
     self.collect_wavs = collect_wavs
     self.root_path = root_path
 
-    # extracted vars
-    self.feature_size = (self.feature_params['n_ceps_coeff'] + 1 * self.feature_params['compute_energy_features']) * (1 + 2 * self.feature_params['compute_deltas'])
+    # channel size
+    self.channel_size = 1 if not self.feature_params['use_channels'] else int(self.feature_params['use_cepstral_features']) + int(self.feature_params['use_delta_features']) +  int(self.feature_params['use_double_delta_features'])
 
+    # feature size
+    self.feature_size = (self.feature_params['n_ceps_coeff'] + int(self.feature_params['use_energy_features'])) * int(self.feature_params['use_cepstral_features']) + (self.feature_params['n_ceps_coeff'] + int(self.feature_params['use_energy_features'])) * int(self.feature_params['use_delta_features']) + (self.feature_params['n_ceps_coeff'] + int(self.feature_params['use_energy_features'])) * int(self.feature_params['use_double_delta_features']) if not self.feature_params['use_channels'] else (self.feature_params['n_ceps_coeff'] + int(self.feature_params['use_energy_features']))
+    
     # variables
     self.labels = self.dataset_cfg['sel_labels']
     self.set_names = []
@@ -46,7 +49,8 @@ class AudioDataset():
     self.plot_paths = dict((k, self.root_path + v) for k, v in self.dataset_cfg['plot_paths'].items())
 
     # parameter path
-    self.param_path = 'v{}_c-{}_n-{}_f-{}x{}_n{}d{}e{}_nl-{}/'.format(self.dataset_cfg['version_nr'], len(self.labels), self.dataset_cfg['n_examples'], self.feature_size, self.feature_params['frame_size'], int(self.feature_params['norm_features']), int(self.feature_params['compute_deltas']), int(self.feature_params['compute_energy_features']), int(self.dataset_cfg['add_noise']))
+    #self.param_path = 'v{}_c-{}_n-{}_f-{}x{}_n{}d{}e{}_nl-{}/'.format(self.dataset_cfg['version_nr'], len(self.labels), self.dataset_cfg['n_examples'], self.feature_size, self.feature_params['frame_size'], int(self.feature_params['norm_features']), int(self.feature_params['compute_deltas']), int(self.feature_params['compute_energy_features']), int(self.dataset_cfg['add_noise']))
+    self.param_path = 'v{}_c-{}_n-{}_f-{}x{}x{}_norm{}_c{}d{}d{}e{}_nl{}/'.format(self.dataset_cfg['version_nr'], len(self.labels), self.dataset_cfg['n_examples'], self.channel_size, self.feature_size, self.feature_params['frame_size'], int(self.feature_params['norm_features']), int(self.feature_params['use_cepstral_features']), int(self.feature_params['use_delta_features']), int(self.feature_params['use_double_delta_features']), int(self.feature_params['use_energy_features']), int(self.dataset_cfg['add_noise']))
 
     # folders
     self.wav_folders = [self.root_path + p + self.dataset_cfg['wav_folder'] for p in list(self.dataset_cfg['data_paths'].values())]
@@ -112,14 +116,14 @@ class AudioDataset():
       all_speakers = np.unique(all_speakers_files)
       print("number of audio files: ", len(all_speakers_files)), print("speakers: ", all_speakers), print("number of speakers: ", len(all_speakers))
 
-    # prints to files
-    with open(self.info_file_damaged, 'w') as f: [print(i, file=f) for i in self.damaged_file_list]
-    with open(self.info_file_short, 'w') as f: [print(i, file=f) for i in self.short_file_list]
-    with open(self.info_file_weak, 'w') as f: [print(i, file=f) for i in self.weak_file_list]
-    with open(self.info_file_strong, 'w') as f: [print(i, file=f) for i in self.strong_file_list]
-
-    # save damaged files
-    for wav, score in self.damaged_file_list: copyfile(wav, self.plot_paths['damaged_files'] + wav.split('/')[-1])
+      # save damaged files
+      for wav, score in self.damaged_file_list: copyfile(wav, self.plot_paths['damaged_files'] + wav.split('/')[-1])
+    
+      # prints to files
+      with open(self.info_file_damaged, 'w') as f: [print(i, file=f) for i in self.damaged_file_list]
+      with open(self.info_file_short, 'w') as f: [print(i, file=f) for i in self.short_file_list]
+      with open(self.info_file_weak, 'w') as f: [print(i, file=f) for i in self.weak_file_list]
+      with open(self.info_file_strong, 'w') as f: [print(i, file=f) for i in self.strong_file_list]
 
     # broken file info
     plot_damaged_file_score(self.damaged_score_list, plot_path=self.plot_paths['z_score'], name='z_score_n-{}'.format(self.dataset_cfg['n_examples']), enable_plot=True)
@@ -234,13 +238,13 @@ class AudioDataset():
       print("label: [{}]\tnum: [{}]".format(label, label_num))
 
 
-  def add_noise_data(self, x, y, z, n_examples):
+  def add_noise_to_dataset(self, x, y, z, n_examples):
     """
     add noise data
     """
 
     # create noise
-    n = np.random.rand(n_examples, x.shape[1], x.shape[2])
+    n = np.random.rand(n_examples, x.shape[1], x.shape[2], x.shape[3])
 
     # update
     x = np.vstack((x, n))
@@ -356,13 +360,13 @@ class SpeechCommandsDataset(AudioDataset):
       x, y, index = self.extract_mfcc_data(wavs=wavs, annos=annos, n_examples=n_examples, set_name=set_name)
 
       # add noise if requested
-      if self.dataset_cfg['add_noise']: x, y, index = self.add_noise_data(x, y, index, n_examples)
+      if self.dataset_cfg['add_noise']: x, y, index = self.add_noise_to_dataset(x, y, index, n_examples)
 
       # print label stats
       self.label_stats(y)
 
       # save mfcc data file
-      np.savez(self.feature_files[i], x=x, y=y, index=index, params=cfg['feature_params'])
+      np.savez(self.feature_files[i], x=x, y=y, index=index, params=self.feature_params)
       print("--save data to: ", self.feature_files[i])
 
 
@@ -373,7 +377,7 @@ class SpeechCommandsDataset(AudioDataset):
     """
 
     # mfcc_data: [n x m x l], labels and index
-    mfcc_data, label_data, index_data = np.empty(shape=(0, self.feature_size, self.feature_params['frame_size']), dtype=np.float64), [], []
+    mfcc_data, label_data, index_data = np.empty(shape=(0, self.channel_size, self.feature_size, self.feature_params['frame_size']), dtype=np.float64), [], []
 
     # extract class wavs
     for class_wavs, class_annos in zip(wavs, annos):
@@ -402,23 +406,22 @@ class SpeechCommandsDataset(AudioDataset):
         if self.verbose: print("wav: [{}] with label: [{}], samples=[{}], time=[{}]s".format(wav, label, len(x), len(x) / self.feature_params['fs']))
 
         # extract feature vectors [m x l]
-        mfcc, bon_pos = self.feature_extractor.extract_mfcc39(x, reduce_to_best_onset=False)
+        mfcc, bon_pos = self.feature_extractor.extract_mfcc(x, reduce_to_best_onset=False)
 
         # collect wavs
         if self.collect_wavs: self.pre_wavs.append((librosa.util.normalize(x), label + str(file_index) + '_' + set_name, bon_pos))
 
-        # damaged file things
-        #_, file_is_damaged = self.detect_damaged_file(mfcc[:, bon_pos:bon_pos+self.feature_params['frame_size']], wav)
-        _, file_is_damaged = self.detect_damaged_file(mfcc, wav)
-
         # plot mfcc features
         plot_mfcc_profile(x, self.feature_params['fs'], self.feature_extractor.N, self.feature_extractor.hop, mfcc, anno_file=anno, onsets=None, bon_pos=bon_pos, mient=None, minreg=None, frame_size=self.feature_params['frame_size'], plot_path=self.plot_paths['mfcc'], name=label + str(file_index) + '_' + set_name, enable_plot=self.dataset_cfg['enable_plot'])
 
-        # handle damaged files
-        if file_is_damaged and self.dataset_cfg['filter_damaged_files']: continue
+        # damaged file check
+        if self.dataset_cfg['filter_damaged_files']:
+
+          # handle damaged files
+          if self.detect_damaged_file(mfcc, wav): continue
 
         # add to mfcc_data container
-        mfcc_data = np.vstack((mfcc_data, mfcc[np.newaxis, :, bon_pos:bon_pos+self.feature_params['frame_size']]))
+        mfcc_data = np.vstack((mfcc_data, mfcc[np.newaxis, :, :, bon_pos:bon_pos+self.feature_params['frame_size']]))
         label_data.append(label)
         index_data.append(label + file_index)
 
@@ -487,7 +490,7 @@ class SpeechCommandsDataset(AudioDataset):
     #e = e / np.max(e)
 
     # calculate damaged score of energy deltas
-    if mfcc.shape[0] == 39: z_est, z_lim = np.sum(np.abs(mfcc[37:39, :])), 60
+    if mfcc.shape[1] == 39: z_est, z_lim = np.sum(np.abs(mfcc[0, 37:39, :])), 60
     #if mfcc.shape[0] == 39: z_est = np.sum(mfcc[37:39, :] @ mfcc[37:39, :].T)
     #else: z_est = np.sum(np.abs(np.diff(mfcc[-1, :])))
     #else: z_est = np.diff(mfcc[-1, :]) @ np.diff(mfcc[-1, :]).T
@@ -497,7 +500,7 @@ class SpeechCommandsDataset(AudioDataset):
     #else: z_est = np.sum(np.diff(mfcc, axis=1) @ np.diff(mfcc, axis=1).T)
     #else: z_est = np.sum(e)
     #else: z_est = np.diff(e) @ np.diff(e).T
-    else: z_est, z_lim = mfcc[0, :-1] @ np.abs(np.diff(mfcc[0, :])).T, 3.5
+    else: z_est, z_lim = mfcc[0, 0, :-1] @ np.abs(np.diff(mfcc[0, 0, :])).T, 3.5
 
     # add score to list
     self.damaged_score_list.append(z_est)
@@ -509,7 +512,7 @@ class SpeechCommandsDataset(AudioDataset):
     if is_damaged: self.damaged_file_list.append((wav, z_est))
 
     # return score and damaged indicator
-    return z_est, is_damaged
+    return is_damaged
 
 
 
@@ -518,7 +521,7 @@ class MyRecordingsDataset(SpeechCommandsDataset):
   Speech Commands Dataset extraction and set creation
   """
 
-  def __init__(self, dataset_cfg, feature_params, collect_wavs, verbose=False):
+  def __init__(self, dataset_cfg, feature_params, collect_wavs=False, verbose=False):
 
     # parent init
     super().__init__(dataset_cfg, feature_params, collect_wavs=collect_wavs, verbose=verbose)

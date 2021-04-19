@@ -160,7 +160,7 @@ class ML():
     eval_score.info_collected(info_file=self.score_file, do_print=False)
 
     # log to file
-    if self.cfg_ml['logging_enabled']: logging.info(eval_score.info_log(do_print=False))
+    if self.cfg_ml['logging_enabled']: logging.info(eval_score.info_detail_log(self.net_handler.nn_arch, self.audio_dataset.param_path, self.cfg_ml['train_params']))
 
     # print confusion matrix
     print("confusion matrix:\n{}\n".format(eval_score.cm))
@@ -172,21 +172,29 @@ class ML():
     # --
     # evaluation on my set
 
-    if self.batch_archive.x_my is not None:
+    if self.batch_archive.x_my is None:
+      if self.cfg_ml['logging_enabled']: logging.info('\n')
+      return
 
-      print("\n--Evaluation on My Set:")
+    print("\n--Evaluation on My Set:")
 
-      # evaluation of model
-      eval_score = self.net_handler.eval_nn(eval_set='my', batch_archive=self.batch_archive, collect_things=True, verbose=True)
-      
-      # score print of collected
-      eval_score.info_collected(info_file=self.score_file, do_print=False)
+    # evaluation of model
+    eval_score = self.net_handler.eval_nn(eval_set='my', batch_archive=self.batch_archive, collect_things=True, verbose=True)
+    
+    # score print of collected
+    eval_score.info_collected(info_file=self.score_file, do_print=False)
 
-      # confusion matrix
-      print("confusion matrix:\n{}\n".format(eval_score.cm))
+    # log to file
+    if self.cfg_ml['logging_enabled']: logging.info(eval_score.info_detail_log(self.net_handler.nn_arch, self.audio_dataset.param_path, self.cfg_ml['train_params']))
 
-      # plot confusion matrix
-      plot_confusion_matrix(eval_score.cm, self.batch_archive.classes, plot_path=self.model_path, name='confusion_my')
+    # confusion matrix
+    print("confusion matrix:\n{}\n".format(eval_score.cm))
+
+    # plot confusion matrix
+    plot_confusion_matrix(eval_score.cm, self.batch_archive.classes, plot_path=self.model_path, name='confusion_my')
+
+    # new line for log
+    if self.cfg_ml['logging_enabled']: logging.info('\n')
 
 
   def analyze(self, name_ext=''):
@@ -212,7 +220,7 @@ class ML():
           v = v.detach().cpu()
 
           # info
-          print("{} analyze: {}".format(k, v.shape))
+          #print("{} analyze: {}".format(k, v.shape))
           
           # plot images
           plot_grid_images(x=v.numpy(), context=context, color_balance=True, padding=1, num_cols=np.clip(v.shape[0], 1, 8), title=k + self.param_path_ml.replace('/', ' ') + ' ' + self.encoder_label + name_ext, plot_path=self.model_path, name=k + name_ext, show_plot=False)
@@ -437,6 +445,53 @@ def train_conv_encoders(cfg, audio_set1, all_feature_files, encoder_model=None, 
   return net_handler.models['d'], None
 
 
+def get_audiosets(cfg):
+  """
+  get audioset
+  """
+
+  # audio sets
+  audio_set1 = AudioDataset(cfg['datasets']['speech_commands'], cfg['feature_params'])
+  audio_set2 = AudioDataset(cfg['datasets']['my_recordings'], cfg['feature_params'])
+
+  # create dataset if not existing
+  if not check_files_existance(audio_set1.feature_files):
+    audio_set1 = SpeechCommandsDataset(cfg['datasets']['speech_commands'], feature_params=cfg['feature_params'], verbose=False)
+    audio_set1.extract_features()
+
+  # create dataset if not existing
+  if not check_files_existance(audio_set2.feature_files):
+    audio_set2 = MyRecordingsDataset(cfg['datasets']['my_recordings'], feature_params=cfg['feature_params'], verbose=False)
+    audio_set2.extract_features()
+
+  # select feature files
+  all_feature_files = audio_set1.feature_files + audio_set2.feature_files if len(audio_set1.labels) == len(audio_set2.labels) else audio_set1.feature_files
+
+  return audio_set1, audio_set2, all_feature_files
+
+
+def cfg_changer(cfg_file):
+  """
+  change config for more convenient training
+  """
+
+  cfg = yaml.safe_load(open(cfg_file))
+
+  # no config changes allowed
+  if not cfg['config_changer_allowed']: return [cfg]
+
+  # cfg list
+  cfg_list = []
+
+  # change feature params
+  nde = [(True, True, True), (True, True, False), (True, False, True), (True, False, False), (False, True, True), (False, True, False), (False, False, True), (False, False, False)]
+  for n, d, e in nde:
+    cfg = yaml.safe_load(open(cfg_file))
+    cfg['feature_params']['norm_features'], cfg['feature_params']['use_delta_features'], cfg['feature_params']['use_energy_features'] = n, d, e
+    cfg_list.append(cfg)
+
+  return cfg_list
+
 
 if __name__ == '__main__':
   """
@@ -449,58 +504,54 @@ if __name__ == '__main__':
   from conv_nets import ConvEncoder, ConvDecoder
   from batch_archive import SpeechCommandsBatchArchive
   from net_handler import NetHandler
-  from audio_dataset import AudioDataset
+  from audio_dataset import AudioDataset, SpeechCommandsDataset, MyRecordingsDataset
 
   # yaml config file
-  cfg = yaml.safe_load(open("./config.yaml"))
+  #cfg = yaml.safe_load(open("./config.yaml"))
 
-  # audio sets
-  audio_set1 = AudioDataset(cfg['datasets']['speech_commands'], cfg['feature_params'])
-  audio_set2 = AudioDataset(cfg['datasets']['my_recordings'], cfg['feature_params'])
+  # go through configs
+  for cfg in cfg_changer(cfg_file='./config.yaml'):
+    
+    # get audio sets
+    audio_set1, audio_set2, all_feature_files = get_audiosets(cfg)
 
-  # select feature files
-  all_feature_files = audio_set1.feature_files + audio_set2.feature_files if len(audio_set1.labels) == len(audio_set2.labels) else audio_set1.feature_files
+    # encoder, decoder models for certain architectures necessary
+    encoder_model, decoder_model = None, None
 
-  # encoder, decoder models for certain architectures necessary
-  encoder_model, decoder_model = None, None
-
-  # conv encoder training
-  if cfg['ml']['nn_arch'] in ['conv-encoder', 'conv-lim-encoder', 'conv-latent']: encoder_model, decoder_model = train_conv_encoders(cfg, audio_set1, all_feature_files)
-
-
-  # create batch archive
-  batch_archive = SpeechCommandsBatchArchive(all_feature_files, batch_size=cfg['ml']['train_params']['batch_size'])
-
-  # adversarial training
-  if cfg['ml']['nn_arch'] in ['adv-experimental']:
-    #batch_archive.reduce_to_label('up')
-    #batch_archive.add_noise_data(shuffle=True)
-    batch_archive.one_against_all('up', others_label='other', shuffle=True)
-
-  # print classes
-  print("x_train: ", batch_archive.x_train.shape)
-
-  # net handler
-  net_handler = NetHandler(nn_arch=cfg['ml']['nn_arch'], class_dict=batch_archive.class_dict, data_size=batch_archive.data_size, encoder_model=encoder_model, decoder_model=decoder_model, use_cpu=cfg['ml']['use_cpu'])
+    # conv encoder training
+    if cfg['ml']['nn_arch'] in ['conv-encoder', 'conv-lim-encoder', 'conv-latent']: encoder_model, decoder_model = train_conv_encoders(cfg, audio_set1, all_feature_files)
 
 
-  # --
-  # ML
+    # create batch archive
+    batch_archive = SpeechCommandsBatchArchive(all_feature_files, batch_size=cfg['ml']['train_params']['batch_size'])
 
-  # instance
-  ml = ML(cfg_ml=cfg['ml'], audio_dataset=audio_set1, batch_archive=batch_archive, net_handler=net_handler)
+    # adversarial training
+    if cfg['ml']['nn_arch'] in ['adv-experimental']:
+      batch_archive.reduce_to_label('up')
+      #batch_archive.add_noise_data(shuffle=True)
+      #batch_archive.one_against_all('up', others_label='other', shuffle=True)
 
-  # analyze init weights
-  ml.analyze(name_ext='_init')
+    # net handler
+    net_handler = NetHandler(nn_arch=cfg['ml']['nn_arch'], class_dict=batch_archive.class_dict, data_size=batch_archive.data_size, encoder_model=encoder_model, decoder_model=decoder_model, use_cpu=cfg['ml']['use_cpu'])
 
-  # training
-  ml.train()
 
-  # evaluation
-  ml.eval()
+    # --
+    # ML
 
-  # analyze
-  ml.analyze()
+    # instance
+    ml = ML(cfg_ml=cfg['ml'], audio_dataset=audio_set1, batch_archive=batch_archive, net_handler=net_handler)
+
+    # analyze init weights
+    ml.analyze(name_ext='_init')
+
+    # training
+    ml.train()
+
+    # evaluation
+    ml.eval()
+
+    # analyze
+    ml.analyze()
 
 
 

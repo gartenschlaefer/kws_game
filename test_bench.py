@@ -78,16 +78,16 @@ class TestBench():
 
     # for legacy models
     try:
-      self.data_size = net_params['data_size'][()]
+      self.data_size = data['data_size'][()]
     except:
       self.data_size = (1, 39, 32)
       print("old classifier model use fixed data size: {}".format(self.data_size))
 
     try:
-      self.feature_params = net_params['feature_params'][()]
+      self.feature_params = data['feature_params'][()]
     except:
-      self.feature_params = {'fs': 16000, 'N_s': 0.025, 'hop_s': 0.010, 'n_filter_bands': 32, 'n_ceps_coeff': 12, 'frame_size': 32, 'norm_features': False, 'compute_deltas': True}
-      print("old classifier model use fixed feature parameters: {}".format(feature_params))
+      self.feature_params = {'fs': 16000, 'N_s': 0.025, 'hop_s': 0.010, 'n_filter_bands': 32, 'n_ceps_coeff': 12, 'frame_size': 32, 'norm_features': False, 'use_channels': False, 'use_cepstral_features': True, 'use_delta_features': True, 'use_double_delta_features': True, 'use_energy_features': True}
+      print("old classifier model use fixed feature parameters: {}".format(self.feature_params))
 
     # init feature extractor
     self.feature_extractor = FeatureExtractor(self.feature_params)
@@ -195,7 +195,7 @@ class TestBench():
       # print("db: ", 10 * np.log10(p_x_eff / p_n_eff))
 
       # feature extraction
-      x_mfcc, _ = self.feature_extractor.extract_mfcc39(x_noise, reduce_to_best_onset=True)
+      x_mfcc, _ = self.feature_extractor.extract_mfcc(x_noise, reduce_to_best_onset=True)
 
       # classify
       y_hat, o, pred_label = self.net_handler.classify_sample(x_mfcc)
@@ -224,10 +224,10 @@ class TestBench():
     pred_label_list, probs = [], []
 
     # feature extraction
-    x_mfcc, _ = self.feature_extractor.extract_mfcc39(x_wav, reduce_to_best_onset=False)
+    x_mfcc, _ = self.feature_extractor.extract_mfcc(x_wav, reduce_to_best_onset=False)
 
     # windowed
-    x_win = np.squeeze(view_as_windows(x_mfcc, self.data_size[1:], step=self.window_step))
+    x_win = np.squeeze(view_as_windows(x_mfcc, self.data_size, step=self.window_step), axis=(0, 1))
 
     for i, x in enumerate(x_win):
 

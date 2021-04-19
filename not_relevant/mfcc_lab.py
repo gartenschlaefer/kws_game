@@ -165,7 +165,7 @@ def time_measurements(x, u, feature_params):
     #y = scipy.fftpack.dct(np.log(u), type=2, n=n_filter_bands, axis=1, norm=None, overwrite_x=False).T
 
     # time: 0.00418839693069458 *** winner
-    y, _ = feature_extractor.extract_mfcc39(x)
+    y, _ = feature_extractor.extract_mfcc(x)
     
     # time: 0.015525884628295898
     #y, _ = feature_extractor.extract_mfcc39_slow(x)
@@ -209,15 +209,15 @@ def time_measure_callable(x, callback_f):
     delta_time_list.append(time.time() - start_time)
 
   # times
-  print("f: [{}] mean time: [{}]".format(callback_f.__name__, np.mean(delta_time_list)))
+  print("f: [{}] mean time: [{:.4e}]".format(callback_f.__name__, np.mean(delta_time_list)))
 
 
 def energy_with_sum(x):
   """
   energy calculation with sum
   """
-
-  e = np.sum(x**2, axis=0)
+  #e = np.sum(x**2, axis=0)
+  e = np.sqrt(np.sum(x**2, axis=0))
   return e / np.max(e)
 
 
@@ -225,7 +225,8 @@ def energy_with_matrix(x):
   """
   matrix calculation
   """
-  e = np.diag(x.T @ x)
+  #e = np.diag(x.T @ x)
+  e = np.sqrt(np.diag(x.T @ x))
   return e / np.max(e)
 
 
@@ -233,8 +234,23 @@ def energy_einsum(x):
   """
   einsum energy
   """
-  e = np.einsum('ij,ji->j', x, x.T)
+  #e = np.einsum('ij,ji->j', x, x.T)
+  e = np.sqrt(np.einsum('ij,ji->j', x, x.T))
   return e / np.max(e)
+
+
+def power_spec_naive(x):
+  """
+  power spec calc
+  """
+  return np.power(np.abs(x), 2)
+
+
+def power_spec_conj(x):
+  """
+  power spec calc
+  """
+  return np.abs(x * np.conj(x))
 
 
 
@@ -282,22 +298,22 @@ if __name__ == '__main__':
   # generate test signal
   x = some_test_signal(fs, t=1, save_to_file=False)
 
-  # mfcc
-  mfcc, _ = feature_extractor.extract_mfcc39(x)
+  # stft
+  x_stft = 2 / N * librosa.stft(x, n_fft=N, hop_length=hop, win_length=N, window='hann', center=False).T
 
-  e_sum = energy_with_sum(mfcc)
-  e_m = energy_with_matrix(mfcc)
-  e_e = energy_einsum(mfcc)
+  # mfcc
+  mfcc, _ = feature_extractor.extract_mfcc(x)
+  if len(mfcc.shape) == 3: mfcc = np.squeeze(mfcc.reshape(1, -1, mfcc.shape[2]))
 
   print("mfcc: ", mfcc.shape)
-  print("e_sum: ", e_sum)
-  print("e_m: ", e_m)
-  print("e_e: ", e_e)
+
+  print("e_sum: ", energy_with_sum(mfcc)), print("e_m: ", energy_with_matrix(mfcc)), print("e_e: ", energy_einsum(mfcc))
+  #print("pn: ", power_spec_naive(x_stft)), print("pc: ", power_spec_conj(x_stft))
 
   print("\ntime measures: ")
-  time_measure_callable(mfcc, energy_einsum)
-  time_measure_callable(mfcc, energy_with_sum)
-  time_measure_callable(mfcc, energy_with_matrix)
+  time_measure_callable(mfcc, energy_einsum), time_measure_callable(mfcc, energy_with_sum), time_measure_callable(mfcc, energy_with_matrix)
+  #time_measure_callable(x_stft, power_spec_naive), time_measure_callable(x_stft, power_spec_conj)
+
 
   # --
   # workflow

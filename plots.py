@@ -252,9 +252,7 @@ def plot_wav_grid(wavs, feature_params, grid_size=(8, 8), cmap=None, title='', p
     ax.set_title(y, fontsize=6)
 
   # tight plot
-  #plt.tight_layout()
   plt.subplots_adjust(left=0.01, bottom=0.01, right=0.99, top=0.97, wspace=0, hspace=0)
-  #plt.margins(x=10, y=10)
 
   # plot save and show
   if plot_path is not None: 
@@ -372,8 +370,11 @@ def plot_grid_images(x, padding=1, num_cols=8, cmap=None, context='none', color_
   # last padding
   all_grid_img = np.concatenate((all_grid_img, h_padding[0]), axis=0)
 
+
   # plot init
-  fig = plt.figure(figsize=(np.clip(8 * n_frames//n_features, 4, 16), 8))
+  m, n = all_grid_img.shape
+  if m < n: fig = plt.figure(figsize=(8, np.clip(m / n * 8, 1, 8)))
+  else: fig = plt.figure(figsize=(np.clip(n / m * 8, 2, 8), 8))
 
   # image
   ax = plt.axes()
@@ -381,15 +382,16 @@ def plot_grid_images(x, padding=1, num_cols=8, cmap=None, context='none', color_
 
   # design
   plt.axis("off")
-  plt.title(title)
+  plt.title(title, fontsize=8)
 
   # colorbar
-  #cax = fig.add_axes([ax.get_position().x1 + 0.01, ax.get_position().y0, 0.02, ax.get_position().height])
-  #plt.colorbar(im, cax=cax)
   divider = make_axes_locatable(plt.gca())
-  cax = divider.append_axes("right", "2%", pad="2%")
+  cax = divider.append_axes("right", size="2%", pad="2%")
   plt.colorbar(im, cax=cax)
 
+  # tight plot
+  plt.subplots_adjust(left=0.10, bottom=0.02, right=0.90, top=0.90, wspace=0, hspace=0)
+  #plt.subplots_adjust(left=0.01, bottom=0.01, right=0.99, top=0.97, wspace=0, hspace=0)
 
   # plot save and show
   if plot_path is not None: 
@@ -397,15 +399,6 @@ def plot_grid_images(x, padding=1, num_cols=8, cmap=None, context='none', color_
     plt.close()
     
   if show_plot: plt.show()
-
-  # torch grid (must be torch tensor)
-  # import torchvision.utils as vutils
-  # img = np.transpose(vutils.make_grid(weights['conv1'], padding=1, normalize=True), (1, 2, 0))
-  # plt.figure(figsize=(8,8))
-  # plt.axis("off")
-  # plt.title("conv1")
-  # plt.imshow(img)
-  # plt.show()
 
   return fig
 
@@ -557,11 +550,12 @@ def plot_confusion_matrix(cm, classes, cmap=None, plot_path=None, name='None'):
   plt.ylabel('true labels')
 
   # colorbar
-  # cax = fig.add_axes([ax.get_position().x1 + 0.01, ax.get_position().y0, 0.02, ax.get_position().height])
-  # plt.colorbar(im, cax=cax)
   divider = make_axes_locatable(plt.gca())
   cax = divider.append_axes("right", "2%", pad="2%")
   plt.colorbar(im, cax=cax)
+
+  # tight plot
+  plt.tight_layout()
 
   # plot the fig
   if plot_path is not None:
@@ -608,6 +602,9 @@ def plot_adv_train_loss(train_score, cmap=None, plot_path=None, name='adv_train_
   # layout
   plt.ylabel("loss"), plt.xlabel("iterations"), plt.legend(), plt.grid()
 
+  # tight plot
+  plt.tight_layout()
+
   # plot the fig
   if plot_path is not None:
     plt.savefig(plot_path + name + '.png', dpi=150)
@@ -644,8 +641,10 @@ def plot_train_loss(train_loss, val_loss, cmap=None, plot_path=None, name='None'
   ax.plot(train_loss, label='train loss'), ax.plot(val_loss, label='val loss')
 
   # layout
-  plt.ylabel("normalized loss"), plt.xlabel("iterations")
-  plt.legend(), plt.grid()
+  plt.ylabel("normalized loss"), plt.xlabel("iterations"), plt.legend(), plt.grid()
+
+  # tight plot
+  plt.tight_layout()
 
   # plot the fig
   if plot_path is not None:
@@ -677,9 +676,10 @@ def plot_val_acc(val_acc, cmap=None, plot_path=None, name='None', show_plot=Fals
   ax.plot(val_acc, label='val acc')
 
   # layout
-  plt.ylabel("accuracy"), plt.xlabel("iterations")
-  plt.ylim(0, 100)
-  plt.legend(), plt.grid()
+  plt.ylabel("accuracy"), plt.xlabel("iterations"), plt.ylim(0, 100), plt.legend(), plt.grid()
+
+  # tight plot
+  plt.tight_layout()
 
   # plot the fig
   if plot_path is not None:
@@ -722,6 +722,9 @@ def plot_mfcc_profile(x, fs, N, hop, mfcc, diff_plot=False, cmap=None, cmap_wav=
   mfcc: [m x l]
   """
 
+  # to image data
+  if len(mfcc.shape) == 3: mfcc = np.squeeze(mfcc.reshape(1, -1, mfcc.shape[2]))
+
   # get cmap
   if cmap is None: cmap = get_colormap_from_context(context='mfcc')
   if cmap_wav is None: cmap_wav = get_colormap_from_context(context='wav')
@@ -730,23 +733,27 @@ def plot_mfcc_profile(x, fs, N, hop, mfcc, diff_plot=False, cmap=None, cmap_wav=
   if enable_plot is False:
     return
 
-  # time vector
-  t = np.arange(0, len(x)/fs, 1/fs)
+  # time vectors
+  t, t_mfcc = np.arange(0, len(x)/fs, 1/fs), np.arange(0, mfcc.shape[1] * hop / fs, hop/fs)
 
-  # time vector for mfcc (with hop)
-  t_mfcc = np.arange(0, mfcc.shape[1] * hop / fs, hop/fs)
+  # s, 1, c, d, d, e
+  grid_size = (6, 1) if mfcc.shape[0] == 39 else (2, 1)
 
-  # grid and figure layout
-  if mfcc.shape[0] == 39: fig, n_rows, n_cols, n_im_rows = plt.figure(figsize=(8, 8)), 25, 103, 5
-  else: 
-    if diff_plot: fig, n_rows, n_cols, n_im_rows = plt.figure(figsize=(9, 6)), 15, 103, 5
-    else: fig, n_rows, n_cols, n_im_rows = plt.figure(figsize=(9, 4)), 10, 103, 5
+  # make a grid
+  n_im_rows, n_im_cols, r_space, c_space = 20, 103, 25, 1
+
+  # specify number of rows and cols
+  n_rows, n_cols = n_im_rows * grid_size[0] + r_space * grid_size[0] - 1, n_im_cols * grid_size[1] + c_space * grid_size[0] - 1
+
+
+  # init figure
+  fig = plt.figure(figsize=(8, 8))
 
   # create grid
   gs = plt.GridSpec(n_rows, n_cols, wspace=0.4, hspace=0.3)
 
   # time series plot
-  ax = fig.add_subplot(gs[0:n_im_rows-1, :n_cols-3])
+  ax = fig.add_subplot(gs[0:n_im_rows-1, :n_im_cols-3])
 
   # wav
   if cmap_wav is not None: ax.set_prop_cycle('color', cmap_wav)
@@ -755,6 +762,7 @@ def plot_mfcc_profile(x, fs, N, hop, mfcc, diff_plot=False, cmap=None, cmap_wav=
   # care about labels
   ax.set_xticks(t[::1600])
   ax.set_xticklabels(['{:.1f}'.format(ti) for ti in t[::1600]])
+  ax.tick_params(axis='both', which='major', labelsize=8), ax.tick_params(axis='both', which='minor', labelsize=6)
 
   # annotation
   plot_textGrid_annotation(anno_file, x, plot_text=True)
@@ -774,57 +782,57 @@ def plot_mfcc_profile(x, fs, N, hop, mfcc, diff_plot=False, cmap=None, cmap_wav=
     for onset in best_onset_times: plt.axvline(x=float(onset), dashes=(3, 2), color=get_colormap_from_context(context='wav-hline'), lw=2)
 
   # layout of time plot
-  ax.set_title('Time Signal of ' + '"' + name + '"'), ax.set_ylabel("magnitude")
+  ax.set_title('Time Signal of ' + '"' + name + '"', fontsize=10), ax.set_ylabel("magnitude", fontsize=8)
   ax.set_xlim([0, t[-1]]), ax.grid()
 
   # select mfcc coeffs in arrays
-  if mfcc.shape[0] == 39:
-    sel_coefs = [np.arange(0, 12), np.arange(12, 24), np.arange(24, 36), np.arange(36, 39)]
-    titles = ['12 MFCCs', 'deltas', 'double deltas', 'energies']
-  else:
-    sel_coefs = [np.arange(0, mfcc.shape[0])]
-    titles = ['MFCCs']
+  #sel_coefs = [np.arange(0, 12), np.arange(13, 25), np.arange(26, 38), [12, 25, 38]]
+  #if mfcc.shape[0] == 39: sel_coefs, titles = [np.arange(1, 12), np.arange(14, 25), np.arange(27, 38), [0, 13, 26, 12, 25, 38]], ['12 MFCCs', 'deltas', 'double deltas', 'energies']
+  if mfcc.shape[0] == 39: sel_coefs, titles = [[0, 13, 26], np.arange(1, 12), np.arange(14, 25), np.arange(27, 38), [12, 25, 38]], ['1st cepstral coefficient with deltas', 'cepstral coefficients', 'deltas', 'double deltas', 'energies']
+  else: sel_coefs, titles = [np.arange(0, mfcc.shape[0])], ['MFCCs']
 
   # mfcc plots
-  for i, c in enumerate(sel_coefs):
+  for i, c in enumerate(sel_coefs, start=1):
 
     # row start and stop
-    #rs = (i+1) * n_im_rows + 2
-    #re = (i+2) * n_im_rows
-    rs = (i+1) * n_im_rows + 1
-    re = (i+2) * n_im_rows - 1
+    #rs, re = (i + 1) * n_im_rows + 1, (i + 2) * n_im_rows - 1
 
+    # row start and stop
+    rs, re = i * n_im_rows + i * r_space, (i + 1) * n_im_rows + i * r_space
+
+    print("rs: {}, re: {}".format(rs, re))
     # specify grid pos
-    ax = fig.add_subplot(gs[rs:re, :n_cols-3-2])
+    ax = fig.add_subplot(gs[rs:re, :n_im_cols-3-2])
 
     # plot image coeffs
-    #im = ax.imshow(mfcc[c], aspect='auto', interpolation='none', extent=[0, t[-1], c[-1], c[0]], cmap=cmap)
-    #im = ax.imshow(mfcc[c], aspect='equal', interpolation='none', cmap=cmap)
     im = ax.imshow(mfcc[c], aspect='auto', interpolation='none', cmap=cmap)
 
     # care about labels
     ax.set_xticks(np.arange(len(t_mfcc))[::10] - 0.5)
     ax.set_xticklabels(['{:.1f}'.format(ti) for ti in t_mfcc[::10]])
+    if len(c) < 5: ax.set_yticks(np.arange(0, len(c))), ax.set_yticklabels(c , fontsize=6)  
+    else: ax.set_yticks(np.arange(0, len(c))[::3]), ax.set_yticklabels(c[::3], fontsize=6)    
+    ax.tick_params(axis='both', which='major', labelsize=8), ax.tick_params(axis='both', which='minor', labelsize=6)
 
     # annotation
     plot_textGrid_annotation(anno_file)
 
     # some labels
-    ax.set_title(titles[i]), ax.set_ylabel("cepstrum coeff")
-    if i == len(sel_coefs) - 1: ax.set_xlabel("time [s]")
+    ax.set_title(titles[i-1], fontsize=10), ax.set_ylabel("mfcc coeff.", fontsize=8)
+    if i == len(sel_coefs): ax.set_xlabel("time [s]", fontsize=8)
 
     # add colorbar
-    ax = fig.add_subplot(gs[rs:re, n_cols-3:n_cols-1])
+    ax = fig.add_subplot(gs[rs:re, n_im_cols-3:n_im_cols-1])
     fig.colorbar(im, cax=ax)
 
   if diff_plot and mfcc.shape[0] != 39:
     rs, re = n_im_rows * (1 + len(sel_coefs)) + 1, -2
-    ax = fig.add_subplot(gs[rs:re, :n_cols-5])
+    ax = fig.add_subplot(gs[rs:re, :n_im_cols-5])
     im = ax.imshow(np.diff(mfcc, axis=1), aspect='auto', interpolation='none', cmap=cmap)
     #im = ax.imshow(np.array([np.sum(mfcc**2, axis=0) / np.max(np.sum(mfcc**2, axis=0))]), aspect='auto', interpolation='none', cmap=cmap)
 
     # add colorbar
-    ax = fig.add_subplot(gs[rs:re, n_cols-3:n_cols-1])
+    ax = fig.add_subplot(gs[rs:re, n_im_cols-3:n_im_cols-1])
     fig.colorbar(im, cax=ax)
 
 
@@ -835,6 +843,7 @@ def plot_mfcc_profile(x, fs, N, hop, mfcc, diff_plot=False, cmap=None, cmap_wav=
 
   elif show_plot:
     plt.show()
+
 
 def plot_mfcc_only(mfcc, fs=16000, hop=160, cmap=None, context='mfcc', plot_path=None, name='mfcc_only', show_plot=False):
   """
@@ -987,31 +996,15 @@ def plot_mel_band_weights(w_f, w_mel, f, m, plot_path=None, name='mel_bands', sh
 
 
 if __name__ == '__main__':
+  """
+  main
+  """
   
-  # metric path
-  metric_path = './ignore/plots/ml/metrics/'
+  import torch
 
-  # wav re
-  metrics_re = '*.npz'
+  for x in [torch.randn(8, 1, 13, 20).numpy(), torch.randn(40, 1, 13, 20).numpy(), torch.randn(40, 1, 39, 20).numpy(), torch.randn(1000, 1, 13, 20).numpy()]: 
+    # image plot
+    plot_grid_images(x, padding=1, num_cols=8,  show_plot=False)
 
-  # get wavs
-  metric_files = glob(metric_path + metrics_re)
-
-  # safety
-  if not any(metric_files):
-    print("No files available")
-
-  # do something
-  else:
-
-    # load files
-    data = [np.load(file) for file in metric_files]
-
-    train_loss = data[0]['train_loss'] 
-    val_loss = data[0]['val_loss'] 
-    val_acc = data[0]['val_acc'] 
-
-    plot_train_loss(train_loss, val_loss, plot_path=None, name='None')
-    plot_val_acc(val_acc, plot_path=None, name='None')
-
-    plt.show()
+  plt.show()
+  

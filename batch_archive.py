@@ -96,8 +96,7 @@ class BatchArchive():
     y_index = np.array([self.class_dict[i] for i in y])
 
     # to torch if necessary
-    if to_torch:
-      y_index = torch.from_numpy(y_index)
+    if to_torch: y_index = torch.from_numpy(y_index)
 
     return y_index
 
@@ -348,11 +347,16 @@ class SpeechCommandsBatchArchive(BatchArchive):
     self.data = [np.load(file, allow_pickle=True) for file in self.feature_files]
 
     # feature params
-    self.feature_params = self.data[0]['params']
+    self.feature_params = self.data[0]['params'][()]
+
+    # channel size
+    self.channel_size = 1 if not self.feature_params['use_channels'] else int(self.feature_params['use_cepstral_features']) + int(self.feature_params['use_delta_features']) +  int(self.feature_params['use_double_delta_features'])
 
     # feature size
-    self.feature_size = (self.feature_params[()]['n_ceps_coeff'] + 1 * self.feature_params[()]['compute_energy_features']) * (1 + 2 * self.feature_params[()]['compute_deltas'])
-    self.frame_size = self.feature_params[()]['frame_size']
+    self.feature_size = (self.feature_params['n_ceps_coeff'] + int(self.feature_params['use_energy_features'])) * int(self.feature_params['use_cepstral_features']) + (self.feature_params['n_ceps_coeff'] + int(self.feature_params['use_energy_features'])) * int(self.feature_params['use_delta_features']) + (self.feature_params['n_ceps_coeff'] + int(self.feature_params['use_energy_features'])) * int(self.feature_params['use_double_delta_features']) if not self.feature_params['use_channels'] else (self.feature_params['n_ceps_coeff'] + int(self.feature_params['use_energy_features']))
+
+    # frame size
+    self.frame_size = self.feature_params['frame_size']
 
     # get classes
     self.create_class_dictionary(self.data[0]['y'])
@@ -369,19 +373,13 @@ class SpeechCommandsBatchArchive(BatchArchive):
     extract data samples from files
     """
 
-    # print some infos about data
-    #print("\n--extract batches from data:\ntrain: {}\nval: {}\ntest: {}\n".format(self.data[0]['x'].shape, self.data[1]['x'].shape, self.data[2]['x'].shape))
-
     # set data size
     self.data_size = self.data[0]['x'].shape[1:]
     
     # check data sizes
-    if not all([d['x'].shape[1:] == self.data_size for d in self.data]):
+    if not all([d['x'].shape[1:] == self.data_size for d in self.data]): 
       print("***extraction failed: data sizes are not equal")
       return
-
-    # add channel dimension
-    self.data_size = (1, ) + self.data_size
 
     # create batches
     self.x_train, self.y_train, self.z_train = self.create_batches(self.data[0], batch_size=self.batch_size)
@@ -398,20 +396,14 @@ class SpeechCommandsBatchArchive(BatchArchive):
 
   def create_batches(self, data, batch_size=1):
     """
-    create batches for training N x [b x m x f]
-    x: [n x m x l]
-    y: [n]
-    N: Amount of batches
-    b: batch size
-    m: feature size
-    f: frame size
+    create batches for training  x [b x n x c x m x f]
     """
 
     # extract data
     x, y, z, params = data['x'], data['y'], data['index'], data['params']
 
     # get shape of things
-    n, m, l = x.shape
+    n, c, m, l = x.shape
 
     # randomize examples
     if self.shuffle:
@@ -423,67 +415,40 @@ class SpeechCommandsBatchArchive(BatchArchive):
 
     # remaining samples
     r = int(np.remainder(len(y), batch_size))
+
+    # there are remaining samples
     if r:
-      batch_nums += 1;
+
+      # increase batch num
+      batch_nums += 1
+
+      # indizes for remaining samples
+      ss, se, random_samples = (batch_nums - 1) * batch_size, (batch_nums - 1) * batch_size + r, np.random.randint(0, high=len(y), size=batch_size-r)
+
+      # remaining and filling examples
+      r_x, r_y, r_z, f_x, f_y, f_z = x[ss:se, :], y[ss:se], z[ss:se], x[random_samples, :], y[random_samples], z[random_samples]
 
     # init batches
-    if self.to_torch:
-      x_batches = torch.empty((batch_nums, batch_size, self.feature_size, self.frame_size))
-      y_batches = torch.empty((batch_nums, batch_size), dtype=torch.long)
-
-    else:
-      x_batches = np.empty((batch_nums, batch_size, self.feature_size, self.frame_size), dtype=x.dtype)
-      y_batches = np.empty((batch_nums, batch_size), dtype=y.dtype)
-
+    x_batches = np.empty((batch_nums, batch_size, self.channel_size, self.feature_size, self.frame_size), dtype=np.float32)
+    y_batches = np.empty((batch_nums, batch_size), dtype=np.int)
     z_batches = np.empty((batch_nums, batch_size), dtype=z.dtype)
 
     # batching
-    for i in range(batch_nums):
+    for i in range(batch_nums - 1):
+      x_batches[i, :] = x[i*batch_size:i*batch_size+batch_size, :]
+      y_batches[i, :] = self.get_index_of_class(y[i*batch_size:i*batch_size+batch_size])
+      z_batches[i, :] = z[i*batch_size:i*batch_size+batch_size]
 
-      # remainder handling
-      if i == batch_nums - 1 and r:
+    # last batch index
+    i += 1
 
-        # remaining examples
-        r_x = x[i*batch_size:i*batch_size+r, :]
-        r_y = y[i*batch_size:i*batch_size+r]
-        r_z = z[i*batch_size:i*batch_size+r]
+    # last batch
+    x_batches[i, :] = x[i*batch_size:i*batch_size+batch_size, :] if not r else np.concatenate((r_x, f_x))
+    y_batches[i, :] = self.get_index_of_class(y[i*batch_size:i*batch_size+batch_size]) if not r else self.get_index_of_class(np.concatenate((r_y, f_y)))
+    z_batches[i, :] = z[i*batch_size:i*batch_size+batch_size] if not r else np.concatenate((r_z, f_z))
 
-        # pick random samples for filler
-        random_samples = np.random.randint(0, high=len(y), size=batch_size-r)
-
-        # filling examples
-        f_x = x[random_samples, :]
-        f_y = y[random_samples]
-        f_z = z[random_samples]
-
-        # concatenate remainder with random examples
-        # to torch if necessary (usually)
-        if self.to_torch:
-          x_batches[i, :] = torch.from_numpy(np.concatenate((r_x, f_x)).astype(np.float32))
-
-        else:
-          x_batches[i, :] = np.concatenate((r_x, f_x))
-
-        y_batches[i, :] = self.get_index_of_class(np.concatenate((r_y, f_y)), to_torch=self.to_torch)
-        z_batches[i, :] = np.concatenate((r_z, f_z))
-
-      # no remainder
-      else:
-
-        # to torch if necessary (usually)
-        if self.to_torch:
-          x_batches[i, :] = torch.from_numpy(x[i*batch_size:i*batch_size+batch_size, :].astype(np.float32))
-
-        else:
-          # get batches
-          x_batches[i, :] = x[i*batch_size:i*batch_size+batch_size, :]
-
-        y_batches[i, :] = self.get_index_of_class(y[i*batch_size:i*batch_size+batch_size], to_torch=self.to_torch)
-        z_batches[i, :] = z[i*batch_size:i*batch_size+batch_size]
-
-    # prepare for training x: [num_batches x batch_size x channel x 39 x 32]
-    if self.to_torch:
-      x_batches = torch.unsqueeze(x_batches, 2)
+    # to torch
+    if self.to_torch: x_batches, y_batches = torch.from_numpy(x_batches), torch.from_numpy(y_batches)
 
     return x_batches, y_batches, z_batches
 

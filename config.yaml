@@ -1,6 +1,8 @@
 # --
 # config file for this project
 
+# config changer in ml
+config_changer_allowed: False
 
 # --
 # dataset config
@@ -161,16 +163,21 @@ feature_params:
   frame_size: 50
 
   # normalized features -> [0, 1] over frames
-  #norm_features: True
-  norm_features: False
+  norm_features: True
+  #norm_features: False
 
-  # with deltas
-  #compute_deltas: False
-  compute_deltas: True
+  # old ones do not use anymore
+  #compute_deltas: True
+  #compute_energy_features: True
 
-  # use energy feature
-  #compute_energy_features: False
-  compute_energy_features: True
+  # use deltas as own channels
+  use_channels: True
+
+  # feature collection
+  use_cepstral_features: True
+  use_delta_features: True
+  use_double_delta_features: True
+  use_energy_features: True
 
 
 # --
@@ -213,7 +220,7 @@ ml:
     #batch_size: 128
 
     # number of epochs
-    num_epochs: 500
+    num_epochs: 10
 
     # learning rate
     lr: 0.0001
@@ -240,7 +247,7 @@ ml:
     use_decoder_weights: True
 
     # iterating algorithm of label: num_iterations_label x num_epochs_label
-    num_iterations_label: 2
+    num_iterations_label: 1
 
     # label epochs
     num_epochs_label: 500
@@ -307,12 +314,9 @@ test_bench:
     - ignore/my_recordings/clean_records/go.wav
 
   # path to model
-  #test_model_path: ignore/test_bench/models/test_model1/
-  #test_model_path: ignore/test_bench/models/test_model2/
   #test_model_path: ignore/test_bench/test_models/conv-fstride/
   test_model_path: ignore/test_bench/test_models/conv-encoder/
   #test_model_path: ignore/test_bench/test_models/conv-trad/
-
 
   # file names
   #model_file_name: 'model.pth'

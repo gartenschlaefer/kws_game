@@ -167,7 +167,7 @@ class Mic():
       x_onset = self.collector.read_collection()
 
       # extract features
-      mfcc_bon, bon_pos = self.feature_extractor.extract_mfcc39(x_onset)
+      mfcc_bon, bon_pos = self.feature_extractor.extract_mfcc(x_onset)
 
       # classify collection
       y_hat, label = self.classifier.classify(mfcc_bon)

@@ -450,8 +450,8 @@ class CnnHandler(NetHandler):
     classification of a single sample presented in dim [m x f]
     """
 
-    # input to tensor
-    x = torch.unsqueeze(torch.unsqueeze(torch.from_numpy(x.astype(np.float32)), 0), 0).to(self.device)
+    # input to tensor [n, c, m, f]
+    x = torch.unsqueeze(torch.from_numpy(x.astype(np.float32)), 0).to(self.device)
 
     # no gradients for eval
     with torch.no_grad():
@@ -860,7 +860,7 @@ if __name__ == '__main__':
   batch_archive = SpeechCommandsBatchArchive(audio_set1.feature_files + audio_set2.feature_files, batch_size=32, batch_size_eval=5)
 
   # reduce to label and add noise
-  batch_archive.reduce_to_label('up')
+  #batch_archive.reduce_to_label('up')
   #batch_archive.add_noise_data(shuffle=True)
 
   print("data: ", batch_archive.data_size)
@@ -877,7 +877,7 @@ if __name__ == '__main__':
   net_handler.eval_nn(eval_set='val', batch_archive=batch_archive, collect_things=False, verbose=False)
 
   # classify sample
-  y_hat, o, label = net_handler.classify_sample(np.random.randn(net_handler.data_size[1], net_handler.data_size[2]))
+  y_hat, o, label = net_handler.classify_sample(np.random.randn(net_handler.data_size[0], net_handler.data_size[1], net_handler.data_size[2]))
 
   # print classify result
   print("classify: [{}]\noutput: [{}]\nlabel: [{}]".format(y_hat, o, label))
