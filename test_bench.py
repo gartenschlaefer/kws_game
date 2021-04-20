@@ -46,7 +46,7 @@ class TestBench():
     self.params_file = self.test_model_path + self.cfg_tb['params_file_name']
 
     # wavs
-    self.test_wavs = [self.root_path + wav for wav in cfg['test_bench']['test_wavs']]
+    self.test_wavs = [self.root_path + wav for wav in self.cfg_tb['test_wavs']]
 
     # create folder
     create_folder(list(self.paths.values()))
@@ -108,7 +108,7 @@ class TestBench():
     all_labels, all_corrects_shift, all_corrects_noise, all_probs_shift, all_probs_noise = [], [], [], [], []
 
     # test model
-    print("--Test Bench\ntest model: [{}]".format(self.test_model_name))
+    print("\n--Test Bench\ntest model: [{}]".format(self.test_model_name))
 
     # go through each test wav
     for wav in self.test_wavs:
@@ -139,7 +139,7 @@ class TestBench():
       all_probs_noise.append(probs_noise)
 
     # some prints
-    print("\nall_corrects_shift:\n", all_corrects_shift), print("\nall_corrects_noise:\n", all_corrects_noise), print("\nall labels: ", all_labels)
+    if self.cfg_tb['enable_info_prints']: print("\nall_corrects_shift:\n", all_corrects_shift), print("\nall_corrects_noise:\n", all_corrects_noise), print("\nall labels: ", all_labels)
 
     # plots
     plot_test_bench_shift(x=all_corrects_shift, y=all_labels, title='shift ' + self.test_model_name, plot_path=self.test_model_path, name='test_bench_shift', show_plot=False)

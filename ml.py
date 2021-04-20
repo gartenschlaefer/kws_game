@@ -450,6 +450,15 @@ def get_audiosets(cfg):
   get audioset
   """
 
+  # channel size
+  channel_size = 1 if not cfg['feature_params']['use_channels'] else int(cfg['feature_params']['use_cepstral_features']) + int(cfg['feature_params']['use_delta_features']) +  int(cfg['feature_params']['use_double_delta_features'])
+
+  # feature size
+  feature_size = (cfg['feature_params']['n_ceps_coeff'] + int(cfg['feature_params']['use_energy_features'])) * int(cfg['feature_params']['use_cepstral_features']) + (cfg['feature_params']['n_ceps_coeff'] + int(cfg['feature_params']['use_energy_features'])) * int(cfg['feature_params']['use_delta_features']) + (cfg['feature_params']['n_ceps_coeff'] + int(cfg['feature_params']['use_energy_features'])) * int(cfg['feature_params']['use_double_delta_features']) if not cfg['feature_params']['use_channels'] else (cfg['feature_params']['n_ceps_coeff'] + int(cfg['feature_params']['use_energy_features']))
+  
+  # exception
+  if feature_size == 0 or channel_size == 0: return None, None, None
+
   # audio sets
   audio_set1 = AudioDataset(cfg['datasets']['speech_commands'], cfg['feature_params'])
   audio_set2 = AudioDataset(cfg['datasets']['my_recordings'], cfg['feature_params'])
@@ -480,14 +489,19 @@ def cfg_changer(cfg_file):
   # no config changes allowed
   if not cfg['config_changer_allowed']: return [cfg]
 
-  # cfg list
-  cfg_list = []
+  # cfg list and selection
+  cfg_list, binary4 = [], [[bool(int(b)) for b in np.binary_repr(i, width=4)] for i in np.arange(16)]
 
-  # change feature params
-  nde = [(True, True, True), (True, True, False), (True, False, True), (True, False, False), (False, True, True), (False, True, False), (False, False, True), (False, False, False)]
-  for n, d, e in nde:
+  # all permutations
+  for binary in binary4:
+
+    # load cofig
     cfg = yaml.safe_load(open(cfg_file))
-    cfg['feature_params']['norm_features'], cfg['feature_params']['use_delta_features'], cfg['feature_params']['use_energy_features'] = n, d, e
+
+    # change config
+    cfg['feature_params']['use_cepstral_features'], cfg['feature_params']['use_delta_features'], cfg['feature_params']['use_double_delta_features'], cfg['feature_params']['use_energy_features'] = binary
+    
+    # append to list
     cfg_list.append(cfg)
 
   return cfg_list
@@ -505,6 +519,7 @@ if __name__ == '__main__':
   from batch_archive import SpeechCommandsBatchArchive
   from net_handler import NetHandler
   from audio_dataset import AudioDataset, SpeechCommandsDataset, MyRecordingsDataset
+  from test_bench import TestBench
 
   # yaml config file
   #cfg = yaml.safe_load(open("./config.yaml"))
@@ -514,6 +529,11 @@ if __name__ == '__main__':
     
     # get audio sets
     audio_set1, audio_set2, all_feature_files = get_audiosets(cfg)
+
+    # skip condition
+    if audio_set1 is None or all_feature_files is None: 
+      print("skip config")
+      continue
 
     # encoder, decoder models for certain architectures necessary
     encoder_model, decoder_model = None, None
@@ -541,17 +561,19 @@ if __name__ == '__main__':
     # instance
     ml = ML(cfg_ml=cfg['ml'], audio_dataset=audio_set1, batch_archive=batch_archive, net_handler=net_handler)
 
-    # analyze init weights
-    ml.analyze(name_ext='_init')
+    # run ml stuff
+    ml.analyze(name_ext='_init'), ml.train(), ml.eval(), ml.analyze()
 
-    # training
-    ml.train()
 
-    # evaluation
-    ml.eval()
+    # --
+    # Test Bench
 
-    # analyze
-    ml.analyze()
+    # create test bench
+    test_bench = TestBench(cfg['test_bench'], test_model_path=ml.model_path)
+
+    # shift invariance test
+    test_bench.test_invariances()
+
 
 
 

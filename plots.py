@@ -56,7 +56,7 @@ def get_colormap_from_context(context='none'):
 
   #elif context == 'bench-noise': return ListedColormap(purple_16.mpl_colormap.reversed()(np.linspace(0, 0.5, 100)), name='purple_short')
   #elif context == 'bench-noise': return ListedColormap(purple_16.mpl_colormap.reversed()(np.linspace(0, 0.6, 10)), name='purple_short')
-  elif context == 'bench-noise': return ListedColormap(purple_16.mpl_colormap.reversed()(np.linspace(0, 0.6, 10)), name='red_short')
+  elif context == 'bench-noise': return ListedColormap(red_16.mpl_colormap.reversed()(np.linspace(0, 0.6, 10)), name='red_short')
   #elif context == 'bench-noise': return ListedColormap(np.vstack((purple_16.mpl_colormap.reversed()(np.linspace(0, 0, 5)), purple_16.mpl_colormap.reversed()(np.linspace(0.1, 0.6, 5)))), name='purple_short')
   
   #elif context == 'bench-shift': return ListedColormap(red_16.mpl_colormap.reversed()(np.linspace(0, 0.5, 100)), name='red_short')
@@ -129,12 +129,12 @@ def plot_test_bench_noise(x, y, snrs, cmap=None, context='bench-noise', title='n
   ax.set_aspect('equal')
 
   # colorbar
-  #cax = fig.add_axes([ax.get_position().x1 + 0.01, ax.get_position().y0, 0.02, ax.get_position().height])
-  #plt.colorbar(im, cax=cax)
   divider = make_axes_locatable(plt.gca())
   cax = divider.append_axes("right", "2%", pad="2%")
   plt.colorbar(im, cax=cax)
 
+  # tight plot
+  plt.tight_layout()
 
   # plot save and show
   if plot_path is not None: 
@@ -173,11 +173,12 @@ def plot_test_bench_shift(x, y, cmap=None, context='bench-shift', title='shift',
   ax.set_aspect('equal')
 
   # colorbar
-  #cax = fig.add_axes([ax.get_position().x1 + 0.01, ax.get_position().y0, 0.02, ax.get_position().height])
-  #plt.colorbar(im, cax=cax)
   divider = make_axes_locatable(plt.gca())
   cax = divider.append_axes("right", "2%", pad="2%")
   plt.colorbar(im, cax=cax)
+
+  # tight plot
+  plt.tight_layout()
 
   # plot save and show
   if plot_path is not None: 

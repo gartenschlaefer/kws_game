@@ -1,8 +1,11 @@
 # --
 # config file for this project
 
-# config changer in ml
-config_changer_allowed: False
+# --
+# general stuff
+
+config_changer_allowed: True
+
 
 # --
 # dataset config
@@ -164,7 +167,6 @@ feature_params:
 
   # normalized features -> [0, 1] over frames
   norm_features: True
-  #norm_features: False
 
   # old ones do not use anymore
   #compute_deltas: True
@@ -220,7 +222,7 @@ ml:
     #batch_size: 128
 
     # number of epochs
-    num_epochs: 10
+    num_epochs: 500
 
     # learning rate
     lr: 0.0001
@@ -275,9 +277,19 @@ ml:
   #nn_arch: adv-experimental
   #nn_arch: conv-fstride
   #nn_arch: conv-trad
-  nn_arch: conv-encoder
+  #nn_arch: conv-encoder
+  nn_arch: conv-encoder-fc1
   #nn_arch: conv-lim-encoder
   #nn_arch: conv-latent
+
+  # model config
+  model_config:
+
+    # classifier net layer types
+    fc_layer_types: ['fc3', 'fc1']
+
+    # if classifier net is used
+    fc_layer_type: 'fc3'
 
   # logging enable
   logging_enabled: True
@@ -302,6 +314,9 @@ test_bench:
 
   # enable plot
   enable_plot: False
+
+  # info prints
+  enable_info_prints: False
 
   # test wavs
   test_wavs:

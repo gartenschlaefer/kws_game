@@ -620,6 +620,50 @@ class ClassifierNet(nn.Module):
 
 
 
+class ClassifierNetFc1(nn.Module):
+  """
+  Classifier Network
+  """
+
+  def __init__(self, input_dim, output_dim):
+
+    # parent init
+    super().__init__()
+
+    # structure
+    self.fc1, self.softmax = nn.Linear(input_dim, output_dim), nn.Softmax(dim=1)
+
+
+  def forward(self, x):
+    """
+    forward pass
+    """
+    return self.softmax(self.fc1(x))
+
+
+
+class ClassifierNetFc3(nn.Module):
+  """
+  Classifier Network
+  """
+
+  def __init__(self, input_dim, output_dim):
+
+    # parent init
+    super().__init__()
+
+    # structure
+    self.fc1, self.fc2, self.fc3, self.dropout_layer, self.softmax = nn.Linear(input_dim, 64), nn.Linear(64, 32), nn.Linear(32, output_dim), nn.Dropout(p=0.5), nn.Softmax(dim=1)
+
+
+  def forward(self, x):
+    """
+    forward pass
+    """
+    return self.softmax(self.fc3(self.dropout_layer(F.relu(self.fc2(F.relu(self.fc1(x)))))))
+
+
+
 class ConvStackedEncodersNet(nn.Module, ConvBasics):
   """
   Collected encoder networks with consecutive classifier Network
@@ -664,7 +708,7 @@ class ConvEncoderClassifierNet(nn.Module, ConvBasics):
   Collected encoder networks with consecutive classifier Network
   """
 
-  def __init__(self, n_classes, data_size, net_class='label-collect-encoder'):
+  def __init__(self, n_classes, data_size, net_class='label-collect-encoder', fc_layer_type='fc3'):
 
     # parent init
     super().__init__()
@@ -676,7 +720,7 @@ class ConvEncoderClassifierNet(nn.Module, ConvBasics):
     self.conv_in_dim, self.conv_out_dim  = self.data_size, ((self.conv_encoder.n_feature_maps[-1][1],) + self.conv_encoder.conv_layer_dim[-1])
 
     # classifier net
-    self.classifier_net = ClassifierNet(np.prod(self.conv_out_dim), n_classes)
+    self.classifier_net = ClassifierNetFc3(np.prod(self.conv_out_dim), n_classes) if fc_layer_type == 'fc3' else ClassifierNetFc1(np.prod(self.conv_out_dim), n_classes)
 
 
   def forward(self, x):

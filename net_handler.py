@@ -38,7 +38,7 @@ class NetHandler():
           return super().__new__(CnnHandler)
 
     # conv encoder handler
-    elif nn_arch in ['conv-encoder', 'conv-lim-encoder', 'conv-latent']:
+    elif nn_arch in ['conv-encoder', 'conv-encoder-fc1', 'conv-encoder-fc3', 'conv-lim-encoder', 'conv-latent']:
       for child_cls in cls.__subclasses__():
         if child_cls.__name__ == 'ConvEncoderNetHandler':
           return super().__new__(ConvEncoderNetHandler)
@@ -95,6 +95,9 @@ class NetHandler():
     elif self.nn_arch == 'conv-encoder': self.models = {'cnn':ConvEncoderClassifierNet(self.n_classes, self.data_size)}
     elif self.nn_arch == 'conv-encoder-stacked': self.models = {'cnn':ConvStackedEncodersNet(self.n_classes, self.data_size, self.encoder_model)}
     elif self.nn_arch == 'conv-latent': self.models = {'cnn':ConvLatentClassifier(self.n_classes, self.data_size)}
+
+    elif self.nn_arch == 'conv-encoder-fc1': self.models = {'cnn':ConvEncoderClassifierNet(self.n_classes, self.data_size, fc_layer_type='fc1')}
+    elif self.nn_arch == 'conv-encoder-fc3': self.models = {'cnn':ConvEncoderClassifierNet(self.n_classes, self.data_size, fc_layer_type='fc3')}
     
     # limited encoders
     elif self.nn_arch == 'adv-lim-encoder': self.models = {'g':G_experimental(self.n_classes, self.data_size, net_class='lim-encoder'), 'd':D_experimental(self.n_classes, self.data_size, net_class='lim-encoder')}
@@ -157,14 +160,8 @@ class NetHandler():
 
     # load models
     for model_file, (k, model) in zip(model_files, self.models.items()):
-
-      try:
-        print("load model: {}, net handler model: {}".format(model_file, k))
-        model.load_state_dict(torch.load(model_file))
-
-      except:
-        print("\n***could not load model!!!\n")
-        return False
+      print("load model: {}, net handler model: {}".format(model_file, k))
+      model.load_state_dict(torch.load(model_file))
 
     return True
 
@@ -182,12 +179,16 @@ class NetHandler():
     # load models
     for model_file, (k, model) in zip(model_files, self.models.items()):
 
-      try:
-        print("save model: {}, net handler model: {}".format(model_file, k))
-        torch.save(model.state_dict(), model_file)
+      # save model
+      torch.save(model.state_dict(), model_file)
+      print("save model: {}, net handler model: {}".format(model_file, k))
 
-      except:
-        print("\n***could not save model!!!\n")
+      # try:
+      #   print("save model: {}, net handler model: {}".format(model_file, k))
+      #   torch.save(model.state_dict(), model_file)
+
+      # except:
+      #   print("\n***could not save model!!!\n")
 
       # skip if encoder model file is None
       if encoder_model_file is None and decoder_model_file is None: continue
@@ -247,21 +248,11 @@ class NetHandler():
     # select the set
     x_eval, y_eval, z_eval = None, None, None
 
-    # validation set
-    if eval_set == 'val':
-      x_eval, y_eval, z_eval = batch_archive.x_val, batch_archive.y_val, batch_archive.z_val
-
-    # test set
-    elif eval_set == 'test':
-      x_eval, y_eval, z_eval = batch_archive.x_test, batch_archive.y_test, batch_archive.z_test
-
-    # my test set
-    elif eval_set == 'my':
-      x_eval, y_eval, z_eval = batch_archive.x_my, batch_archive.y_my, batch_archive.z_my
-
-    # set not found
-    else:
-      print("wrong usage of eval nn, select eval_set one out of ['val', 'test', 'my']")
+    # eval set selection
+    if eval_set == 'val': x_eval, y_eval, z_eval = batch_archive.x_val, batch_archive.y_val, batch_archive.z_val
+    elif eval_set == 'test': x_eval, y_eval, z_eval = batch_archive.x_test, batch_archive.y_test, batch_archive.z_test
+    elif eval_set == 'my': x_eval, y_eval, z_eval = batch_archive.x_my, batch_archive.y_my, batch_archive.z_my
+    else: print("wrong usage of eval nn, select eval_set one out of ['val', 'test', 'my']")
 
     return x_eval, y_eval, z_eval
 
@@ -416,7 +407,6 @@ class CnnHandler(NetHandler):
 
     # init score
     eval_score = EvalScore(eval_set_name=eval_set, collect_things=collect_things)
-
 
     # no gradients for eval
     with torch.no_grad():
