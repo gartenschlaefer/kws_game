@@ -704,13 +704,17 @@ if __name__ == '__main__':
 
   # dct
   #plt.figure(), plt.imshow(custom_dct_matrix(cfg['feature_params']['n_filter_bands'])), plt.show()
+
+
+  wav_dir = './ignore/my_recordings/showcase_wavs/'
+  #wav_dir = './' + cfg['datasets']['speech_commands']['plot_paths']['damaged_files']
  
   # analyze some wavs
-  for wav in glob('./' + cfg['datasets']['speech_commands']['plot_paths']['damaged_files'] + '*.wav'):
+  for wav in glob(wav_dir + '*.wav'):
     print("wav: ", wav)
     x, _ = librosa.load(wav, sr=16000)
     mfcc, bon_pos = feature_extractor.extract_mfcc(x, reduce_to_best_onset=False)
-    plot_mfcc_profile(x, 16000, feature_extractor.N, feature_extractor.hop, mfcc, diff_plot=False, bon_pos=bon_pos, frame_size=cfg['feature_params']['frame_size'], name=wav.split('/')[-1], show_plot=True)
+    plot_mfcc_profile(x, 16000, feature_extractor.N, feature_extractor.hop, mfcc, sep_features=True, diff_plot=False, bon_pos=bon_pos, frame_size=cfg['feature_params']['frame_size'], plot_path=wav_dir, name=wav.split('/')[-1], show_plot=True)
 
     # # spec
     # x_spec = feature_extractor.calc_spectogram(x)
@@ -722,10 +726,10 @@ if __name__ == '__main__':
     # plt.imshow(x_spec.T)
     # plt.show()
 
-  # mfcc
-  x = np.random.randn(16000)
-  mfcc, bon_pos = feature_extractor.extract_mfcc(x, reduce_to_best_onset=False)
-  plot_mfcc_profile(x, 16000, feature_extractor.N, feature_extractor.hop, mfcc, bon_pos=bon_pos, name='rand', show_plot=True)
+  # random
+  #x = np.random.randn(16000)
+  #mfcc, bon_pos = feature_extractor.extract_mfcc(x, reduce_to_best_onset=False)
+  #plot_mfcc_profile(x, 16000, feature_extractor.N, feature_extractor.hop, mfcc, bon_pos=bon_pos, name='rand', show_plot=True)
 
 
 

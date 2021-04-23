@@ -108,7 +108,7 @@ def plot_test_bench_noise(x, y, snrs, cmap=None, context='bench-noise', title='n
   if cmap is None: cmap = get_colormap_from_context(context=context)
 
   # plot init
-  fig = plt.figure(figsize=(12, 6))
+  fig = plt.figure(figsize=(8, 4))
 
   # image
   ax = plt.axes()
@@ -120,10 +120,10 @@ def plot_test_bench_noise(x, y, snrs, cmap=None, context='bench-noise', title='n
 
   # tick adjustment
   ax.set_yticks(np.arange(0.5, len(y), 1))
-  ax.set_yticklabels(y)
+  ax.set_yticklabels(y, fontsize=8)
 
   ax.set_xticks(np.arange(0.5, len(snrs), 1))
-  ax.set_xticklabels(snrs)
+  ax.set_xticklabels(snrs, fontsize=8)
 
   # aspect
   ax.set_aspect('equal')
@@ -131,7 +131,8 @@ def plot_test_bench_noise(x, y, snrs, cmap=None, context='bench-noise', title='n
   # colorbar
   divider = make_axes_locatable(plt.gca())
   cax = divider.append_axes("right", "2%", pad="2%")
-  plt.colorbar(im, cax=cax)
+  color_bar = plt.colorbar(im, cax=cax)
+  color_bar.ax.tick_params(labelsize=8)
 
   # tight plot
   plt.tight_layout()
@@ -153,7 +154,7 @@ def plot_test_bench_shift(x, y, cmap=None, context='bench-shift', title='shift',
   if cmap is None: cmap = get_colormap_from_context(context=context)
 
   # plot init
-  fig = plt.figure(figsize=(12, 6))
+  fig = plt.figure(figsize=(8, 1.5))
 
   # image
   ax = plt.axes()
@@ -167,7 +168,9 @@ def plot_test_bench_shift(x, y, cmap=None, context='bench-shift', title='shift',
 
   # tick adjustment
   ax.set_yticks(np.arange(0.5, len(y), 1))
-  ax.set_yticklabels(y)
+  ax.set_yticklabels(y, fontsize=8)
+
+  ax.tick_params(axis='x', which='major', labelsize=8)
 
   # aspect
   ax.set_aspect('equal')
@@ -175,7 +178,8 @@ def plot_test_bench_shift(x, y, cmap=None, context='bench-shift', title='shift',
   # colorbar
   divider = make_axes_locatable(plt.gca())
   cax = divider.append_axes("right", "2%", pad="2%")
-  plt.colorbar(im, cax=cax)
+  color_bar = plt.colorbar(im, cax=cax)
+  color_bar.ax.tick_params(labelsize=8)
 
   # tight plot
   plt.tight_layout()
@@ -388,7 +392,8 @@ def plot_grid_images(x, padding=1, num_cols=8, cmap=None, context='none', color_
   # colorbar
   divider = make_axes_locatable(plt.gca())
   cax = divider.append_axes("right", size="2%", pad="2%")
-  plt.colorbar(im, cax=cax)
+  color_bar = plt.colorbar(im, cax=cax)
+  color_bar.ax.tick_params(labelsize=8)
 
   # tight plot
   plt.subplots_adjust(left=0.10, bottom=0.02, right=0.90, top=0.90, wspace=0, hspace=0)
@@ -553,7 +558,8 @@ def plot_confusion_matrix(cm, classes, cmap=None, plot_path=None, name='None'):
   # colorbar
   divider = make_axes_locatable(plt.gca())
   cax = divider.append_axes("right", "2%", pad="2%")
-  plt.colorbar(im, cax=cax)
+  color_bar = plt.colorbar(im, cax=cax)
+  color_bar.ax.tick_params(labelsize=8)
 
   # tight plot
   plt.tight_layout()
@@ -717,7 +723,7 @@ def plot_textGrid_annotation(anno_file, x=None, plot_text=False):
       if plot_text: plt.text(s + 0.01, h, l, color='k')
 
 
-def plot_mfcc_profile(x, fs, N, hop, mfcc, diff_plot=False, cmap=None, cmap_wav=None, anno_file=None, onsets=None, bon_pos=None, mient=None, minreg=None, frame_size=32, plot_path=None, name='mfcc_profile', enable_plot=True, show_plot=True):
+def plot_mfcc_profile(x, fs, N, hop, mfcc, sep_features=True, diff_plot=False, cmap=None, cmap_wav=None, anno_file=None, onsets=None, bon_pos=None, mient=None, minreg=None, frame_size=32, plot_path=None, name='mfcc_profile', enable_plot=True, show_plot=True):
   """
   plot mfcc extracted features from audio file
   mfcc: [m x l]
@@ -738,17 +744,17 @@ def plot_mfcc_profile(x, fs, N, hop, mfcc, diff_plot=False, cmap=None, cmap_wav=
   t, t_mfcc = np.arange(0, len(x)/fs, 1/fs), np.arange(0, mfcc.shape[1] * hop / fs, hop/fs)
 
   # s, 1, c, d, d, e
-  grid_size = (6, 1) if mfcc.shape[0] == 39 else (2, 1)
+  grid_size = (6, 1) if mfcc.shape[0] == 39 and sep_features else (2, 1)
 
   # make a grid
-  n_im_rows, n_im_cols, r_space, c_space = 20, 103, 25, 1
+  n_im_rows, n_im_cols, r_space, c_space = (20, 103, 25, 1) if mfcc.shape[0] == 39 and sep_features else (20, 103, 10, 1)
 
   # specify number of rows and cols
   n_rows, n_cols = n_im_rows * grid_size[0] + r_space * grid_size[0] - 1, n_im_cols * grid_size[1] + c_space * grid_size[0] - 1
 
 
   # init figure
-  fig = plt.figure(figsize=(8, 8))
+  fig = plt.figure(figsize=(8, 8)) if mfcc.shape[0] == 39 and sep_features else plt.figure(figsize=(8, 4))
 
   # create grid
   gs = plt.GridSpec(n_rows, n_cols, wspace=0.4, hspace=0.3)
@@ -787,21 +793,16 @@ def plot_mfcc_profile(x, fs, N, hop, mfcc, diff_plot=False, cmap=None, cmap_wav=
   ax.set_xlim([0, t[-1]]), ax.grid()
 
   # select mfcc coeffs in arrays
-  #sel_coefs = [np.arange(0, 12), np.arange(13, 25), np.arange(26, 38), [12, 25, 38]]
-  #if mfcc.shape[0] == 39: sel_coefs, titles = [np.arange(1, 12), np.arange(14, 25), np.arange(27, 38), [0, 13, 26, 12, 25, 38]], ['12 MFCCs', 'deltas', 'double deltas', 'energies']
-  if mfcc.shape[0] == 39: sel_coefs, titles = [[0, 13, 26], np.arange(1, 12), np.arange(14, 25), np.arange(27, 38), [12, 25, 38]], ['1st cepstral coefficient with deltas', 'cepstral coefficients', 'deltas', 'double deltas', 'energies']
+  if mfcc.shape[0] == 39 and sep_features: sel_coefs, titles = [[0, 13, 26], np.arange(1, 12), np.arange(14, 25), np.arange(27, 38), [12, 25, 38]], ['1st cepstral coefficient with deltas', 'cepstral coefficients', 'deltas', 'double deltas', 'energies']
   else: sel_coefs, titles = [np.arange(0, mfcc.shape[0])], ['MFCCs']
 
   # mfcc plots
   for i, c in enumerate(sel_coefs, start=1):
 
     # row start and stop
-    #rs, re = (i + 1) * n_im_rows + 1, (i + 2) * n_im_rows - 1
-
-    # row start and stop
     rs, re = i * n_im_rows + i * r_space, (i + 1) * n_im_rows + i * r_space
+    #print("rs: {}, re: {}".format(rs, re))
 
-    print("rs: {}, re: {}".format(rs, re))
     # specify grid pos
     ax = fig.add_subplot(gs[rs:re, :n_im_cols-3-2])
 
@@ -811,7 +812,8 @@ def plot_mfcc_profile(x, fs, N, hop, mfcc, diff_plot=False, cmap=None, cmap_wav=
     # care about labels
     ax.set_xticks(np.arange(len(t_mfcc))[::10] - 0.5)
     ax.set_xticklabels(['{:.1f}'.format(ti) for ti in t_mfcc[::10]])
-    if len(c) < 5: ax.set_yticks(np.arange(0, len(c))), ax.set_yticklabels(c , fontsize=6)  
+    if len(c) < 5: ax.set_yticks(np.arange(0, len(c))), ax.set_yticklabels(c , fontsize=6)
+    if len(c) > 15: ax.set_yticks(np.arange(0, len(c))[::5]), ax.set_yticklabels(c[::5], fontsize=6)   
     else: ax.set_yticks(np.arange(0, len(c))[::3]), ax.set_yticklabels(c[::3], fontsize=6)    
     ax.tick_params(axis='both', which='major', labelsize=8), ax.tick_params(axis='both', which='minor', labelsize=6)
 
@@ -824,7 +826,8 @@ def plot_mfcc_profile(x, fs, N, hop, mfcc, diff_plot=False, cmap=None, cmap_wav=
 
     # add colorbar
     ax = fig.add_subplot(gs[rs:re, n_im_cols-3:n_im_cols-1])
-    fig.colorbar(im, cax=ax)
+    color_bar = fig.colorbar(im, cax=ax)
+    color_bar.ax.tick_params(labelsize=8)
 
   if diff_plot and mfcc.shape[0] != 39:
     rs, re = n_im_rows * (1 + len(sel_coefs)) + 1, -2
@@ -834,7 +837,12 @@ def plot_mfcc_profile(x, fs, N, hop, mfcc, diff_plot=False, cmap=None, cmap_wav=
 
     # add colorbar
     ax = fig.add_subplot(gs[rs:re, n_im_cols-3:n_im_cols-1])
-    fig.colorbar(im, cax=ax)
+    color_bar = fig.colorbar(im, cax=ax)
+    color_bar.ax.tick_params(labelsize=8)
+
+
+  # tight plot
+  plt.subplots_adjust(left=0.1, bottom=0.00, right=0.97, top=0.93, wspace=0, hspace=0) if mfcc.shape[0] == 39 and sep_features else plt.subplots_adjust(left=0.1, bottom=0.00, right=0.94, top=0.90, wspace=0, hspace=0) 
 
 
   # plot
@@ -901,7 +909,8 @@ def plot_mfcc_only(mfcc, fs=16000, hop=160, cmap=None, context='mfcc', plot_path
 
     # add colorbar
     ax = fig.add_subplot(gs[rs:re, n_cols-1])
-    fig.colorbar(im, cax=ax)
+    color_bar = fig.colorbar(im, cax=ax)
+    color_bar.ax.tick_params(labelsize=8)
 
   # plot the fig
   if plot_path is not None:
@@ -945,7 +954,8 @@ def plot_mfcc_equal_aspect(mfcc, fs=16000, hop=160, cmap=None, context='mfcc', p
     # colorbar
     divider = make_axes_locatable(plt.gca())
     cax = divider.append_axes("right", "2%", pad="2%")
-    plt.colorbar(im, cax=cax)
+    color_bar = plt.colorbar(im, cax=cax)
+    color_bar.ax.tick_params(labelsize=8)
 
     # some labels
     ax.set_title('MFCCs' + ' of "' + name + '"')

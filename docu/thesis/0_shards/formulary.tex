@@ -1,0 +1,21 @@
+\chapter{Formulary}
+
+Fourier-Transform (FT):
+\begin{equation}
+    X(\omega) = \int_{-\infty}^\infty x(t) \, e^{-j 2 \pi \omega t} \,dt
+\end{equation}
+\noindent
+Discrete Fourier-Transform (DFT):
+\begin{equation}
+    X[k] = \sum_{n=0}^{N-1} x[n] \, e^{-j\frac{2 \pi n}{N}k}
+\end{equation}
+which can be conveniently written in Matrix form:
+\begin{equation}
+    X[k] = D\, x[n] \quad \mathrm{with} 
+    \quad D[p, q] = e^{-j\frac{2 \pi p}{N} q},
+    \quad p, q = 0 \dots N-1
+\end{equation}
+Short-time Fourier transform (STFT) for discrete time signals:
+\begin{equation}
+    X(m, \omega) = \sum_{n=-\infty}^{\infty} x[n] \, w[n-m] e^{-j\omega n}
+\end{equation}

@@ -1,0 +1,46 @@
+% --
+% Macros
+
+%{A reference to Figure~\ref{fig:dummy}, Table~\ref{tab:dummy}, and a book \cite{Knuth97}.}
+
+% refs
+\newcommand{\rchp}[1]{Chapter~\ref{chp:#1}} 
+\newcommand{\rchps}[1]{Chapters~\ref{chp:#1}} 
+\newcommand{\rsec}[1]{Section~\ref{sec:#1}} 
+\newcommand{\rsecs}[1]{Sections~\ref{sec:#1}} 
+\newcommand{\rappendix}[1]{Appendix~\ref{#1}} 
+\newcommand{\rfig}[1]{Figure~\ref{fig:#1}} 
+\newcommand{\rfigs}[1]{Figures~\ref{fig:#1}} 
+\newcommand{\rtab}[1]{Table~\ref{tab:#1}} 
+\newcommand{\rtabs}[1]{Tables~\ref{tab:#1}} 
+\newcommand{\rlst}[1]{Listing~\ref{lst:#1}} 
+\newcommand{\rlsts}[1]{Listings.~\ref{lst:#1}} \newcommand{\req}[1]{(\ref{eq:#1})}
+
+% math
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\lam}{\lambda}
+\newcommand{\g}{\nabla}
+\newcommand{\inner}[2]{\langle #1, #2\rangle}
+\newcommand{\sign}[1]{\mathrm{sgn}(#1)}
+\newcommand{\interior}{\mathrm{int}}
+\newcommand{\domain}{\mathrm{dom}}
+\newcommand{\gradx}[1]{\begin{pmatrix} \frac{\partial}{\partial #1_1}\\\vdots\\\frac{\partial}{\partial #1_n}\end{pmatrix}}
+\newcommand{\partialx}[1]{\frac{\partial}{\partial x_{#1}}}
+\newcommand{\ball}[1]{B_{\norm{\cdot}_\infty}[0, #1]}
+\newcommand{\deltaBall}[1]{\delta_{B_{\norm{\cdot}_\infty}[0, #1]}}
+\newcommand{\proxMap}[2]{\mathrm{prox}_{#1 #2}}
+\newcommand{\mor}{\frac{1}{2 \lambda} \norm{x-y}^2}
+\newcommand{\diag}[1]{\mathrm{diag(#1)\,}}
+\newcommand{\id}{\mathrm{\,Id\,}}
+\newcommand{\proj}[1]{\mathrm{proj}_{#1}}
+\newcommand{\prox}[1]{\mathrm{prox}_{#1}}
+
+% tables
+\newcolumntype{M}[1]{>{\centering\arraybackslash}m{#1}}
+
+% booktabs tables
+\setlength{\heavyrulewidth}{1.5pt}
+\setlength{\abovetopsep}{4pt}

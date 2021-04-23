@@ -416,6 +416,7 @@ class ConvEncoderDecoderParams(ConvBasics):
     if self.net_class == 'label-encoder': self.n_feature_maps = [(self.n_channels, 8), (8, 8)]
     elif self.net_class == 'label-collect-encoder': self.n_feature_maps = [(self.n_channels, 8 * self.n_classes), (8 * self.n_classes, 8)]
     elif self.net_class == 'lim-encoder': self.n_feature_maps = [(self.n_channels, 8 * 5), (8 * 5, 8)]
+    elif self.net_class == 'lim-encoder-6': self.n_feature_maps = [(self.n_channels, 8 * 6), (8 * 6, 8)]
 
     # conv params
     self.kernel_sizes = [(self.n_features, 20), (1, 5)]

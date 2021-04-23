@@ -74,7 +74,7 @@ class ML():
     create_folder(list(self.paths.values()) + [self.model_path] + list(self.model_path_folders.values()))
 
     # config
-    logging.basicConfig(filename=self.paths['log'] + 'ml.log', level=logging.DEBUG, format='%(asctime)s %(message)s')
+    logging.basicConfig(filename=self.paths['log'] + 'ml.log', level=logging.INFO, format='%(asctime)s %(message)s')
 
     # disable unwanted logs
     logging.getLogger('matplotlib.font_manager').disabled = True
@@ -104,7 +104,7 @@ class ML():
     train_score = self.net_handler.train_nn(train_params=train_params, batch_archive=self.batch_archive, callback_f=self.image_collect)
 
     # training info
-    if log_on: logging.info('Traning on arch: [{}], audio set param string: [{}], train_params: {}, device: [{}], time: {}'.format(self.cfg_ml['nn_arch'], self.audio_dataset.param_path, self.cfg_ml['train_params'], self.net_handler.device, s_to_hms_str(train_score.time_usage)))
+    if log_on: logging.info('Training on arch: [{}], audio set param string: [{}], train_params: {}, device: [{}], time: {}'.format(self.cfg_ml['nn_arch'], self.audio_dataset.param_path, self.cfg_ml['train_params'], self.net_handler.device, s_to_hms_str(train_score.time_usage)))
     
     # save models and params
     if save_models:
@@ -157,7 +157,7 @@ class ML():
     eval_score = self.net_handler.eval_nn(eval_set='test', batch_archive=self.batch_archive, collect_things=True, verbose=False)
 
     # score print of collected
-    eval_score.info_collected(info_file=self.score_file, do_print=False)
+    eval_score.info_collected(self.net_handler.nn_arch, self.audio_dataset.param_path, self.cfg_ml['train_params'], info_file=self.score_file, do_print=False)
 
     # log to file
     if self.cfg_ml['logging_enabled']: logging.info(eval_score.info_detail_log(self.net_handler.nn_arch, self.audio_dataset.param_path, self.cfg_ml['train_params']))
@@ -182,7 +182,7 @@ class ML():
     eval_score = self.net_handler.eval_nn(eval_set='my', batch_archive=self.batch_archive, collect_things=True, verbose=True)
     
     # score print of collected
-    eval_score.info_collected(info_file=self.score_file, do_print=False)
+    eval_score.info_collected(self.net_handler.nn_arch, self.audio_dataset.param_path, self.cfg_ml['train_params'], info_file=self.score_file, do_print=False)
 
     # log to file
     if self.cfg_ml['logging_enabled']: logging.info(eval_score.info_detail_log(self.net_handler.nn_arch, self.audio_dataset.param_path, self.cfg_ml['train_params']))

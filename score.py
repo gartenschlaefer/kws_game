@@ -178,7 +178,7 @@ class EvalScore():
     return "Eval{} on arch: [{}], audio set param string: [{}], train_params: {}, correct: [{} / {}] acc: [{:.4f}] with loss: [{:.4f}]".format(' ' + self.eval_set_name, arch, param_string, train_params, self.correct, self.total, self.acc, self.loss)
 
 
-  def info_collected(self, info_file=None, do_print=False):
+  def info_collected(self, arch, param_string, train_params, info_file=None, do_print=False):
     """
     show infos
     """
@@ -194,13 +194,13 @@ class EvalScore():
     # file print
     if info_file is not None:
       with open(info_file, 'a') as f:
-        print("\n--eval {}".format(self.eval_set_name), file=f)
-        print("wrongs: ", np.concatenate(self.wrong_list), file=f)
+        print("\n#--\n{}\nacc: [{:.4f}]".format(self.info_detail_log(arch, param_string, train_params), self.acc), file=f)
+        print("\nwrongs: ", np.concatenate(self.wrong_list) if len(self.wrong_list) else 'none', file=f)
         for y, y_hat, o, z in zip(self.y_all, self.y_hat_all, self.o_all, self.z_all): print("\nz: {}\noutput: {}\npred: {}, actu: {}, \t corr: {} ".format(z, o, y_hat, y, (np.array(y_hat) == np.array(y)).astype('int')), file=f)
 
     # command line print
     if do_print:
-      print("\n--eval {}".format(self.eval_set_name))
-      print("wrongs: ", np.concatenate(self.wrong_list))
+      print("\n#--\n{}\nacc: [{:.4f}]".format(self.info_detail_log(arch, param_string, train_params), self.acc))
+      print("\nwrongs: ", np.concatenate(self.wrong_list) if len(self.wrong_list) else 'none')
       for y, y_hat, o, z in zip(self.y_all, self.y_hat_all, self.o_all, self.z_all): print("\nz: {}\noutput: {}\npred: {}, actu: {}, \t corr: {} ".format(z, o, y_hat, y, (np.array(y_hat) == np.array(y)).astype('int')))
 

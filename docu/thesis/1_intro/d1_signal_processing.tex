@@ -1,0 +1,52 @@
+\subsection{Signal Processing and Feature Extraction Research Questions}
+This part focuses on how to acquire a meaningful representation of the input waveform from an human speaker. This representation usually is a feature vector extracted from the raw microphone data of a certain time interval. Further the retrieved feature vector is input to the Neural Network Architecture for classification. Following Questions arise here:
+
+\begin{enumerate}[label={Q.1.\alph*)}, leftmargin=1.75cm]
+%    \item Wow is the microphone data processed and when does it show the presence of a speech command.
+    \item When should the feature extraction be activated, so to reduce computations?
+    
+    \label{it:q1-a}
+    
+    \item Which time interval should be captured to represent a speech command?
+    \label{it:q1-b}
+    
+    \item Does the signal processing have to be invariant to background noise and especially to game sounds?
+    \label{it:q1-c}
+    
+    \item What are meaningful features for speech recognition?
+    \label{it:q1-d}
+    
+\end{enumerate}
+\noindent
+\textbf{Question \ref{it:q1-a}:} 
+It is crucial to reduce computations in a running game, so that the game is not slowed down with unnecessary processing of meaningless input data.
+%as it is not meaningful to compute features the whole time. 
+Ideally a feature vector is only processed, when there is actually a speech command present from a human speaker. 
+This however is not always trivial.
+To indicate that a speech command is present, one possibility is to compute the, relatively efficient calculation, of an energy value within a certain time interval of the raw input data and have a simple threshold value decide, when a speech command is available. 
+The downsides of this approach is, that the microphone and the background sound (including the game sound) should be less energy intensive than the speech command of the speaker, so that a speech command is not triggered the whole time.
+%Therefore the microphone should be close to the speaker and capture more of the speech commands and less of the background and gaming sound.
+%Also it might happen that some disturbance of the microphone, e.g. mechanical strike to the mic, yield an actual command.
+Another approach would be to indicate a speech command with a e.g. say a click of a certain button on the keyboard, and use the push and talk principle. 
+These methods with more details shall be discussed in further sections.
+
+\textbf{Question \ref{it:q1-b}:} 
+The restriction to processing input data to a feature vector in a certain time interval is essential for the design of the Neural Network.
+But more importantly it is the restriction of how long a human speaker has time to speak a speech command so that the whole command is captured. If a human speaker prolongs the pronunciation of a word, e.g. \enquote{left} for lets say 1 second, hardly all is captured if the time interval is restricted to say 500 milliseconds. If this 500 milliseconds is then sufficient for a still correct classification, must be evaluated. 
+Also in the application of a game, the user should speak commands with short duration, so that the game reacts fast. Another downside would be if one repeatedly speaks a speech commands, so that the time interval of another command would overlap each other. Ideally the time interval is flexible, but this is harder to implement than a fixed time interval.
+
+\textbf{Question \ref{it:q1-c}:}
+Usually low background noise should not be a problem for Neural Networks trained on a large enough data set. 
+A more difficult problem are the game sounds when turned up loud enough and without use of headphones during playing. 
+Therefore the microphone will not only capture the voice of a speaker, but also a fair amount of unwanted game sounds. 
+This problem seems to be theoretically solvable, as the shape of the nuisance is known and could therefore be cut out in some way. 
+However in practise this might be hard to solve, so that the signal of interest is not disturbed. 
+A solution to this problem would probably take too much time and should be prioritized low in this thesis. 
+However playing a video game without game sound is unsatisfying and therefore this problem should be solved in future works.
+
+\textbf{Question \ref{it:q1-d}:} 
+Meaningful features for speech is a classical problem in speech recognition.
+Therefore it is important to know what a Word essential is composed of. A Word is a sequential combination of either vowels (e.g. a, e, ...) or consonants (e.g. k, l, ...) with a certain length. In linguistics for instance, one can distinguish vowels with frequency peaks in a spectogram of this vowel, where a spectogram is nothing else but a frequency response of small time chunks over a time interval. 
+However, due to many different factors involved in speakers, like age, gender, nathionality and physiology of the vocal tract, there is a huge variance in the pronunciation of words from different persons. 
+This yields in a difficult problem to solve. 
+Usually the Mel Frequency Cepstral Coefficients (MFCC) are used for speech recognition tasks, as they represent frequencies in equidistant mel-bands on the freuqency scale in a spectorgram kind of way and therefore give a good footprint of the speech signal to analyze (more information on MFCC is presented in section ...).

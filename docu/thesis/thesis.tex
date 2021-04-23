@@ -1,0 +1,113 @@
+% --
+% Master thesis main
+
+\documentclass[twoside,openright]{scrreprt}
+%\documentclass[report,mono,twoside,openright]{tugrazbooklet}
+%\documentclass[a4paper]{book}
+
+% added package prior to thesis
+\usepackage[table]{xcolor}
+
+% tu stuff
+\usepackage[msc]{tugrazthesis}
+
+% Example packages for the dummy content
+%\usepackage{blindtext}
+
+
+% --
+% bib
+\usepackage[backend=biber,style=alphabetic]{biblatex}
+
+% add my bib
+\addbibresource{bibl.bib}
+
+
+% --
+% my packages, macros and colors
+
+\input{./0_shards/added_packages.tex}
+\include{./0_shards/macros.tex}
+\include{./0_shards/colors.tex}
+
+
+% --
+% begin document
+
+\begin{document}
+
+% myself
+\thesisauthor[Christian Walter]{Christian Walter, BSc}
+
+% thesis title
+\thesistitle[Short Thesis Title]{Key Word Spotting for Video Games\\with Neural Networks}
+
+% Date of completion (optional argument sets a different \date{})
+\thesisdate[ ]{Month Year}
+
+% Supervisor headline (select male/female/plural version)
+\supervisortitle{\germanenglish{Betreuerin/Betreuer}{Supervisor}}
+
+% Supervisor info
+\supervisor{Robert Legenstein, Univ.-Prof. Dipl.-Ing. Dr.techn.\\Institute of Theoretical Computer Science\\}
+
+% Academic degree achieved with this thesis, according to your curriculum (check curriculum and select male/female version):
+\academicdegree{Master of Science}
+
+% curriculum
+\curriculum{Individuelles Masterstudium}
+%\curriculum{Information and Computer Engineering } % 411
+%\curriculum{Computer Science } % 921
+
+
+% --
+% titles
+
+% title page
+\printthesistitle
+
+% affidavit
+\printaffidavit
+
+% abstract en
+\chapter*{Abstract}
+\input{0_shards/abstract.tex}
+
+% abstract de
+\chapter*{Kurzfassung}
+\input{0_shards/abstract_de.tex}
+\cleardoublepage
+
+% Acknowledgement
+\chapter*{\germanenglish{Danksagung}{Acknowledgements}}
+\input{0_shards/acknowledgement.tex}
+\cleardoublepage
+
+% table of contents
+\tableofcontents
+\listoffigures
+\listoftables
+
+% acronyms
+\chapter*{\germanenglish{Abk\"{u}rzungs- und Symbolverzeichnis}{List of Acronyms and Symbols}}
+\input{0_shards/acronyms}
+
+
+% -- 
+% content
+
+\input{1_intro/_intro}
+\input{2_prev/_prev_work}
+\input{3_theory/_theory}
+\input{4_practice/_practice}
+\input{0_shards/formulary}
+
+
+% --
+% bib
+
+% print bib
+\printbibliography[heading=bibintoc]
+
+
+\end{document}

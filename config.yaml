@@ -62,9 +62,9 @@ datasets:
     recreate: False
 
     # selected labels of the whole set
-    sel_labels: ['left', 'right', 'up', 'down', 'go']
+    #sel_labels: ['left', 'right', 'up', 'down', 'go']
     #sel_labels: ['yes', 'no', 'left', 'go', 'down', 'off', 'right', 'stop', 'up', 'on']
-    #sel_labels: ['eight', 'sheila', 'nine', 'yes', 'one', 'no', 'left', 'tree', 'bed', 'bird', 'go', 'wow', 'seven', 'marvin', 'dog', 'three', 'two', 'house', 'down', 'six', 'five', 'off', 'right', 'cat', 'zero', 'four', 'stop', 'up', 'on', 'happy']
+    sel_labels: ['eight', 'sheila', 'nine', 'yes', 'one', 'no', 'left', 'tree', 'bed', 'bird', 'go', 'wow', 'seven', 'marvin', 'dog', 'three', 'two', 'house', 'down', 'six', 'five', 'off', 'right', 'cat', 'zero', 'four', 'stop', 'up', 'on', 'happy']
 
     # add noise to dataset
     add_noise: True
@@ -173,7 +173,7 @@ feature_params:
   #compute_energy_features: True
 
   # use deltas as own channels
-  use_channels: True
+  use_channels: False
 
   # feature collection
   use_cepstral_features: True
@@ -217,12 +217,12 @@ ml:
   train_params:
 
     # batch size
-    batch_size: 32
+    #batch_size: 32
     #batch_size: 64
-    #batch_size: 128
+    batch_size: 128
 
     # number of epochs
-    num_epochs: 500
+    num_epochs: 1000
 
     # learning rate
     lr: 0.0001
@@ -281,15 +281,6 @@ ml:
   nn_arch: conv-encoder-fc1
   #nn_arch: conv-lim-encoder
   #nn_arch: conv-latent
-
-  # model config
-  model_config:
-
-    # classifier net layer types
-    fc_layer_types: ['fc3', 'fc1']
-
-    # if classifier net is used
-    fc_layer_type: 'fc3'
 
   # logging enable
   logging_enabled: True
