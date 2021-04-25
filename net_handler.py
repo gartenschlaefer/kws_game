@@ -25,7 +25,7 @@ class NetHandler():
           return super().__new__(AdversarialNetHandler)
 
     # experimental2
-    if nn_arch in ['adv-experimental3', 'adv-collected-encoder', 'adv-lim-encoder']:
+    if nn_arch in ['adv-experimental3', 'adv-collected-encoder', 'adv-lim-encoder', 'adv-lim-encoder-6']:
       for child_cls in cls.__subclasses__():
         for child_child_cls in child_cls.__subclasses__():
           if child_child_cls.__name__ == 'AdversarialNetHandlerExperimental':
@@ -96,11 +96,15 @@ class NetHandler():
     elif self.nn_arch == 'conv-encoder-stacked': self.models = {'cnn':ConvStackedEncodersNet(self.n_classes, self.data_size, self.encoder_model)}
     elif self.nn_arch == 'conv-latent': self.models = {'cnn':ConvLatentClassifier(self.n_classes, self.data_size)}
 
+    # selected fc
     elif self.nn_arch == 'conv-encoder-fc1': self.models = {'cnn':ConvEncoderClassifierNet(self.n_classes, self.data_size, net_class='lim-encoder-6', fc_layer_type='fc1')}
     elif self.nn_arch == 'conv-encoder-fc3': self.models = {'cnn':ConvEncoderClassifierNet(self.n_classes, self.data_size, net_class='lim-encoder-6', fc_layer_type='fc3')}
     
-    # limited encoders
+    # limited encoders adv
     elif self.nn_arch == 'adv-lim-encoder': self.models = {'g':G_experimental(self.n_classes, self.data_size, net_class='lim-encoder'), 'd':D_experimental(self.n_classes, self.data_size, net_class='lim-encoder')}
+    elif self.nn_arch == 'adv-lim-encoder-6': self.models = {'g':G_experimental(self.n_classes, self.data_size, net_class='lim-encoder-6'), 'd':D_experimental(self.n_classes, self.data_size, net_class='lim-encoder-6')}
+    
+    # limited encoder conv
     elif self.nn_arch == 'conv-lim-encoder': self.models = {'cnn':ConvEncoderClassifierNet(self.n_classes, self.data_size, net_class='lim-encoder')}
     
     # not found
@@ -109,6 +113,15 @@ class NetHandler():
     # send models to device
     self.models = dict((k, model.to(self.device)) for k, model in self.models.items())
 
+
+  def get_nn_arch_has_conv_coder(self):
+    """
+    conv coder flags
+    """
+    enc = self.nn_arch in  ['conv-encoder', 'conv-encoder-fc1', 'conv-lim-encoder', 'conv-latent', 'adv-experimental', 'adv-experimental3', 'adv-collected-encoder', 'adv-lim-encoder', 'adv-lim-encoder-6']
+    dec = self.nn_arch in  ['adv-experimental', 'adv-experimental3', 'adv-collected-encoder', 'adv-lim-encoder', 'adv-lim-encoder-6']
+    return enc, dec
+    
 
   def set_eval_mode(self):
     """

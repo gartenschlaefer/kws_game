@@ -163,6 +163,58 @@ class BatchArchive():
     return x, y, z
 
 
+  def reduce_to_labels(self, labels):
+    """
+    reduce to labels (must be an array)
+    """
+
+    # safety
+    if any([label not in self.class_dict.keys() for label in labels]):
+      print("***unknown label")
+      return
+
+    # reduce batches
+    if self.y_train is not None: self.x_train, self.y_train, self.z_train = self.reduce_to_labels_algorithm(labels, self.x_train, self.y_train, self.z_train, self.batch_size)
+    if self.y_val is not None: self.x_val, self.y_val, self.z_val = self.reduce_to_labels_algorithm(labels, self.x_val, self.y_val, self.z_val, self.batch_size_eval)
+    if self.y_test is not None: self.x_test, self.y_test, self.z_test = self.reduce_to_labels_algorithm(labels, self.x_test, self.y_test, self.z_test, self.batch_size_eval)
+    if self.y_my is not None: self.x_my, self.y_my, self.z_my = self.reduce_to_labels_algorithm(labels, self.x_my, self.y_my, self.z_my, self.batch_size_eval)
+
+    # recreate class directory
+    self.update_classes(labels)
+
+    # recount examples
+    self.determine_num_examples()
+
+
+  def reduce_to_labels_algorithm(self, labels, x, y, z, batch_size, shuffle=True):
+    """
+    reduce algorithm
+    """
+
+    # get label vector and feature shape
+    label_vectors = [y == self.class_dict[label] for label in labels]
+
+    # logical or the label vectors
+    all_label_vectors = torch.zeros(size=label_vectors[0].shape)
+    for label_vector in label_vectors: all_label_vectors = torch.logical_or(all_label_vectors, label_vector)
+    f_shape = x.shape[2:]
+
+    # get labels
+    x = x[all_label_vectors]
+    y = y[all_label_vectors]
+    z = z[all_label_vectors]
+
+    # reshape
+    x = x[:len(x)-len(x)%batch_size].reshape((-1, batch_size) + f_shape)
+    y = y[:len(y)-len(y)%batch_size].reshape((-1, batch_size))
+    z = z[:len(z)-len(z)%batch_size].reshape((-1, batch_size))
+
+    # shuffle examples
+    if shuffle: x, y, z = self.xyz_shuffle(x, y, z)
+
+    return x, y, z
+
+
   def add_noise_data(self, noise_label='noise', shuffle=True):
     """
     add noise to all data
@@ -533,6 +585,9 @@ if __name__ == '__main__':
   # create batches
   batch_archive = SpeechCommandsBatchArchive(audio_set1.feature_files + audio_set2.feature_files, batch_size=32, batch_size_eval=5, shuffle=False)
 
+  # reduce to labels algorithm
+  batch_archive.reduce_to_labels(['left', 'right'])
+
   # infos
   print("\ndata: "), print_batch_infos(batch_archive)
 
@@ -575,11 +630,11 @@ if __name__ == '__main__':
 
 
   #plot_mfcc_profile(x=np.ones(16000), fs=16000, N=400, hop=160, mfcc=x1)
-  #plot_mfcc_only(x1, fs=16000, hop=160, plot_path=None, name=batch_archive.z_train[0, 0], show_plot=False)
-  #plot_mfcc_only(x2, fs=16000, hop=160, plot_path=None, name=batch_archive.z_train[0, 1], show_plot=True)
+  plot_mfcc_only(x1, fs=16000, hop=160, plot_path=None, name=batch_archive.z_train[0, 0], show_plot=False)
+  plot_mfcc_only(x2, fs=16000, hop=160, plot_path=None, name=batch_archive.z_train[0, 1], show_plot=True)
 
   #plot_mfcc_equal_aspect(x2, fs=16000, hop=160, cmap=None, context='mfcc', plot_path=None, name=batch_archive.z_train[0, 1], show_plot=True)
   #plot_mfcc_equal_aspect(x3, fs=16000, hop=160, cmap=None, context='mfcc', plot_path=None, name=batch_archive.z_my[0, 0], gizmos_off=True, show_plot=True)
-  plot_mfcc_equal_aspect(x3, fs=16000, hop=160, cmap=None, context='mfcc', plot_path=None, name=batch_archive.z_my[0, 0], gizmos_off=False, show_plot=True)
+  #plot_mfcc_equal_aspect(x3, fs=16000, hop=160, cmap=None, context='mfcc', plot_path=None, name=batch_archive.z_my[0, 0], gizmos_off=False, show_plot=True)
 
   
