@@ -86,7 +86,7 @@ class ML():
     """
 
     # encoder available
-    if self.net_handler.nn_arch in ['conv-encoder', 'conv-encoder-fc1', 'conv-lim-encoder', 'conv-latent', 'adv-experimental', 'adv-experimental3', 'adv-collected-encoder', 'adv-lim-encoder', 'adv-lim-encoder-6']: 
+    if self.net_handler.nn_arch in ['conv-encoder', 'conv-encoder-fc1', 'conv-encoder-fc3', 'conv-lim-encoder', 'conv-latent', 'adv-experimental', 'adv-experimental3', 'adv-collected-encoder', 'adv-lim-encoder', 'adv-lim-encoder-6']: 
       self.encoder_model_file = self.model_path + self.cfg_ml['encoder_model_file_name']
 
     # decoder available
@@ -380,7 +380,7 @@ def get_adversarial_pair_arch(nn_arch):
   adversarial pair architecture for adversarial conv encoder training
   """
   if nn_arch in ['conv-lim-encoder']: return 'adv-lim-encoder'
-  elif nn_arch in ['conv-encoder-fc1']: return 'adv-lim-encoder-6'
+  elif nn_arch in ['conv-encoder-fc1', 'conv-encoder-fc3']: return 'adv-lim-encoder-6'
   return 'adv-collected-encoder'
 
 
@@ -390,7 +390,7 @@ def train_conv_encoders(cfg, audio_set1, all_feature_files, encoder_model=None, 
   """
 
   # check architecture
-  if cfg['ml']['nn_arch'] not in ['conv-encoder', 'conv-lim-encoder', 'conv-latent', 'conv-encoder-fc1']: return
+  if cfg['ml']['nn_arch'] not in ['conv-encoder', 'conv-lim-encoder', 'conv-latent', 'conv-encoder-fc1', 'conv-encoder-fc3']: return None, None
 
   # batch archive
   batch_archive = SpeechCommandsBatchArchive(all_feature_files, batch_size=cfg['ml']['train_params']['batch_size'])

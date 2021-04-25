@@ -1,2 +1,10 @@
 \subsection{Raw Audio Waveforms}
-Acoustic waves can be recorded by microphones...
+Physical acoustic waves are recorded by microphones, translating mechanincal vibrations to electrical signals, which can be stored to waveform files.
+The Focus is here only on the raw waveform files and its data.
+First it is to mention that waveform files are stored in some kind of audio format, e.g. .wav files, using parameters such as bit resolution, e.g. 32 bit floating point, and most importantly a sample rates $f_s$. 
+The sample rate tells, which frequency range of the continuous acoustic waves form is possible to store in a discrete representation.
+This is restricted by the Nyquist-Shannon sampling theorem, where the maximal frequency of the signal should not be larger than the half of the sampling frequency, otherwise aliasing effects occur. 
+Thats why a usual CD format has a sampling frequency of 44.1kHz resulting in a maximum frequency of 22.05kHz, and usually humans do not hear above 20kHz frequencies.
+However it is also possible to go far beyong those 44.1kHz, as it is used in telephone systems with a sampling rate of 8kHz.
+This is because, voice does not need that high sampling frequency to be understandable and with enough quality.
+The audio files of the speech command dataset are recorded with a sampling rate of 16kHz, which is totally enough for human speech.

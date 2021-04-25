@@ -118,7 +118,7 @@ class NetHandler():
     """
     conv coder flags
     """
-    enc = self.nn_arch in  ['conv-encoder', 'conv-encoder-fc1', 'conv-lim-encoder', 'conv-latent', 'adv-experimental', 'adv-experimental3', 'adv-collected-encoder', 'adv-lim-encoder', 'adv-lim-encoder-6']
+    enc = self.nn_arch in  ['conv-encoder', 'conv-encoder-fc1', 'conv-encoder-fc3', 'conv-lim-encoder', 'conv-latent', 'adv-experimental', 'adv-experimental3', 'adv-collected-encoder', 'adv-lim-encoder', 'adv-lim-encoder-6']
     dec = self.nn_arch in  ['adv-experimental', 'adv-experimental3', 'adv-collected-encoder', 'adv-lim-encoder', 'adv-lim-encoder-6']
     return enc, dec
     
