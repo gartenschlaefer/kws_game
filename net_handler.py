@@ -779,7 +779,7 @@ class AdversarialNetHandlerExperimental(AdversarialNetHandler):
     return d_loss_real.item(), d_loss_fake.item()
 
 
-  def update_g(self, reals, fakes, class_dict, lam=7):
+  def update_g(self, reals, fakes, class_dict, lam=6):
     """
     update generator G
     """

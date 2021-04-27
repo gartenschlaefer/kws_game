@@ -12,6 +12,35 @@ Which seem quite complicated at the beginning, is in fact nothing else but some 
 It is also possible to input a spectrum to the Neural Network, but the amount of input data is just too much.
 That is why frequencies are put in certain bands through a filter bank and further decorrelated with a method like the DCT.
 
+\subsubsection{Processing Pipeline and Background}
+The frequency spectrum is spitted into filter bands, done by triangular window functions.
+These window functions must have a fixed length on the mel space (equidistant mel bands), that results in different spacings of
+the frequency space. The mel and frequency window functions are shown in \rfig{filter_bands}.
+\begin{figure}[!ht]
+  \centering
+  \subfigure[mel space]{\includegraphics[width=0.40\textwidth]{./3_theory/figs/a3_mfcc/weights_mel}}
+  \quad
+  \subfigure[frequency space]{\includegraphics[width=0.40\textwidth]{./3_theory/figs/a3_mfcc/weights_f}}
+  \caption{Equidistant mel filter bands with a total number of 32 bands.}
+  \label{fig:filter_bands}
+\end{figure}
+\FloatBarrier
+\noindent
+
+The DCT is similar to the Fourier Transform and projects the input signal to a set of basis functions. 
+These Basis functions are illustrated in \rfig{dct}
+\begin{figure}[!ht]
+  \centering
+  \subfigure[DCT with continuous color scheme]{\includegraphics[width=0.40\textwidth]{./3_theory/figs/a3_mfcc/dct}}
+  \quad
+  \subfigure[DCT with diverging color scheme]{\includegraphics[width=0.40\textwidth]{./3_theory/figs/a3_mfcc/dct-div}}
+  \caption{DCT matrix with 32 basis functions illustrated with a continuous and a diverging color scheme.}
+  \label{fig:dct}
+\end{figure}
+\FloatBarrier
+\noindent
+
+
 \subsubsection{MFCC Feature Usage and Enhancement}
 After the MFCCs are computed, they can be used as input features for Neural Networks. 
 The important Question here is whether an feature enhancement can be done and if all those computed features are necessarily and meaningful for the training and evaluation success of Neural Networks. Usually not all MFCC coefficients are used as inputs, this is merely done to reduce the computational cost in case the accuracy does not suffer from it.

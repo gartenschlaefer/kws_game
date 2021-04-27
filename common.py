@@ -51,11 +51,8 @@ def create_folder(paths):
   # get all folder path to create
   for p in paths:
 
-    # if it does not exist
-    if not os.path.isdir(p):
-
-      # create path
-      os.makedirs(p)
+    # path exists check
+    if not os.path.isdir(p): os.makedirs(p)
 
 
 def delete_files_in_path(paths, file_ext='.png'):

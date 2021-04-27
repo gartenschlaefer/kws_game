@@ -265,7 +265,6 @@ if __name__ == '__main__':
   sys.path.append("../")
 
   from common import create_folder
-  from plots import plot_mel_band_weights
   from feature_extraction import FeatureExtractor
 
   # plot path
@@ -356,7 +355,3 @@ if __name__ == '__main__':
 
   # time measurement
   #time_measurements(x, u, cfg['feature_params'])
-
-  # plot stuff
-  #plot_mel_band_weights(w_f, w_mel, f, m, plot_path=None, name='weights')
-  #plt.show()

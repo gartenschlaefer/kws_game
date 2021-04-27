@@ -691,20 +691,13 @@ if __name__ == '__main__':
 
   from glob import glob
   from common import create_folder
-  from plots import plot_mel_band_weights, plot_mfcc_profile, plot_waveform
+  from plots import plot_mfcc_profile, plot_waveform
 
   # yaml config file
   cfg = yaml.safe_load(open("./config.yaml"))
 
   # init feature extractor
   feature_extractor = FeatureExtractor(cfg['feature_params'])
-
-  # plot stuff
-  #plot_mel_band_weights(feature_extractor.w_f, feature_extractor.w_mel, feature_extractor.f, feature_extractor.m, plot_path=None, name='weights', show_plot=True)
-
-  # dct
-  #plt.figure(), plt.imshow(custom_dct_matrix(cfg['feature_params']['n_filter_bands'])), plt.show()
-
 
   # wav dir
   wav_dir = './ignore/my_recordings/showcase_wavs/'
@@ -713,7 +706,6 @@ if __name__ == '__main__':
   # annotation dir
   anno_dir = './ignore/my_recordings/showcase_wavs/annotation/'
 
- 
   # analyze some wavs
   for wav, anno in zip(glob(wav_dir + '*.wav'), glob(anno_dir + '*.TextGrid')):
 
@@ -729,16 +721,6 @@ if __name__ == '__main__':
     #plot_mfcc_profile(x, 16000, feature_extractor.N, feature_extractor.hop, mfcc, anno_file=anno, sep_features=True, diff_plot=False, bon_pos=bon_pos, frame_size=cfg['feature_params']['frame_size'], plot_path=wav_dir, name=wav.split('/')[-1].split('.')[0], show_plot=True)
     plot_waveform(x, 16000, anno_file=anno, hop=feature_extractor.hop, context='wav', title=wav.split('/')[-1].split('.')[0]+'_my', plot_path=wav_dir, name=wav.split('/')[-1].split('.')[0], show_plot=True)
     
-    # # spec
-    # x_spec = feature_extractor.calc_spectogram(x)
-
-    # plt.figure()
-    # librosa.display.specshow(x_spec.T, sr=16000, hop_length=160, x_axis='time')
-
-    # plt.figure()
-    # plt.imshow(x_spec.T)
-    # plt.show()
-
   # random
   #x = np.random.randn(16000)
   #mfcc, bon_pos = feature_extractor.extract_mfcc(x, reduce_to_best_onset=False)

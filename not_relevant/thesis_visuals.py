@@ -12,8 +12,27 @@ sys.path.append("../")
 
 from audio_dataset import AudioDataset
 from feature_extraction import FeatureExtractor, custom_dct_matrix
-from plots import plot_mel_band_weights, plot_mfcc_profile, plot_waveform, plot_dct, plot_wav_grid
+from plots import plot_mel_band_weights, plot_mfcc_profile, plot_waveform, plot_dct, plot_wav_grid, plot_spectogram
 from latex_table_maker import LatexTableMaker
+
+
+def mfcc_stuff(cfg):
+  """
+  for dct, filter bands, etc
+  """
+
+  # plot path
+  plot_path = '../docu/thesis/3_theory/figs/a3_mfcc/'
+
+  # init feature extractor
+  feature_extractor = FeatureExtractor(cfg['feature_params'])
+
+  # plot dct
+  plot_dct(custom_dct_matrix(cfg['feature_params']['n_filter_bands']), plot_path=plot_path, name='dct', show_plot=False)
+  plot_dct(custom_dct_matrix(cfg['feature_params']['n_filter_bands']), plot_path=plot_path, context='dct-div', name='dct-div', show_plot=False)
+
+  # plot mel bands
+  plot_mel_band_weights(feature_extractor.w_f, feature_extractor.w_mel, feature_extractor.f, feature_extractor.m, plot_path=plot_path, name='weights', show_plot=True)
 
 
 def showcase_wavs(cfg, raw_plot=True, spec_plot=True):
@@ -49,21 +68,14 @@ def showcase_wavs(cfg, raw_plot=True, spec_plot=True):
     
     if spec_plot:
       x_spec = feature_extractor.calc_spectogram(x)
+      plot_spectogram(x, x_spec.T, plot_path=plot_path_spec, name='spec', show_plot=True)
 
+    # plt.figure()
+    # librosa.display.specshow(x_spec.T, sr=16000, hop_length=160, x_axis='time')
 
-def mfcc_stuff(cfg):
-  """
-  for dct, filter bands, etc
-  """
-
-  # init feature extractor
-  feature_extractor = FeatureExtractor(cfg['feature_params'])
-
-  # plot dct
-  plot_dct(custom_dct_matrix(cfg['feature_params']['n_filter_bands']), plot_path=None, name='dct', show_plot=False)
-
-  # plot mel bands
-  plot_mel_band_weights(feature_extractor.w_f, feature_extractor.w_mel, feature_extractor.f, feature_extractor.m, plot_path=None, name='weights', show_plot=True)
+    # plt.figure()
+    # plt.imshow(x_spec.T)
+    # plt.show()
 
 
 def feature_selection_tables():
@@ -114,6 +126,7 @@ def audio_set_wavs(cfg):
   # process wavs
   for wav in sorted([label_wavs[r[i]] for i, label_wavs in enumerate(a1.set_audio_files[1])]):
 
+    # info
     print("wav: ", wav)
 
     # get raw
@@ -140,14 +153,16 @@ if __name__ == '__main__':
   # yaml config file
   cfg = yaml.safe_load(open("../config.yaml"))
 
+  # mfcc stuff
+  #mfcc_stuff(cfg)
 
   # showcase wavs
-  #showcase_wavs(cfg, raw_plot=False)
+  showcase_wavs(cfg, raw_plot=False, spec_plot=True)
 
   # feature selection tables
   #feature_selection_tables()
 
   # audio set wavs
-  audio_set_wavs(cfg)
+  #audio_set_wavs(cfg)
 
 

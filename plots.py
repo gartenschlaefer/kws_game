@@ -29,8 +29,13 @@ def get_colormap_from_context(context='none'):
   #reds4 = [red_16.mpl_colors[2], red_16.mpl_colors[5], red_16.mpl_colors[8], red_16.mpl_colors[11]]
 
   if context == 'mfcc': return red_16.mpl_colormap
+  elif context == 'spectogram': return red_16.mpl_colormap
 
   elif context == 'confusion': return ListedColormap(purple_16.mpl_colormap.reversed()(np.linspace(0, 0.8, 25)), name='purpletonian')
+  elif context == 'dct-div': return ListedColormap(np.vstack((purple_16.mpl_colormap(np.linspace(0.2, 1, 64)), red_16.mpl_colormap.reversed()(np.linspace(0, 0.8, 64)))), name='rp-div')
+  elif context == 'dct': return purple_16.mpl_colormap.reversed()
+  #elif context == 'dct': return red_16.mpl_colormap
+  #elif context == 'dct': return purple_16.mpl_colormap
 
   #elif context == 'weight0': return jim_special_16.mpl_colormap
   elif context == 'weight0': return red_16.mpl_colormap
@@ -987,46 +992,84 @@ def plot_mfcc_equal_aspect(mfcc, fs=16000, hop=160, cmap=None, context='mfcc', p
     plt.show()
 
 
-def plot_mel_band_weights(w_f, w_mel, f, m, plot_path=None, name='mel_bands', show_plot=False):
+def plot_mel_band_weights(w_f, w_mel, f, m, cmap=None, plot_path=None, name='mel_bands', show_plot=False):
   """
   mel band weights
   """
 
-  # plot f bands
-  plt.figure(figsize=(8, 5))
-  plt.plot(f, w_f.T)
-  plt.ylabel('magnitude')
-  plt.xlabel('frequency [Hz]')
-  plt.grid()
+  # get cmap
+  if cmap is None: cmap = get_colormap_from_context(context='adv-loss')
 
-  # plot
-  if plot_path is not None:
-    plt.savefig(plot_path + name + '_f' + '.png', dpi=150)
-    plt.close()
+  # plot f bands
+  fig1 = plt.figure(figsize=(8, 5))
+
+  # create axis
+  ax = plt.axes()
+  if cmap is not None: ax.set_prop_cycle('color', cmap)
+
+  # plot frequency weights
+  ax.plot(f, w_f.T)
+
+  # layout
+  plt.ylabel('magnitude'), plt.xlabel('frequency [Hz]'), plt.grid()
+
+  # tight plot
+  plt.tight_layout()
+
+  # save plot
+  if plot_path is not None: plt.savefig(plot_path + name + '_f' + '.png', dpi=150)
 
   # plot mel bands
-  plt.figure(figsize=(8, 5))
-  plt.plot(m, w_mel.T)
-  plt.ylabel('magnitude')
-  plt.xlabel('mel [mel]')
-  plt.grid()
+  fig2 = plt.figure(figsize=(8, 5))
+
+  # create axis
+  ax = plt.axes()
+  if cmap is not None: ax.set_prop_cycle('color', cmap)
 
   # plot
-  if plot_path is not None:
-    plt.savefig(plot_path + name + '_mel' '.png', dpi=150)
-    plt.close()
+  ax.plot(m, w_mel.T)
 
+  # layout
+  plt.ylabel('magnitude'), plt.xlabel('mel [mel]'), plt.grid()
+
+  # tight plot
+  plt.tight_layout()
+
+  # save plot
+  if plot_path is not None: plt.savefig(plot_path + name + '_mel' '.png', dpi=150)
+
+  # show plot
   if show_plot: plt.show()
 
 
-def plot_dct(h, plot_path=None, name='dct', show_plot=False):
+def plot_dct(h, cmap=None, context='dct', plot_path=None, name='dct', show_plot=False):
   """
   discrete cosine transform
   """
 
+  # get cmap
+  if cmap is None: cmap = get_colormap_from_context(context=context)
+
   # init
   plt.figure(figsize=(6, 6))
-  plt.imshow(h)
+
+  # axis
+  ax = plt.axes()
+
+  # image
+  im = ax.imshow(h, cmap=cmap, interpolation='none', vmin=-1, vmax=1)
+
+  # layout
+  plt.axis("off")
+
+  # colorbar
+  divider = make_axes_locatable(plt.gca())
+  cax = divider.append_axes("right", "2%", pad="2%")
+  color_bar = plt.colorbar(im, cax=cax)
+  color_bar.ax.tick_params(labelsize=8)
+
+  # tight plot
+  plt.tight_layout()
 
   # save plot
   if plot_path is not None: plt.savefig(plot_path + name + '.png', dpi=150)
@@ -1035,14 +1078,31 @@ def plot_dct(h, plot_path=None, name='dct', show_plot=False):
   if show_plot: plt.show()
 
 
-def plot_spectogram(x, x_spec, plot_path=None, name='dct', show_plot=False):
+def plot_spectogram(x, x_spec, cmap=None, plot_path=None, name='spec', show_plot=False):
   """
   spectogram plot
   """
 
+  # get cmap
+  if cmap is None: cmap = get_colormap_from_context(context='spectogram')
+
   # init
-  plt.figure(figsize=(6, 6))
-  plt.imshow(x_spec)
+  fig = plt.figure(figsize=(6, 6))
+
+  # axis
+  ax = plt.axes()
+
+  # image
+  im = ax.imshow(x_spec, cmap=cmap, interpolation='none', origin='lower')
+
+  # colorbar
+  divider = make_axes_locatable(plt.gca())
+  cax = divider.append_axes("right", "2%", pad="2%")
+  color_bar = plt.colorbar(im, cax=cax)
+  color_bar.ax.tick_params(labelsize=8)
+
+  # tight plot
+  plt.tight_layout()
 
   # save plot
   if plot_path is not None: plt.savefig(plot_path + name + '.png', dpi=150)

@@ -34,11 +34,20 @@ class ML():
     # param path ml
     self.param_path_ml = 'bs-{}_it-{}_lr-{}/'.format(self.cfg_ml['train_params']['batch_size'], self.cfg_ml['train_params']['num_epochs'], str(self.cfg_ml['train_params']['lr']).replace('.', 'p'))
 
+    # adv param path
+    self.adv_params_path = 'l{}p{}d{}_itl-{}_itp-{}/'.format(int(self.cfg_ml['adv_params']['label_train']), int(self.cfg_ml['adv_params']['pre_train']), int(self.cfg_ml['adv_params']['use_decoder_weights']), self.cfg_ml['adv_params']['num_epochs_label'], self.cfg_ml['adv_params']['num_epochs_pre'])
+
     # model path
     self.model_path = self.paths['model'] + self.cfg_ml['nn_arch'] + '/' + self.audio_dataset.param_path + self.param_path_ml
 
+    # create model path before (useful for sub model path changes with ../)
+    create_folder([self.model_path])
+
     # sub dir
-    if self.sub_model_path is not None: self.model_path = self.model_path + sub_model_path
+    if self.sub_model_path is not None:
+      
+      # add param
+      if self.sub_model_path.find(cfg_ml['conv_folder']) != -1: self.model_path = self.model_path + self.sub_model_path + self.adv_params_path
 
     # new sub dir for encoder label
     if len(self.encoder_label): self.model_path = self.model_path + encoder_label + '/'
@@ -71,27 +80,10 @@ class ML():
     logging.basicConfig(filename=self.paths['log'] + 'ml.log', level=logging.INFO, format='%(asctime)s %(message)s')
 
     # disable unwanted logs
-    logging.getLogger('matplotlib.font_manager').disabled = True
-    logging.getLogger('matplotlib.colorbar').disabled = True
-    logging.getLogger('matplotlib.animation').disabled = True
+    logging.getLogger('matplotlib.font_manager').disabled, logging.getLogger('matplotlib.colorbar').disabled, logging.getLogger('matplotlib.animation').disabled = True, True, True
 
     # load pre trained model
-    if self.cfg_ml['load_pre_model']:
-      self.net_handler.load_models(model_files=self.model_pre_files)
-
-
-  def get_encoder_decoder_file_from_nn_arch(self):
-    """
-    check architecture on encoder or decoder file
-    """
-
-    # encoder available
-    if self.net_handler.nn_arch in ['conv-encoder', 'conv-encoder-fc1', 'conv-encoder-fc3', 'conv-lim-encoder', 'conv-latent', 'adv-experimental', 'adv-experimental3', 'adv-collected-encoder', 'adv-lim-encoder', 'adv-lim-encoder-6']: 
-      self.encoder_model_file = self.model_path + self.cfg_ml['encoder_model_file_name']
-
-    # decoder available
-    if self.net_handler.nn_arch in ['adv-experimental', 'adv-experimental3', 'adv-collected-encoder', 'adv-lim-encoder', 'adv-lim-encoder-6']:
-      self.decoder_model_file = self.model_path + self.cfg_ml['decoder_model_file_name']
+    if self.cfg_ml['load_pre_model']: self.net_handler.load_models(model_files=self.model_pre_files)
 
 
   def train(self, new_train_params=None, log_on=True, name_ext='', save_models=True):
