@@ -431,7 +431,7 @@ def plot_damaged_file_score(z, plot_path=None, name='z_score', enable_plot=False
     plt.close()
 
 
-def plot_waveform(x, fs, e=None, hop=None, onset_frames=None, cmap=None, context='wav', title='none', xlim=None, ylim=None, plot_path=None, name='None', show_plot=False):
+def plot_waveform(x, fs, e=None, anno_file=None, hop=None, onset_frames=None, y_ax_balance=True, cmap=None, context='wav', title='none', xlim=None, ylim=None, plot_path=None, name='None', show_plot=False):
   """
   just a simple waveform
   """
@@ -440,7 +440,7 @@ def plot_waveform(x, fs, e=None, hop=None, onset_frames=None, cmap=None, context
   t = np.arange(0, len(x)/fs, 1/fs)
 
   # setup figure
-  fig = plt.figure(figsize=(9, 5))
+  fig = plt.figure(figsize=(8, 3))
 
   # create axis
   ax = plt.axes()
@@ -453,25 +453,35 @@ def plot_waveform(x, fs, e=None, hop=None, onset_frames=None, cmap=None, context
   ax.plot(t, x)
 
   # energy plot
-  if e is not None:
-    ax.plot(np.arange(0, len(x)/fs, 1/fs * hop), e)
+  if e is not None: ax.plot(np.arange(0, len(x)/fs, 1/fs * hop), e)
 
   # draw onsets
   if onset_frames is not None:
     for onset in frames_to_time(onset_frames, fs, hop):
       plt.axvline(x=float(onset), dashes=(5, 1), color='k')
 
-  plt.title(title)
-  plt.ylabel('magnitude')
-  plt.xlabel('time [s]')
+  # lims
+  if xlim is not None: plt.xlim(xlim)
+  if ylim is not None: plt.ylim(ylim)
 
-  if xlim is not None:
-    plt.xlim(xlim)
+  if y_ax_balance:
+    v = np.max(np.abs(x))
+    ax.set_xlim([0, 1])
+    ax.set_ylim([-v - 0.1 * v, v + 0.1 * v])
 
-  if ylim is not None:
-    plt.ylim(ylim)
+  # annotation
+  if anno_file is not None: plot_textGrid_annotation(anno_file, x=x, plot_text=True)
 
-  plt.grid()
+  # care about labels
+  ax.set_xticks(t[::1600])
+  ax.set_xticklabels(['{:.1f}'.format(ti) for ti in t[::1600]])
+  ax.tick_params(axis='both', which='major', labelsize=8), ax.tick_params(axis='both', which='minor', labelsize=6)
+
+  # layout
+  plt.title(title, fontsize=10), plt.ylabel('magnitude', fontsize=8), plt.xlabel('time [s]', fontsize=8), plt.grid()
+
+  # tight plot
+  plt.tight_layout()
 
   # plot the fig
   if plot_path is not None:
@@ -699,7 +709,7 @@ def plot_val_acc(val_acc, cmap=None, plot_path=None, name='None', show_plot=Fals
   return fig
 
 
-def plot_textGrid_annotation(anno_file, x=None, plot_text=False):
+def plot_textGrid_annotation(anno_file, x=None, hop_space=None, plot_text=False):
   """
   annotation
   """
@@ -719,7 +729,14 @@ def plot_textGrid_annotation(anno_file, x=None, plot_text=False):
 
     # go through all entries
     for s, e, l in tier.entryList:
+
+      # translate to hop space
+      if hop_space is not None: s = s * hop_space
+
+      # plot line
       plt.axvline(x=s, dashes=(3, 3), color='k', lw=1)
+
+      # plot text
       if plot_text: plt.text(s + 0.01, h, l, color='k')
 
 
@@ -818,7 +835,7 @@ def plot_mfcc_profile(x, fs, N, hop, mfcc, sep_features=True, diff_plot=False, c
     ax.tick_params(axis='both', which='major', labelsize=8), ax.tick_params(axis='both', which='minor', labelsize=6)
 
     # annotation
-    plot_textGrid_annotation(anno_file)
+    plot_textGrid_annotation(anno_file, hop_space=fs/hop)
 
     # some labels
     ax.set_title(titles[i-1], fontsize=10), ax.set_ylabel("mfcc coeff.", fontsize=8)
@@ -844,14 +861,11 @@ def plot_mfcc_profile(x, fs, N, hop, mfcc, sep_features=True, diff_plot=False, c
   # tight plot
   plt.subplots_adjust(left=0.1, bottom=0.00, right=0.97, top=0.93, wspace=0, hspace=0) if mfcc.shape[0] == 39 and sep_features else plt.subplots_adjust(left=0.1, bottom=0.00, right=0.94, top=0.90, wspace=0, hspace=0) 
 
+  # plot and close
+  if plot_path is not None: plt.savefig(plot_path + name + '.png', dpi=150), plt.close()
 
-  # plot
-  if plot_path is not None:
-    plt.savefig(plot_path + name + '.png', dpi=150)
-    plt.close()
-
-  elif show_plot:
-    plt.show()
+  # show plot
+  if show_plot: plt.show()
 
 
 def plot_mfcc_only(mfcc, fs=16000, hop=160, cmap=None, context='mfcc', plot_path=None, name='mfcc_only', show_plot=False):
@@ -1002,8 +1016,39 @@ def plot_mel_band_weights(w_f, w_mel, f, m, plot_path=None, name='mel_bands', sh
     plt.savefig(plot_path + name + '_mel' '.png', dpi=150)
     plt.close()
 
-  elif show_plot:
-    plt.show()
+  if show_plot: plt.show()
+
+
+def plot_dct(h, plot_path=None, name='dct', show_plot=False):
+  """
+  discrete cosine transform
+  """
+
+  # init
+  plt.figure(figsize=(6, 6))
+  plt.imshow(h)
+
+  # save plot
+  if plot_path is not None: plt.savefig(plot_path + name + '.png', dpi=150)
+  
+  # show plot
+  if show_plot: plt.show()
+
+
+def plot_spectogram(x, x_spec, plot_path=None, name='dct', show_plot=False):
+  """
+  spectogram plot
+  """
+
+  # init
+  plt.figure(figsize=(6, 6))
+  plt.imshow(x_spec)
+
+  # save plot
+  if plot_path is not None: plt.savefig(plot_path + name + '.png', dpi=150)
+  
+  # show plot
+  if show_plot: plt.show()
 
 
 if __name__ == '__main__':

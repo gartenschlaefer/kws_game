@@ -1,0 +1,6 @@
+\subsection{Adversarial Training Theory}\label{sec:adv_theory}
+Working with adversarial Neural Networks is quite interesting, as two separate Networks are challenge themselves against each other to improve their performance.
+From the original paper ...ref... there is this game between two Neural Networks, where one player has the role of creating fakes and the other must determine if it is real or fake.
+The Network who creates fakes is called Generator (G) and the other Network who has to decide about fake or not is called Discriminator (D).
+The Generators goal is to create fakes that look like reals, so that D makes mistakes and classifies a fake as a real.
+On the other hand the Discriminator is constantly improving itself as well, so that fakes from G can be detected.

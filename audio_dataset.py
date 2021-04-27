@@ -22,12 +22,13 @@ class AudioDataset():
   audio dataset interface with some useful functions
   """
 
-  def __init__(self, dataset_cfg, feature_params, collect_wavs=False, root_path='./'):
+  def __init__(self, dataset_cfg, feature_params, collect_wavs=False, verbose=False, root_path='./'):
 
     # params
     self.dataset_cfg = dataset_cfg
     self.feature_params = feature_params
     self.collect_wavs = collect_wavs
+    self.verbose = verbose
     self.root_path = root_path
 
     # channel size
@@ -254,6 +255,52 @@ class AudioDataset():
     return x, y, z
 
 
+  def wav_pre_processing(self, wav):
+    """
+    audio pre processing, check if file is okay and clean up a bit, no normalization
+    """
+
+    # check ignore file list
+    if len(self.ignore_file_list_re):
+      ignore = re.findall(self.ignore_file_list_re, wav)
+      if len(ignore):
+        print("ignore: ", ignore)
+        print("wav: ", wav)
+        return 0, True
+
+    # read audio from file
+    x_raw, fs = librosa.load(wav, sr=self.feature_params['fs'])
+
+    # energy of raw audio
+    e = x_raw @ x_raw.T
+
+    # save amount of samples
+    self.file_num_sample_list.append(len(x_raw))
+    self.file_energy_list.append(e)
+
+    # too short flag
+    is_too_short = len(x_raw) < self.dataset_cfg['sample_num_mininmal']
+    is_too_weak = e < 0.01
+    is_too_strong = e > 1000.0
+
+    # too short
+    if is_too_short: self.short_file_list.append((wav, len(x_raw)))
+    if is_too_weak: self.weak_file_list.append((wav, e))
+    if is_too_strong: self.strong_file_list.append((wav, e))
+
+    # check sample lengths
+    if len(x_raw) < self.dataset_cfg['sample_num_normal']:
+
+      # print warning
+      if self.verbose: print("lengths is less than 1s, append with zeros for:")
+
+      # append with zeros
+      x_raw = np.append(x_raw, np.zeros(self.dataset_cfg['sample_num_normal'] - len(x_raw)))
+
+    return x_raw, is_too_weak
+
+
+
 class SpeechCommandsDataset(AudioDataset):
   """
   Speech Commands Dataset extraction and set creation
@@ -262,10 +309,7 @@ class SpeechCommandsDataset(AudioDataset):
   def __init__(self, dataset_cfg, feature_params, collect_wavs=False, verbose=False):
 
     # parent init
-    super().__init__(dataset_cfg, feature_params, collect_wavs=collect_wavs)
-
-    # arguments
-    self.verbose = verbose
+    super().__init__(dataset_cfg, feature_params, collect_wavs=collect_wavs, verbose=verbose)
 
     # feature extractor
     self.feature_extractor = FeatureExtractor(feature_params=self.feature_params)
@@ -433,51 +477,6 @@ class SpeechCommandsDataset(AudioDataset):
 
 
     return mfcc_data, label_data, index_data
-
-
-  def wav_pre_processing(self, wav):
-    """
-    audio pre processing, check if file is okay and clean up a bit, no normalization
-    """
-
-    # check ignore file list
-    if len(self.ignore_file_list_re):
-      ignore = re.findall(self.ignore_file_list_re, wav)
-      if len(ignore):
-        print("ignore: ", ignore)
-        print("wav: ", wav)
-        return 0, True
-
-    # read audio from file
-    x_raw, fs = librosa.load(wav, sr=self.feature_params['fs'])
-
-    # energy of raw audio
-    e = x_raw @ x_raw.T
-
-    # save amount of samples
-    self.file_num_sample_list.append(len(x_raw))
-    self.file_energy_list.append(e)
-
-    # too short flag
-    is_too_short = len(x_raw) < self.dataset_cfg['sample_num_mininmal']
-    is_too_weak = e < 0.01
-    is_too_strong = e > 1000.0
-
-    # too short
-    if is_too_short: self.short_file_list.append((wav, len(x_raw)))
-    if is_too_weak: self.weak_file_list.append((wav, e))
-    if is_too_strong: self.strong_file_list.append((wav, e))
-
-    # check sample lengths
-    if len(x_raw) < self.dataset_cfg['sample_num_normal']:
-
-      # print warning
-      if self.verbose: print("lengths is less than 1s, append with zeros for:")
-
-      # append with zeros
-      x_raw = np.append(x_raw, np.zeros(self.dataset_cfg['sample_num_normal'] - len(x_raw)))
-
-    return x_raw, is_too_weak
 
 
   def detect_damaged_file(self, mfcc, wav):

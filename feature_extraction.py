@@ -691,7 +691,7 @@ if __name__ == '__main__':
 
   from glob import glob
   from common import create_folder
-  from plots import plot_mel_band_weights, plot_mfcc_profile
+  from plots import plot_mel_band_weights, plot_mfcc_profile, plot_waveform
 
   # yaml config file
   cfg = yaml.safe_load(open("./config.yaml"))
@@ -706,16 +706,29 @@ if __name__ == '__main__':
   #plt.figure(), plt.imshow(custom_dct_matrix(cfg['feature_params']['n_filter_bands'])), plt.show()
 
 
+  # wav dir
   wav_dir = './ignore/my_recordings/showcase_wavs/'
   #wav_dir = './' + cfg['datasets']['speech_commands']['plot_paths']['damaged_files']
+
+  # annotation dir
+  anno_dir = './ignore/my_recordings/showcase_wavs/annotation/'
+
  
   # analyze some wavs
-  for wav in glob(wav_dir + '*.wav'):
-    print("wav: ", wav)
-    x, _ = librosa.load(wav, sr=16000)
-    mfcc, bon_pos = feature_extractor.extract_mfcc(x, reduce_to_best_onset=False)
-    plot_mfcc_profile(x, 16000, feature_extractor.N, feature_extractor.hop, mfcc, sep_features=True, diff_plot=False, bon_pos=bon_pos, frame_size=cfg['feature_params']['frame_size'], plot_path=wav_dir, name=wav.split('/')[-1], show_plot=True)
+  for wav, anno in zip(glob(wav_dir + '*.wav'), glob(anno_dir + '*.TextGrid')):
 
+    # info
+    print("\nwav: ", wav), print("anno: ", anno)
+
+    # load audio
+    x, _ = librosa.load(wav, sr=16000)
+
+    # feature extraction
+    mfcc, bon_pos = feature_extractor.extract_mfcc(x, reduce_to_best_onset=False)
+
+    #plot_mfcc_profile(x, 16000, feature_extractor.N, feature_extractor.hop, mfcc, anno_file=anno, sep_features=True, diff_plot=False, bon_pos=bon_pos, frame_size=cfg['feature_params']['frame_size'], plot_path=wav_dir, name=wav.split('/')[-1].split('.')[0], show_plot=True)
+    plot_waveform(x, 16000, anno_file=anno, hop=feature_extractor.hop, context='wav', title=wav.split('/')[-1].split('.')[0]+'_my', plot_path=wav_dir, name=wav.split('/')[-1].split('.')[0], show_plot=True)
+    
     # # spec
     # x_spec = feature_extractor.calc_spectogram(x)
 
