@@ -1,17 +1,18 @@
 \begin{table}[ht!]
 \begin{center}
-\caption{Dataset Details and References}
+\caption{Dataset references with label restrictions in number of labels and labels itself.}
 \begin{tabular}{ M{2cm}  M{2cm}  M{5cm} }
 \toprule
 %\multicolumn{4}{c}{\textbf{Feature Groups}} & \multicolumn{2}{c}{\textbf{Accuracy}} \\
 \textbf{Reference name} & \textbf{Number of examples per label} & \textbf{Selected Labels}\\
 \midrule
-500-c5 & 500 & left, right, up, down, go\\
+n500-c5 & 500 & left, right, up, down, go\\
+n500-c10 & 500 & yes, no, left, go, down, off, right, stop, up, on\\
+n500-c30 & 500 & \enquote{all}\\
 \bottomrule
+\label{tab:dataset_refs}
 \end{tabular}
 \end{center}
-\label{tab:ml_details_dataset}
 \end{table}
 \FloatBarrier
 \noindent
-

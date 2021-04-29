@@ -36,9 +36,8 @@ def check_files_existance(files):
     # none type exception
     if file is None: continue
     
-    if not os.path.isfile(file):
-      print("File: {} does not exist!!".format(file))
-      return False
+    # check file existance
+    if not os.path.isfile(file): return False
 
   return True
 

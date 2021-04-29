@@ -5,6 +5,7 @@ thesis visualizations
 import numpy as np
 import librosa
 import re
+import os
 from glob import glob
 
 import sys
@@ -12,7 +13,7 @@ sys.path.append("../")
 
 from audio_dataset import AudioDataset
 from feature_extraction import FeatureExtractor, custom_dct_matrix
-from plots import plot_mel_band_weights, plot_mfcc_profile, plot_waveform, plot_dct, plot_wav_grid, plot_spectogram
+from plots import plot_mel_band_weights, plot_mfcc_profile, plot_waveform, plot_dct, plot_wav_grid, plot_spectogram, plot_spec_profile
 from latex_table_maker import LatexTableMaker
 
 
@@ -66,37 +67,35 @@ def showcase_wavs(cfg, raw_plot=True, spec_plot=True):
     # raw waveform
     if raw_plot: plot_waveform(x, cfg['feature_params']['fs'], anno_file=anno, hop=feature_extractor.hop, context='wav', title=wav.split('/')[-1].split('.')[0]+'_my', plot_path=plot_path_raw, name='raw_' + wav.split('/')[-1].split('.')[0] + '_my', show_plot=True)
     
-    if spec_plot:
-      x_spec = feature_extractor.calc_spectogram(x)
-      plot_spectogram(x, x_spec.T, plot_path=plot_path_spec, name='spec', show_plot=True)
-
-    # plt.figure()
-    # librosa.display.specshow(x_spec.T, sr=16000, hop_length=160, x_axis='time')
-
-    # plt.figure()
-    # plt.imshow(x_spec.T)
-    # plt.show()
+    if spec_plot: 
+      plot_spec_profile(x, feature_extractor.calc_spectogram(x).T, cfg['feature_params']['fs'], feature_extractor.N, feature_extractor.hop, anno_file=anno, plot_path=plot_path_spec, title=wav.split('/')[-1].split('.')[0]+'_my', name='spec-lin_'  + wav.split('/')[-1].split('.')[0] + '_my', show_plot=True)
+      plot_spec_profile(x, feature_extractor.calc_spectogram(x).T, cfg['feature_params']['fs'], feature_extractor.N, feature_extractor.hop, log_scale=True, anno_file=anno, plot_path=plot_path_spec, title=wav.split('/')[-1].split('.')[0]+'_my', name='spec-log_'  + wav.split('/')[-1].split('.')[0] + '_my', show_plot=True)
 
 
-def feature_selection_tables():
+def feature_selection_tables(overwrite=False):
   """
   feature selection tables
   """
 
-  # c30 it-1000
-  #in_file, out_file = '../ignore/logs/ml_it1000_c30_features_fc1.log', '../docu/thesis/4_practice/tables/b1_feature_selection/ml_it1000_c30_features_fc1.tex'
-  
-  # c30 it-1000
-  in_file, out_file = '../ignore/logs/ml_it2000_c30_features_fc3.log', '../docu/thesis/4_practice/tables/b1_feature_selection/ml_it2000_c30_features_fc3.tex'
+  # files
+  in_files = ['../ignore/logs/ml_it1000_c5_features_fstride.log', '../ignore/logs/ml_it2000_c30_features_fc3.log', '../ignore/logs/ml_it1000_c30_features_fc1.log', '../ignore/logs/ml_it500_c5_features_fc1.log']
+  out_files = ['../docu/thesis/4_practice/tables/tab_fs_fstride_it1000_c5.tex', '../docu/thesis/4_practice/tables/tab_fs_fc3_it2000_c30.tex', '../docu/thesis/4_practice/tables/tab_fs_fc1_it1000_c30.tex', '../docu/thesis/4_practice/tables/tab_fs_fc1_it500_c5.tex']
 
-  # table info
-  print("feature selection table: ", out_file)
+  for in_file, out_file in zip(in_files, out_files):
 
-  # instances
-  lt_maker = LatexTableMaker(in_file=in_file, extraction_type='feature_selection')
+    # check files existance
+    if os.path.isfile(out_file) and not overwrite:
+      print("out file exists: ", out_file)
+      continue
 
-  # extract table
-  tables = lt_maker.extract_table(out_file=out_file)
+    # table info
+    print("feature selection table: ", out_file)
+
+    # instances
+    lt_maker = LatexTableMaker(in_file=in_file, extraction_type='feature_selection')
+
+    # extract table
+    tables = lt_maker.extract_table(out_file=out_file)
 
 
 def audio_set_wavs(cfg):
@@ -160,7 +159,7 @@ if __name__ == '__main__':
   showcase_wavs(cfg, raw_plot=False, spec_plot=True)
 
   # feature selection tables
-  #feature_selection_tables()
+  #feature_selection_tables(overwrite=False)
 
   # audio set wavs
   #audio_set_wavs(cfg)

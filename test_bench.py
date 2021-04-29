@@ -142,11 +142,11 @@ class TestBench():
     if self.cfg_tb['enable_info_prints']: print("\nall_corrects_shift:\n", all_corrects_shift), print("\nall_corrects_noise:\n", all_corrects_noise), print("\nall labels: ", all_labels)
 
     # plots
-    plot_test_bench_shift(x=all_corrects_shift, y=all_labels, title='shift ' + self.test_model_name, plot_path=self.test_model_path, name='test_bench_shift', show_plot=False)
-    plot_test_bench_shift(x=all_probs_shift, y=all_labels, title='shift ' + self.test_model_name, plot_path=self.test_model_path, name='test_bench_shift-prob', show_plot=False)
+    plot_test_bench_shift(x=all_corrects_shift, y=all_labels, context='bench-shift-2', title='shift ' + self.test_model_name, plot_path=self.test_model_path, name='test_bench_shift', show_plot=False)
+    plot_test_bench_shift(x=all_probs_shift, y=all_labels, context='bench-shift', title='shift ' + self.test_model_name, plot_path=self.test_model_path, name='test_bench_shift-prob', show_plot=False)
 
-    plot_test_bench_noise(x=all_corrects_noise, y=all_labels, snrs=self.cfg_tb['snrs'], title='noise ' + self.test_model_name, plot_path=self.test_model_path, name='test_bench_noise', show_plot=False)
-    plot_test_bench_noise(x=all_probs_noise, y=all_labels, snrs=self.cfg_tb['snrs'], title='noise ' + self.test_model_name, plot_path=self.test_model_path, name='test_bench_noise-prob', show_plot=False)
+    plot_test_bench_noise(x=all_corrects_noise, y=all_labels, snrs=self.cfg_tb['snrs'], context='bench-noise-2', title='noise ' + self.test_model_name, plot_path=self.test_model_path, name='test_bench_noise', show_plot=False)
+    plot_test_bench_noise(x=all_probs_noise, y=all_labels, snrs=self.cfg_tb['snrs'], context='bench-noise', title='noise ' + self.test_model_name, plot_path=self.test_model_path, name='test_bench_noise-prob', show_plot=False)
 
 
   def test_noise_invariance(self, x_wav, actual_label, mu=0):

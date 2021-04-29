@@ -29,7 +29,9 @@ def get_colormap_from_context(context='none'):
   #reds4 = [red_16.mpl_colors[2], red_16.mpl_colors[5], red_16.mpl_colors[8], red_16.mpl_colors[11]]
 
   if context == 'mfcc': return red_16.mpl_colormap
-  elif context == 'spectogram': return red_16.mpl_colormap
+  elif context == 'spectogram-log': return red_16.mpl_colormap.reversed()
+  #elif context == 'spectogram-log': return red_16.mpl_colormap
+  elif context == 'spectogram': return red_16.mpl_colormap.reversed()
 
   elif context == 'confusion': return ListedColormap(purple_16.mpl_colormap.reversed()(np.linspace(0, 0.8, 25)), name='purpletonian')
   elif context == 'dct-div': return ListedColormap(np.vstack((purple_16.mpl_colormap(np.linspace(0.2, 1, 64)), red_16.mpl_colormap.reversed()(np.linspace(0, 0.8, 64)))), name='rp-div')
@@ -59,13 +61,12 @@ def get_colormap_from_context(context='none'):
   elif context == 'acc': return Prism_8.mpl_colors[5:]
   #elif context == 'acc': return Prism_8.mpl_colors[5:]
 
-  #elif context == 'bench-noise': return ListedColormap(purple_16.mpl_colormap.reversed()(np.linspace(0, 0.5, 100)), name='purple_short')
-  #elif context == 'bench-noise': return ListedColormap(purple_16.mpl_colormap.reversed()(np.linspace(0, 0.6, 10)), name='purple_short')
   elif context == 'bench-noise': return ListedColormap(red_16.mpl_colormap.reversed()(np.linspace(0, 0.6, 10)), name='red_short')
-  #elif context == 'bench-noise': return ListedColormap(np.vstack((purple_16.mpl_colormap.reversed()(np.linspace(0, 0, 5)), purple_16.mpl_colormap.reversed()(np.linspace(0.1, 0.6, 5)))), name='purple_short')
+  elif context == 'bench-noise-2': return ListedColormap(red_16.mpl_colormap.reversed()(np.linspace(0, 0.6, 2)), name='red_short')
+  #elif context == 'bench-noise': return ListedColormap(purple_16.mpl_colormap.reversed()(np.linspace(0, 0.6, 10)), name='purple_short')
   
-  #elif context == 'bench-shift': return ListedColormap(red_16.mpl_colormap.reversed()(np.linspace(0, 0.5, 100)), name='red_short')
   elif context == 'bench-shift': return ListedColormap(red_16.mpl_colormap.reversed()(np.linspace(0, 0.6, 10)), name='red_short')
+  elif context == 'bench-shift-2': return ListedColormap(red_16.mpl_colormap.reversed()(np.linspace(0, 0.6, 2)), name='red_short')
   #elif context == 'bench-shift': return ListedColormap(np.vstack((red_16.mpl_colormap.reversed()(np.linspace(0, 0, 5)), red_16.mpl_colormap.reversed()(np.linspace(0.2, 0.6, 5)))), name='red_short')
   #elif context == 'bench': return purple_16.mpl_colormap.reversed()
   #elif context == 'bench': return purple_16.mpl_colormap.reversed()
@@ -149,6 +150,8 @@ def plot_test_bench_noise(x, y, snrs, cmap=None, context='bench-noise', title='n
     
   if show_plot: plt.show()
 
+  return fig
+
 
 def plot_test_bench_shift(x, y, cmap=None, context='bench-shift', title='shift', plot_path=None, name='test_bench_shift', show_plot=False):
   """
@@ -195,6 +198,8 @@ def plot_test_bench_shift(x, y, cmap=None, context='bench-shift', title='shift',
     plt.close()
     
   if show_plot: plt.show()
+
+  return fig
 
 
 def plot_wav_grid(wavs, feature_params, grid_size=(8, 8), cmap=None, title='', plot_path=None, name='wav_grid', show_plot=False):
@@ -254,8 +259,7 @@ def plot_wav_grid(wavs, feature_params, grid_size=(8, 8), cmap=None, title='', p
 
     # best onset mark
     if bon_pos is not None:
-      best_onset_times = frames_to_time(np.array([bon_pos, bon_pos+frame_size]), fs, hop)
-      for onset in best_onset_times: plt.axvline(x=float(onset), dashes=(3, 2), color=get_colormap_from_context(context='wav-hline'), lw=2)
+      for onset in frames_to_time(np.array([bon_pos, bon_pos+frame_size]), fs, hop): plt.axvline(x=float(onset), dashes=(3, 2), color=get_colormap_from_context(context='wav-hline'), lw=2)
 
     ax.set_ylim([-1, 1])
     ax.axis('off')
@@ -714,7 +718,7 @@ def plot_val_acc(val_acc, cmap=None, plot_path=None, name='None', show_plot=Fals
   return fig
 
 
-def plot_textGrid_annotation(anno_file, x=None, hop_space=None, plot_text=False):
+def plot_textGrid_annotation(anno_file, x=None, hop_space=None, plot_text=False, color='k'):
   """
   annotation
   """
@@ -736,13 +740,13 @@ def plot_textGrid_annotation(anno_file, x=None, hop_space=None, plot_text=False)
     for s, e, l in tier.entryList:
 
       # translate to hop space
-      if hop_space is not None: s = s * hop_space
+      if hop_space is not None: s = s * hop_space - 0.5
 
       # plot line
-      plt.axvline(x=s, dashes=(3, 3), color='k', lw=1)
+      plt.axvline(x=s, dashes=(3, 3), color=color, lw=1)
 
       # plot text
-      if plot_text: plt.text(s + 0.01, h, l, color='k')
+      if plot_text: plt.text(s + 0.01, h, l, color=color)
 
 
 def plot_mfcc_profile(x, fs, N, hop, mfcc, sep_features=True, diff_plot=False, cmap=None, cmap_wav=None, anno_file=None, onsets=None, bon_pos=None, mient=None, minreg=None, frame_size=32, plot_path=None, name='mfcc_profile', enable_plot=True, show_plot=True):
@@ -763,7 +767,7 @@ def plot_mfcc_profile(x, fs, N, hop, mfcc, sep_features=True, diff_plot=False, c
     return
 
   # time vectors
-  t, t_mfcc = np.arange(0, len(x)/fs, 1/fs), np.arange(0, mfcc.shape[1] * hop / fs, hop/fs)
+  t, t_hop = np.arange(0, len(x)/fs, 1/fs), np.arange(0, mfcc.shape[1] * hop / fs, hop/fs)
 
   # s, 1, c, d, d, e
   grid_size = (6, 1) if mfcc.shape[0] == 39 and sep_features else (2, 1)
@@ -807,8 +811,7 @@ def plot_mfcc_profile(x, fs, N, hop, mfcc, sep_features=True, diff_plot=False, c
 
   # best onset mark
   if bon_pos is not None:
-    best_onset_times = frames_to_time(np.array([bon_pos, bon_pos+frame_size]), fs, hop)
-    for onset in best_onset_times: plt.axvline(x=float(onset), dashes=(3, 2), color=get_colormap_from_context(context='wav-hline'), lw=2)
+    for onset in frames_to_time(np.array([bon_pos, bon_pos+frame_size]), fs, hop): plt.axvline(x=float(onset), dashes=(3, 2), color=get_colormap_from_context(context='wav-hline'), lw=2)
 
   # layout of time plot
   ax.set_title('Time Signal of ' + '"' + name + '"', fontsize=10), ax.set_ylabel("magnitude", fontsize=8)
@@ -832,8 +835,8 @@ def plot_mfcc_profile(x, fs, N, hop, mfcc, sep_features=True, diff_plot=False, c
     im = ax.imshow(mfcc[c], aspect='auto', interpolation='none', cmap=cmap)
 
     # care about labels
-    ax.set_xticks(np.arange(len(t_mfcc))[::10] - 0.5)
-    ax.set_xticklabels(['{:.1f}'.format(ti) for ti in t_mfcc[::10]])
+    ax.set_xticks(np.arange(len(t_hop))[::10] - 0.5)
+    ax.set_xticklabels(['{:.1f}'.format(ti) for ti in t_hop[::10]])
     if len(c) < 5: ax.set_yticks(np.arange(0, len(c))), ax.set_yticklabels(c , fontsize=6)
     if len(c) > 15: ax.set_yticks(np.arange(0, len(c))[::5]), ax.set_yticklabels(c[::5], fontsize=6)   
     else: ax.set_yticks(np.arange(0, len(c))[::3]), ax.set_yticklabels(c[::3], fontsize=6)    
@@ -1109,6 +1112,105 @@ def plot_spectogram(x, x_spec, cmap=None, plot_path=None, name='spec', show_plot
   
   # show plot
   if show_plot: plt.show()
+
+
+def plot_spec_profile(x, x_spec, fs, N, hop, log_scale=False, cmap=None, cmap_wav=None, anno_file=None, bon_pos=None, frame_size=50, plot_path=None, title='none', name='spec', show_plot=True):
+  """
+  spectogram with waveform
+  """
+
+  # get cmap
+  if cmap is None: cmap = get_colormap_from_context(context='spectogram') if not log_scale else get_colormap_from_context(context='spectogram-log')
+  if cmap_wav is None: cmap_wav = get_colormap_from_context(context='wav')
+
+  # time vectors
+  t, t_hop = np.arange(0, len(x)/fs, 1/fs), np.arange(0, x_spec.shape[1] * hop / fs, hop/fs)
+
+  # s, 1, c, d, d, e
+  grid_size = (2, 1)
+  grid_row_usage = (0.4, 0.6)
+
+  # make a grid
+  n_im_rows, n_im_cols, r_space, c_space = (20, 103, 10, 1)
+
+  # specify number of rows and cols
+  n_rows, n_cols = n_im_rows * grid_size[0] + r_space * grid_size[0] - 1, n_im_cols * grid_size[1] + c_space * grid_size[0] - 1
+
+  # init figure
+  fig = plt.figure(figsize=(8, 4))
+
+  # create grid
+  gs = plt.GridSpec(n_rows, n_cols, wspace=0.4, hspace=0.3)
+
+  # time series plot
+  ax = fig.add_subplot(gs[0:int(n_im_rows * grid_row_usage[0]), :n_im_cols-3])
+
+  # wav
+  if cmap_wav is not None: ax.set_prop_cycle('color', cmap_wav)
+  ax.plot(t[:len(x)], x)
+
+  # care about labels
+  ax.set_xticks(t[::1600])
+  ax.set_xticklabels(['{:.1f}'.format(ti) for ti in t[::1600]])
+  ax.tick_params(axis='both', which='major', labelsize=8), ax.tick_params(axis='both', which='minor', labelsize=6)
+
+  # annotation
+  plot_textGrid_annotation(anno_file, x, plot_text=True)
+
+  # best onset mark
+  if bon_pos is not None:
+    for onset in frames_to_time(np.array([bon_pos, bon_pos+frame_size]), fs, hop): plt.axvline(x=float(onset), dashes=(3, 2), color=get_colormap_from_context(context='wav-hline'), lw=2)
+
+  # layout of time plot
+  ax.set_title('Time Signal of ' + '"' + title + '"', fontsize=10), ax.set_ylabel("magnitude", fontsize=8)
+  ax.set_xlim([0, t[-1]]), ax.grid()
+
+  # row start and stop
+  rs, re = int(n_im_rows * grid_row_usage[0]) + r_space, int(n_im_rows * 2) + r_space
+
+  # specify grid pos
+  ax = fig.add_subplot(gs[rs:re, :n_im_cols-3-2])
+
+  # to log scale
+  if log_scale: x_spec = 20 * np.log(x_spec)
+
+  # plot image coeffs
+  im = ax.imshow(x_spec, aspect='auto', interpolation='none', cmap=cmap, origin='lower')
+
+  # frequency labels
+  f_labels = ['{}k'.format(i) for i in range(9)] if not log_scale else ['0k', '1k', '4k', '8k']
+
+  # frequency ticks positions
+  f = np.arange(0, x_spec.shape[0])[::25]
+
+  # to log scale
+  if log_scale: f, _ = list(f[i] for i in [0, 1, 4, 8]), plt.yscale('symlog')
+  
+  # care about labels
+  ax.set_xticks(np.arange(len(t_hop))[::10] - 0.5), ax.set_xticklabels(['{:.1f}'.format(ti) for ti in t_hop[::10]])
+  ax.set_yticks(f), ax.set_yticklabels(f_labels, fontsize=6)
+  ax.tick_params(axis='both', which='major', labelsize=8), ax.tick_params(axis='both', which='minor', labelsize=6)
+
+  # annotation
+  plot_textGrid_annotation(anno_file, hop_space=fs/hop)
+
+  # some labels
+  ax.set_title('Spectogram', fontsize=10), ax.set_ylabel("frequency", fontsize=8), ax.set_xlabel("time [s]", fontsize=8)
+
+  # add colorbar
+  ax = fig.add_subplot(gs[rs:re, n_im_cols-3:n_im_cols-1])
+  color_bar = fig.colorbar(im, cax=ax)
+  color_bar.ax.tick_params(labelsize=8)
+
+  # tight plot
+  plt.subplots_adjust(left=0.1, bottom=0.00, right=0.95, top=0.93, wspace=0, hspace=0)
+
+  # plot and close
+  if plot_path is not None: plt.savefig(plot_path + name + '.png', dpi=150)
+
+  # show plot
+  if show_plot: plt.show()
+
 
 
 if __name__ == '__main__':
