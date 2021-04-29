@@ -1,0 +1,28 @@
+% title page
+\printthesistitle
+
+% affidavit
+\printaffidavit
+
+% abstract en
+\chapter*{Abstract}
+\input{0_shards/abstract.tex}
+
+% abstract de
+\chapter*{Kurzfassung}
+\input{0_shards/abstract_de.tex}
+\cleardoublepage
+
+% Acknowledgement
+\chapter*{\germanenglish{Danksagung}{Acknowledgements}}
+\input{0_shards/acknowledgement.tex}
+\cleardoublepage
+
+% table of contents
+\tableofcontents
+\listoffigures
+\listoftables
+
+% acronyms
+\chapter*{\germanenglish{Abk\"{u}rzungs- und Symbolverzeichnis}{List of Acronyms and Symbols}}
+\input{0_shards/acronyms}

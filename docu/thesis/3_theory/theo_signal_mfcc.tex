@@ -18,9 +18,9 @@ These window functions must have a fixed length on the mel space (equidistant me
 the frequency space. The mel and frequency window functions are shown in \rfig{filter_bands}.
 \begin{figure}[!ht]
   \centering
-  \subfigure[mel space]{\includegraphics[width=0.40\textwidth]{./3_theory/figs/a3_mfcc/weights_mel}}
+  \subfigure[mel space]{\includegraphics[width=0.40\textwidth]{./3_theory/figs/signal_mfcc_weights_mel}}
   \quad
-  \subfigure[frequency space]{\includegraphics[width=0.40\textwidth]{./3_theory/figs/a3_mfcc/weights_f}}
+  \subfigure[frequency space]{\includegraphics[width=0.40\textwidth]{./3_theory/figs/signal_mfcc_weights_f}}
   \caption{Equidistant mel filter bands with a total number of 32 bands.}
   \label{fig:filter_bands}
 \end{figure}
@@ -31,9 +31,9 @@ The DCT is similar to the Fourier Transform and projects the input signal to a s
 These Basis functions are illustrated in \rfig{dct}
 \begin{figure}[!ht]
   \centering
-  \subfigure[DCT with continuous color scheme]{\includegraphics[width=0.40\textwidth]{./3_theory/figs/a3_mfcc/dct}}
+  \subfigure[DCT with continuous color scheme]{\includegraphics[width=0.40\textwidth]{./3_theory/figs/signal_mfcc_dct}}
   \quad
-  \subfigure[DCT with diverging color scheme]{\includegraphics[width=0.40\textwidth]{./3_theory/figs/a3_mfcc/dct-div}}
+  \subfigure[DCT with diverging color scheme]{\includegraphics[width=0.40\textwidth]{./3_theory/figs/signal_mfcc_dct-div}}
   \caption{DCT matrix with 32 basis functions illustrated with a continuous and a diverging color scheme.}
   \label{fig:dct}
 \end{figure}
@@ -72,7 +72,7 @@ To show this difference in value space in a negative example in practise, the MF
 
 \begin{figure}[!ht]
   \centering
-    \includegraphics[width=0.75\textwidth]{./3_theory/figs/a3_mfcc/left0_mfcc_only.png}
+    \includegraphics[width=0.75\textwidth]{./3_theory/figs/signal_mfcc_left0_mfcc_only.png}
   \caption{Bad visualisation of the 12 MFCCs features extracted from \enquote{left0.wav}.}
   \label{fig:left0_mfcc_only}
 \end{figure}
@@ -83,7 +83,7 @@ Another very bad visualisation is shown by computing the 39 MFCC feature vectors
 
 \begin{figure}[!ht]
   \centering
-    \includegraphics[width=0.75\textwidth]{./3_theory/figs/a3_mfcc/left0_no_order_norm0.png}
+    \includegraphics[width=0.75\textwidth]{./3_theory/figs/signal_mfcc_left0_no_order_norm0.png}
   \caption{Very bad visualisation of 39 MFCC features extracted from \enquote{left0.wav}.}
   \label{fig:left0_no_order}
 \end{figure}
@@ -94,7 +94,7 @@ One very easy solution is to show the features in different value groups. For in
 
 \begin{figure}[!ht]
   \centering
-    \includegraphics[width=0.75\textwidth]{./3_theory/figs/a3_mfcc/left0_norm0.png}
+    \includegraphics[width=0.75\textwidth]{./3_theory/figs/signal_mfcc_left0_norm0.png}
   \caption{Good visualisation of 39 MFCC features extracted from \enquote{left0.wav} with own value groupings.}
   \label{fig:left0_order}
 \end{figure}
@@ -104,7 +104,7 @@ Another way to improve the visualisation is to normalize the feature vectors ove
 
 \begin{figure}[!ht]
   \centering
-    \includegraphics[width=0.75\textwidth]{./3_theory/figs/a3_mfcc/left0_no_order_norm1.png}
+    \includegraphics[width=0.75\textwidth]{./3_theory/figs/signal_mfcc_left0_no_order_norm1.png}
   \caption{Normalisation of 39 MFCC features extracted from \enquote{left0.wav}.}
   \label{fig:left0_no_order_norm1}
 \end{figure}
@@ -114,7 +114,7 @@ or in an even better one shown in \rfig{left0_order_norm1}.
 
 \begin{figure}[!ht]
   \centering
-    \includegraphics[width=0.75\textwidth]{./3_theory/figs/a3_mfcc/left0_order_norm1.png}
+    \includegraphics[width=0.75\textwidth]{./3_theory/figs/signal_mfcc_left0_order_norm1.png}
   \caption{Normalisation of 39 MFCC features extracted from \enquote{left0.wav} with groups.}
   \label{fig:left0_order_norm1}
 \end{figure}
