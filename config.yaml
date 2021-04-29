@@ -128,7 +128,6 @@ datasets:
 
     # selected labels of the whole set
     sel_labels: ['left', 'right', 'up', 'down', 'go']
-    #sel_labels: ['eight', 'sheila', 'nine', 'yes', 'one', 'no', 'left', 'tree', 'bed', 'bird', 'go', 'wow', 'seven', 'marvin', 'dog', 'three', 'two', 'house', 'down', 'six', 'five', 'off', 'right', 'cat', 'zero', 'four', 'stop', 'up', 'on', 'happy']
 
     # add noise to dataset
     add_noise: True
@@ -177,9 +176,9 @@ feature_params:
 
   # feature collection
   use_cepstral_features: True
-  use_delta_features: True
-  use_double_delta_features: True
-  use_energy_features: True
+  use_delta_features: False
+  use_double_delta_features: False
+  use_energy_features: False
 
 
 # --
@@ -220,9 +219,10 @@ ml:
     #batch_size: 32
     #batch_size: 64
     batch_size: 128
+    #batch_size: 512
 
     # number of epochs
-    num_epochs: 1000
+    num_epochs: 2000
 
     # learning rate
     lr: 0.0001
@@ -231,7 +231,8 @@ ml:
     beta: 0.5
 
   # conv coder folders
-  conv_folder: 'conv_coder/'
+  #conv_folder: 'conv_coder/'
+  conv_folder: '../conv_coder/'
 
   # adversarial parameters
   adv_params:
@@ -239,23 +240,20 @@ ml:
     # train each label with adv
     label_train: False
 
-    # normalize label weights
-    norm_label_weights: False
-
     # adv pre-training of full network
     pre_train: False
 
     # use decoder weights for further training
     use_decoder_weights: True
 
-    # iterating algorithm of label: num_iterations_label x num_epochs_label
-    num_iterations_label: 1
-
     # label epochs
-    num_epochs_label: 500
+    num_epochs_label: 5000
 
     # pre epochs
-    num_epochs_pre: 500
+    num_epochs_pre: 1000
+
+    # iterating algorithm of label: num_iterations_label x num_epochs_label
+    num_iterations_label: 1
 
     # archs for label train:
     #nn_archs_label: ['conv-experimental', 'adv-experimental']
@@ -264,6 +262,9 @@ ml:
     #nn_archs_label: ['conv-experimental', 'adv-experimental3']
     #nn_archs_label: ['adv-experimental3', 'conv-experimental']
     nn_archs_label: ['adv-experimental3']
+
+    # normalize label weights
+    norm_label_weights: False
 
   # retrain existing model
   #retrain: True
@@ -276,9 +277,10 @@ ml:
   #nn_arch: conv-experimental
   #nn_arch: adv-experimental
   #nn_arch: conv-fstride
-  #nn_arch: conv-trad
+  nn_arch: conv-trad
   #nn_arch: conv-encoder
-  nn_arch: conv-encoder-fc1
+  #nn_arch: conv-encoder-fc1
+  #nn_arch: conv-encoder-fc3
   #nn_arch: conv-lim-encoder
   #nn_arch: conv-latent
 
@@ -286,7 +288,7 @@ ml:
   logging_enabled: True
 
   # use cpu
-  use_cpu: True
+  use_cpu: False
 
   # plot animation
   plot_animation: False
@@ -303,7 +305,7 @@ test_bench:
     shift_wavs: ignore/test_bench/plots/shift_wavs/
     noise_wavs: ignore/test_bench/plots/noise_wavs/
 
-  # enable plot
+  # enable plot (wav plots -> make it slow)
   enable_plot: False
 
   # info prints

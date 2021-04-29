@@ -36,17 +36,20 @@ def mfcc_stuff(cfg):
   plot_mel_band_weights(feature_extractor.w_f, feature_extractor.w_mel, feature_extractor.f, feature_extractor.m, plot_path=plot_path, name='weights', show_plot=True)
 
 
-def showcase_wavs(cfg, raw_plot=True, spec_plot=True):
+def showcase_wavs(cfg, raw_plot=True, spec_plot=True, mfcc_plot=True, show_plot=False):
   """
   showcase wavs
   """
 
   # plot path
-  plot_path_raw = '../docu/thesis/3_theory/figs/a1_raw/'
-  plot_path_spec = '../docu/thesis/3_theory/figs/a2_spectogram/'
+  plot_path = '../docu/thesis/3_theory/figs/'
+
+  # change params
+  feature_params = cfg['feature_params'].copy()
+  feature_params['n_ceps_coeff'] = 32
 
   # init feature extractor
-  feature_extractor = FeatureExtractor(cfg['feature_params'])
+  feature_extractor = FeatureExtractor(feature_params)
 
   # wav, anno dir
   wav_dir, anno_dir = '../ignore/my_recordings/showcase_wavs/', '../ignore/my_recordings/showcase_wavs/annotation/'
@@ -58,18 +61,19 @@ def showcase_wavs(cfg, raw_plot=True, spec_plot=True):
     print("\nwav: ", wav), print("anno: ", anno)
 
     # load file
-    x, _ = librosa.load(wav, sr=cfg['feature_params']['fs'])
+    x, _ = librosa.load(wav, sr=feature_params['fs'])
 
-    # mfcc extraction
-    #mfcc, bon_pos = feature_extractor.extract_mfcc(x, reduce_to_best_onset=False)
-    #plot_mfcc_profile(x, cfg['feature_params']['fs'], feature_extractor.N, feature_extractor.hop, mfcc, anno_file=anno, sep_features=True, diff_plot=False, bon_pos=bon_pos, frame_size=cfg['feature_params']['frame_size'], plot_path=wav_dir, name=wav.split('/')[-1].split('.')[0], show_plot=True)
-    
     # raw waveform
-    if raw_plot: plot_waveform(x, cfg['feature_params']['fs'], anno_file=anno, hop=feature_extractor.hop, context='wav', title=wav.split('/')[-1].split('.')[0]+'_my', plot_path=plot_path_raw, name='raw_' + wav.split('/')[-1].split('.')[0] + '_my', show_plot=True)
+    if raw_plot: plot_waveform(x, feature_params['fs'], anno_file=anno, hop=feature_extractor.hop, context='wav', title=wav.split('/')[-1].split('.')[0]+'_my', plot_path=plot_path, name='signal_raw_' + wav.split('/')[-1].split('.')[0] + '_my', show_plot=show_plot)
     
+    # spectogram
     if spec_plot: 
-      plot_spec_profile(x, feature_extractor.calc_spectogram(x).T, cfg['feature_params']['fs'], feature_extractor.N, feature_extractor.hop, anno_file=anno, plot_path=plot_path_spec, title=wav.split('/')[-1].split('.')[0]+'_my', name='spec-lin_'  + wav.split('/')[-1].split('.')[0] + '_my', show_plot=True)
-      plot_spec_profile(x, feature_extractor.calc_spectogram(x).T, cfg['feature_params']['fs'], feature_extractor.N, feature_extractor.hop, log_scale=True, anno_file=anno, plot_path=plot_path_spec, title=wav.split('/')[-1].split('.')[0]+'_my', name='spec-log_'  + wav.split('/')[-1].split('.')[0] + '_my', show_plot=True)
+      plot_spec_profile(x, feature_extractor.calc_spectogram(x).T, feature_params['fs'], feature_extractor.N, feature_extractor.hop, anno_file=anno, plot_path=plot_path, title=wav.split('/')[-1].split('.')[0]+'_my', name='signal_spec-lin_' + wav.split('/')[-1].split('.')[0] + '_my', show_plot=show_plot)
+      plot_spec_profile(x, feature_extractor.calc_spectogram(x).T, feature_params['fs'], feature_extractor.N, feature_extractor.hop, log_scale=True, anno_file=anno, plot_path=plot_path, title=wav.split('/')[-1].split('.')[0]+'_my', name='signal_spec-log_' + wav.split('/')[-1].split('.')[0] + '_my', show_plot=show_plot)
+
+    if mfcc_plot:
+      mfcc, bon_pos = feature_extractor.extract_mfcc(x, reduce_to_best_onset=False)
+      plot_mfcc_profile(x, cfg['feature_params']['fs'], feature_extractor.N, feature_extractor.hop, mfcc, anno_file=anno, sep_features=True, bon_pos=bon_pos, frame_size=cfg['feature_params']['frame_size'], plot_path=plot_path, name='signal_mfcc_' + wav.split('/')[-1].split('.')[0] + '_my', show_plot=show_plot)
 
 
 def feature_selection_tables(overwrite=False):
@@ -78,8 +82,8 @@ def feature_selection_tables(overwrite=False):
   """
 
   # files
-  in_files = ['../ignore/logs/ml_it1000_c5_features_fstride.log', '../ignore/logs/ml_it2000_c30_features_fc3.log', '../ignore/logs/ml_it1000_c30_features_fc1.log', '../ignore/logs/ml_it500_c5_features_fc1.log']
-  out_files = ['../docu/thesis/4_practice/tables/tab_fs_fstride_it1000_c5.tex', '../docu/thesis/4_practice/tables/tab_fs_fc3_it2000_c30.tex', '../docu/thesis/4_practice/tables/tab_fs_fc1_it1000_c30.tex', '../docu/thesis/4_practice/tables/tab_fs_fc1_it500_c5.tex']
+  in_files = ['../ignore/logs/ml_it1000_c5_features_trad.log', '../ignore/logs/ml_it1000_c5_features_fstride.log', '../ignore/logs/ml_it2000_c30_features_fc3.log', '../ignore/logs/ml_it1000_c30_features_fc1.log', '../ignore/logs/ml_it500_c5_features_fc1.log']
+  out_files = ['../docu/thesis/4_practice/tables/tab_fs_trad_it1000_c5.tex', '../docu/thesis/4_practice/tables/tab_fs_fstride_it1000_c5.tex', '../docu/thesis/4_practice/tables/tab_fs_fc3_it2000_c30.tex', '../docu/thesis/4_practice/tables/tab_fs_fc1_it1000_c30.tex', '../docu/thesis/4_practice/tables/tab_fs_fc1_it500_c5.tex']
 
   for in_file, out_file in zip(in_files, out_files):
 
@@ -156,10 +160,11 @@ if __name__ == '__main__':
   #mfcc_stuff(cfg)
 
   # showcase wavs
-  showcase_wavs(cfg, raw_plot=False, spec_plot=True)
+  #showcase_wavs(cfg, raw_plot=True, spec_plot=True, mfcc_plot=True, show_plot=False)
+  #showcase_wavs(cfg, raw_plot=False, spec_plot=False, mfcc_plot=True, show_plot=True)
 
   # feature selection tables
-  #feature_selection_tables(overwrite=False)
+  feature_selection_tables(overwrite=False)
 
   # audio set wavs
   #audio_set_wavs(cfg)

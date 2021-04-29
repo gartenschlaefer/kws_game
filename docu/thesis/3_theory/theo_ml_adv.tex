@@ -1,6 +1,31 @@
 \subsection{Adversarial Training Theory}\label{sec:adv_theory}
 Working with adversarial Neural Networks is quite interesting, as two separate Networks are challenge themselves against each other to improve their performance.
-From the original paper ...ref... there is this game between two Neural Networks, where one player has the role of creating fakes and the other must determine if it is real or fake.
+The paper from Goodfellow et. al. \cite{goodfellow2014} describes a game between two Neural Networks (players), where one player has the role of creating fakes and the other must determine if it is real or fake.
 The Network who creates fakes is called Generator (G) and the other Network who has to decide about fake or not is called Discriminator (D).
 The Generators goal is to create fakes that look like reals, so that D makes mistakes and classifies a fake as a real.
 On the other hand the Discriminator is constantly improving itself as well, so that fakes from G can be detected.
+
+This approach works remarkably well as generative network, producing fakes that are astonishing similar to real ones.
+In the mentioned paper, this was applied to images and not for audio.
+But if the audio waveform is presented as spectogram or mfcc with fixed frame size, it is the same as an image,
+where one dimension is time and the other frequency.
+
+So far a generative network does only produce fake images and a discriminative network can only output a one dimensional (probability) output, to decide if it is fake or not.
+
+The idea now is not to use either of these networks, but to use transfer learning in the sense to reuse the convolutional layers both networks achieved during their game, in another network with classification purpose on multiple labels.
+
+\subsubsection{Questions that arise}
+There are several questions that arise regarding Adversarial Training:
+\begin{enumerate}[label={Q.\textgoth{A}.\arabic*)}, leftmargin=1.4cm]
+  \item Do the Network Architectures of G and D have to be the same but transposed?
+  \item Does the value space of in and outputs, for D and G respectively, have to be limited e.g. [0, 1] done by e.g. frame normalization, or sigmoid output?
+  \item What loss function works well for training?
+  \item How long should be trained?
+  \item When transfering weights to another network, should the weights from G or D be transfered?
+  \item Whats the benefit of all this?
+\end{enumerate}
+
+If this would work will be discussed in the practical section.
+
+
+
