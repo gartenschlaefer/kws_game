@@ -77,7 +77,7 @@ class LatexTableFunctions():
     """
     footer for table
     """
-    return '\\bottomrule\n\\end{{tabular}}\n\\end{{center}}\n\\label{{{}}}\n\\end{{table}}\n\\FloatBarrier\n\\noindent\n'.format(label)
+    return '\\bottomrule\n\\label{{{}}}\n\\end{{tabular}}\n\\end{{center}}\n\\end{{table}}\n\\FloatBarrier\n\\noindent\n'.format(label)
 
 
 
@@ -94,6 +94,7 @@ class LatexTableMaker(LatexTableFunctions):
 
     # vars
     self.in_file_name = in_file.split('/')[-1].split('.')[0]
+    self.out_file_name = 'none'
 
     # my eval exists
     self.f = open(in_file, "r")
@@ -116,13 +117,16 @@ class LatexTableMaker(LatexTableFunctions):
     self.thesis_color = 'ThesisColor'
 
 
-  def extract_table(self, out_file):
+  def extract_table(self, out_file, caption=''):
     """
     extract table
     """
 
+    # out file name setting
+    self.out_file_name = out_file.split('/')[-1].split('.')[0]
+
     # extract desired table
-    if self.extraction_type == 'feature_selection': table_string = self.create_feature_selection_tables()
+    if self.extraction_type == 'feature_selection': table_string = self.create_feature_selection_tables(caption=caption)
 
     # save to file
     with open(out_file, 'w') as f: print(table_string, file=f)
@@ -130,7 +134,7 @@ class LatexTableMaker(LatexTableFunctions):
     return table_string
 
 
-  def create_feature_selection_tables(self):
+  def create_feature_selection_tables(self, caption='', label=None):
     """
     table for feature selection, data form log file
     """
@@ -146,9 +150,15 @@ class LatexTableMaker(LatexTableFunctions):
     col_spaces_cm = [1] * 4 + [1.5] * 4 if self.my_eval_exists else [1] * 4 + [1.5] * 2
     sep = [False] * 4 + [True] + [False] * 3 if self.my_eval_exists else [False] * 4 + [True] + [False] * 1
     #titles = ['cepstral', 'delta', 'double delta', 'energy', 'acc test', 'acc my', 'acc test norm', 'acc my norm'] if self.my_eval_exists else ['cepstral', 'delta', 'double delta', 'energy', 'acc test', 'acc test norm']
+    
+    # titles
     titles = ['c', 'd', 'dd', 'e', 'acc test', 'acc my', 'acc test norm', 'acc my norm'] if self.my_eval_exists else ['c', 'd', 'dd', 'e', 'acc test', 'acc test norm']
-    caption = 'Feature Selection ' + self.in_file_name.replace('_', ' ')
-    label = 'tab:' + self.in_file_name
+    
+    # caption
+    if not len(caption): caption = 'Feature Selection ' + self.in_file_name.replace('_', ' ')
+    
+    # label
+    if label is None: label = 'tab:' + self.out_file_name.replace('tab_', '')
 
     # create row entries
     row_entries_norm = [rn0 + rn1[4:6] for rn1, rn0 in zip(row_n1, row_n0)] if self.my_eval_exists else [rn0 + [rn1[4]] for rn1, rn0 in zip(row_n1, row_n0)]

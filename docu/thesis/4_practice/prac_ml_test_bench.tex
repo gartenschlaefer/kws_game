@@ -1,2 +1,12 @@
 \subsection{Test Bench of best Neural Network Architectures}
-This section test the best Neural Network Architectures and compares them against each other.
+This section compares the best Neural Network Architectures in terms of noise and shift invariance to fixed test wave files.
+The test wave files are recorded by the author and its length is cut, so that by using a the fixed input frames of 500ms, both end positions consists at least of half of the wave file information.
+Only the L5 labels were used.
+
+\subsubsection{Shift invariances}
+Shift invariances is very important for audio classification, e.g. the waveform should be still classified the same when shifted a little bit in time.
+However the restricted frame size of 500ms makes this task very difficult, as it is already known that not all information can fit in there, e.g. like the \enquote{t} in \enquote{left} or \enquote{right} is often missed.
+
+\subsection{Noise invariances}
+Also noise invariance in classification of audio data is very important. 
+This is because bad microphones or a bad recording set ups can yield a lot of noise in the audio data.

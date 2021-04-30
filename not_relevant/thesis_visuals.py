@@ -17,6 +17,52 @@ from plots import plot_mel_band_weights, plot_mfcc_profile, plot_waveform, plot_
 from latex_table_maker import LatexTableMaker
 
 
+def get_infos_from_log(in_file):
+  """
+  get infos from log
+  """
+
+  # init
+  infos, training_line = {}, ''
+
+  # get training info line
+  with open(in_file, "r") as f:
+    for line in f:
+      if 'Training on arch:' in line:
+        training_line = line
+        break
+
+  # sub params
+  dataset_param_string = re.sub(r'(param string: )|([\[\] \/])', '', re.findall(r'param string: \[[\w\-\_0-9\/]+\]', training_line)[0])
+  train_params = re.sub(r'train_params: ', '', re.findall(r'train_params: {[\w\-\_0-9\/\:\., \']+}', training_line)[0])
+
+  # extract from training line
+  infos.update({'arch':re.sub(r'(arch: )|([\[\]])', '', re.findall(r'arch: \[[\w-]+\]', training_line)[0])})
+  infos.update({'L':re.sub(r'c-', '', re.findall(r'c-[0-9]+', dataset_param_string)[0])})
+  infos.update({'n':re.sub(r'n-', '', re.findall(r'n-[0-9]+', dataset_param_string)[0])})
+  infos.update({'bs':re.sub(r'\'batch_size\': ', '', re.findall(r'\'batch_size\': [0-9]+', train_params)[0])})
+  infos.update({'it':re.sub(r'\'num_epochs\': ', '', re.findall(r'\'num_epochs\': [0-9]+', train_params)[0])})
+  infos.update({'lr':re.sub(r'\'lr\': ', '', re.findall(r'\'lr\': [0-9\.]+', train_params)[0])})
+  infos.update({'mo':re.sub(r'\'beta\': ', '', re.findall(r'\'beta\': [0-9\.]+', train_params)[0])})
+
+  return infos
+
+
+def get_thesis_table_captions(in_file):
+  """
+  collection of captions
+  """
+
+  # get param infos
+  info = get_infos_from_log(in_file)
+
+  # edit caption
+  caption = 'Feature Selection on arch: {} with dataset: L{}-n{}'.format(info['arch'], info['L'], info['n'])
+  caption += ' and training params: it{}-bs{}-lr{}-mo{}'.format(info['it'], info['bs'], info['lr'], info['mo'])
+
+  return caption
+
+
 def mfcc_stuff(cfg):
   """
   for dct, filter bands, etc
@@ -99,7 +145,7 @@ def feature_selection_tables(overwrite=False):
     lt_maker = LatexTableMaker(in_file=in_file, extraction_type='feature_selection')
 
     # extract table
-    tables = lt_maker.extract_table(out_file=out_file)
+    tables = lt_maker.extract_table(out_file=out_file, caption=get_thesis_table_captions(in_file))
 
 
 def audio_set_wavs(cfg):
@@ -164,7 +210,7 @@ if __name__ == '__main__':
   #showcase_wavs(cfg, raw_plot=False, spec_plot=False, mfcc_plot=True, show_plot=True)
 
   # feature selection tables
-  feature_selection_tables(overwrite=False)
+  feature_selection_tables(overwrite=True)
 
   # audio set wavs
   #audio_set_wavs(cfg)

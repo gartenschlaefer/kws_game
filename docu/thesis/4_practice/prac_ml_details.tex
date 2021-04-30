@@ -4,22 +4,24 @@
 \subsection{Training Details}
 We can separate the training details into following parameters to select from:
 \begin{enumerate}
-  \item Dataset parameters
   \item Features extraction parameters
+  \item Dataset parameters
   \item Feature selection
   \item Transfer Learning parameters
   \item Machine Learning parameters
 \end{enumerate}
-The dataset parameters are the information of what labels from the dataset are used and how many examples per labels, shown in \rtab{dataset_refs}.
 The feature extraction parameters simply give information about how features are extracted, e.g. this includes the hop size, frame size, filter bands of the MFCC, etc.
-The feature selection is the information about what input feature groups are used in the training, e.g. use cepstral coefficients only, or add delta and energy features, their references are shown in \rtab{dataset_feature_groups}.
+The dataset parameters are the information of which labels and how many examples per labels are used
+Also they consist of the feature selection, so that the extracted dataset only consists of MFCC data. 
+The Abbreviation regarding dataset parameters and feature selection were already listed in \rtab{dataset_abbr}.
+%The feature selection is the information about what input feature groups are used in the training, e.g. use cepstral coefficients only, or add delta and energy features, their references are shown in \rtab{dataset_feature_groups}.
 The Transfer Learning parameters are pre-trained weights for the actual neural network architecture to be trained.
 This could be only the first convolutional layers or entire networks but here all convolutional layers from an adversarial training are considered. 
-The Abbreviations for training parameters can be specified as listed in \rtab{tab_ml_details_adv}
+The Abbreviations for training parameters can be specified as listed in \rtab{ml_details_adv}
 \input{./4_practice/tables/tab_ml_details_adv.tex}
 
 The Machine Learning parameters are classically training parameters such as learning rate, number of epochs, etc.
-Their selection and references are listed in \rtab{tab_ml_details_train_params}
+Their selection and references are listed in \rtab{ml_details_train_params}
 
 \input{./4_practice/tables/tab_ml_details_train_params.tex}
 
