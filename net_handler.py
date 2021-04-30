@@ -285,6 +285,19 @@ class NetHandler():
     return None
 
 
+  def count_params_and_mults(self):
+    """
+    count networks parameters and multiplications
+    """
+
+    # count dictionary
+    count_dict = {}
+
+    # go through each model
+    for k, model in self.models.items(): count_dict.update({k + '_params_layers': [p.numel() for p in model.parameters() if p.requires_grad]})
+
+    return count_dict
+
 
 class CnnHandler(NetHandler):
   """
@@ -874,13 +887,19 @@ if __name__ == '__main__':
   print(net_handler.models)
 
   # training
-  net_handler.train_nn(cfg['ml']['train_params'], batch_archive=batch_archive)
+  #net_handler.train_nn(cfg['ml']['train_params'], batch_archive=batch_archive)
 
   # validation
-  net_handler.eval_nn(eval_set='val', batch_archive=batch_archive, collect_things=False, verbose=False)
+  #net_handler.eval_nn(eval_set='val', batch_archive=batch_archive, collect_things=False, verbose=False)
 
   # classify sample
   y_hat, o, label = net_handler.classify_sample(np.random.randn(net_handler.data_size[0], net_handler.data_size[1], net_handler.data_size[2]))
 
   # print classify result
   print("classify: [{}]\noutput: [{}]\nlabel: [{}]".format(y_hat, o, label))
+
+  # count parameters
+  count_dict = net_handler.count_params_and_mults()
+
+  print("count dict: ", count_dict)
+  for k, l in count_dict.items(): print("sum: ", np.sum(l))

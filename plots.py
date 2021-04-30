@@ -6,6 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from matplotlib.colors import ListedColormap
+from matplotlib.ticker import MultipleLocator, AutoMinorLocator
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from sklearn.metrics import confusion_matrix
 from feature_extraction import onsets_to_onset_times, frames_to_time
@@ -700,6 +701,9 @@ def plot_val_acc(val_acc, cmap=None, plot_path=None, name='None', show_plot=Fals
 
   # plot
   ax.plot(val_acc, label='val acc')
+
+  # ticks
+  ax.yaxis.set_major_locator(MultipleLocator(10))
 
   # layout
   plt.ylabel("accuracy"), plt.xlabel("iterations"), plt.ylim(0, 100), plt.legend(), plt.grid()

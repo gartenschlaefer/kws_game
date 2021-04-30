@@ -25,7 +25,43 @@ There are several questions that arise regarding Adversarial Training:
   \item Whats the benefit of all this?
 \end{enumerate}
 
-If this would work will be discussed in the practical section.
+To illustrate the idea an example is shown of the labels L5 (left, right, up, down, go).
+
+The adversarial trained conv layer weights of the individual labels, can be stacked together an used to initialize another network.
+An example of this method is shown in \rfig{ml_adv_example}, where the initialzation pattern changes to get more structures and further patterns to be good at classification. However the Basic Pattern from the adversarial training stays the same, which is a good sign, so that the network is able to use this trained weights.
+
+\begin{figure}[!ht]
+  \centering
+    \subfigure[c1 trained]{\includegraphics[width=0.45\textwidth]{./3_theory/figs/ml_adv_example_c0}}
+    \subfigure[c1 init]{\includegraphics[width=0.45\textwidth]{./3_theory/figs/ml_adv_example_c0_init}}
+    \subfigure[c2 trained]{\includegraphics[height=0.45\textwidth]{./3_theory/figs/ml_adv_example_c1}}
+    \quad
+    \subfigure[c2 init]{\includegraphics[height=0.45\textwidth]{./3_theory/figs/ml_adv_example_c1_init}}
+  \caption{Adversarial Training Example: Convolutional layers pretrained with adversarial training on each label separately.}
+  \label{fig:ml_adv_example}
+\end{figure}
+\FloatBarrier
+\noindent
+
+For this example in adversarial training, 8 feature maps of the first layer were used for each label, also they belong to the Generator Network G or decoder (dec). In Convolutional Networks, each previous layers feature map creates a new set of feature maps in the next layer.
+An example of this label training is shown in \rfig{ml_adv_example_label} with feature maps [(1, 8), (8, 8)] of the convolutional layers
+
+\begin{figure}[!ht]
+  \centering
+    \subfigure[left c1 enc]{\includegraphics[width=0.45\textwidth]{./3_theory/figs/ml_adv_example_label_left_c0_enc}}
+    \subfigure[left c1 dec]{\includegraphics[width=0.45\textwidth]{./3_theory/figs/ml_adv_example_label_left_c0_dec}}
+    \subfigure[left c2 enc]{\includegraphics[width=0.45\textwidth]{./3_theory/figs/ml_adv_example_label_left_c1_enc}}
+    \subfigure[left c2 dec]{\includegraphics[width=0.45\textwidth]{./3_theory/figs/ml_adv_example_label_left_c1_dec}}
+  \caption{Adversarial Training example of label training with label \enquote{left}.}
+  \label{fig:ml_adv_example_label}
+\end{figure}
+\FloatBarrier
+\noindent
+
+Those label trained weights can then simply be stacked into the new parameters of a classification network, but it is important that the layers are stacked not randomly, so that the trained connections are still correct.
+
+
+
 
 
 

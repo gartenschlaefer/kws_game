@@ -109,9 +109,9 @@ def show_train_score_colors(x1, x2, x3, x4, cmaps):
     train_score.g_loss_fake, train_score.g_loss_sim, train_score.d_loss_real, train_score.d_loss_fake = x1, x2, x3, x4
 
     # plot weight matrices
-    #fig = plot_val_acc(x1, cmap=cmap)
+    fig = plot_val_acc(x1, cmap=cmap)
     #fig = plot_train_loss(x1, x2, cmap=cmap)
-    fig = plot_adv_train_loss(train_score, cmap=cmap)
+    #fig = plot_adv_train_loss(train_score, cmap=cmap)
     
     # positioning
     if i >= 3: i, j = i%3, 600
@@ -212,9 +212,8 @@ if __name__ == '__main__':
 
   # load model files
   #net_handler.load_models(model_files=['/world/cavern/git/kws_game/not_relevant/ignore/models/bs-32_it-1077_lr-0p0001/cnn_model.pth'])
-  net_handler.load_models(model_files=['./ignore/models/bs-32_it-500_lr-0p0001/cnn_model.pth'])
-
-  print(net_handler.models['cnn'].state_dict().keys())
+  #net_handler.load_models(model_files=['./ignore/models/bs-32_it-500_lr-0p0001/cnn_model.pth'])
+  #print(net_handler.models['cnn'].state_dict().keys())
 
 
   # get some examples
@@ -242,9 +241,9 @@ if __name__ == '__main__':
   #show_weights_colormaps(net_handler.models['cnn'].state_dict()['conv_encoder.conv_layers.0.weight'], cmaps_weights)
   #show_weights_colormaps(net_handler.models['cnn'].state_dict()['conv_encoder.conv_layers.1.weight'], cmaps_weights)
   #show_waveform_colors(x_wav, colors_waveform)
-  #show_train_score_colors(x_sine1, x_sine2, x_sine3, x_sine4, colors_waveform)
+  show_train_score_colors(x_sine1, x_sine2, x_sine3, x_sine4, colors_waveform)
+  #show_hist_colors(x_sine1, hist_colors)
 
-  show_hist_colors(x_sine1, hist_colors)
 
   # vmax = np.max(np.abs(x_wav))
 
