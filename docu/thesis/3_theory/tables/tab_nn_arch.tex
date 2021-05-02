@@ -6,13 +6,17 @@
 %\multicolumn{4}{c}{\textbf{Feature Groups}} & \multicolumn{2}{c}{\textbf{Accuracy}} \\
 \textbf{Reference name} & \textbf{Feature maps} & \textbf{Kernel sizes} & \textbf{Strides} & \textbf{Feed Forward} \\
 \midrule
-conv-trad & c1: (ch, 64) c2: (64, 64) & c1: (4, 20) mp: (2, 4) c2: (2, 4) & c1: (1, 1) mp: (2, 4) c2: (1, 1) & f1: (cf, 32) \quad f2: (32, 128) f3: (128, cl)\\
+conv-trad & c1: (ch, 64) c3: (64, 64) & c1: (4, 20) m2: (2, 4) c3: (2, 4) & c1: (1, 1) m2: (2, 4) c3: (1, 1) & f4: (cf, 32) \quad f5: (32, 128) f6: (128, cl)\\
 \midrule
-conv-fstride & c1: (ch, 54) & c1: (8, fs) & c1: (4, 1) & f1: (cf, 32) \quad f2: (32, 128) \quad f3: (128, 128) \quad f4: (128, cl)\\
+conv-fstride & c1: (ch, 54) & c1: (8, fs) & c1: (4, 1) & f2: (cf, 32) \quad f3: (32, 128) \quad f4: (128, 128) \quad f5: (128, cl)\\
 \midrule
-conv-encoder-fc1 & c1: (ch, 48) \quad c2: (48, 8) & c1: (ms, 20) \quad c2: (1, 5) & c1: (1, 1) \quad c2: (1, 1) & f1: (cf, cl)\\
+conv-encoder-fc1 & c1: (ch, 48) \quad c2: (48, 8) & c1: (ms, 20) \quad c2: (1, 5) & c1: (1, 1) \quad c2: (1, 1) & f3: (cf, cl)\\
 \midrule
-conv-encoder-fc3 & c1: (ch, 48) \quad c2: (48, 8) & c1: (ms, 20) \quad c2: (1, 5) & c1: (1, 1) \quad c2: (1, 1) & f1: (cf, 64) \quad f2: (64, 32) \quad f3: (32, l)\\
+conv-encoder-fc3 & c1: (ch, 48) \quad c2: (48, 8) & c1: (ms, 20) \quad c2: (1, 5) & c1: (1, 1) \quad c2: (1, 1) & f3: (cf, 64) \quad f4: (64, 32) \quad f5: (32, l)\\
+\midrule
+adv-d-label & c1: (ch, 8) \quad c2: (8, 8) & c1: (ms, 20) \quad c2: (1, 5) & c1: (1, 1) \quad c2: (1, 1) & f3: (cf, 1)\\
+\midrule
+adv-g-label & c2: (8, 8) \quad c3: (8, ch) & c2: (1, 5) \quad c3: (ms, 20) & c2: (1, 1) \quad c3: (1, 1) & f1: (100, cf)\\
 \bottomrule
 \label{tab:nn_arch_overview}
 \end{tabular}
