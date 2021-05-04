@@ -1,0 +1,33 @@
+% --
+% Experiments
+
+\chapter{Experiments}\label{sec:exp}
+All experiments hold within this thesis can be found in this chapter.
+At the start it gives inside to the the Datasets and its feature extraction used for training the Neural Network architectures.
+Some sound examples and their feature representation of the datasets are shown and the quality and diversity of recorded samples is mentioned.
+
+More importantly this chapter includes the evaluation of the Neural Network models and their feature inputs in the application of speech command classification.
+In Detail the feature selection is evaluated, to observe the impact of feature reduction.
+Further the adversarial training approaches are compared to usual training.
+Then the wavenet performances are shown...
+
+% The training details are listed to give the reader an overview of the selected parameters for training, it should also give a shorten reference, so that not all parameters must be listed in the plots. 
+% The training and evaluation consists of following evaluation tasks:
+% \begin{enumerate}
+%   \item Feature Selection
+%   \item Adversarial Training
+% \end{enumerate}
+
+% dataset
+\input{./5_exp/exp_dataset.tex}
+\input{./5_exp/exp_dataset_speech_cmd.tex}
+\input{./5_exp/exp_dataset_my.tex}
+
+% neural networks
+\input{./5_exp/exp_details.tex}
+\input{./5_exp/exp_feature_selection.tex}
+\input{./5_exp/exp_adv.tex}
+\input{./5_exp/exp_wavenets.tex}
+\input{./5_exp/exp_test_bench.tex}
+
+
