@@ -4,7 +4,7 @@
 # --
 # general stuff
 
-config_changer_allowed: True
+config_changer_allowed: False
 
 
 # --
@@ -62,9 +62,9 @@ datasets:
     recreate: False
 
     # selected labels of the whole set
-    #sel_labels: ['left', 'right', 'up', 'down', 'go']
+    sel_labels: ['left', 'right', 'up', 'down', 'go']
     #sel_labels: ['yes', 'no', 'left', 'go', 'down', 'off', 'right', 'stop', 'up', 'on']
-    sel_labels: ['eight', 'sheila', 'nine', 'yes', 'one', 'no', 'left', 'tree', 'bed', 'bird', 'go', 'wow', 'seven', 'marvin', 'dog', 'three', 'two', 'house', 'down', 'six', 'five', 'off', 'right', 'cat', 'zero', 'four', 'stop', 'up', 'on', 'happy']
+    #sel_labels: ['eight', 'sheila', 'nine', 'yes', 'one', 'no', 'left', 'tree', 'bed', 'bird', 'go', 'wow', 'seven', 'marvin', 'dog', 'three', 'two', 'house', 'down', 'six', 'five', 'off', 'right', 'cat', 'zero', 'four', 'stop', 'up', 'on', 'happy']
 
     # add noise to dataset
     add_noise: True
@@ -194,6 +194,7 @@ ml:
   # folders in model path
   model_path_folders:
     diff_plots: diff_plots/
+    train_collections: train_collections/
 
   # file names
   model_file_name: model.pth
@@ -216,16 +217,16 @@ ml:
   train_params:
 
     # batch size
-    #batch_size: 32
+    batch_size: 32
     #batch_size: 64
-    batch_size: 128
+    #batch_size: 128
     #batch_size: 512
 
     # number of epochs
-    num_epochs: 2000
+    num_epochs: 500
 
     # learning rate
-    lr: 0.0001
+    lr: 0.00005
 
     # momentum
     beta: 0.5
@@ -247,7 +248,7 @@ ml:
     use_decoder_weights: True
 
     # label epochs
-    num_epochs_label: 5000
+    num_epochs_label: 1000
 
     # pre epochs
     num_epochs_pre: 1000
@@ -276,8 +277,9 @@ ml:
   # choose architecture
   #nn_arch: conv-experimental
   #nn_arch: adv-experimental
+  nn_arch: adv-experimental3
   #nn_arch: conv-fstride
-  nn_arch: conv-trad
+  #nn_arch: conv-trad
   #nn_arch: conv-encoder
   #nn_arch: conv-encoder-fc1
   #nn_arch: conv-encoder-fc3
@@ -291,7 +293,10 @@ ml:
   use_cpu: False
 
   # plot animation
-  plot_animation: False
+  plot_animation: True
+
+  # plot collections
+  plot_collections: True
 
 
 # --

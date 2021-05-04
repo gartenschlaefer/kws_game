@@ -524,7 +524,7 @@ class AdversarialNetHandler(NetHandler):
     self.optimizer_g = torch.optim.Adam(self.models['g'].parameters(), lr=train_params['lr'], betas=(train_params['beta'], 0.999))
 
 
-  def train_nn(self, train_params, batch_archive, callback_f=None):
+  def train_nn(self, train_params, batch_archive, callback_f=None, callback_act_epochs=10):
     """
     train adversarial nets
     """
@@ -557,8 +557,9 @@ class AdversarialNetHandler(NetHandler):
         train_score.reset_batch_losses()
 
       # check progess after epoch with callback function
-      if callback_f is not None:
-        callback_f(self.generate_samples(noise=fixed_noise, to_np=True))
+      if callback_f is not None and not epoch % callback_act_epochs:
+        callback_f(self.generate_samples(noise=fixed_noise, to_np=True), epoch)
+
 
     print('--Training finished')
 

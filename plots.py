@@ -4,6 +4,7 @@ plot some figures
 
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.animation as animation
 
 from matplotlib.colors import ListedColormap
 from matplotlib.ticker import MultipleLocator, AutoMinorLocator
@@ -73,6 +74,28 @@ def get_colormap_from_context(context='none'):
   #elif context == 'bench': return purple_16.mpl_colormap.reversed()
 
   return None
+
+
+def plot_mfcc_anim(x, cmap=None, plot_path=None, name='mfcc-anim'):
+  """
+  mfcc animation (x is list of images)
+  """
+
+  # get cmap
+  if cmap is None: cmap = get_colormap_from_context(context='mfcc')
+
+  # plot
+  fig = plt.figure(figsize=(8, 8))
+  plt.axis("off")
+
+  # animation
+  ani = animation.ArtistAnimation(fig, [[plt.imshow(np.squeeze(i)[0, :], interpolation='none', cmap=cmap, animated=True)] for i in x], interval=1000, repeat_delay=1000, blit=True)
+
+  # plot save and show
+  if plot_path is not None: ani.save(plot_path + name + '.mp4')
+    
+  # show
+  plt.show()
 
 
 def plot_histogram(x, bins=None, color=None, y_log_scale=False, x_log_scale=False, context='None', title='', plot_path=None, name='hist', show_plot=False):
@@ -896,13 +919,13 @@ def plot_mfcc_only(mfcc, fs=16000, hop=160, cmap=None, context='mfcc', plot_path
   t = np.arange(0, l * hop / fs, hop/fs)
 
   # setup figure
-  fig = plt.figure(figsize=(8, 8))
+  fig = plt.figure(figsize=(8, 5))
 
   # select mfcc coeffs in arrays
   if mfcc.shape[0] == 39:
     sel_coefs = [np.arange(0, 12), np.arange(12, 24), np.arange(24, 36), np.arange(36, 39)]
     titles = ['12 MFCCs' + ' of "' + name + '"', 'deltas', 'double deltas', 'energies']
-    n_rows, n_cols, n_im_rows = 20, 20, 5
+    n_rows, n_cols, n_im_rows = 20, 20, 15
 
   else:
     sel_coefs = [np.arange(0, mfcc.shape[0])]

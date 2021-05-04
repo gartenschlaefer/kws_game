@@ -3,13 +3,11 @@ Machine Learning file for training and evaluating the model with graphical colle
 """
 
 import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.animation as animation
 import logging
 
 # my stuff
 from common import s_to_hms_str, create_folder, check_files_existance
-from plots import plot_train_score, plot_confusion_matrix, plot_mfcc_only, plot_grid_images, plot_other_grid
+from plots import plot_train_score, plot_confusion_matrix, plot_mfcc_only, plot_grid_images, plot_other_grid, plot_mfcc_anim
 
 
 class ML():
@@ -236,14 +234,44 @@ class ML():
     # animation (for generative networks)
     if self.cfg_ml['plot_animation']: self.create_anim()
 
+    # plot collections
+    if self.cfg_ml['plot_collections']: self.collections()
 
-  def image_collect(self, x):
+
+  def image_collect(self, x, epoch):
     """
     collect images of mfcc's (used as callback function in the training of adversarial networks)
     """
 
     # append image
-    self.img_list.append(x[0])
+    self.img_list.append(x)
+
+    # model file checkpoints
+    model_files = [self.model_path_folders['train_collections'] + p + '{:0>5}.pth'.format(epoch) for p in ['g_model_ep-', 'd_model_ep-']]
+
+    # save state dicts
+    self.net_handler.save_models(model_files)
+
+
+  def collections(self):
+    """
+    get collection of models and plot something
+    """
+    from glob import glob
+
+    collection_files = glob(self.model_path_folders['train_collections'] + '*.pth')
+
+    # get specific model files
+    g_model_files = [f for f in collection_files if 'g_model' in f]
+    d_model_files = [f for f in collection_files if 'd_model' in f]
+
+    # load models
+    g_d1 = [torch.load(g)['conv_decoder.deconv_layers.1.weight'] for g in g_model_files]
+    d_c1 = [torch.load(d)['conv_encoder.conv_layers.0.weight'] for d in d_model_files]
+
+    # plot models
+    for i, x in enumerate(g_d1): plot_grid_images(x, context='weight0', num_cols=8, color_balance=True, title='', plot_path=self.model_path_folders['train_collections'], name='g' + str(i))
+    for i, x in enumerate(d_c1): plot_grid_images(x, context='weight0', num_cols=8, color_balance=True, title='', plot_path=self.model_path_folders['train_collections'], name='d' + str(i))
 
 
   def create_anim(self):
@@ -259,18 +287,8 @@ class ML():
     # images for evaluation on training
     print("amount of mfccs for anim: ", len(self.img_list))
 
-    # plot
-    fig = plt.figure(figsize=(8,8))
-    #plt.axis("off")
-
-    # animation
-    ani = animation.ArtistAnimation(fig, [[plt.imshow(i[0, :], animated=True)] for i in self.img_list], interval=1000, repeat_delay=1000, blit=True)
-
-    # save
-    ani.save("{}anim.mp4".format(self.model_path))
-
-    plt.show()
-
+    # create anim
+    plot_mfcc_anim(self.img_list, plot_path=self.model_path, name='mfcc-anim')
 
 
 def label_train_conv_encoder(cfg, all_feature_files, num_label_split, model_path, data_size):
@@ -565,8 +583,8 @@ if __name__ == '__main__':
     batch_archive = SpeechCommandsBatchArchive(all_feature_files, batch_size=cfg['ml']['train_params']['batch_size'])
 
     # adversarial training
-    if cfg['ml']['nn_arch'] in ['adv-experimental']:
-      batch_archive.reduce_to_label('up')
+    if cfg['ml']['nn_arch'] in ['adv-experimental', 'adv-experimental3']:
+      batch_archive.reduce_to_label('left')
       #batch_archive.add_noise_data(shuffle=True)
       #batch_archive.one_against_all('up', others_label='other', shuffle=True)
 
@@ -580,18 +598,27 @@ if __name__ == '__main__':
     # instance
     ml = ML(cfg_ml=cfg['ml'], audio_dataset=audio_set1, batch_archive=batch_archive, net_handler=net_handler)
 
-    # run ml stuff
-    ml.analyze(name_ext='_init'), ml.train(), ml.eval(), ml.analyze()
+    # analyze and train
+    ml.analyze(name_ext='_init'), ml.train()
+
+    # add other labels again for adv
+    if cfg['ml']['nn_arch'].startswith('adv-'): ml.batch_archive = SpeechCommandsBatchArchive(all_feature_files, batch_size=cfg['ml']['train_params']['batch_size'])
+
+    # eval and analyze
+    ml.eval(), ml.analyze()
 
 
     # --
     # Test Bench
 
-    # create test bench
-    test_bench = TestBench(cfg['test_bench'], test_model_path=ml.model_path)
+    # only for non adversarials
+    if not cfg['ml']['nn_arch'].startswith('adv-'):
 
-    # shift invariance test
-    test_bench.test_invariances()
+      # create test bench
+      test_bench = TestBench(cfg['test_bench'], test_model_path=ml.model_path)
+
+      # shift invariance test
+      test_bench.test_invariances()
 
 
 
