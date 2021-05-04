@@ -1,2 +1,24 @@
-\section{Neural Networks for Automatic Speech Recognition}
-Neural Networks for Automatic Speech Recognition must be discussed in a separate section, because there many different solution concepts for Key Word Spotting tasks and Neural Networks are just a subset of this solutions, yet a very powerful and modern one. Also there exist a large variety of different Neural Network architectures to tackle the problem. However there are constraints to each applications and for Video Games
+% --
+% Intro to neural networks
+
+\section{Neural Networks for Automatic Speech Recognition}\label{sec:intro_nn}
+
+Neural Networks enable computers to automatically learn abstract representations of given data examples, for instance waveform files.
+Those data examples can be paired with annotations, usually denoted as \emph{labels} or \emph{classes}.
+If labels are used to \emph{train} a Machine Learning system, it is called \emph{supervised learning} otherwise it is called \emph{unsupervised learning}.
+
+The big advantage of Neural Networks is that they are able to cope with a huge amount of input variables and are able to extract their own features of the inputs through many layers within the network.
+
+In this thesis, the word \emph{feature} can have several meanings, one is just meant to be extracted data features and therefore be the same as input variables. 
+Another is, that a feature is simply some kind of compressed representation of a high dimensional data.
+
+Neural Networks are therefore able to learn their own feature representations, selection and interpretation, rather than using hand-crafted ones done by humans with expertise in the application. 
+
+What sounds great at first hand, is also a bit of a downfall.
+Mainly because everyone who is capable of using machine learning tools, can create a solution to a rather complex problem usually solved by experts, given there is enough data and processing power available.
+This yield into less understanding of the actual problem and \enquote{try and error} approaches, since Neural Networks just need to be feed with the right amount of data and parameters for training.
+This led to the thinking that everyone, who owns a lot of data and computational power, is the superior of solving complex problems such as image or audio classifications.
+
+However it is not always like this rather negative case on using Neural Networks. 
+It is extremely interesting to work with them and get knowlege about how and why they are able to produce such good results.
+This feedbacks again experts to gain more understanding or a different viewpoint on the topic.
