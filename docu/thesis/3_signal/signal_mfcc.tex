@@ -5,17 +5,44 @@
 Most commonly the Mel Frequency Cepstral Coefficients (MFCC) are used as input features for Neural Network classifications tasks of audio data.
 It is described why they are good features and how they can be visualized to understand them better.
 
-\subsection{About Mel Frequency Cepstral Coefficients}
-To comprehend the success of the wide use of MFCCs features in Neural Networks and other machine learning applications, it is necessary to understand its processing scheme, which is roughly as following: 
-Raw input data is transformed into the frequency domain with an STFT, the power spectrum of this STFT is then segmented into a filter bank with equidistant mel frequencies, then logarithmic scaling is done and as last step a decorrelation with the DCT transform.
-Which seem quite complicated at the beginning, is in fact nothing else but some reasonable steps of data compression. 
-It is also possible to input a spectrum to the Neural Network, but the amount of input data is just too much.
-That is why frequencies are put in certain bands through a filter bank and further decorrelated with a method like the DCT.
+\subsection{The Idea behind}
+To comprehend the success and wide use of MFCCs features in Neural Networks and other machine learning applications, it is necessary to understand its processing scheme:
+Raw audio samples are transformed into the frequency domain with the Short-Time Fourier Transform (STFT).
+Afterwards the power spectrum of the STFT is segmented in frequency bands (along the frequency dimension) done by a filter bank.
+The filter bands are spaced in equidistant mel frequencies,
+where the term mel frequencies is referred to the non-linear relationship between the mel and frequency scale.
+The mel scale was developed in psychoacoustic experiments, where researchers found out, that high frequency sounds are perceived lower by humans, than they actual are (in musical hearing). For instance, in the musical sense an octave is the doubling of the frequency, but for human hearing it is strongly different and frequency doubling is not enough so that the same pitch is perceived.
+This effect usually becomes imminent over \SI{500}{\hertz}.
+As conclusion the mel scale is suited human hearing perception and taking equidistant mel bands is a reasonable decision.
+In the following a logarithmic scaling in the value space of the power spectrum is done, which is also related to human hearing.
+The last step is not that straight forward, but is a technique widely used in image processing, called the Discrete Cosine Transform (DCT).
+It is only to mention that is some kind of decorrelation process, so that different filter bands are mixed together.
 
-\subsection{Processing Pipeline and Background}
+This processing steps seem rather complicated in the beginning, but are in fact nothing else but consecutive steps of appropriate scaling and data compression.
+It is to mention that Neural Networks usually are able to handle large amounts of input features, but it is always preferable to decrease the input size, such that the model size of the Neural Network can be decreased same-wise.
+Therefore it becomes more clear, why frequencies are put into certain frequency bands, are log scaled and as last step decorrelated with a method like the DCT.
+
+\subsection{Processing Pipeline in detail}
 The frequency spectrum is spitted into filter bands, done by triangular window functions.
-These window functions must have a fixed length on the mel space (equidistant mel bands), that results in different spacings of
-the frequency space. The mel and frequency window functions are shown in \rfig{filter_bands}.
+Those window functions must have a fixed length on the mel space (equidistant mel bands), that results in different spacings in
+the frequency space.
+The mel - frequency relation can be approximated with:
+\begin{equation}\label{eq:signal_mfcc_mel}
+  m(f) = 2595 \cdot \log_{10} \left(1 + \frac{f}{700} \right) 
+\end{equation}
+where $m$ is the result in mel scale as function of the frequency $f$.
+The mel scale plotted against the frequency scale is illustrated in \rfig{signal_mfcc_mel_scale}
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=0.40\textwidth]{./3_signal/figs/signal_mfcc_mel_scale}
+  \caption{Mel scale as function of the frequency in a range of [0, \SI{16}{\kilo\hertz}].}
+  \label{fig:signal_mfcc_mel_scale}
+\end{figure}
+\FloatBarrier
+\noindent
+
+
+The mel and frequency window functions are shown in \rfig{filter_bands}.
 \begin{figure}[!ht]
   \centering
   \subfigure[mel space]{\includegraphics[width=0.40\textwidth]{./3_signal/figs/signal_mfcc_weights_mel}}

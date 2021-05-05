@@ -62,6 +62,7 @@ def get_colormap_from_context(context='none'):
   #elif context == 'adv-loss': return Prism_8.mpl_colors[:2] + Prism_8.mpl_colors[6:]
   elif context == 'acc': return Prism_8.mpl_colors[5:]
   #elif context == 'acc': return Prism_8.mpl_colors[5:]
+  elif context == 'mel': return Antique_4.mpl_colors[3:]
 
   elif context == 'bench-noise': return ListedColormap(red_16.mpl_colormap.reversed()(np.linspace(0, 0.6, 10)), name='red_short')
   elif context == 'bench-noise-2': return ListedColormap(red_16.mpl_colormap.reversed()(np.linspace(0, 0.6, 2)), name='red_short')
@@ -1067,6 +1068,45 @@ def plot_mel_band_weights(w_f, w_mel, f, m, cmap=None, plot_path=None, name='mel
 
   # save plot
   if plot_path is not None: plt.savefig(plot_path + name + '_mel' '.png', dpi=150)
+
+  # show plot
+  if show_plot: plt.show()
+
+
+def plot_mel_scale(cmap=None, plot_path=None, name='mel', show_plot=False):
+  """
+  mel band weights
+  """
+
+  from feature_extraction import f_to_mel
+
+  # get cmap
+  if cmap is None: cmap = get_colormap_from_context(context='mel')
+
+  # frequency
+  f = np.arange(0, 16000, 1)
+
+  # mel
+  m = f_to_mel(f)
+
+  # plot mel bands
+  fig = plt.figure(figsize=(8, 5))
+
+  # create axis
+  ax = plt.axes()
+  if cmap is not None: ax.set_prop_cycle('color', cmap)
+
+  # plot
+  ax.plot(f, m)
+
+  # layout
+  plt.ylabel('mel scale [mel]'), plt.xlabel('frequency [Hz]'), plt.grid()
+
+  # tight plot
+  plt.tight_layout()
+
+  # save plot
+  if plot_path is not None: plt.savefig(plot_path + name + '.png', dpi=150)
 
   # show plot
   if show_plot: plt.show()

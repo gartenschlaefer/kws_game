@@ -13,7 +13,7 @@ sys.path.append("../")
 
 from audio_dataset import AudioDataset
 from feature_extraction import FeatureExtractor, custom_dct_matrix
-from plots import plot_mel_band_weights, plot_mfcc_profile, plot_waveform, plot_dct, plot_wav_grid, plot_spectogram, plot_spec_profile
+from plots import plot_mel_band_weights, plot_mfcc_profile, plot_waveform, plot_dct, plot_wav_grid, plot_spectogram, plot_spec_profile, plot_mel_scale
 from latex_table_maker import LatexTableMaker
 
 
@@ -69,17 +69,20 @@ def mfcc_stuff(cfg):
   """
 
   # plot path
-  plot_path = '../docu/thesis/3_theory/figs/a3_mfcc/'
+  plot_path = '../docu/thesis/3_signal/figs/'
 
   # init feature extractor
   feature_extractor = FeatureExtractor(cfg['feature_params'])
 
   # plot dct
-  plot_dct(custom_dct_matrix(cfg['feature_params']['n_filter_bands']), plot_path=plot_path, name='dct', show_plot=False)
-  plot_dct(custom_dct_matrix(cfg['feature_params']['n_filter_bands']), plot_path=plot_path, context='dct-div', name='dct-div', show_plot=False)
+  plot_dct(custom_dct_matrix(cfg['feature_params']['n_filter_bands']), plot_path=plot_path, name='signal_mfcc_dct', show_plot=False)
+  plot_dct(custom_dct_matrix(cfg['feature_params']['n_filter_bands']), plot_path=plot_path, context='dct-div', name='signal_mfcc_dct-div', show_plot=False)
+
+  # mel scale
+  plot_mel_scale(plot_path=plot_path, name='signal_mfcc_mel_scale', show_plot=False)
 
   # plot mel bands
-  plot_mel_band_weights(feature_extractor.w_f, feature_extractor.w_mel, feature_extractor.f, feature_extractor.m, plot_path=plot_path, name='weights', show_plot=True)
+  plot_mel_band_weights(feature_extractor.w_f, feature_extractor.w_mel, feature_extractor.f, feature_extractor.m, plot_path=plot_path, name='signal_mfcc_weights', show_plot=True)
 
 
 def showcase_wavs(cfg, raw_plot=True, spec_plot=True, mfcc_plot=True, show_plot=False):
@@ -210,7 +213,7 @@ if __name__ == '__main__':
   #showcase_wavs(cfg, raw_plot=False, spec_plot=False, mfcc_plot=True, show_plot=True)
 
   # feature selection tables
-  feature_selection_tables(overwrite=True)
+  #feature_selection_tables(overwrite=True)
 
   # audio set wavs
   #audio_set_wavs(cfg)
