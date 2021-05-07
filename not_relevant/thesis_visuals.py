@@ -13,7 +13,7 @@ sys.path.append("../")
 
 from audio_dataset import AudioDataset
 from feature_extraction import FeatureExtractor, custom_dct_matrix
-from plots import plot_mel_band_weights, plot_mfcc_profile, plot_waveform, plot_dct, plot_wav_grid, plot_spectogram, plot_spec_profile, plot_mel_scale
+from plots import plot_mel_band_weights, plot_mfcc_profile, plot_waveform, plot_dct, plot_wav_grid, plot_spec_profile, plot_mel_scale
 from latex_table_maker import LatexTableMaker
 
 
@@ -91,7 +91,7 @@ def showcase_wavs(cfg, raw_plot=True, spec_plot=True, mfcc_plot=True, show_plot=
   """
 
   # plot path
-  plot_path = '../docu/thesis/3_theory/figs/'
+  plot_path = '../docu/thesis/3_signal/figs/'
 
   # change params
   feature_params = cfg['feature_params'].copy()
@@ -113,7 +113,7 @@ def showcase_wavs(cfg, raw_plot=True, spec_plot=True, mfcc_plot=True, show_plot=
     x, _ = librosa.load(wav, sr=feature_params['fs'])
 
     # raw waveform
-    if raw_plot: plot_waveform(x, feature_params['fs'], anno_file=anno, hop=feature_extractor.hop, context='wav', title=wav.split('/')[-1].split('.')[0]+'_my', plot_path=plot_path, name='signal_raw_' + wav.split('/')[-1].split('.')[0] + '_my', show_plot=show_plot)
+    if raw_plot: plot_waveform(x, feature_params['fs'], anno_file=anno, hop=feature_extractor.hop, context='wav', plot_path=plot_path, name='signal_raw_' + wav.split('/')[-1].split('.')[0] + '_my', show_plot=show_plot)
     
     # spectogram
     if spec_plot: 
@@ -157,7 +157,7 @@ def audio_set_wavs(cfg):
   """
 
   # plot path
-  plot_path = '../docu/thesis/4_practice/figs/a_dataset/'
+  plot_path = '../docu/thesis/5_exp/figs/'
 
   # audio sets
   a1 = AudioDataset(cfg['datasets']['speech_commands'], cfg['feature_params'], root_path='../')
@@ -206,11 +206,11 @@ if __name__ == '__main__':
   cfg = yaml.safe_load(open("../config.yaml"))
 
   # mfcc stuff
-  #mfcc_stuff(cfg)
+  mfcc_stuff(cfg)
 
   # showcase wavs
   #showcase_wavs(cfg, raw_plot=True, spec_plot=True, mfcc_plot=True, show_plot=False)
-  #showcase_wavs(cfg, raw_plot=False, spec_plot=False, mfcc_plot=True, show_plot=True)
+  #showcase_wavs(cfg, raw_plot=False, spec_plot=True, mfcc_plot=True, show_plot=True)
 
   # feature selection tables
   #feature_selection_tables(overwrite=True)

@@ -23,6 +23,44 @@ from palettable.cartocolors.qualitative import Antique_4
 from palettable.cartocolors.qualitative import Prism_8
 
 
+def get_figsize(context='none'):
+  """
+  fig sizes 
+  """
+
+  # squares
+  if context == 'square_big': return (8, 8)
+  elif context == 'square_small': return (4, 4)
+
+  # special
+  elif context == 'score': return (8, 5)
+  elif context == 'mel': return (8, 5)
+  elif context == 'half': return (8, 4)
+  elif context == 'waveform': return (8, 3)
+  elif context == 'shift': return (8, 1.5)
+
+  return (6, 6)
+
+def get_fontsize(context='none'):
+  """
+  get font size
+  """
+
+  # usuals
+  if context == 'title': return 14
+  elif context == 'axis_label': return 11
+  elif context == 'axis_tick_major': return 10
+  elif context == 'axis_tick_minor': return 9
+
+  # special
+  elif context == 'colorbar': return 9
+  elif context == 'conf_normal': return 10
+  elif context == 'conf_small': return 7
+  elif context == 'anno': return 12
+
+  return 8
+
+
 def get_colormap_from_context(context='none'):
   """
   my colormaps
@@ -77,6 +115,21 @@ def get_colormap_from_context(context='none'):
   return None
 
 
+def add_colorbar(fig, im, cax=None):
+  """
+  adds colorbar to plot
+  """
+
+  # devider for cax
+  if cax is None:
+    divider = make_axes_locatable(plt.gca())
+    cax = divider.append_axes("right", size="2%", pad="2%")
+
+  # colorbar
+  color_bar = fig.colorbar(im, cax=cax)
+  color_bar.ax.tick_params(labelsize=get_fontsize('colorbar'))
+
+
 def plot_mfcc_anim(x, cmap=None, plot_path=None, name='mfcc-anim'):
   """
   mfcc animation (x is list of images)
@@ -86,7 +139,7 @@ def plot_mfcc_anim(x, cmap=None, plot_path=None, name='mfcc-anim'):
   if cmap is None: cmap = get_colormap_from_context(context='mfcc')
 
   # plot
-  fig = plt.figure(figsize=(8, 8))
+  fig = plt.figure(figsize=get_figsize(context='square_big'))
   plt.axis("off")
 
   # animation
@@ -108,11 +161,10 @@ def plot_histogram(x, bins=None, color=None, y_log_scale=False, x_log_scale=Fals
   if color is None: color = get_colormap_from_context(context='hist')
 
   # init figure
-  fig = plt.figure(figsize=(8, 8))
+  fig = plt.figure(figsize=get_figsize(context='square_big'))
 
   # plot hist
   im = plt.hist(x, bins=bins, color=color)
-
 
   # layout
   #plt.grid()
@@ -121,10 +173,9 @@ def plot_histogram(x, bins=None, color=None, y_log_scale=False, x_log_scale=Fals
   if x_log_scale: plt.xscale('log')
 
   # plot save and show
-  if plot_path is not None: 
-    plt.savefig(plot_path + name + '.png', dpi=150)
-    plt.close()
-    
+  if plot_path is not None: plt.savefig(plot_path + name + '.png', dpi=150)
+  
+  # show plot
   if show_plot: plt.show()
 
   return fig
@@ -139,7 +190,7 @@ def plot_test_bench_noise(x, y, snrs, cmap=None, context='bench-noise', title='n
   if cmap is None: cmap = get_colormap_from_context(context=context)
 
   # plot init
-  fig = plt.figure(figsize=(8, 4))
+  fig = plt.figure(figsize=get_figsize(context='half'))
 
   # image
   ax = plt.axes()
@@ -151,19 +202,16 @@ def plot_test_bench_noise(x, y, snrs, cmap=None, context='bench-noise', title='n
 
   # tick adjustment
   ax.set_yticks(np.arange(0.5, len(y), 1))
-  ax.set_yticklabels(y, fontsize=8)
+  ax.set_yticklabels(y, fontsize=get_fontsize('axis_label'))
 
   ax.set_xticks(np.arange(0.5, len(snrs), 1))
-  ax.set_xticklabels(snrs, fontsize=8)
+  ax.set_xticklabels(snrs, fontsize=get_fontsize('axis_label'))
 
   # aspect
   ax.set_aspect('equal')
 
   # colorbar
-  divider = make_axes_locatable(plt.gca())
-  cax = divider.append_axes("right", "2%", pad="2%")
-  color_bar = plt.colorbar(im, cax=cax)
-  color_bar.ax.tick_params(labelsize=8)
+  add_colorbar(fig, im)
 
   # tight plot
   plt.tight_layout()
@@ -187,7 +235,7 @@ def plot_test_bench_shift(x, y, cmap=None, context='bench-shift', title='shift',
   if cmap is None: cmap = get_colormap_from_context(context=context)
 
   # plot init
-  fig = plt.figure(figsize=(8, 1.5))
+  fig = plt.figure(figsize=get_figsize(context='shift'))
 
   # image
   ax = plt.axes()
@@ -201,18 +249,15 @@ def plot_test_bench_shift(x, y, cmap=None, context='bench-shift', title='shift',
 
   # tick adjustment
   ax.set_yticks(np.arange(0.5, len(y), 1))
-  ax.set_yticklabels(y, fontsize=8)
+  ax.set_yticklabels(y, fontsize=get_fontsize('axis_label'))
 
-  ax.tick_params(axis='x', which='major', labelsize=8)
+  ax.tick_params(axis='x', which='major', labelsize=get_fontsize('axis_tick_major'))
 
   # aspect
   ax.set_aspect('equal')
 
   # colorbar
-  divider = make_axes_locatable(plt.gca())
-  cax = divider.append_axes("right", "2%", pad="2%")
-  color_bar = plt.colorbar(im, cax=cax)
-  color_bar.ax.tick_params(labelsize=8)
+  add_colorbar(fig, im)
 
   # tight plot
   plt.tight_layout()
@@ -249,7 +294,7 @@ def plot_wav_grid(wavs, feature_params, grid_size=(8, 8), cmap=None, title='', p
   #print("row: {}, col: {}".format(n_rows, n_cols))
 
   # init figure
-  fig = plt.figure(figsize=(8, 8))
+  fig = plt.figure(figsize=get_figsize(context='square_big'))
   gs = plt.GridSpec(n_rows, n_cols, wspace=0.4, hspace=0.3)
 
   # layout
@@ -288,7 +333,7 @@ def plot_wav_grid(wavs, feature_params, grid_size=(8, 8), cmap=None, title='', p
 
     ax.set_ylim([-1, 1])
     ax.axis('off')
-    ax.set_title(y, fontsize=6)
+    ax.set_title(y, fontsize=get_fontsize('title'))
 
   # tight plot
   plt.subplots_adjust(left=0.01, bottom=0.01, right=0.99, top=0.97, wspace=0, hspace=0)
@@ -412,8 +457,9 @@ def plot_grid_images(x, padding=1, num_cols=8, cmap=None, context='none', color_
 
   # plot init
   m, n = all_grid_img.shape
-  if m < n: fig = plt.figure(figsize=(8, np.clip(m / n * 8, 1, 8)))
-  else: fig = plt.figure(figsize=(np.clip(n / m * 8, 2, 8), 8))
+  fig = plt.figure(figsize=(8, np.clip(m / n * 8, 1, 8))) if m < n else plt.figure(figsize=(np.clip(n / m * 8, 2, 8), 8))
+  #if m < n: fig = plt.figure(figsize=(8, np.clip(m / n * 8, 1, 8)))
+  #else: fig = plt.figure(figsize=(np.clip(n / m * 8, 2, 8), 8))
 
   # image
   ax = plt.axes()
@@ -421,13 +467,10 @@ def plot_grid_images(x, padding=1, num_cols=8, cmap=None, context='none', color_
 
   # design
   plt.axis("off")
-  plt.title(title, fontsize=8)
+  plt.title(title, fontsize=get_fontsize('title'))
 
   # colorbar
-  divider = make_axes_locatable(plt.gca())
-  cax = divider.append_axes("right", size="2%", pad="2%")
-  color_bar = plt.colorbar(im, cax=cax)
-  color_bar.ax.tick_params(labelsize=8)
+  add_colorbar(fig, im)
 
   # tight plot
   plt.subplots_adjust(left=0.10, bottom=0.02, right=0.90, top=0.90, wspace=0, hspace=0)
@@ -453,7 +496,7 @@ def plot_damaged_file_score(z, plot_path=None, name='z_score', enable_plot=False
     return
 
   # setup figure
-  fig = plt.figure(figsize=(9, 5))
+  fig = plt.figure(figsize=get_figsize('half'))
   plt.scatter(x=z, y=np.zeros(len(z)))
   plt.ylabel('nothing')
   plt.xlabel('score')
@@ -465,7 +508,7 @@ def plot_damaged_file_score(z, plot_path=None, name='z_score', enable_plot=False
     plt.close()
 
 
-def plot_waveform(x, fs, e=None, anno_file=None, hop=None, onset_frames=None, y_ax_balance=True, cmap=None, context='wav', title='none', xlim=None, ylim=None, plot_path=None, name='None', show_plot=False):
+def plot_waveform(x, fs, e=None, anno_file=None, hop=None, onset_frames=None, y_ax_balance=True, cmap=None, context='wav', title='', xlim=None, ylim=None, plot_path=None, name='None', show_plot=False):
   """
   just a simple waveform
   """
@@ -474,7 +517,7 @@ def plot_waveform(x, fs, e=None, anno_file=None, hop=None, onset_frames=None, y_
   t = np.arange(0, len(x)/fs, 1/fs)
 
   # setup figure
-  fig = plt.figure(figsize=(8, 3))
+  fig = plt.figure(figsize=get_figsize('waveform'))
 
   # create axis
   ax = plt.axes()
@@ -509,10 +552,13 @@ def plot_waveform(x, fs, e=None, anno_file=None, hop=None, onset_frames=None, y_
   # care about labels
   ax.set_xticks(t[::1600])
   ax.set_xticklabels(['{:.1f}'.format(ti) for ti in t[::1600]])
-  ax.tick_params(axis='both', which='major', labelsize=8), ax.tick_params(axis='both', which='minor', labelsize=6)
+  ax.tick_params(axis='both', which='major', labelsize=get_fontsize('axis_tick_major')), ax.tick_params(axis='both', which='minor', labelsize=get_fontsize('axis_tick_minor'))
+
+  # title
+  if len(title): plt.title(title, fontsize=get_fontsize('title'))
 
   # layout
-  plt.title(title, fontsize=10), plt.ylabel('magnitude', fontsize=8), plt.xlabel('time [s]', fontsize=8), plt.grid()
+  plt.ylabel('magnitude', fontsize=get_fontsize('axis_label')), plt.xlabel('time [s]', fontsize=get_fontsize('axis_label')), plt.grid()
 
   # tight plot
   plt.tight_layout()
@@ -553,20 +599,19 @@ def plot_confusion_matrix(cm, classes, cmap=None, plot_path=None, name='None'):
   plot confusion matrix
   """
 
-  # return if emtpy
-  if cm is None:
-    return
+  # return if empty
+  if cm is None: return
 
   # get cmap
   if cmap is None: cmap = get_colormap_from_context(context='confusion')
 
   # init plot
-  fig = plt.figure(figsize=(8, 8))
+  fig = plt.figure(figsize=get_figsize(context='square_big'))
 
   # axis
   ax = plt.axes()
 
-  #im = ax.imshow(cm, cmap=plt.cm.Blues)
+  # image
   im = ax.imshow(cm, cmap=cmap, interpolation='none', vmin=0, vmax=np.sum(cm, axis=1)[0])
 
   # text handling
@@ -574,36 +619,24 @@ def plot_confusion_matrix(cm, classes, cmap=None, plot_path=None, name='None'):
     for true in range(len(classes)):
 
       # color handling
-      if predict != true:
-        font_color = 'black'
-      else:
-        font_color = 'white'
+      if predict != true: font_color = 'black'
+      else: font_color = 'white'
 
-      if len(classes) > 10:
-        fontsize = 7
-      else:
-        fontsize = 10
+      if len(classes) > 10: fontsize = get_fontsize('conf_small')
+      else: fontsize = get_fontsize('conf_normal')
 
-      # write nums inside
+      # write numbers inside
       text = ax.text(true, predict, cm[predict, true], ha='center', va='center', color=font_color, fontsize=fontsize)
 
   # care about labels
-  ax.set_xticks(np.arange(len(classes)))
-  ax.set_yticks(np.arange(len(classes)))
-  ax.set_xticklabels(classes)
-  ax.set_yticklabels(classes)
+  ax.set_xticks(np.arange(len(classes))), ax.set_yticks(np.arange(len(classes)))
+  ax.set_xticklabels(classes), ax.set_yticklabels(classes)
 
-  plt.xticks(fontsize=10, rotation=90)
-  plt.yticks(fontsize=10, rotation=0)
-
-  plt.xlabel('predicted labels')
-  plt.ylabel('true labels')
+  plt.xticks(fontsize=get_fontsize('axis_tick_major'), rotation=90), plt.yticks(fontsize=get_fontsize('axis_tick_major'), rotation=0)
+  plt.xlabel('predicted labels'), plt.ylabel('true labels')
 
   # colorbar
-  divider = make_axes_locatable(plt.gca())
-  cax = divider.append_axes("right", "2%", pad="2%")
-  color_bar = plt.colorbar(im, cax=cax)
-  color_bar.ax.tick_params(labelsize=8)
+  add_colorbar(fig, im)
 
   # tight plot
   plt.tight_layout()
@@ -638,7 +671,7 @@ def plot_adv_train_loss(train_score, cmap=None, plot_path=None, name='adv_train_
   if cmap is None: cmap = get_colormap_from_context(context='adv-loss')
 
   # setup figure
-  fig = plt.figure(figsize=(8, 5))
+  fig = plt.figure(figsize=get_figsize(context='score'))
 
   # create axis
   ax = plt.axes()
@@ -682,7 +715,7 @@ def plot_train_loss(train_loss, val_loss, cmap=None, plot_path=None, name='None'
     val_loss = val_loss / np.linalg.norm(val_loss, ord=np.infty)
 
   # setup figure
-  fig = plt.figure(figsize=(8, 5))
+  fig = plt.figure(figsize=get_figsize(context='score'))
 
   # create axis
   ax = plt.axes()
@@ -717,7 +750,7 @@ def plot_val_acc(val_acc, cmap=None, plot_path=None, name='None', show_plot=Fals
   if cmap is None: cmap = get_colormap_from_context(context='acc')
 
   # setup figure
-  fig = plt.figure(figsize=(8, 5))
+  fig = plt.figure(figsize=get_figsize(context='score'))
 
   # create axis
   ax = plt.axes()
@@ -774,7 +807,7 @@ def plot_textGrid_annotation(anno_file, x=None, hop_space=None, plot_text=False,
       plt.axvline(x=s, dashes=(3, 3), color=color, lw=1)
 
       # plot text
-      if plot_text: plt.text(s + 0.01, h, l, color=color)
+      if plot_text: plt.text(s + 0.01, h, l, color=color, fontsize=get_fontsize('anno'))
 
 
 def plot_mfcc_profile(x, fs, N, hop, mfcc, sep_features=True, diff_plot=False, cmap=None, cmap_wav=None, anno_file=None, onsets=None, bon_pos=None, mient=None, minreg=None, frame_size=32, plot_path=None, name='mfcc_profile', enable_plot=True, show_plot=True):
@@ -799,6 +832,7 @@ def plot_mfcc_profile(x, fs, N, hop, mfcc, sep_features=True, diff_plot=False, c
 
   # s, 1, c, d, d, e
   grid_size = (6, 1) if mfcc.shape[0] == 39 and sep_features else (2, 1)
+  grid_row_usage = (0.1, 0.1, 0.2, 0.2, 0.2, 0.2) if mfcc.shape == 39 and sep_features else (0.4, 0.6)
 
   # make a grid
   n_im_rows, n_im_cols, r_space, c_space = (20, 103, 25, 1) if mfcc.shape[0] == 39 and sep_features else (20, 103, 10, 1)
@@ -806,15 +840,17 @@ def plot_mfcc_profile(x, fs, N, hop, mfcc, sep_features=True, diff_plot=False, c
   # specify number of rows and cols
   n_rows, n_cols = n_im_rows * grid_size[0] + r_space * grid_size[0] - 1, n_im_cols * grid_size[1] + c_space * grid_size[0] - 1
 
+  print("n_rows: ", n_rows), print("n_cols: ", n_cols)
 
   # init figure
-  fig = plt.figure(figsize=(8, 8)) if mfcc.shape[0] == 39 and sep_features else plt.figure(figsize=(8, 4))
+  fig = plt.figure(figsize=get_figsize(context='square_big')) if mfcc.shape[0] == 39 and sep_features else plt.figure(figsize=get_figsize(context='half'))
 
   # create grid
   gs = plt.GridSpec(n_rows, n_cols, wspace=0.4, hspace=0.3)
 
   # time series plot
-  ax = fig.add_subplot(gs[0:n_im_rows-1, :n_im_cols-3])
+  #ax = fig.add_subplot(gs[0:n_im_rows-1, :n_im_cols-3])
+  ax = fig.add_subplot(gs[0:int(n_im_rows * grid_row_usage[0]), :n_im_cols-3])
 
   # wav
   if cmap_wav is not None: ax.set_prop_cycle('color', cmap_wav)
@@ -823,7 +859,7 @@ def plot_mfcc_profile(x, fs, N, hop, mfcc, sep_features=True, diff_plot=False, c
   # care about labels
   ax.set_xticks(t[::1600])
   ax.set_xticklabels(['{:.1f}'.format(ti) for ti in t[::1600]])
-  ax.tick_params(axis='both', which='major', labelsize=8), ax.tick_params(axis='both', which='minor', labelsize=6)
+  ax.tick_params(axis='both', which='major', labelsize=get_fontsize('axis_tick_major')), ax.tick_params(axis='both', which='minor', labelsize=get_fontsize('axis_tick_minor'))
 
   # annotation
   plot_textGrid_annotation(anno_file, x, plot_text=True)
@@ -842,7 +878,7 @@ def plot_mfcc_profile(x, fs, N, hop, mfcc, sep_features=True, diff_plot=False, c
     for onset in frames_to_time(np.array([bon_pos, bon_pos+frame_size]), fs, hop): plt.axvline(x=float(onset), dashes=(3, 2), color=get_colormap_from_context(context='wav-hline'), lw=2)
 
   # layout of time plot
-  ax.set_title('Time Signal of ' + '"' + name + '"', fontsize=10), ax.set_ylabel("magnitude", fontsize=8)
+  ax.set_title('Time Signal of ' + '"' + name + '"', fontsize=get_fontsize('title')), ax.set_ylabel("magnitude", fontsize=get_fontsize('title'))
   ax.set_xlim([0, t[-1]]), ax.grid()
 
   # select mfcc coeffs in arrays
@@ -853,8 +889,12 @@ def plot_mfcc_profile(x, fs, N, hop, mfcc, sep_features=True, diff_plot=False, c
   for i, c in enumerate(sel_coefs, start=1):
 
     # row start and stop
-    rs, re = i * n_im_rows + i * r_space, (i + 1) * n_im_rows + i * r_space
-    #print("rs: {}, re: {}".format(rs, re))
+    #rs, re = i * n_im_rows + i * r_space, (i + 1) * n_im_rows + i * r_space
+    rs, re = int(i * n_im_rows * grid_row_usage[i-1]) + i * r_space, int((i + 1) * n_im_rows * np.sum([grid_row_usage[j] for j in range(i + 1)])) + i * r_space
+    
+    # row start and stop
+    #rs, re = int(n_im_rows * grid_row_usage[0]) + r_space, int(n_im_rows * 2) + r_space
+    print("rs: {}, re: {}".format(rs, re))
 
     # specify grid pos
     ax = fig.add_subplot(gs[rs:re, :n_im_cols-3-2])
@@ -865,22 +905,21 @@ def plot_mfcc_profile(x, fs, N, hop, mfcc, sep_features=True, diff_plot=False, c
     # care about labels
     ax.set_xticks(np.arange(len(t_hop))[::10] - 0.5)
     ax.set_xticklabels(['{:.1f}'.format(ti) for ti in t_hop[::10]])
-    if len(c) < 5: ax.set_yticks(np.arange(0, len(c))), ax.set_yticklabels(c , fontsize=6)
-    if len(c) > 15: ax.set_yticks(np.arange(0, len(c))[::5]), ax.set_yticklabels(c[::5], fontsize=6)   
-    else: ax.set_yticks(np.arange(0, len(c))[::3]), ax.set_yticklabels(c[::3], fontsize=6)    
-    ax.tick_params(axis='both', which='major', labelsize=8), ax.tick_params(axis='both', which='minor', labelsize=6)
+    if len(c) < 5: ax.set_yticks(np.arange(0, len(c))), ax.set_yticklabels(c , fontsize=get_fontsize('axis_tick_major'))
+    if len(c) > 15: ax.set_yticks(np.arange(0, len(c))[::5]), ax.set_yticklabels(c[::5], fontsize=get_fontsize('axis_tick_major'))   
+    else: ax.set_yticks(np.arange(0, len(c))[::3]), ax.set_yticklabels(c[::3], fontsize=get_fontsize('axis_tick_major'))    
+    ax.tick_params(axis='both', which='major', labelsize=get_fontsize('axis_tick_major')), ax.tick_params(axis='both', which='minor', labelsize=get_fontsize('axis_tick_minor'))
 
     # annotation
     plot_textGrid_annotation(anno_file, hop_space=fs/hop)
 
     # some labels
-    ax.set_title(titles[i-1], fontsize=10), ax.set_ylabel("mfcc coeff.", fontsize=8)
-    if i == len(sel_coefs): ax.set_xlabel("time [s]", fontsize=8)
+    ax.set_title(titles[i-1], fontsize=get_fontsize('title')), ax.set_ylabel("mfcc coeff.", fontsize=get_fontsize('axis_label'))
+    if i == len(sel_coefs): ax.set_xlabel("time [s]", fontsize=get_fontsize('axis_label'))
 
     # add colorbar
     ax = fig.add_subplot(gs[rs:re, n_im_cols-3:n_im_cols-1])
-    color_bar = fig.colorbar(im, cax=ax)
-    color_bar.ax.tick_params(labelsize=8)
+    add_colorbar(fig, im, cax=ax)
 
   if diff_plot and mfcc.shape[0] != 39:
     rs, re = n_im_rows * (1 + len(sel_coefs)) + 1, -2
@@ -890,8 +929,7 @@ def plot_mfcc_profile(x, fs, N, hop, mfcc, sep_features=True, diff_plot=False, c
 
     # add colorbar
     ax = fig.add_subplot(gs[rs:re, n_im_cols-3:n_im_cols-1])
-    color_bar = fig.colorbar(im, cax=ax)
-    color_bar.ax.tick_params(labelsize=8)
+    add_colorbar(fig, im, cax=ax)
 
 
   # tight plot
@@ -920,7 +958,7 @@ def plot_mfcc_only(mfcc, fs=16000, hop=160, cmap=None, context='mfcc', plot_path
   t = np.arange(0, l * hop / fs, hop/fs)
 
   # setup figure
-  fig = plt.figure(figsize=(8, 5))
+  fig = plt.figure(figsize=get_figsize(context='half'))
 
   # select mfcc coeffs in arrays
   if mfcc.shape[0] == 39:
@@ -959,8 +997,7 @@ def plot_mfcc_only(mfcc, fs=16000, hop=160, cmap=None, context='mfcc', plot_path
 
     # add colorbar
     ax = fig.add_subplot(gs[rs:re, n_cols-1])
-    color_bar = fig.colorbar(im, cax=ax)
-    color_bar.ax.tick_params(labelsize=8)
+    add_colorbar(fig, im, cax=ax)
 
   # plot the fig
   if plot_path is not None:
@@ -1002,10 +1039,7 @@ def plot_mfcc_equal_aspect(mfcc, fs=16000, hop=160, cmap=None, context='mfcc', p
     ax.set_xticklabels(['{:.2f}'.format(ti) for ti in t[::5]])
 
     # colorbar
-    divider = make_axes_locatable(plt.gca())
-    cax = divider.append_axes("right", "2%", pad="2%")
-    color_bar = plt.colorbar(im, cax=cax)
-    color_bar.ax.tick_params(labelsize=8)
+    add_colorbar(fig, im)
 
     # some labels
     ax.set_title('MFCCs' + ' of "' + name + '"')
@@ -1032,7 +1066,7 @@ def plot_mel_band_weights(w_f, w_mel, f, m, cmap=None, plot_path=None, name='mel
   if cmap is None: cmap = get_colormap_from_context(context='adv-loss')
 
   # plot f bands
-  fig1 = plt.figure(figsize=(8, 5))
+  fig1 = plt.figure(figsize=get_figsize(context='score'))
 
   # create axis
   ax = plt.axes()
@@ -1051,7 +1085,7 @@ def plot_mel_band_weights(w_f, w_mel, f, m, cmap=None, plot_path=None, name='mel
   if plot_path is not None: plt.savefig(plot_path + name + '_f' + '.png', dpi=150)
 
   # plot mel bands
-  fig2 = plt.figure(figsize=(8, 5))
+  fig2 = plt.figure(figsize=get_figsize(context='score'))
 
   # create axis
   ax = plt.axes()
@@ -1090,7 +1124,7 @@ def plot_mel_scale(cmap=None, plot_path=None, name='mel', show_plot=False):
   m = f_to_mel(f)
 
   # plot mel bands
-  fig = plt.figure(figsize=(8, 5))
+  fig = plt.figure(figsize=get_figsize(context='score'))
 
   # create axis
   ax = plt.axes()
@@ -1121,7 +1155,7 @@ def plot_dct(h, cmap=None, context='dct', plot_path=None, name='dct', show_plot=
   if cmap is None: cmap = get_colormap_from_context(context=context)
 
   # init
-  plt.figure(figsize=(6, 6))
+  fig = plt.figure(figsize=get_figsize(context='square_small'))
 
   # axis
   ax = plt.axes()
@@ -1133,10 +1167,7 @@ def plot_dct(h, cmap=None, context='dct', plot_path=None, name='dct', show_plot=
   plt.axis("off")
 
   # colorbar
-  divider = make_axes_locatable(plt.gca())
-  cax = divider.append_axes("right", "2%", pad="2%")
-  color_bar = plt.colorbar(im, cax=cax)
-  color_bar.ax.tick_params(labelsize=8)
+  add_colorbar(fig, im)
 
   # tight plot
   plt.tight_layout()
@@ -1148,40 +1179,7 @@ def plot_dct(h, cmap=None, context='dct', plot_path=None, name='dct', show_plot=
   if show_plot: plt.show()
 
 
-def plot_spectogram(x, x_spec, cmap=None, plot_path=None, name='spec', show_plot=False):
-  """
-  spectogram plot
-  """
-
-  # get cmap
-  if cmap is None: cmap = get_colormap_from_context(context='spectogram')
-
-  # init
-  fig = plt.figure(figsize=(6, 6))
-
-  # axis
-  ax = plt.axes()
-
-  # image
-  im = ax.imshow(x_spec, cmap=cmap, interpolation='none', origin='lower')
-
-  # colorbar
-  divider = make_axes_locatable(plt.gca())
-  cax = divider.append_axes("right", "2%", pad="2%")
-  color_bar = plt.colorbar(im, cax=cax)
-  color_bar.ax.tick_params(labelsize=8)
-
-  # tight plot
-  plt.tight_layout()
-
-  # save plot
-  if plot_path is not None: plt.savefig(plot_path + name + '.png', dpi=150)
-  
-  # show plot
-  if show_plot: plt.show()
-
-
-def plot_spec_profile(x, x_spec, fs, N, hop, log_scale=False, cmap=None, cmap_wav=None, anno_file=None, bon_pos=None, frame_size=50, plot_path=None, title='none', name='spec', show_plot=True):
+def plot_spec_profile(x, x_spec, fs, N, hop, log_scale=False, cmap=None, cmap_wav=None, anno_file=None, bon_pos=None, frame_size=50, plot_path=None, title='', name='spec', show_plot=True):
   """
   spectogram with waveform
   """
@@ -1204,7 +1202,7 @@ def plot_spec_profile(x, x_spec, fs, N, hop, log_scale=False, cmap=None, cmap_wa
   n_rows, n_cols = n_im_rows * grid_size[0] + r_space * grid_size[0] - 1, n_im_cols * grid_size[1] + c_space * grid_size[0] - 1
 
   # init figure
-  fig = plt.figure(figsize=(8, 4))
+  fig = plt.figure(figsize=get_figsize(context='half'))
 
   # create grid
   gs = plt.GridSpec(n_rows, n_cols, wspace=0.4, hspace=0.3)
@@ -1219,7 +1217,7 @@ def plot_spec_profile(x, x_spec, fs, N, hop, log_scale=False, cmap=None, cmap_wa
   # care about labels
   ax.set_xticks(t[::1600])
   ax.set_xticklabels(['{:.1f}'.format(ti) for ti in t[::1600]])
-  ax.tick_params(axis='both', which='major', labelsize=8), ax.tick_params(axis='both', which='minor', labelsize=6)
+  ax.tick_params(axis='both', which='major', labelsize=get_fontsize('axis_tick_major')), ax.tick_params(axis='both', which='minor', labelsize=get_fontsize('axis_tick_minor'))
 
   # annotation
   plot_textGrid_annotation(anno_file, x, plot_text=True)
@@ -1229,7 +1227,11 @@ def plot_spec_profile(x, x_spec, fs, N, hop, log_scale=False, cmap=None, cmap_wa
     for onset in frames_to_time(np.array([bon_pos, bon_pos+frame_size]), fs, hop): plt.axvline(x=float(onset), dashes=(3, 2), color=get_colormap_from_context(context='wav-hline'), lw=2)
 
   # layout of time plot
-  ax.set_title('Time Signal of ' + '"' + title + '"', fontsize=10), ax.set_ylabel("magnitude", fontsize=8)
+  if len(title): ax.set_title('Time Signal of ' + '"' + title + '"', fontsize=get_fontsize('title'))
+  else: ax.set_title('Time Signal ', fontsize=get_fontsize('title'))
+
+  # labels
+  ax.set_ylabel("magnitude", fontsize=get_fontsize('axis_label'))
   ax.set_xlim([0, t[-1]]), ax.grid()
 
   # row start and stop
@@ -1255,19 +1257,19 @@ def plot_spec_profile(x, x_spec, fs, N, hop, log_scale=False, cmap=None, cmap_wa
   
   # care about labels
   ax.set_xticks(np.arange(len(t_hop))[::10] - 0.5), ax.set_xticklabels(['{:.1f}'.format(ti) for ti in t_hop[::10]])
-  ax.set_yticks(f), ax.set_yticklabels(f_labels, fontsize=6)
-  ax.tick_params(axis='both', which='major', labelsize=8), ax.tick_params(axis='both', which='minor', labelsize=6)
+  ax.set_yticks(f), ax.set_yticklabels(f_labels, fontsize=get_fontsize('axis_tick_major'))
+  ax.tick_params(axis='both', which='major', labelsize=get_fontsize('axis_tick_major')), ax.tick_params(axis='both', which='minor', labelsize=get_fontsize('axis_tick_minor'))
 
   # annotation
   plot_textGrid_annotation(anno_file, hop_space=fs/hop)
 
   # some labels
-  ax.set_title('Spectogram', fontsize=10), ax.set_ylabel("frequency", fontsize=8), ax.set_xlabel("time [s]", fontsize=8)
+  ax.set_title('Spectrogram', fontsize=get_fontsize('title')), 
+  ax.set_ylabel("frequency [Hz]", fontsize=get_fontsize('axis_label')), ax.set_xlabel("time [s]", fontsize=get_fontsize('axis_label'))
 
   # add colorbar
   ax = fig.add_subplot(gs[rs:re, n_im_cols-3:n_im_cols-1])
-  color_bar = fig.colorbar(im, cax=ax)
-  color_bar.ax.tick_params(labelsize=8)
+  add_colorbar(fig, im, cax=ax)
 
   # tight plot
   plt.subplots_adjust(left=0.1, bottom=0.00, right=0.95, top=0.93, wspace=0, hspace=0)
