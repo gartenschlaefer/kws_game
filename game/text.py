@@ -35,9 +35,18 @@ class Text(Interactable):
     self.small_pos = None
 
 
+  def render_small_msg(self, msg, pos):
+    """
+    render a small message
+    """
+
+    self.small_msg = self.small_font.render(msg, True, self.color_bag.win)
+    self.small_pos = pos
+
+
   def win_message(self, big_pos=(200, 100), small_pos=(200, 150)):
     """
-    write winn message
+    write win message
     """
 
     self.big_msg = self.big_font.render('Win', True, self.color_bag.win)
@@ -115,7 +124,7 @@ if __name__ == '__main__':
     # update display
     pygame.display.flip()
 
-    # reduce framerate
+    # reduce frame rate
     clock.tick(cfg['game']['fps'])
 
 

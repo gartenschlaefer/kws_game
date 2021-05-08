@@ -1,17 +1,79 @@
 """
-pygame menu
+menues
 """
 
 import pygame
-import pygame_menu
+
+from color_bag import ColorBag
+from interactable import Interactable
+from game_logic import GameLogic
+from text import Text
+
+class Menu(Interactable):
+  """
+  menu class
+  """
+
+  def __init__(self, cfg_game, screen):
+
+    # arguments
+    self.cfg_game = cfg_game
+    self.screen = screen
+
+    # colors
+    self.color_bag = ColorBag()
+
+    # text
+    self.text = Text(self.screen)
+    self.text.render_small_msg('main menu', (0, 0))
+
+
+  def update(self):
+    """
+    update menu
+    """
+
+    # fill screen
+    self.screen.fill(self.color_bag.background)
+
+    # text
+    self.text.update()
+
+
+  def menu_loop(self):
+    """
+    menu loop
+    """
+
+    # add clock
+    clock = pygame.time.Clock()
+
+    # game logic
+    game_logic = GameLogic()
+
+    # game loop
+    while game_logic.run_loop:
+      for event in pygame.event.get():
+
+        # input handling
+        game_logic.event_update(event)
+
+      # update menu
+      self.update()
+
+      # update display
+      pygame.display.flip()
+
+      # reduce framerate
+      clock.tick(self.cfg_game['fps'])
+
 
 if __name__ == '__main__':
   """
   main
   """
-  import yaml
 
-  from game_logic import GameLogic
+  import yaml
 
   # yaml config file
   cfg = yaml.safe_load(open("../config.yaml"))
@@ -23,32 +85,11 @@ if __name__ == '__main__':
   # init display
   screen = pygame.display.set_mode(cfg['game']['screen_size'])
 
-  # game logic with dependencies
-  game_logic = GameLogic()
+  # menu
+  menu = Menu(cfg['game'], screen)
 
-  # add clock
-  clock = pygame.time.Clock()
-
-  menu = pygame_menu.Menu(300, 400, 'Welcome', theme=pygame_menu.themes.THEME_BLUE)
-
-  menu.add.text_input('Name: ', default='chris')
-  menu.add.selector('diff: ', [('hard', 1), ('easy', 2)])
-  menu.add.button('play', print("play"))
-  menu.add.button('Quit', pygame_menu.events.EXIT)
-  menu.mainloop(screen)
-
-  # game loop
-  while game_logic.run_loop:
-    for event in pygame.event.get():
-
-      # input handling
-      game_logic.event_update(event)
-
-    # update display
-    pygame.display.flip()
-
-    # reduce framerate
-    clock.tick(cfg['game']['fps'])
+  # run menu loop
+  menu.menu_loop()
 
   # end pygame
   pygame.quit()
