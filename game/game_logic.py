@@ -143,20 +143,6 @@ class ThingsGameLogic(GameLogic):
       self.henry = self.level.henry
 
 
-
-  def event_update(self, event):
-    """
-    event update game logic
-    """
-
-    # quit game
-    if event.type == pygame.QUIT: 
-      self.run_loop = False
-    
-    # input handling
-    self.input_handler.handle(event)
-
-
   def update(self):
     """
     update game logic
@@ -166,3 +152,38 @@ class ThingsGameLogic(GameLogic):
     self.check_win_condition()
 
     return self.level
+
+
+
+class MenuGameLogic(GameLogic):
+  """
+  Game Logic for menues
+  """
+
+  def __init__(self, menu):
+
+    # parent init
+    super().__init__()
+
+    # arguments
+    self.menu = menu
+
+
+  def direction_change(self, direction):
+    """
+    arrow keys pressed
+    """
+      
+    # up down direction
+    ud_dir = direction[1]
+
+    # ud click state
+    self.menu.ud_click += ud_dir
+
+
+  def enter_key(self):
+    """
+    if action key is pressed
+    """
+    
+    self.menu.button_enter()
