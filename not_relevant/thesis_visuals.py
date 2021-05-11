@@ -96,6 +96,7 @@ def showcase_wavs(cfg, raw_plot=True, spec_plot=True, mfcc_plot=True, show_plot=
   # change params
   feature_params = cfg['feature_params'].copy()
   feature_params['n_ceps_coeff'] = 32
+  feature_params['norm_features'] = True
 
   # init feature extractor
   feature_extractor = FeatureExtractor(feature_params)
@@ -120,9 +121,10 @@ def showcase_wavs(cfg, raw_plot=True, spec_plot=True, mfcc_plot=True, show_plot=
       plot_spec_profile(x, feature_extractor.calc_spectogram(x).T, feature_params['fs'], feature_extractor.N, feature_extractor.hop, anno_file=anno, plot_path=plot_path, title=wav.split('/')[-1].split('.')[0]+'_my', name='signal_spec-lin_' + wav.split('/')[-1].split('.')[0] + '_my', show_plot=show_plot)
       plot_spec_profile(x, feature_extractor.calc_spectogram(x).T, feature_params['fs'], feature_extractor.N, feature_extractor.hop, log_scale=True, anno_file=anno, plot_path=plot_path, title=wav.split('/')[-1].split('.')[0]+'_my', name='signal_spec-log_' + wav.split('/')[-1].split('.')[0] + '_my', show_plot=show_plot)
 
+    # mfcc
     if mfcc_plot:
       mfcc, bon_pos = feature_extractor.extract_mfcc(x, reduce_to_best_onset=False)
-      plot_mfcc_profile(x, cfg['feature_params']['fs'], feature_extractor.N, feature_extractor.hop, mfcc, anno_file=anno, sep_features=True, bon_pos=bon_pos, frame_size=cfg['feature_params']['frame_size'], plot_path=plot_path, name='signal_mfcc_' + wav.split('/')[-1].split('.')[0] + '_my', show_plot=show_plot)
+      plot_mfcc_profile(x, cfg['feature_params']['fs'], feature_extractor.N, feature_extractor.hop, mfcc, anno_file=anno, sep_features=True, bon_pos=bon_pos, frame_size=cfg['feature_params']['frame_size'], plot_path=plot_path, name='signal_mfcc_' + wav.split('/')[-1].split('.')[0] + '_my', close_plot=False, show_plot=show_plot)
 
 
 def feature_selection_tables(overwrite=False):
@@ -206,11 +208,11 @@ if __name__ == '__main__':
   cfg = yaml.safe_load(open("../config.yaml"))
 
   # mfcc stuff
-  mfcc_stuff(cfg)
+  #mfcc_stuff(cfg)
 
   # showcase wavs
   #showcase_wavs(cfg, raw_plot=True, spec_plot=True, mfcc_plot=True, show_plot=False)
-  #showcase_wavs(cfg, raw_plot=False, spec_plot=True, mfcc_plot=True, show_plot=True)
+  showcase_wavs(cfg, raw_plot=False, spec_plot=False, mfcc_plot=True, show_plot=True)
 
   # feature selection tables
   #feature_selection_tables(overwrite=True)

@@ -3,6 +3,9 @@ menues
 """
 
 import pygame
+import pathlib
+
+from glob import glob
 
 from color_bag import ColorBag
 from interactable import Interactable
@@ -26,7 +29,7 @@ class Menu(Interactable):
 
     # text
     self.text = Text(self.screen)
-    self.text.render_small_msg('main menu', (0, 0))
+    self.text.render_small_msg('menu', (0, 0))
 
     # game logic
     self.game_logic = MenuGameLogic(self)
@@ -40,11 +43,11 @@ class Menu(Interactable):
     # selection
     self.sel = 0
 
-    # max selection
-    self.max_sel = 3
-
-    # buttons
+    # button dict, selection: applications
     self.button_dict = {0: 'start', 1: 'options', 2: 'exit'}
+
+    # max selection
+    self.max_sel = len(self.button_dict)
 
 
   def button_state_update(self):
@@ -130,6 +133,51 @@ class Menu(Interactable):
     return next_loop
 
 
+
+class MainMenu(Menu):
+  """
+  main menu
+  """
+
+  def __init__(self, cfg_game, screen):
+
+    # Parent init
+    super().__init__(cfg_game, screen)
+
+    # button dict, selection: applications
+    self.button_dict = {0: 'start', 1: 'options', 2: 'exit'}
+
+    # max selection
+    self.max_sel = len(self.button_dict)
+
+    # text
+    self.text.render_small_msg('main menu', (0, 0))
+
+    # root for sprites
+    self.button_path = str(pathlib.Path(__file__).parent.absolute()) + "/art/buttons/sprites/"
+
+    # button images
+    self.button_images = [pygame.image.load(s).convert_alpha() for s in glob(self.button_path + '*.png')]
+
+
+  def button_enter(self):
+    """
+    button enter
+    """
+
+    print("enter button: ", self.sel)
+
+    # start game
+    if self.button_dict[self.sel] == 'start': pass
+
+    # options
+    elif self.button_dict[self.sel] == 'options': pass
+
+    # exit
+    elif self.button_dict[self.sel] == 'exit': self.game_logic.run_loop = False
+
+
+
 if __name__ == '__main__':
   """
   main
@@ -148,7 +196,7 @@ if __name__ == '__main__':
   screen = pygame.display.set_mode(cfg['game']['screen_size'])
 
   # menu
-  menu = Menu(cfg['game'], screen)
+  menu = MainMenu(cfg['game'], screen)
 
   # run menu loop
   menu.menu_loop()

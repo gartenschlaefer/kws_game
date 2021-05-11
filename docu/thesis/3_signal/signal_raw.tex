@@ -2,16 +2,30 @@
 % raw audio
 
 \section{Raw Audio Waveforms}\label{sec:raw_audio}\label{sec:signal_raw}
-Physical acoustic waves are recorded by microphones, translating mechanical vibrations to electrical signals, which can be stored to waveform files.
-The Focus is here only on the raw waveform files and its data.
-First it is to mention that waveform files are stored in some kind of audio format, for example \texttt{.wav} files, using parameters such as bit resolution, e.g. \SI{32}{\bit} floating point, and most importantly a sample rates $f_s$. 
+Physical acoustic waves can be recorded by microphones, translating mechanical vibrations to electrical signals. 
+Those electrical signals are further stored in so called \emph{waveform files} or \emph{audio files}.
+
+First it is to mention that waveform files are stored with a specific audio format, for example \texttt{.wav} files, using parameters such as bit resolution, e.g. \SI{32}{\bit} floating point, and most importantly a sample rates $f_s$. 
 The sample rate tells, which frequency range of the continuous acoustic waves form is possible to store in a discrete representation.
-This is restricted by the Nyquist-Shannon sampling theorem, where the maximal frequency of the signal should not be larger than the half of the sampling frequency, otherwise aliasing effects occur. 
-Thats why a usual CD format has a sampling frequency of \SI{44.1}{\kilo\hertz} resulting in a maximum frequency of \SI{22.05}{\kilo\hertz}, and usually humans do not hear above \SI{20}{\kilo\hertz} frequencies.
-However it is also possible to go far beyond those \SI{44.1}{\kilo\hertz}, as it is used in telephone systems with a sampling rate of 8kHz.
-This is because, voice does not need that high sampling frequency to be understandable and with enough quality.
-The audio files of the speech command dataset are recorded with a sampling rate of \SI{16}{\kilo\hertz}, which is totally enough for human speech.
-Further those audio files in the speech command dataset have a time length of 1s.
+This is restricted by the Nyquist-Shannon sampling theorem, where the maximal frequency of the signal $f_{x_{max}}$ should not be larger than the half of the sampling frequency: 
+\begin{equation}\label{eq:signal_raw_nyquist}
+  f_{x_{max}} < \frac{fs}{2}
+\end{equation}
+to prevent aliasing effects.
+
+That is the reason, why a compact disc (CD) format has a sampling frequency of \SI{44.1}{\kilo\hertz} resulting in a maximum signal frequency of \SI{22.05}{\kilo\hertz}.
+Using the fact that usually humans do not hear above \SI{20}{\kilo\hertz} frequencies.
+However it is also possible to go far beyond those \SI{44.1}{\kilo\hertz}, for instance used in telephone systems, where the sampling rate is \SI{8}{\kilo\hertz}.
+It is possible to reduce the sampling rate, because voice does not need such a high sampling frequency, as for instance music does, to have sufficient quality and being understandable.
+
+With the sampling frequency known, a discrete time signal of an audio recording $x \in \R^n$ can be expressed in vector notation:
+\begin{equation}\label{eq:signal_raw_x}
+  x = [x_1,\, x_2,\, \dots,\, x_n]^T
+\end{equation}
+with a total number of samples $n$.
+
+The audio files provided in the speech command dataset \cite{Warden2018} used for the experiments in \rsec{exp}, are recorded with a sampling rate of \SI{16}{\kilo\hertz}, which is totally enough for human speech.
+Further those audio files in the speech command dataset usually have a time length of \SI{1}{\second}.
 The author of this thesis recorded his own speech commands with one example of each command shown in \rfig{raw_audio_my}.
 
 \begin{figure}[!ht]

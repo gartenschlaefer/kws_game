@@ -3,23 +3,43 @@
 
 \section{Spectral Features}\label{sec:signal_spec}
 Spectral Features, such as a spectrogram, are the most intuitive form to represent audio waveforms. 
-They illustrate which frequencies are active at each time instance using a fixed analytic window $t_N$, shifted on the time axis with a time interval, denoted as hop time $t_{hop}$.
+They illustrate which frequencies are active at each time instance using a fixed analytic window $t_N$, shifted on the time axis with a time interval, denoted as hop time $t_{h}$.
 The analytic window containing a number of $N$ audio samples, is transformed with the Discrete Time Fourier Transform (DTFT):
 
 % DTFT
 \begin{equation}\label{eq:signal_spec_dtft}
     X[k] = \sum_{n=0}^{N-1} x[n] \, e^{-j\frac{2 \pi n}{N}k}
 \end{equation}
-into the frequency space with frequency index $k$, sample index $n$ and therefore discrete audio samples $x[n]$.
+into the frequency space with frequency index $k$, sample index $n$ and discrete audio samples $x[n]$.
+\req{signal_spec_dtft} can be conveniently written in matrix notation with:
+\begin{equation}\label{eq:signal_spec_dtft_matrix}
+    X[k] = D\, x[n] \quad \mathrm{with} 
+    \quad D[p, q] = e^{-j\frac{2 \pi p}{N} q},
+    \quad p, q = 0 \dots N-1
+\end{equation}
+
 The length of the analytic window in samples $N$ is crucial for the frequency resolution and the lowest frequency that can be represented.
 For example, the periodic time of a sound with $f=\SI{20}{\hertz}$ is $t=\frac{1}{f} = \SI{50}{\milli\second}$.
-To represent a waveform it would be good to have at least a quarter of its wavelength captured.
+To represent a waveform it is necessary to have at least a quarter of its wavelength captured.
 Within this thesis, the length of the analytic window is selected to \SI{25}{\milli\second}.
 
 The other important parameter is the hop size (in samples) or hop time, by which the analytical window is shifted on the time axis.
-This parameter indicates the resolution in time
-In applications like speech processing, the hop time should be selected so that the fastest pronounced phone is within this time span and that changes to other phones are as well captured with enough resolution.
-Usually a hop time of $t_{hop}=\SI{10}{\milli\second}$ is chosen (also used within this thesis), but could be also extended like in \cite{Peter2020} to $t_{hop}=\SI{20}{\milli\second}$ for saving computations.
+This parameter indicates the resolution in time and is especially important for changes.
+In applications like speech processing, the hop time should be selected so that the fastest pronounced phone is within this time span and that changes to other phones are as well captured with sufficient resolution.
+Usually a hop time of $t_{h}=\SI{10}{\milli\second}$ is chosen (also used within this thesis), but it could be extended like in \cite{Peter2020} to $t_{h}=\SI{20}{\milli\second}$ for saving computations.
+
+With those parameters in mind and $h$ denoted as hop size in samples and $N$ the length of the analytical window, the Short-Time Fourier Transform (STFT) for discrete time signals, can be computed as:
+\begin{equation}\label{eq:signal_spec_stft}
+    X[m, k] = \sum_{n=0}^{N-1} x[n + m] \, w[n] \, e^{-j\frac{2 \pi n}{N}k}, \qquad m = 0 \cdot h, \, 1 \cdot h, \, \dots, \, M \cdot h 
+    %X[m, \omega] = \sum_{n=-\infty}^{\infty} x[n] \, w[n-m] \, e^{-j\omega n}
+    %X[m, k] = \sum_{n=-\infty}^{\infty} x[n] \, w[n-m] \, e^{-j k n}
+\end{equation}
+note that $n$ is here the summation index, $w$ is a window function, such as the \emph{Hanning} window, $m$ indicates the hop index and $M$ is the maximum number of hops.
+The maximum number of hops $M$ are all shifts of the analytic window by the hop size on the discrete time axis and can be computed as:
+\begin{equation}\label{eq:signal_spec_hop}
+  M = \frac{n-N}{h}
+\end{equation}
+where $n$ is here the length of the discrete time signal $x$.
 
 
 
@@ -29,7 +49,7 @@ Usually a hop time of $t_{hop}=\SI{10}{\milli\second}$ is chosen (also used with
 
 
 
-A spectrogram with linear representation is shown in \rfig{spec-lin}.
+A spectrogram with linear representation is shown in \rfig{signal_spec_lin_examples}.
 
 \begin{figure}[!ht]
   \centering
@@ -39,13 +59,13 @@ A spectrogram with linear representation is shown in \rfig{spec-lin}.
     \subfigure[down]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_spec-lin_down0_my}}
     \subfigure[go]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_spec-lin_go0_my}}
   \caption{Spectrogram linear scaled.}
-  \label{fig:spec-lin}
+  \label{fig:signal_spec_lin_examples}
 \end{figure}
 \FloatBarrier
 \noindent
 
 One can see here, that most of the energy of the signal is in the lower frequency regions under 1kHz.
-It is more interesting to go into the log scale, shown in \rfig{spec-log}
+It is more interesting to go into the log scale, shown in \rfig{signal_spec_log_examples}
 
 \begin{figure}[!ht]
   \centering
@@ -55,7 +75,7 @@ It is more interesting to go into the log scale, shown in \rfig{spec-log}
     \subfigure[down]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_spec-log_down0_my}}
     \subfigure[go]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_spec-log_go0_my}}
   \caption{Spectrogram logarithmic scaled.}
-  \label{fig:spec-log}
+  \label{fig:signal_spec_log_examples}
 \end{figure}
 \FloatBarrier
 \noindent

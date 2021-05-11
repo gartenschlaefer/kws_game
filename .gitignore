@@ -1,5 +1,6 @@
 # my stuff
 ignore/
+*.kra~
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

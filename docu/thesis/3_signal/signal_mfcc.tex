@@ -5,6 +5,19 @@
 Most commonly the Mel Frequency Cepstral Coefficients (MFCC) are used as input features for Neural Network classifications tasks of audio data.
 It is described why they are good features and how they can be visualized to understand them better.
 
+\begin{figure}[!ht]
+  \centering
+    \subfigure[left]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_mfcc_left0_my}}
+    \subfigure[right]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_mfcc_right0_my}}
+    \subfigure[up]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_mfcc_up0_my}}
+    \subfigure[down]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_mfcc_down0_my}}
+    \subfigure[go]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_mfcc_go0_my}}
+  \caption{MFCC visualized with frame-based normalization.}
+  \label{fig:signal_mfcc_examples}
+\end{figure}
+\FloatBarrier
+\noindent
+
 \subsection{The Idea behind}
 To comprehend the success and wide use of MFCCs features in Neural Networks and other machine learning applications, it is necessary to understand its processing scheme:
 Raw audio samples are transformed into the frequency domain with the Short-Time Fourier Transform (STFT).

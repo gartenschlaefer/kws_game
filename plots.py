@@ -810,10 +810,9 @@ def plot_textGrid_annotation(anno_file, x=None, hop_space=None, plot_text=False,
       if plot_text: plt.text(s + 0.01, h, l, color=color, fontsize=get_fontsize('anno'))
 
 
-def plot_mfcc_profile(x, fs, N, hop, mfcc, sep_features=True, diff_plot=False, cmap=None, cmap_wav=None, anno_file=None, onsets=None, bon_pos=None, mient=None, minreg=None, frame_size=32, plot_path=None, name='mfcc_profile', enable_plot=True, show_plot=True):
+def plot_mfcc_profile(x, fs, N, hop, mfcc, sep_features=True, diff_plot=False, cmap=None, cmap_wav=None, anno_file=None, onsets=None, bon_pos=None, mient=None, minreg=None, frame_size=32, plot_path=None, name='mfcc_profile', enable_plot=True, close_plot=True, show_plot=True):
   """
   plot mfcc extracted features from audio file
-  mfcc: [m x l]
   """
 
   # to image data
@@ -878,7 +877,8 @@ def plot_mfcc_profile(x, fs, N, hop, mfcc, sep_features=True, diff_plot=False, c
     for onset in frames_to_time(np.array([bon_pos, bon_pos+frame_size]), fs, hop): plt.axvline(x=float(onset), dashes=(3, 2), color=get_colormap_from_context(context='wav-hline'), lw=2)
 
   # layout of time plot
-  ax.set_title('Time Signal of ' + '"' + name + '"', fontsize=get_fontsize('title')), ax.set_ylabel("magnitude", fontsize=get_fontsize('title'))
+  #ax.set_title('Time Signal of ' + '"' + name + '"', fontsize=get_fontsize('title')), ax.set_ylabel("magnitude", fontsize=get_fontsize('title'))
+  ax.set_title('Time Signal', fontsize=get_fontsize('title')), ax.set_ylabel("magnitude", fontsize=get_fontsize('axis_label'))
   ax.set_xlim([0, t[-1]]), ax.grid()
 
   # select mfcc coeffs in arrays
@@ -936,7 +936,10 @@ def plot_mfcc_profile(x, fs, N, hop, mfcc, sep_features=True, diff_plot=False, c
   plt.subplots_adjust(left=0.1, bottom=0.00, right=0.97, top=0.93, wspace=0, hspace=0) if mfcc.shape[0] == 39 and sep_features else plt.subplots_adjust(left=0.1, bottom=0.00, right=0.94, top=0.90, wspace=0, hspace=0) 
 
   # plot and close
-  if plot_path is not None: plt.savefig(plot_path + name + '.png', dpi=150), plt.close()
+  if plot_path is not None: plt.savefig(plot_path + name + '.png', dpi=150)
+
+  # close plot
+  if close_plot: plt.close()
 
   # show plot
   if show_plot: plt.show()
@@ -1076,7 +1079,7 @@ def plot_mel_band_weights(w_f, w_mel, f, m, cmap=None, plot_path=None, name='mel
   ax.plot(f, w_f.T)
 
   # layout
-  plt.ylabel('magnitude'), plt.xlabel('frequency [Hz]'), plt.grid()
+  plt.ylabel('magnitude', fontsize=get_fontsize('axis_label')), plt.xlabel('frequency [Hz]', fontsize=get_fontsize('axis_label')), plt.grid()
 
   # tight plot
   plt.tight_layout()
@@ -1095,7 +1098,7 @@ def plot_mel_band_weights(w_f, w_mel, f, m, cmap=None, plot_path=None, name='mel
   ax.plot(m, w_mel.T)
 
   # layout
-  plt.ylabel('magnitude'), plt.xlabel('mel [mel]'), plt.grid()
+  plt.ylabel('magnitude', fontsize=get_fontsize('axis_label')), plt.xlabel('mel [mel]', fontsize=get_fontsize('axis_label')), plt.grid()
 
   # tight plot
   plt.tight_layout()
