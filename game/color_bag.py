@@ -25,4 +25,7 @@ class ColorBag():
     # mic bar
     self.mic_bar_meter = (210, 100, 20)
 
+    # canvas
+    self.canvas_background = (230, 210, 200)
+
 

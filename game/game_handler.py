@@ -7,7 +7,6 @@ import pygame
 from color_bag import ColorBag
 from interactable import Interactable
 from game_logic import GameLogic
-from text import Text
 from menu import Menu
 
 

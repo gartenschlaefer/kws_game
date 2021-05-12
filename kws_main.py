@@ -79,7 +79,7 @@ if __name__ == '__main__':
       # frame update
       level = game_logic.update()
       level.update()
-      text.update()
+      text.draw()
       screen_capturer.update()
 
       # update display

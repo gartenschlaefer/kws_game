@@ -154,7 +154,7 @@ class BarSprite(pygame.sprite.Sprite):
     self.image.fill(self.color)
 
     # draw the rect
-    pygame.draw.rect(self.image, (100, 0, 100), (5, self.total_length-self.act_length, self.size[0] - 10, self.act_length))
+    pygame.draw.rect(self.image, (100, 0, 100), (5, self.total_length - self.act_length, self.size[0] - 10, self.act_length))
 
 
 

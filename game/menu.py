@@ -10,7 +10,7 @@ from glob import glob
 from color_bag import ColorBag
 from interactable import Interactable
 from game_logic import MenuGameLogic
-from text import Text
+from canvas import Canvas, CanvasMainMenu
 
 
 class Menu(Interactable):
@@ -27,9 +27,8 @@ class Menu(Interactable):
     # colors
     self.color_bag = ColorBag()
 
-    # text
-    self.text = Text(self.screen)
-    self.text.render_small_msg('menu', (0, 0))
+    # canvas
+    self.canvas = Canvas(self.screen)
 
     # game logic
     self.game_logic = MenuGameLogic(self)
@@ -41,13 +40,10 @@ class Menu(Interactable):
     self.click = False
 
     # selection
-    self.sel = 0
+    self.button_select = 0
 
-    # button dict, selection: applications
-    self.button_dict = {0: 'start', 1: 'options', 2: 'exit'}
-
-    # max selection
-    self.max_sel = len(self.button_dict)
+    # button dict, selection: button in canvas
+    self.button_dict = {0: 'start_button', 1: 'help_button', 2: 'end_button'}
 
 
   def button_state_update(self):
@@ -56,19 +52,36 @@ class Menu(Interactable):
     """
 
     # check if clicked
-    if not self.click:
+    if not self.click and self.ud_click:
 
       # up
-      if self.ud_click < 0 and self.sel: self.sel -= 1
+      if self.ud_click < 0 and self.button_select: 
+        self.button_click()
+        self.button_select -= 1
 
       # down
-      elif self.ud_click > 0 and self.sel < self.max_sel: self.sel += 1
+      elif self.ud_click > 0 and self.button_select < len(self.button_dict) - 1: 
+        self.button_click()
+        self.button_select += 1
+
+      # return
+      else: return
 
       # set click
       self.click = True
 
+      # set button click
+      self.button_click()
+
     # reset click
     if self.ud_click == 0: self.click = False
+
+
+  def button_click(self):
+    """
+    button click
+    """
+    pass
 
 
   def button_enter(self):
@@ -76,16 +89,14 @@ class Menu(Interactable):
     button enter
     """
 
-    print("enter button: ", self.sel)
-
     # start game
-    if self.button_dict[self.sel] == 'start': pass
+    if self.button_dict[self.button_select] == 'start_button': pass
 
     # options
-    elif self.button_dict[self.sel] == 'options': pass
+    elif self.button_dict[self.button_select] == 'help_button': pass
 
     # exit
-    elif self.button_dict[self.sel] == 'exit': self.game_logic.run_loop = False
+    elif self.button_dict[self.button_select] == 'end_button': self.game_logic.run_loop = False
 
 
   def update(self):
@@ -93,13 +104,10 @@ class Menu(Interactable):
     update menu
     """
 
-    # fill screen
-    self.screen.fill(self.color_bag.background)
+    # canvas
+    self.canvas.update()
 
-    # text
-    self.text.update()
-
-    # ud click
+    # up down movement
     self.button_state_update()
 
 
@@ -144,20 +152,23 @@ class MainMenu(Menu):
     # Parent init
     super().__init__(cfg_game, screen)
 
-    # button dict, selection: applications
-    self.button_dict = {0: 'start', 1: 'options', 2: 'exit'}
+    # button dict, selection: button in canvas
+    self.button_dict = {0: 'start_button', 1: 'help_button', 2: 'end_button'}
 
-    # max selection
-    self.max_sel = len(self.button_dict)
+    # canvas
+    self.canvas = CanvasMainMenu(self.screen)
 
-    # text
-    self.text.render_small_msg('main menu', (0, 0))
+    # set button active
+    self.canvas.interactables_dict['start_button'].button_press()
 
-    # root for sprites
-    self.button_path = str(pathlib.Path(__file__).parent.absolute()) + "/art/buttons/sprites/"
 
-    # button images
-    self.button_images = [pygame.image.load(s).convert_alpha() for s in glob(self.button_path + '*.png')]
+  def button_click(self):
+    """
+    button click
+    """
+    
+    # change button image
+    self.canvas.interactables_dict[self.button_dict[self.button_select]].button_press()
 
 
   def button_enter(self):
@@ -165,16 +176,14 @@ class MainMenu(Menu):
     button enter
     """
 
-    print("enter button: ", self.sel)
-
     # start game
-    if self.button_dict[self.sel] == 'start': pass
+    if self.button_dict[self.button_select] == 'start_button': pass
 
     # options
-    elif self.button_dict[self.sel] == 'options': pass
+    elif self.button_dict[self.button_select] == 'help_button': pass
 
     # exit
-    elif self.button_dict[self.sel] == 'exit': self.game_logic.run_loop = False
+    elif self.button_dict[self.button_select] == 'end_button': self.game_logic.run_loop = False
 
 
 

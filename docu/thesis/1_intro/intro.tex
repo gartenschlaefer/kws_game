@@ -2,25 +2,30 @@
 % Introduction
 
 \chapter{Introduction}\label{sec:intro}
-Key Word Spotting (KWS) is the task of identifying or classifying spoken words from human speakers out of a limited vocabulary or set of key words. 
-For example it is the task of identify the spoken word \enquote{left} out of the vocabulary \{\enquote{left}, \enquote{right}\}. 
-This problem is solved by humans everyday with not much effort, but it is a real challenge for computer systems.
+Key Word Spotting (KWS) is the recognition task of spoken words by human speakers, with regard to a limited set of key words or simply called vocabulary.
+The limited set of key words is crucial to restrict the complexity of the recognition task, because in most applications it is not necessary to cover all words existing a national language.
+If a vocabulary would be to large, KWS might not be the best approach for finding a solution and it is recommended to explore other ideas such as phoneme recognition and probabilistic models of word occurrences.
 
-The task of KWS is not a new one, it is solved with a variety of different approaches.
-One approach to solve it on a computer system, is to use the advances in Machine Learning, or more specifically in this thesis, the advances in Neural Networks.
+To illustrate KWS consider the task of identifying the spoken word \enquote{left} out of the vocabulary \{\enquote{left}, \enquote{right}\}.
+The vocabulary in this case, contains only two key words and is not really difficult to solve this problem with computer systems.
 
-KWS systems are since long ago no science-fiction anymore. 
-There already exists many real world applications for consumers in everyday situations.
-Slowly Key Word Spotting, or generally speaking speech recognition, become accepted and widely used in the society of human beings.
-%(e.g. \textit{Alexa} from the company \textit{Amazon}).
+However if the amount of key words increases and the problem extends to generalize different speaker characteristics, such as nationality, age or gender, it becomes significantly more difficulty to solve and reduce word to word confusions.
 
-Also video games are a potential application to KWS, for instance to control some elements within the game.
-Until now there not that many game out there with the ability to be controlled by their players voice. 
-It is the aim to get some light into the shadows of the reasons, why it did not become more popular.
+Remarkably Humans are able to solve such problems in a flicker of time and with almost no cognitive effort, but it is a real challenge for machine learning systems such as Neural Networks.
 
+Nowadays KWS systems are considered no science-fiction anymore, assisting consumers in everyday situations, such as doing simple control tasks like triggering the photo release button on a \emph{smartphone} with a single speech command.
+Application like this create more awareness of Key Word Spotting, or generally speaking speech recognition tasks in human society and it is to be believed this is only the peak of the iceberg.
+
+Unfortunately some consumer applications of speech recognition of few big companies leave some bitter aftertastes in collecting user data and a computational inefficient processing pipeline over their renowned servers.
+
+It is therefore important to distance speech recognition from useless data collection and enhance its value in society.
+
+One idea is to create video games with KWS.
+Until now there exist very few video games with this special feature of using players voices to control some elements within the game.
+Reasons for that may depends on the history of video games itself, where players are in a fast paced arcade game, or more likely simply the complexity of KWS.
 
 In summary, the focus of this thesis lies on Key Word Spotting with Neural Networks in supervised learning on a Speech Command Dataset \cite{Warden2018}.
-Further the best suitable solutions of speech commands classification for video games should be presented and evaluated.
+Further the best suitable solutions of speech commands classification for video games are presented and evaluated.
 
 %However unfortunately due to the (usually) large amount of data and complex Neural Network Architectures it is in most cases not tractable, how these systems learn to distinguish between different samples. Nevertheless the technical benefits and their performance made them a standard tool in modern Machine Learning tasks.
 

@@ -105,7 +105,7 @@ if __name__ == '__main__':
     level = game_logic.update()
 
     level.update()
-    text.update()
+    text.draw()
 
     # update display
     pygame.display.flip()

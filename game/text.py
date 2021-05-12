@@ -13,10 +13,12 @@ class Text(Interactable):
   character class
   """
 
-  def __init__(self, screen):
+  def __init__(self, surf):
 
-    # vars
-    self.screen = screen
+    # arguments
+    self.surf = surf
+
+    # colorbag
     self.color_bag = ColorBag()
 
     # init font
@@ -66,19 +68,25 @@ class Text(Interactable):
 
   def update(self):
     """
-    update texts on screen
+    update texts on surface
+    """
+    pass
+
+
+  def draw(self):
+    """
+    draw text
     """
 
-    if self.big_msg is not None:
-      self.screen.blit(self.big_msg, self.big_pos)
+    # draw messages
+    if self.big_msg is not None: self.surf.blit(self.big_msg, self.big_pos)
+    if self.small_msg is not None: self.surf.blit(self.small_msg, self.small_pos)
 
-    if self.small_msg is not None:
-      self.screen.blit(self.small_msg, self.small_pos)
 
 
 if __name__ == '__main__':
   """
-  test character
+  text
   """
 
   import yaml
@@ -119,7 +127,7 @@ if __name__ == '__main__':
     screen.fill(text.color_bag.background)
 
     # text update
-    text.update()
+    text.draw()
 
     # update display
     pygame.display.flip()

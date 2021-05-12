@@ -56,6 +56,12 @@ class Interactable():
     pass
 
 
+  def draw(self):
+    """
+    draw
+    """
+    pass
+
 
 
 
