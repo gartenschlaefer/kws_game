@@ -25,15 +25,20 @@ class ResidualBlock(nn.Module):
     # init
     super(ResidualBlock, self).__init__()
 
-    # conv layer
-    self.conv1 = nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=stride, padding=1, bias=False)
-    self.bn1 = nn.BatchNorm2d(out_channels)
+    # arguments
+    self.in_channels = in_channels
+    self.out_channels = out_channels
+    self.stride = stride
+    self.downsample = downsample
+
+    # 1. conv layer
+    self.conv1 = nn.Conv2d(self.in_channels, self.out_channels, kernel_size=3, stride=self.stride, padding=1, bias=False)
+    self.bn1 = nn.BatchNorm2d(self.out_channels)
     self.relu = nn.ReLU(inplace=True)
 
-    # conv layer
-    self.conv2 = nn.Conv2d(out_channels, out_channels, kernel_size=3, stride=stride, padding=1, bias=False)
-    self.bn2 = nn.BatchNorm2d(out_channels)
-    self.downsample = downsample
+    # 2. conv layer
+    self.conv2 = nn.Conv2d(self.out_channels, self.out_channels, kernel_size=3, stride=1, padding=1, bias=False)
+    self.bn2 = nn.BatchNorm2d(self.out_channels)
 
 
   def forward(self, x):
@@ -41,8 +46,8 @@ class ResidualBlock(nn.Module):
     forward connection
     """
 
-    # save res state
-    residual = x
+    # residual connection
+    residual = self.downsample(x) if self.downsample else x
 
     # res block
     out = self.conv1(x)
@@ -51,10 +56,7 @@ class ResidualBlock(nn.Module):
     out = self.conv2(out)
     out = self.bn2(out)
 
-    # downsample
-    if self.downsample: residual = self.downsample(x)
-
-    # add res
+    # add residual connection
     out += residual
 
     # last output
@@ -69,10 +71,15 @@ class ResNet(nn.Module):
   resnet
   """
 
-  def __init__(self, block, layers, num_classes=10):
+  def __init__(self, res_block, num_block_layers, num_classes=10):
 
     # init parent
     super(ResNet, self).__init__()
+
+    # arguments
+    self.res_block = res_block
+    self.num_block_layers = num_block_layers
+    self.num_classes = num_classes
 
     # in channels
     self.in_channels = 16
@@ -83,9 +90,9 @@ class ResNet(nn.Module):
     self.relu = nn.ReLU(inplace=True)
 
     # res blocks as layers
-    self.layer1 = self.make_layer(block, 16, layers[0])
-    self.layer2 = self.make_layer(block, 32, layers[1], 2)
-    self.layer3 = self.make_layer(block, 64, layers[2], 2)
+    self.layer1 = self.make_layer(out_channels=16, num_layers=self.num_block_layers[0], stride=1)
+    self.layer2 = self.make_layer(out_channels=32, num_layers=self.num_block_layers[1], stride=2)
+    self.layer3 = self.make_layer(out_channels=64, num_layers=self.num_block_layers[2], stride=2)
 
     # average pooling
     self.avg_pool = nn.AvgPool2d(8)
@@ -94,25 +101,23 @@ class ResNet(nn.Module):
     self.fc = nn.Linear(64, num_classes)
 
 
-  def make_layer(self, block, out_channels, blocks, stride=1):
+  def make_layer(self, out_channels, num_layers, stride=1):
     """
     make res blocks, blocks is number of blocks
     """
 
-    # no downsampling
-    downsample = None
-
-    if (stride != 1) or (self.in_channels != out_channels):
-        downsample = nn.Sequential(nn.Conv2d(self.in_channels, out_channels, kernel_size=3, stride=stride, padding=1, bias=False), nn.BatchNorm2d(out_channels))
+    # downsampling
+    downsample = nn.Sequential(nn.Conv2d(self.in_channels, out_channels, kernel_size=3, stride=stride, padding=1, bias=False), nn.BatchNorm2d(out_channels)) if (stride != 1) or (self.in_channels != out_channels) else None
     
     # layers
     layers = []
-    layers.append(block(self.in_channels, out_channels, stride, downsample))
+    layers.append(self.res_block(in_channels=self.in_channels, out_channels=out_channels, stride=stride, downsample=downsample))
 
+    # update in channels
     self.in_channels = out_channels
 
     # append block to layer
-    for i in range(1, blocks): layers.append(block(out_channels, out_channels))
+    for i in range(1, num_layers): layers.append(self.res_block(in_channels=out_channels, out_channels=out_channels, stride=1, downsample=None))
 
     # create sequential
     return nn.Sequential(*layers)
@@ -143,7 +148,6 @@ class ResNet(nn.Module):
 
 
 
-
 def update_lr(optimizer, lr):
   """
   update learning rate
@@ -164,6 +168,7 @@ if __name__ == '__main__':
 
   # Device configuration
   device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+  print("device: ", device)
 
   # Hyper-parameters
   num_epochs = 80
@@ -185,7 +190,7 @@ if __name__ == '__main__':
   # net
 
   # init resnet
-  model = ResNet(ResidualBlock, [2, 2, 2]).to(device)
+  model = ResNet(res_block=ResidualBlock, num_block_layers=[2, 2, 2]).to(device)
 
   # Loss and optimizer
   criterion = nn.CrossEntropyLoss()

@@ -1,10 +1,30 @@
 % --
 % prev history
 
-\section{Historical Remarks on Neural Networks}\label{sec:prev_history}
+\section{Historical Remarks on Neural Networks}\label{sec:prev_nn_history}
 The first step towards computational Neural Networks, as we know them today, was the introduction of the so called \enquote{Perceptron} by Rosenblatt in the year 1958 \cite{Rosenblatt1958}. 
 The idea of the Perceptron emerged from physiologists, trying to model a physiological Neural Network in computational terms. 
 This first model was based on the information processing of the retina (input nodes), which passes through several physiological Neural Networks (hidden nodes) and finally elicit an action or decision (output nodes).
-With his work and implementation in a computer system, Rosenblatt kicked of the domain of computational learning systems and many different computational Neural Network architectures appeared through the time.
+Publishing this work and implementing those ideas in an actual computer system, Rosenblatt kicked of the domain of computational learning systems.
+The race of finding best Neural Network architectures for specific regression or classification tasks had begun.
 
-Another big advance in Neural Network history, was the introduction of a very famous learning algorithm known as \enquote{Backpropagation}, evolved by several authors at the same time \cite{LeCun1986} and \cite{Rumelhart1986} in the late 80s. Even nowadays, 35 years after introducing Backpropagation, it is still the \enquote{de facto} standard in training Neural Networks and implemented in every Machine Learning framework e.g. \texttt{Pytorch} or \texttt{Tensorflow} as core element.
+Another big advance in the history of neural networks, was the introduction of a very famous learning algorithm known as \enquote{Backpropagation}, evolved by several authors at the same time \cite{LeCun1986} and \cite{Rumelhart1986} in the late 80s. 
+Even nowadays, 35 years after introducing Backpropagation, it is still the \emph{de facto} standard in training neural networks.
+Nowadays backpropagation is implemented in every machine learning framework for neural networks as its core element.
+Such frameworks are for instance \texttt{Pytorch} or \texttt{Tensorflow} and of course many others, handling the gradient calculation and backpropagation algorithm in the background.
+
+The Neural Networks reputation during the time until now, was not always seen that splendid.
+The general problem of handling overfitting (prevent networks from learning data samples by heart) and generalize better on unseen data, is still an open issue in many applications.
+Some mathematicians working in the field of statistical methods  in learning theory for pattern recognition, regard neural networks of not meaningful.
+To quote one example from \cite{Vapnik1995} of Vapnik's book in 1995 about natural learning theory:
+
+\begin{quote}
+...In spite of important achievements in some specific applications using neural networks, the theoretical results obtained did not contribute much to general learning theory...
+\end{quote}
+
+This quote is hard, but unfortunately it is true in some sense. 
+The complexity of neural networks make them not tractable in their learning process including a fair amount arbitrariness.
+No concrete formulas, apart from the calculation of gradients, can exactly explain what neural networks are actually learning.
+
+Therefore on one side there were the classical statistical learning methods, the most famous one called Support Vector Machines (SVM) and one the other side there were neural networks.
+
