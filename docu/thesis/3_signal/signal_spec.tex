@@ -10,12 +10,12 @@ The analytic window containing a number of $N$ audio samples, is transformed wit
 \begin{equation}\label{eq:signal_spec_dtft}
     X[k] = \sum_{n=0}^{N-1} x[n] \, e^{-j\frac{2 \pi n}{N}k}
 \end{equation}
-into the frequency space with frequency index $k$, sample index $n$ and discrete audio samples $x[n]$.
+into the frequency space $X \in \C^k$ with frequency index $k$, sample index $n$ and discrete audio samples $x[n]$.
 \req{signal_spec_dtft} can be conveniently written in matrix notation with:
 \begin{equation}\label{eq:signal_spec_dtft_matrix}
     X[k] = D\, x[n] \quad \mathrm{with} 
     \quad D[p, q] = e^{-j\frac{2 \pi p}{N} q},
-    \quad p, q = 0 \dots N-1
+    \quad p, q = 0 \dots N-1.
 \end{equation}
 
 The length of the analytic window in samples $N$ is crucial for the frequency resolution and the lowest frequency that can be represented.
@@ -23,32 +23,36 @@ For example, the periodic time of a sound with $f=\SI{20}{\hertz}$ is $t=\frac{1
 To represent a waveform it is necessary to have at least a quarter of its wavelength captured.
 Within this thesis, the length of the analytic window is selected to \SI{25}{\milli\second}.
 
-The other important parameter is the hop size (in samples) or hop time, by which the analytical window is shifted on the time axis.
+The other important parameter is the \emph{hop size} (in samples) or hop time, by which the analytical window is shifted on the time axis.
 This parameter indicates the resolution in time and is especially important for changes.
 In applications like speech processing, the hop time should be selected so that the fastest pronounced phone is within this time span and that changes to other phones are as well captured with sufficient resolution.
 Usually a hop time of $t_{h}=\SI{10}{\milli\second}$ is chosen (also used within this thesis), but it could be extended like in \cite{Peter2020} to $t_{h}=\SI{20}{\milli\second}$ for saving computations.
 
 With those parameters in mind and $h$ denoted as hop size in samples and $N$ the length of the analytical window, the Short-Time Fourier Transform (STFT) for discrete time signals, can be computed as:
+
+% stft
 \begin{equation}\label{eq:signal_spec_stft}
     X[m, k] = \sum_{n=0}^{N-1} x[n + m] \, w[n] \, e^{-j\frac{2 \pi n}{N}k}, \qquad m = 0 \cdot h, \, 1 \cdot h, \, \dots, \, M \cdot h 
-    %X[m, \omega] = \sum_{n=-\infty}^{\infty} x[n] \, w[n-m] \, e^{-j\omega n}
-    %X[m, k] = \sum_{n=-\infty}^{\infty} x[n] \, w[n-m] \, e^{-j k n}
 \end{equation}
 note that $n$ is here the summation index, $w$ is a window function, such as the \emph{Hanning} window, $m$ indicates the hop index and $M$ is the maximum number of hops.
 The maximum number of hops $M$ are all shifts of the analytic window by the hop size on the discrete time axis and can be computed as:
+
+% hop
 \begin{equation}\label{eq:signal_spec_hop}
   M = \frac{n-N}{h}
 \end{equation}
 where $n$ is here the length of the discrete time signal $x$.
-
-
-
+A summary of the STFT parameters are shown in \rtab{signal_spec_stft}.
 
 % stft params
 \input{./3_signal/tables/tab_signal_spec_stft.tex}
 
+A spectrogram $P \in \R^{m \times k}$ is simply the power spectrum of the STFT signal and is computed with:
 
-
+% spec
+\begin{equation}\label{eq:signal_spec_spec}
+  P[m, k] = \abs{X[m, k]}^2.
+\end{equation}
 A spectrogram with linear representation is shown in \rfig{signal_spec_lin_examples}.
 
 \begin{figure}[!ht]
@@ -64,8 +68,15 @@ A spectrogram with linear representation is shown in \rfig{signal_spec_lin_examp
 \FloatBarrier
 \noindent
 
-One can see here, that most of the energy of the signal is in the lower frequency regions under 1kHz.
-It is more interesting to go into the log scale, shown in \rfig{signal_spec_log_examples}
+One can see here, that most of the energy of the signal is in the lower frequency regions under \SI{1}{\kilo\hertz}.
+It is more interesting to transform the signal into the log scale with:
+
+% log
+\begin{equation}\label{eq:signal_spec_log}
+  P_{DB}[m, k] = 10 \cdot \log{P[m, k]}
+\end{equation}
+so that small energies are visualized much better. 
+The same examples with log scale are shown in \rfig{signal_spec_log_examples}.
 
 \begin{figure}[!ht]
   \centering
@@ -79,3 +90,6 @@ It is more interesting to go into the log scale, shown in \rfig{signal_spec_log_
 \end{figure}
 \FloatBarrier
 \noindent
+
+Now it is possible to see some interesting structures and movements in the spectrograms in the frequency axis over time.
+Still it is possible to improve the visualization of the spoken command words with a better compression scheme, such as the Mel Frequency Cepstral Coefficients, explained in the next section.

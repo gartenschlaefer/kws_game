@@ -10,7 +10,6 @@ import numpy as np
 
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
 
 class ConvBasics():
@@ -102,13 +101,13 @@ class ConvNetTrad(nn.Module, ConvBasics):
     """
 
     # 1. conv layer [1 x 64 x 32 x 13]
-    x = F.relu(self.conv1(x))
+    x = torch.relu(self.conv1(x))
 
     # max pooling layer [1 x 64 x 8 x 13]
     x = self.pool(x)
 
     # 2. conv layer [1 x 64 x 5 x 4]
-    x = F.relu(self.conv2(x))
+    x = torch.relu(self.conv2(x))
 
     # flatten output from 2. conv layer [1 x 1280]
     x = x.view(-1, np.product(x.shape[1:]))
@@ -118,7 +117,7 @@ class ConvNetTrad(nn.Module, ConvBasics):
     x = self.dropout_layer1(x)
 
     # 2. fully connected layers [1 x 128]
-    x = F.relu(self.fc2(x))
+    x = torch.relu(self.fc2(x))
     x = self.dropout_layer2(x)
 
     # Softmax layer [1 x n_classes]
@@ -175,7 +174,7 @@ class ConvNetFstride4(nn.Module, ConvBasics):
     """
 
     # 1. conv layer [1 x 54 x 8 x 1]
-    x = F.relu(self.conv(x))
+    x = torch.relu(self.conv(x))
 
     # flatten output from conv layer [1 x 432]
     x = x.view(-1, np.product(x.shape[1:]))
@@ -185,11 +184,11 @@ class ConvNetFstride4(nn.Module, ConvBasics):
     x = self.dropout_layer1(x)
 
     # 2. fully connected layers [1 x 128]
-    x = F.relu(self.fc2(x))
+    x = torch.relu(self.fc2(x))
     x = self.dropout_layer2(x)
 
     # 3. fully connected layers [1 x 128]
-    x = F.relu(self.fc3(x))
+    x = torch.relu(self.fc3(x))
     x = self.dropout_layer2(x)
 
     # Softmax layer [1 x n_classes]
@@ -239,7 +238,7 @@ class ConvNetExperimental1(nn.Module, ConvBasics):
     """
 
     # 1. conv layer [1 x 54 x 8 x 1]
-    x = F.relu(self.conv(x))
+    x = torch.relu(self.conv(x))
 
     # flatten output from conv layer [1 x 432]
     x = x.view(-1, np.product(x.shape[1:]))
@@ -335,7 +334,7 @@ class ConvNetExperimental2(nn.Module, ConvBasics):
     # convolutional layers
     for conv, r, d in zip(self.conv_layers, self.relu_active, self.dropout_active):
       x = conv(x)
-      if r: x = F.relu(x)
+      if r: x = torch.relu(x)
       if d: x = self.dropout_layer2(x)
 
     #print("x: ", x.shape), adfasdf
@@ -344,7 +343,7 @@ class ConvNetExperimental2(nn.Module, ConvBasics):
 
     # 1. fully connected layers [1 x 32]
     #x = self.fc1(x)
-    #x = F.relu(x)
+    #x = torch.relu(x)
     #x = self.dropout_layer1(x)
 
     # 2. fully connected layer
@@ -514,10 +513,10 @@ class ConvEncoder(nn.Module, ConvEncoderDecoderParams):
     # convolutional layers
     for conv, r in zip(self.conv_layers, self.relu_active):
       x = conv(x)
-      if r: x = F.relu(x)
+      if r: x = torch.relu(x)
 
     # last relu
-    x = F.relu(x)
+    x = torch.relu(x)
 
     # dropout
     #x = self.dropout_layer1(x)
@@ -563,7 +562,7 @@ class ConvDecoder(nn.Module, ConvEncoderDecoderParams):
     # deconvolutional layers
     for deconv, r in zip(self.deconv_layers, self.relu_active):
       x = deconv(x)
-      if r: x = F.relu(x)
+      if r: x = torch.relu(x)
 
     return x
 
@@ -601,11 +600,11 @@ class ClassifierNet(nn.Module):
 
     # # 1. fully connected layer
     # x = self.fc1(x)
-    # x = F.relu(x)
+    # x = torch.relu(x)
 
     # # 2. fully connected layer
     # x = self.fc2(x)
-    # x = F.relu(x)
+    # x = torch.relu(x)
     # #x = self.dropout_layer1(x)
     # x = self.dropout_layer2(x)
 
@@ -661,7 +660,7 @@ class ClassifierNetFc3(nn.Module):
     """
     forward pass
     """
-    return self.softmax(self.fc3(self.dropout_layer(F.relu(self.fc2(F.relu(self.fc1(x)))))))
+    return self.softmax(self.fc3(self.dropout_layer(torch.relu(self.fc2(torch.relu(self.fc1(x)))))))
 
 
 

@@ -1,7 +1,20 @@
 % --
 % training details
 
-\section{Training Details}\label{sec:exp_details}
+\section{Implementation and Training Details}\label{sec:exp_details}
+In this sections, the implementation und parameters for training are is described in more detail.
+
+\subsection{Implementation notes}\label{sec:exp_details_implementation}
+The programming code for this thesis was entirely done in \texttt{Python} with version $>3.8$ evaluated on a linux system.
+This might be important if one tries to run the python code on a windows machine, it was not tested for it and could yield in errors (especially regarding paths variables).
+For the neural networks implementation and training, the framework \texttt{Pytorch} with version $1.7.0$ was used. 
+Usually it should not be a problem if a newer version of \texttt{Pytorch} is applied.
+The feature extraction with Mel Frequency Cepstral Coefficients (MFCC) was done with an own implementation, but using efficients functions for transforms functions, such as the short time fourier transform, with packages from \texttt{scipy}.
+Matrix computations usually are done with the package \texttt{numpy}.
+Several other \texttt{Python} packages were used within the project, but are not named explicitly.
+
+
+\subsection{Neural Network Training Details}\label{sec:exp_details_training}
 We can separate the training details into following parameters to select from:
 \begin{enumerate}
   \item Features extraction parameters

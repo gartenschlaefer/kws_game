@@ -7,7 +7,6 @@ import matplotlib.pyplot as plt
 
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
 
 class ConvNetCifar(nn.Module):
@@ -16,9 +15,6 @@ class ConvNetCifar(nn.Module):
   """
 
   def __init__(self):
-    """
-    define network architecture
-    """
 
     super().__init__()
     self.conv1 = nn.Conv2d(3, 6, 5)
@@ -28,15 +24,16 @@ class ConvNetCifar(nn.Module):
     self.fc2 = nn.Linear(120, 84)
     self.fc3 = nn.Linear(84, 10)
 
+
   def forward(self, x):
     """
     forward pass
     """
-    x = self.pool(F.relu(self.conv1(x)))
-    x = self.pool(F.relu(self.conv2(x)))
+    x = self.pool(torch.relu(self.conv1(x)))
+    x = self.pool(torch.relu(self.conv2(x)))
     x = x.view(-1, 16 * 5 * 5)
-    x = F.relu(self.fc1(x))
-    x = F.relu(self.fc2(x))
+    x = torch.relu(self.fc1(x))
+    x = torch.relu(self.fc2(x))
     x = self.fc3(x)
     return x
 
@@ -75,17 +72,17 @@ class ConvNetTutorial(nn.Module):
     """
 
     # max pooling of 1. conv layer
-    x = F.max_pool2d( F.relu(self.conv1(x)), kernel_size=(2, 2) )
+    x = torch.max_pool2d( torch.relu(self.conv1(x)), kernel_size=(2, 2) )
 
     # max pooling of 2. conv layer
-    x = F.max_pool2d( F.relu(self.conv2(x)), kernel_size=(2, 2) )
+    x = torch.max_pool2d( torch.relu(self.conv2(x)), kernel_size=(2, 2) )
 
     # flatten output from 2. conv layer
     x = x.view(-1, np.product(x.shape[1:]))
 
     # fully connected layers
-    x = F.relu(self.fc1(x))
-    x = F.relu(self.fc2(x))
+    x = torch.relu(self.fc1(x))
+    x = torch.relu(self.fc2(x))
 
     # final fully connected layer
     x = self.fc3(x)

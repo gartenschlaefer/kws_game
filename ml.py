@@ -270,8 +270,8 @@ class ML():
     d_c1 = [torch.load(d)['conv_encoder.conv_layers.0.weight'] for d in d_model_files]
 
     # plot models
-    for i, x in enumerate(g_d1): plot_grid_images(x, context='weight0', num_cols=8, color_balance=True, title='', plot_path=self.model_path_folders['train_collections'], name='g' + str(i))
-    for i, x in enumerate(d_c1): plot_grid_images(x, context='weight0', num_cols=8, color_balance=True, title='', plot_path=self.model_path_folders['train_collections'], name='d' + str(i))
+    for i, x in enumerate(g_d1): plot_grid_images(x.cpu(), context='weight0', num_cols=8, color_balance=True, title='', plot_path=self.model_path_folders['train_collections'], name='g' + str(i))
+    for i, x in enumerate(d_c1): plot_grid_images(x.cpu(), context='weight0', num_cols=8, color_balance=True, title='', plot_path=self.model_path_folders['train_collections'], name='d' + str(i))
 
 
   def create_anim(self):

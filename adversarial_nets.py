@@ -8,7 +8,6 @@ import numpy as np
 
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
 from conv_nets import ConvBasics, ConvEncoder, ConvDecoder
 
@@ -68,9 +67,6 @@ class G_experimental(nn.Module, AdvBasics):
 
     self.fc1 = nn.Linear(self.n_latent, np.prod(self.conv_decoder.conv_in_dim))
 
-    # last layer activation
-    self.sigm = nn.Sigmoid()
-
     # init weights
     self.apply(self.weights_init)
 
@@ -82,7 +78,7 @@ class G_experimental(nn.Module, AdvBasics):
 
     # # fully connected layers
     # x = self.fc1(x)
-    # x = F.relu(self.fc2(x))
+    # x = torch.relu(self.fc2(x))
     
     x = self.fc1(x)
 
@@ -93,7 +89,7 @@ class G_experimental(nn.Module, AdvBasics):
     x = self.conv_decoder(x)
 
     # last layer activation
-    x = self.sigm(x)
+    x = torch.sigmoid(x)
 
     return x
 

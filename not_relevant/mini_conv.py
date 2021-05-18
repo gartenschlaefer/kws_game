@@ -8,7 +8,6 @@ import matplotlib.image
 
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
 import sys
 from glob import glob
@@ -82,7 +81,7 @@ class ConvPixelCharacters(nn.Module, ConvBasics):
     # convolutional layers
     for conv, r in zip(self.conv_layers, self.relu_active):
       x = conv(x)
-      if r: x = F.relu(x)
+      if r: x = torch.relu(x)
 
     # flatten output from conv layer
     x = x.view(-1, np.product(x.shape[1:]))
