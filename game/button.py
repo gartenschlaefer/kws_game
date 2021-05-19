@@ -76,7 +76,7 @@ class Button(Interactable):
 
 class StartButton(Button):
   """
-  start Button
+  start button
   """
 
   def __init__(self, surf, position=(0, 0), scale=1):
@@ -97,7 +97,7 @@ class StartButton(Button):
 
 class EndButton(Button):
   """
-  start Button
+  end button
   """
 
   def __init__(self, surf, position=(0, 0), scale=1):
@@ -118,7 +118,7 @@ class EndButton(Button):
 
 class HelpButton(Button):
   """
-  start Button
+  help button
   """
 
   def __init__(self, surf, position=(0, 0), scale=1):
@@ -131,6 +131,27 @@ class HelpButton(Button):
 
     # change image
     self.button_images = [pygame.image.load(s).convert_alpha() for s in glob(self.button_path + 'help_button_*.png')]
+
+    # init buttons
+    self.button_images_init()
+
+
+
+class OptionButton(Button):
+  """
+  option button
+  """
+
+  def __init__(self, surf, position=(0, 0), scale=1):
+
+    # init parents
+    super().__init__(surf, position, scale)
+
+    # root for images
+    self.button_path = str(pathlib.Path(__file__).parent.absolute()) + "/art/buttons/"
+
+    # change image
+    self.button_images = [pygame.image.load(s).convert_alpha() for s in glob(self.button_path + 'option_button_*.png')]
 
     # init buttons
     self.button_images_init()
@@ -161,8 +182,9 @@ if __name__ == '__main__':
 
   # button
   button_start = StartButton(screen, position=(100, 100), scale=(4, 4))
-  button_end = EndButton(screen, position=(100, 200), scale=(4, 4))
-  button_help = HelpButton(screen, position=(100, 300), scale=(4, 4))
+  button_help = HelpButton(screen, position=(100, 200), scale=(4, 4))
+  button_option = OptionButton(screen, position=(100, 300), scale=(4, 4))
+  button_end = EndButton(screen, position=(100, 400), scale=(4, 4))
   
   # press state
   button_start.button_press()
@@ -190,6 +212,7 @@ if __name__ == '__main__':
     button_start.draw()
     button_end.draw()
     button_help.draw()
+    button_option.draw()
 
     # update display
     pygame.display.flip()

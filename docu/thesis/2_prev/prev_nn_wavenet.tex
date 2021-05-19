@@ -1,10 +1,7 @@
 % --
-% neural networks for speech processing
+% prev wavenet
 
-\section{Neural Networks for Speech Recognition}\label{sec:prev_nn_speech}
-Neural Network for speech processing exist in many different architectures types.
-Commoly used are Recurrent Neural Networks (RNN) designed to capture sequential data.
-This is done by enroling the network over time...
+\subsection{Wavenets}\label{sec:prev_nn_wavenet}
 
 Recently solutions emerged with the processing of raw audio samples, such as \emph{Wavenets} \cite{Oord2016}.
 The problem of raw audio processing was that the amount of input features for the so-called receptive field, was far too high, consider a \SI{1}{\second} audio file with a sampling rate of \SI{16}{\kilo\hertz} are 16000 samples to process.
@@ -14,5 +11,3 @@ Plus wavenets more efficients than RNNs, here a quote from \cite{Oord2016}:
   %Recurrent neural networks such as LSTM-RNNs (Hochreiter & Schmidhuber, 1997) have been a key component in these new speech classification pipelines, because they allow for building models with long range contexts. 
   ...With WaveNets we have shown that layers of dilated convolutions allow the receptive field to grow longer in a much cheaper way than using LSTM units...
 \end{quote}
-
-Speech recognition seems to tend to go away from classical RNN solutions.

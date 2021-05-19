@@ -168,6 +168,9 @@ class MenuGameLogic(GameLogic):
     # arguments
     self.menu = menu
 
+    # exit with escape key
+    self.esc_key_exit = False
+
 
   def direction_change(self, direction):
     """
@@ -187,3 +190,24 @@ class MenuGameLogic(GameLogic):
     """
     
     self.menu.button_enter()
+
+
+  def esc_key(self):
+    """
+    if esc is pressed
+    """
+
+    # end loop
+    self.run_loop = False
+
+    # end with escape key pressed
+    self.esc_key_exit = True
+
+
+  def reset(self):
+    """
+    reset
+    """
+
+    # reset vars
+    self.run_loop, self.esc_key_exit = True, False

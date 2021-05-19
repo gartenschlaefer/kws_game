@@ -1,0 +1,15 @@
+% --
+% prev recurrent neural networks
+
+\subsection{Recurrent Neural Networks}\label{sec:prev_nn_rnn}
+Recurrent Neural Networks (RNN) are a type of neural networks, that use a feedback loop of their output over time.
+It is therefore possible to store relevant input information over a fixed time span.
+The neural network architecture can then be seen as unrolled over time.
+However this unrolling multiplies the per time instance network architecture for each additional time instance,
+which easily becomes a huge network.
+Also RNNs are known to be hard to train because of exploding or vanishing gradients.
+This problem can be solve with using so called Long Short Time Memory (LSTM) neural networks incorporating gates for the information storage in each cell. However the LSTM cell also increases the amount of parameters to be trained.
+Through their design to capture sequential data, Recurrent Neural Networks are commonly used in speech recognition tasks.
+However they are not regarded in this thesis because of being to cost intensive for a video game deployment.
+The interested reader might read a good comprehension in \cite{Staudenmeyer2019}.
+

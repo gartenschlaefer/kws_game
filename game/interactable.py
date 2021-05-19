@@ -16,35 +16,35 @@ class Interactable():
 
   def action_key(self):
     """
-    if action key is pressed
+    action key pressed
     """
     pass
 
 
   def enter_key(self):
     """
-    if enter key is pressed
+    enter key pressed
     """
     pass
 
 
   def esc_key(self):
     """
-    if esc key is pressed
+    esc key pressed
     """
     pass
 
 
   def reset(self):
     """
-    reset stuff
+    reset
     """
     pass
     
 
   def event_update(self, event):
     """
-    update
+    event update
     """
     pass
 

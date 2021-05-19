@@ -10,7 +10,7 @@ from glob import glob
 from color_bag import ColorBag
 from interactable import Interactable
 from game_logic import MenuGameLogic
-from canvas import Canvas, CanvasMainMenu
+from canvas import Canvas, CanvasMainMenu, CanvasHelpMenu, CanvasOptionMenu
 
 
 class Menu(Interactable):
@@ -54,7 +54,7 @@ class Menu(Interactable):
     # check if clicked
     if not self.click and self.ud_click:
 
-      # up
+      # deselect buttons
       if self.ud_click < 0 and self.button_select: 
         self.button_click()
         self.button_select -= 1
@@ -70,7 +70,7 @@ class Menu(Interactable):
       # set click
       self.click = True
 
-      # set button click
+      # select buttons
       self.button_click()
 
     # reset click
@@ -81,7 +81,12 @@ class Menu(Interactable):
     """
     button click
     """
-    pass
+
+    # change button image
+    try:
+      self.canvas.interactables_dict[self.button_dict[self.button_select]].button_press()
+    except:
+      print("button not available in canvas: ", self.button_dict[self.button_select])
 
 
   def button_enter(self):
@@ -89,14 +94,17 @@ class Menu(Interactable):
     button enter
     """
 
-    # start game
-    if self.button_dict[self.button_select] == 'start_button': pass
+    # end game loop (remembers last button state)
+    self.game_logic.run_loop = False
 
-    # options
-    elif self.button_dict[self.button_select] == 'help_button': pass
 
-    # exit
-    elif self.button_dict[self.button_select] == 'end_button': self.game_logic.run_loop = False
+  def reset(self):
+    """
+    reset menu
+    """
+
+    # reset run loop
+    self.game_logic.reset()
 
 
   def update(self):
@@ -119,9 +127,6 @@ class Menu(Interactable):
     # add clock
     clock = pygame.time.Clock()
 
-    # next loop
-    next_loop = 'exit'
-
     # game loop
     while self.game_logic.run_loop:
       for event in pygame.event.get():
@@ -138,7 +143,13 @@ class Menu(Interactable):
       # reduce framerate
       clock.tick(self.cfg_game['fps'])
 
-    return next_loop
+    # action at ending loop
+    action = self.button_dict[self.button_select] if not self.game_logic.esc_key_exit else 'exit'
+
+    # reset game logic
+    self.game_logic.reset()
+
+    return action
 
 
 
@@ -153,7 +164,7 @@ class MainMenu(Menu):
     super().__init__(cfg_game, screen)
 
     # button dict, selection: button in canvas
-    self.button_dict = {0: 'start_button', 1: 'help_button', 2: 'end_button'}
+    self.button_dict = {0: 'start_button', 1: 'help_button', 2: 'option_button', 3: 'end_button'}
 
     # canvas
     self.canvas = CanvasMainMenu(self.screen)
@@ -162,28 +173,46 @@ class MainMenu(Menu):
     self.canvas.interactables_dict['start_button'].button_press()
 
 
-  def button_click(self):
-    """
-    button click
-    """
-    
-    # change button image
-    self.canvas.interactables_dict[self.button_dict[self.button_select]].button_press()
+
+class HelpMenu(Menu):
+  """
+  main menu
+  """
+
+  def __init__(self, cfg_game, screen):
+
+    # Parent init
+    super().__init__(cfg_game, screen)
+
+    # button dict, selection: button in canvas
+    self.button_dict = {0: 'end_button'}
+
+    # canvas
+    self.canvas = CanvasHelpMenu(self.screen)
+
+    # set button active
+    self.canvas.interactables_dict['end_button'].button_press()
 
 
-  def button_enter(self):
-    """
-    button enter
-    """
 
-    # start game
-    if self.button_dict[self.button_select] == 'start_button': pass
+class OptionMenu(Menu):
+  """
+  main menu
+  """
 
-    # options
-    elif self.button_dict[self.button_select] == 'help_button': pass
+  def __init__(self, cfg_game, screen):
 
-    # exit
-    elif self.button_dict[self.button_select] == 'end_button': self.game_logic.run_loop = False
+    # Parent init
+    super().__init__(cfg_game, screen)
+
+    # button dict, selection: button in canvas
+    self.button_dict = {0: 'end_button'}
+
+    # canvas
+    self.canvas = CanvasOptionMenu(self.screen)
+
+    # set button active
+    self.canvas.interactables_dict['end_button'].button_press()
 
 
 
@@ -205,7 +234,10 @@ if __name__ == '__main__':
   screen = pygame.display.set_mode(cfg['game']['screen_size'])
 
   # menu
+  #menu = Menu(cfg['game'], screen)
   menu = MainMenu(cfg['game'], screen)
+  #menu = HelpMenu(cfg['game'], screen)
+  #menu = OptionMenu(cfg['game'], screen)
 
   # run menu loop
   menu.menu_loop()
