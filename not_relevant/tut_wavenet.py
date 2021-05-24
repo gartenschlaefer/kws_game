@@ -1,187 +1,101 @@
 """
-wavenets
+wavenet tutorials
 """
 
+import numpy as np
 import torch
-import torch.nn as nn
+
+# append paths
+import sys
+sys.path.append("../")
+from wavenet import Wavenet
 
 
-class WavenetResBlock(nn.Module):
+def wavenet_training(wavenet, x_train, y_train, class_dict, num_epochs=10, lr=0.0001):
   """
-  wavenet residual block
-  """
-
-  def __init__(self, in_channels, out_channels, skip_channels=16, dilation=1):
-
-    # parent init
-    super().__init__()
-
-    # arguments
-    self.in_channels = in_channels
-    self.out_channels = out_channels
-    self.skip_channels = skip_channels
-    self.dilation = dilation
-
-    # dilated convolution filter and gate
-    self.conv_filter = nn.Conv1d(self.in_channels, self.out_channels, kernel_size=2, stride=1, padding=0, dilation=self.dilation, groups=1, bias=False, padding_mode='zeros')
-    self.conv_gate = nn.Conv1d(self.in_channels, self.out_channels, kernel_size=2, stride=1, padding=0, dilation=self.dilation, groups=1, bias=False, padding_mode='zeros')
-
-    # 1 x 1 convolution for skip connection
-    self.conv_skip = nn.Conv1d(self.out_channels, out_channels=self.skip_channels, kernel_size=2, stride=1, padding=0, dilation=1, groups=1, bias=False, padding_mode='zeros')
-    
-
-  def forward(self, x):
-    """
-    forward connection
-    """
-
-    #print("x: ", x.shape)
-
-    # input length
-    input_len = x.shape[-1]
-
-    # residual connection
-    residual = x
-
-    # zero padding from left
-    x = torch.nn.functional.pad(x, (self.dilation, 0), 'constant', 0)
-    #print("x1: ", x.shape)
-
-    # 1. conv layers
-    o_f = torch.tanh(self.conv_filter(x))
-    o_g = torch.sigmoid(self.conv_gate(x))
-
-    # element-wise multiplication
-    o = o_f * o_g
-    #print("o1: ", o.shape)
-
-    # padding for skip connection
-    o = torch.nn.functional.pad(o, (1, 0), 'constant', 0)
-    #print("o2: ", o.shape)
-
-    # skip connection
-    skip = self.conv_skip(o)
-    o = self.conv_skip(o)
-
-    #print("o3: ", o.shape)
-
-    # # keep input size
-    # if o.shape[-1] > input_len:
-    #   o = o[:, :, :-1]
-    #   skip = skip[:, :, :-1]
-    # print("o3: ", o.shape)
-    #print("r: ", residual.shape)
-
-    # add residual
-    o += residual
-
-
-
-    return o, skip
-
-
-
-class Wavenet(nn.Module):
-  """
-  wavenet class
-  receptive field: 2^n_layers
+  wavenet training
   """
 
-  def __init__(self):
+  # dataseize
+  data_size = x_train.shape[1:]
 
-    # parent init
-    super().__init__()
+  # cpu
+  use_cpu = True
 
-    self.in_channels = 1
-    self.out_channels = 16
-    self.skip_channels = 16
+  # vars
+  n_classes = len(class_dict)
+  num_print_per_epoch = 2
 
-    # layers of wavenet blocks
-    self.n_layers = 8
+  # set device
+  device = torch.device("cuda:0" if (torch.cuda.is_available() and not use_cpu) else "cpu")
 
-    # wavenet_layers
-    self.wavenet_layers = torch.nn.ModuleList()
+  # criterion
+  criterion = torch.nn.CrossEntropyLoss()
 
-    # first block
-    self.wavenet_layers.append(WavenetResBlock(self.in_channels, self.out_channels, skip_channels=self.skip_channels, dilation=1))
-
-    # append further blocks
-    for i in range(1, self.n_layers): self.wavenet_layers.append(WavenetResBlock(self.out_channels, self.out_channels, skip_channels=self.skip_channels, dilation=2**i))
-
-    # # wavenet block 1
-    # self.wavenet_block1 = WavenetResBlock(self.in_channels, self.out_channels, skip_channels=self.skip_channels, dilation=1)
-    
-    # # wavenet block 2
-    # self.wavenet_block2 = WavenetResBlock(self.out_channels, self.out_channels, skip_channels=self.skip_channels, dilation=2)
-
-    # # wavenet block 3
-    # self.wavenet_block3 = WavenetResBlock(self.out_channels, self.out_channels, skip_channels=self.skip_channels, dilation=4)
-
-    # # wavenet block 4
-    # self.wavenet_block4 = WavenetResBlock(self.out_channels, self.out_channels, skip_channels=self.skip_channels, dilation=8)
-
-    # conv layer post
-    self.conv_post1 = nn.Conv1d(in_channels=self.skip_channels, out_channels=16, kernel_size=1, stride=1, padding=0, dilation=1, groups=1, bias=False, padding_mode='zeros')
-    self.conv_post2 = nn.Conv1d(in_channels=16, out_channels=1, kernel_size=1, stride=1, padding=0, dilation=1, groups=1, bias=False, padding_mode='zeros')
+  # optimizer
+  optimizer = torch.optim.Adam(wavenet.parameters(), lr=lr)
 
 
-  def forward(self, x):
-    """
-    forward connection
-    """
+  print("\n--Training starts:")
 
-    print("x: ", x.shape)
+  batch_loss = 0
+  k_print = 1
 
-    # init o
-    o = x
+  # epochs
+  for epoch in range(num_epochs):
 
-    # init skips
-    skips = torch.zeros(x.shape[0], self.skip_channels, x.shape[-1])
+    # fetch data samples
+    for i, (x, y) in enumerate(zip(x_train.to(device), y_train.to(device))):
 
-    # wavenet layers
-    for wavenet_layer in self.wavenet_layers: 
+      # target
+      t = x
 
-      # wavenet layer
-      o, skip = wavenet_layer(o)
+      # print("x: ", x)
+      # print("x: ", x.shape)
 
-      # add skips
-      skips += skip
+      # zero parameter gradients
+      optimizer.zero_grad()
 
-    # relu of summed skip
-    x = torch.relu(skips)
+      # forward pass o: [b x c x samples]
+      o = wavenet(x)
 
-    # conv layers post
-    x = torch.relu(self.conv_post1(x))
-    x = self.conv_post2(x)
+      # print("o1: ", o)
+      # print("o1: ", o.shape)
 
-    # softmax
-    x = self.mu_softmax(x, mu=256)
+      # reshape
+      o = o.view((-1, o.shape[1]))
+      t = t.view(-1)
 
-    return x
+      # print("o2: ", o)
+      # print("o2: ", o.shape)
 
+      # quantize data
+      t = wavenet.quantize(t, n_classes=256)
 
-  def mu_softmax(self, x, mu=256):
-    """
-    mu softmax function
-    """
+      # print("t: ", t)
+      # print("t: ", t.shape)
 
-    #print("x: ", x)
-    #x = x / torch.max(torch.abs(x))
-    #print("x norm: ", x)
+      # loss
+      loss = criterion(o, t)
 
-    x = torch.sign(x) * torch.log(1 + mu * torch.abs(x)) / torch.log(1 + torch.ones(x.shape) * mu)
-    #print("x: ", x)
+      # backward
+      loss.backward()
 
-    return x
+      # optimizer step - update params
+      optimizer.step()
 
+      # batch loss
+      batch_loss += loss.item()
 
-  def count_params(self):
-    """
-    params count
-    """
+      # print loss
+      if i % k_print == k_print-1:
 
-    # count
-    return [p.numel() for p in self.parameters() if p.requires_grad]
+        # print info
+        print('epoch: {}, mini-batch: {}, loss: [{:.5f}]'.format(epoch + 1, i + 1, batch_loss / k_print))
+        batch_loss = 0
+
+  print('--Training finished')
+
 
 
 if __name__ == '__main__':
@@ -189,18 +103,21 @@ if __name__ == '__main__':
   main
   """
 
-  # input
-  x = torch.randn(1, 1, 16000)
+  # input [num x batch x channel x time]
+  x_train = torch.randn(1, 1, 1, 16000)
+  y_train = torch.randint(0, 2, (1, 1, 16000))
+
+  class_dict = {'a':0, 'b':1}
 
   # norm
-  x = x / torch.max(torch.abs(x))
+  x_train = x_train / torch.max(torch.abs(x_train))
 
   # wavenet
   wavenet = Wavenet()
   print("wavenet: ", wavenet)
 
-  # next sample
-  y = wavenet(x)
+  # wavenet training
+  wavenet_training(wavenet, x_train, y_train, class_dict, num_epochs=10, lr=0.001)
 
   # count params
   layer_params = wavenet.count_params()

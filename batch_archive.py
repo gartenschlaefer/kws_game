@@ -448,7 +448,7 @@ class SpeechCommandsBatchArchive(BatchArchive):
 
   def create_batches(self, data, batch_size=1):
     """
-    create batches for training  x [b x n x c x m x f]
+    create batches for training [n x c x m x f] -> [m x b x c x m x f]
     """
 
     # extract data
