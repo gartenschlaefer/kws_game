@@ -508,7 +508,7 @@ def plot_damaged_file_score(z, plot_path=None, name='z_score', enable_plot=False
     plt.close()
 
 
-def plot_waveform(x, fs, e=None, anno_file=None, hop=None, onset_frames=None, y_ax_balance=True, cmap=None, context='wav', title='', xlim=None, ylim=None, plot_path=None, name='None', show_plot=False):
+def plot_waveform(x, fs, e=None, anno_file=None, bon_samples=None, hop=None, onset_frames=None, y_ax_balance=True, cmap=None, title='', xlim=None, ylim=None, plot_path=None, name='None', show_plot=False, close_plot=False):
   """
   just a simple waveform
   """
@@ -523,7 +523,7 @@ def plot_waveform(x, fs, e=None, anno_file=None, hop=None, onset_frames=None, y_
   ax = plt.axes()
 
   # get cmap
-  if cmap is None: cmap = get_colormap_from_context(context=context)
+  if cmap is None: cmap = get_colormap_from_context(context='wav')
   if cmap is not None: ax.set_prop_cycle('color', cmap)
 
   # plot signal
@@ -534,8 +534,10 @@ def plot_waveform(x, fs, e=None, anno_file=None, hop=None, onset_frames=None, y_
 
   # draw onsets
   if onset_frames is not None:
-    for onset in frames_to_time(onset_frames, fs, hop):
-      plt.axvline(x=float(onset), dashes=(5, 1), color='k')
+    for onset in frames_to_time(onset_frames, fs, hop): plt.axvline(x=float(onset), dashes=(5, 1), color='k')
+
+  if bon_samples is not None:
+    for bon_sample in bon_samples: plt.axvline(x=float(bon_sample)/fs, dashes=(5, 1), color=get_colormap_from_context(context='wav-hline'))
 
   # lims
   if xlim is not None: plt.xlim(xlim)
@@ -563,12 +565,10 @@ def plot_waveform(x, fs, e=None, anno_file=None, hop=None, onset_frames=None, y_
   # tight plot
   plt.tight_layout()
 
-  # plot the fig
-  if plot_path is not None:
-    plt.savefig(plot_path + name + '.png', dpi=150)
-    plt.close()
-
+  # plot, show and close
+  if plot_path is not None: plt.savefig(plot_path + name + '.png', dpi=150)
   if show_plot: plt.show()
+  if close_plot: plt.close()
 
   return fig
 

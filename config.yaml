@@ -52,6 +52,7 @@ datasets:
     plot_paths:
       mfcc: ignore/dataset/plots/mfcc/
       z_score: ignore/dataset/plots/z_score/
+      waveform: ignore/dataset/plots/waveform/
       examples_grid: ignore/dataset/plots/
       damaged_files: ignore/dataset/damaged_files/
 
@@ -79,7 +80,8 @@ datasets:
     #n_examples: 2000
 
     # file name for saved feature files
-    feature_file_name: mfcc_data
+    mfcc_feature_file_name: mfcc_data
+    raw_feature_file_name: raw_data
 
     # filter damaged files
     filter_damaged_files: False
@@ -140,7 +142,8 @@ datasets:
     n_examples: 5
 
     # file name for saved feature files
-    feature_file_name: mfcc_data_my
+    mfcc_feature_file_name: mfcc_data_my
+    raw_feature_file_name: raw_data_my
 
     # filter damaged files
     filter_damaged_files: False
@@ -149,27 +152,31 @@ datasets:
 # feature params for dataset extraction
 feature_params:
 
+  # mfcc_features or raw samples
+  use_mfcc_features: False
+
   # sampling rate
   fs: 16000
 
-  # window and hop size [sec]
+  # window and hop size in seconds
   N_s: 0.025
   hop_s: 0.010
 
-  # number of filter bands and cepstral coeffs
-  n_filter_bands: 32
-  n_ceps_coeff: 12
+  # time size in seconds
+  frame_size_s: 0.5
 
   # frame size of output features -> input to nn
   #frame_size: 32
   frame_size: 50
 
+  # number of filter bands and cepstral coeffs for mfcc
+  n_filter_bands: 32
+  n_ceps_coeff: 12
+
   # normalized features -> [0, 1] over frames
   norm_features: True
 
-  # old ones do not use anymore
-  #compute_deltas: True
-  #compute_energy_features: True
+  # old ones do not use anymore: #compute_deltas: True #compute_energy_features: True
 
   # use deltas as own channels
   use_channels: False
@@ -223,10 +230,10 @@ ml:
     #batch_size: 512
 
     # number of epochs
-    num_epochs: 500
+    num_epochs: 25
 
     # learning rate
-    lr: 0.00005
+    lr: 0.001
 
     # momentum
     beta: 0.5
@@ -277,7 +284,7 @@ ml:
   # choose architecture
   #nn_arch: conv-experimental
   #nn_arch: adv-experimental
-  nn_arch: adv-experimental3
+  #nn_arch: adv-experimental3
   #nn_arch: conv-fstride
   #nn_arch: conv-trad
   #nn_arch: conv-encoder
@@ -285,6 +292,7 @@ ml:
   #nn_arch: conv-encoder-fc3
   #nn_arch: conv-lim-encoder
   #nn_arch: conv-latent
+  nn_arch: wavenet
 
   # logging enable
   logging_enabled: True

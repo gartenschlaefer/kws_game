@@ -10,6 +10,7 @@ import soundfile
 
 from glob import glob
 from shutil import copyfile
+from skimage.util.shape import view_as_windows
 
 # my stuff
 from feature_extraction import FeatureExtractor, calc_onsets
@@ -32,11 +33,17 @@ class AudioDataset():
     self.root_path = root_path
 
     # channel size
-    self.channel_size = 1 if not self.feature_params['use_channels'] else int(self.feature_params['use_cepstral_features']) + int(self.feature_params['use_delta_features']) +  int(self.feature_params['use_double_delta_features'])
+    self.channel_size = 1 if not self.feature_params['use_channels'] or not self.feature_params['use_mfcc_features'] else int(self.feature_params['use_cepstral_features']) + int(self.feature_params['use_delta_features']) +  int(self.feature_params['use_double_delta_features'])
 
     # feature size
     self.feature_size = (self.feature_params['n_ceps_coeff'] + int(self.feature_params['use_energy_features'])) * int(self.feature_params['use_cepstral_features']) + (self.feature_params['n_ceps_coeff'] + int(self.feature_params['use_energy_features'])) * int(self.feature_params['use_delta_features']) + (self.feature_params['n_ceps_coeff'] + int(self.feature_params['use_energy_features'])) * int(self.feature_params['use_double_delta_features']) if not self.feature_params['use_channels'] else (self.feature_params['n_ceps_coeff'] + int(self.feature_params['use_energy_features']))
     
+    # frame size
+    self.frame_size = self.feature_params['frame_size']
+
+    # raw frame size for raw inputs in samples
+    self.raw_frame_size = int(self.feature_params['frame_size_s'] * self.feature_params['fs'])
+
     # variables
     self.labels = self.dataset_cfg['sel_labels']
     self.set_names = []
@@ -50,8 +57,10 @@ class AudioDataset():
     self.plot_paths = dict((k, self.root_path + v) for k, v in self.dataset_cfg['plot_paths'].items())
 
     # parameter path
-    #self.param_path = 'v{}_c-{}_n-{}_f-{}x{}_n{}d{}e{}_nl-{}/'.format(self.dataset_cfg['version_nr'], len(self.labels), self.dataset_cfg['n_examples'], self.feature_size, self.feature_params['frame_size'], int(self.feature_params['norm_features']), int(self.feature_params['compute_deltas']), int(self.feature_params['compute_energy_features']), int(self.dataset_cfg['add_noise']))
-    self.param_path = 'v{}_c-{}_n-{}_f-{}x{}x{}_norm{}_c{}d{}d{}e{}_nl{}/'.format(self.dataset_cfg['version_nr'], len(self.labels), self.dataset_cfg['n_examples'], self.channel_size, self.feature_size, self.feature_params['frame_size'], int(self.feature_params['norm_features']), int(self.feature_params['use_cepstral_features']), int(self.feature_params['use_delta_features']), int(self.feature_params['use_double_delta_features']), int(self.feature_params['use_energy_features']), int(self.dataset_cfg['add_noise']))
+    #self.param_path = 'v{}_c-{}_n-{}_f-{}x{}_n{}d{}e{}_nl-{}/'.format(self.dataset_cfg['version_nr'], len(self.labels), self.dataset_cfg['n_examples'], self.feature_size, self.frame_size, int(self.feature_params['norm_features']), int(self.feature_params['compute_deltas']), int(self.feature_params['compute_energy_features']), int(self.dataset_cfg['add_noise']))
+    #self.param_path = 'v{}_c-{}_n-{}_f-{}x{}x{}_norm{}_c{}d{}d{}e{}_nl{}/'.format(self.dataset_cfg['version_nr'], len(self.labels), self.dataset_cfg['n_examples'], self.channel_size, self.feature_size, self.frame_size, int(self.feature_params['norm_features']), int(self.feature_params['use_cepstral_features']), int(self.feature_params['use_delta_features']), int(self.feature_params['use_double_delta_features']), int(self.feature_params['use_energy_features']), int(self.dataset_cfg['add_noise']))
+    self.param_path = 'v{}_c-{}_n-{}'.format(self.dataset_cfg['version_nr'], len(self.labels), self.dataset_cfg['n_examples'])
+    self.param_path += '_f-{}x{}x{}_norm{}_c{}d{}d{}e{}_nl{}/'.format(self.channel_size, self.feature_size, self.frame_size, int(self.feature_params['norm_features']), int(self.feature_params['use_cepstral_features']), int(self.feature_params['use_delta_features']), int(self.feature_params['use_double_delta_features']), int(self.feature_params['use_energy_features']), int(self.dataset_cfg['add_noise'])) if self.feature_params['use_mfcc_features'] else '_raw/'
 
     # folders
     self.wav_folders = [self.root_path + p + self.dataset_cfg['wav_folder'] for p in list(self.dataset_cfg['data_paths'].values())]
@@ -61,7 +70,7 @@ class AudioDataset():
     self.feature_folders = [self.root_path + p + self.param_path for p in list(self.dataset_cfg['data_paths'].values())]
 
     # feature files
-    self.feature_files = [p + '{}.npz'.format(self.dataset_cfg['feature_file_name']) for p in self.feature_folders]
+    self.feature_files = [p + '{}.npz'.format(self.dataset_cfg['mfcc_feature_file_name']) for p in self.feature_folders] if self.feature_params['use_mfcc_features'] else [p + '{}.npz'.format(self.dataset_cfg['raw_feature_file_name']) for p in self.feature_folders]
 
     # collected wavs
     self.pre_wavs = []
@@ -84,7 +93,7 @@ class AudioDataset():
 
   def create_sets(self):
     """
-    create set structure (e.g. train, eval, test)
+    create sets
     """
     pass
 
@@ -300,6 +309,47 @@ class AudioDataset():
     return x_raw, is_too_weak
 
 
+  def wav_post_processing(self, x):
+    """
+    actual preprocessing with dithering and normalization
+    """
+    
+    # make a copy
+    x = x.copy()
+
+    # dither
+    x = self.add_dither(x)
+
+    # normalize input signal with infinity norm
+    x = librosa.util.normalize(x)
+
+    # add channel dimension
+    x = x[np.newaxis, :]
+
+    return x
+
+
+  def add_dither(self, x):
+    """
+    add a dither signal
+    """
+
+    # determine abs min value except from zero, for dithering
+    try:
+      min_val = np.min(np.abs(x[np.abs(x)>0]))
+    except:
+      print("only zeros in this signal")
+      min_val = 1e-4
+
+    # add some dither
+    x += np.random.normal(0, 0.5, len(x)) * min_val
+
+    return x
+
+
+
+
+
 
 class SpeechCommandsDataset(AudioDataset):
   """
@@ -401,10 +451,10 @@ class SpeechCommandsDataset(AudioDataset):
       n_examples = int(self.dataset_cfg['n_examples'] * self.dataset_cfg['split_percs'][i])
 
       # extract data
-      x, y, index = self.extract_mfcc_data(wavs=wavs, annos=annos, n_examples=n_examples, set_name=set_name)
+      x, y, index = self.extract_mfcc_data(wavs=wavs, annos=annos, n_examples=n_examples, set_name=set_name) if self.feature_params['use_mfcc_features'] else self.extract_raw_data(wavs=wavs, annos=annos, n_examples=n_examples, set_name=set_name)
 
       # add noise if requested
-      if self.dataset_cfg['add_noise']: x, y, index = self.add_noise_to_dataset(x, y, index, n_examples)
+      if self.dataset_cfg['add_noise'] and self.feature_params['use_mfcc_features']: x, y, index = self.add_noise_to_dataset(x, y, index, n_examples)
 
       # print label stats
       self.label_stats(y)
@@ -421,7 +471,7 @@ class SpeechCommandsDataset(AudioDataset):
     """
 
     # mfcc_data: [n x m x l], labels and index
-    mfcc_data, label_data, index_data = np.empty(shape=(0, self.channel_size, self.feature_size, self.feature_params['frame_size']), dtype=np.float64), [], []
+    mfcc_data, label_data, index_data = np.empty(shape=(0, self.channel_size, self.feature_size, self.frame_size), dtype=np.float64), [], []
 
     # extract class wavs
     for class_wavs, class_annos in zip(wavs, annos):
@@ -456,7 +506,7 @@ class SpeechCommandsDataset(AudioDataset):
         if self.collect_wavs: self.pre_wavs.append((librosa.util.normalize(x), label + str(file_index) + '_' + set_name, bon_pos))
 
         # plot mfcc features
-        plot_mfcc_profile(x, self.feature_params['fs'], self.feature_extractor.N, self.feature_extractor.hop, mfcc, anno_file=anno, onsets=None, bon_pos=bon_pos, mient=None, minreg=None, frame_size=self.feature_params['frame_size'], plot_path=self.plot_paths['mfcc'], name=label + str(file_index) + '_' + set_name, enable_plot=self.dataset_cfg['enable_plot'])
+        plot_mfcc_profile(x, self.feature_params['fs'], self.feature_extractor.N, self.feature_extractor.hop, mfcc, anno_file=anno, onsets=None, bon_pos=bon_pos, mient=None, minreg=None, frame_size=self.frame_size, plot_path=self.plot_paths['mfcc'], name=label + str(file_index) + '_' + set_name, enable_plot=self.dataset_cfg['enable_plot'])
 
         # damaged file check
         if self.dataset_cfg['filter_damaged_files']:
@@ -465,7 +515,7 @@ class SpeechCommandsDataset(AudioDataset):
           if self.detect_damaged_file(mfcc, wav): continue
 
         # add to mfcc_data container
-        mfcc_data = np.vstack((mfcc_data, mfcc[np.newaxis, :, :, bon_pos:bon_pos+self.feature_params['frame_size']]))
+        mfcc_data = np.vstack((mfcc_data, mfcc[np.newaxis, :, :, bon_pos:bon_pos+self.frame_size]))
         label_data.append(label)
         index_data.append(label + file_index)
 
@@ -477,6 +527,85 @@ class SpeechCommandsDataset(AudioDataset):
 
 
     return mfcc_data, label_data, index_data
+
+
+  def extract_raw_data(self, wavs, annos, n_examples, set_name=None):
+    """
+    raw data extraction
+    """
+
+    # raw data: [n x m], labels and index
+    raw_data, label_data, index_data = np.empty(shape=(0, self.channel_size, self.raw_frame_size), dtype=np.float64), [], []
+
+    # extract class wavs
+    for class_wavs, class_annos in zip(wavs, annos):
+
+      # class annotation file names extraction
+      class_annos_file_names = [l + i for f, i, l in [self.file_naming_extraction(a, file_ext='.TextGrid') for a in class_annos]]
+
+      # number of class examples
+      num_class_examples = 0
+
+      # run through each example in class wavs
+      for wav in class_wavs:
+        
+        # extract file namings
+        file_name, file_index, label = self.file_naming_extraction(wav, file_ext=self.dataset_cfg['file_ext'])
+
+        # get annotation if available
+        anno = class_annos[class_annos_file_names.index(label + file_index)] if label + file_index in class_annos_file_names else None
+
+        # load and pre-process audio
+        x, wav_is_useless = self.wav_pre_processing(wav)
+        if wav_is_useless: continue
+
+        # print some info
+        if self.verbose: print("wav: [{}] with label: [{}], samples=[{}], time=[{}]s".format(wav, label, len(x), len(x) / self.feature_params['fs']))
+
+        # extract raw samples from region of energy
+        raw, bon_pos = self.get_best_raw_samples(x)
+
+        # add dither and do normalization
+        raw = self.wav_post_processing(raw)
+
+        # plot waveform
+        if self.dataset_cfg['enable_plot']: plot_waveform(x, self.feature_params['fs'],  bon_samples=[bon_pos, bon_pos+self.raw_frame_size], title=label + file_index, plot_path=self.plot_paths['waveform'], name=label + file_index, show_plot=False, close_plot=True)
+
+        # collect wavs
+        if self.collect_wavs: self.pre_wavs.append((librosa.util.normalize(x), label + str(file_index) + '_' + set_name, bon_pos/self.hop))
+
+        # add to mfcc_data container
+        raw_data = np.vstack((raw_data, raw[np.newaxis, :]))
+        label_data.append(label)
+        index_data.append(label + file_index)
+
+        # update number of examples per class
+        num_class_examples += 1
+
+        # stop if desired examples are reached
+        if num_class_examples >= n_examples: break
+
+    return raw_data, label_data, index_data
+
+
+  def get_best_raw_samples(self, x, randomize=False, rand_samples=10):
+    """
+    best raw samples computed upon energy
+    """
+
+    # search for max energy windowed [r x m]
+    e_win = np.squeeze(view_as_windows(np.abs(x)**2, self.raw_frame_size, step=1))
+
+    # energy region
+    bon_pos = np.argmax(np.sum(e_win, axis=1))
+
+    # randomize a bit
+    if randomize:
+      bon_pos += np.random.randint(-rand_frame, rand_frame)
+      if bon_pos >= x_win.shape[0]: bon_pos = x_win.shape[0]
+      elif bon_pos < 0: bon_pos = 0
+
+    return x[bon_pos:bon_pos+self.raw_frame_size], bon_pos
 
 
   def detect_damaged_file(self, mfcc, wav):
@@ -572,7 +701,7 @@ class MyRecordingsDataset(SpeechCommandsDataset):
     """
 
     # analytical frame size
-    analytic_frame_size = self.feature_params['frame_size'] * 3
+    analytic_frame_size = self.frame_size * 3
 
     # save old onsets
     onsets = onsets.copy()
@@ -629,6 +758,7 @@ class MyRecordingsDataset(SpeechCommandsDataset):
     return x_cut
 
 
+
 if __name__ == '__main__':
   """
   main function of audio dataset
@@ -655,6 +785,9 @@ if __name__ == '__main__':
 
   # select feature files
   all_feature_files = audio_set1.feature_files + audio_set2.feature_files if len(audio_set1.labels) == len(audio_set2.labels) else audio_set1.feature_files
+
+
+  print("feature files: ", all_feature_files)
 
   # batches
   batch_archive = SpeechCommandsBatchArchive(feature_files=all_feature_files, batch_size=32, batch_size_eval=4, to_torch=False)

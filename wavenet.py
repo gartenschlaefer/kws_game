@@ -109,7 +109,7 @@ class Wavenet(nn.Module):
     """
 
     # init output and skips
-    o, skips = x, torch.zeros(x.shape[0], self.skip_channels, x.shape[-1])
+    o, skips = x, torch.zeros(x.shape[0], self.skip_channels, x.shape[-1]).to(device=x.device)
 
     # wavenet layers
     for wavenet_layer in self.wavenet_layers: 
@@ -141,7 +141,10 @@ class Wavenet(nn.Module):
     """
     quantize
     """
-    return torch.from_numpy(np.digitize(self.mu_softmax(x, mu=n_classes), bins=np.linspace(-1, 1, n_classes)) - 1).detach()
+    a = self.mu_softmax(x.detach().cpu(), mu=n_classes)
+    b = np.digitize(a, bins=np.linspace(-1, 1, n_classes)) - 1
+    c = torch.from_numpy(b).detach().to(device=x.device)
+    return c
 
 
   def count_params(self):

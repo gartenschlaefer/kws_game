@@ -719,7 +719,7 @@ if __name__ == '__main__':
     mfcc, bon_pos = feature_extractor.extract_mfcc(x, reduce_to_best_onset=False)
 
     #plot_mfcc_profile(x, 16000, feature_extractor.N, feature_extractor.hop, mfcc, anno_file=anno, sep_features=True, diff_plot=False, bon_pos=bon_pos, frame_size=cfg['feature_params']['frame_size'], plot_path=wav_dir, name=wav.split('/')[-1].split('.')[0], show_plot=True)
-    plot_waveform(x, 16000, anno_file=anno, hop=feature_extractor.hop, context='wav', title=wav.split('/')[-1].split('.')[0]+'_my', plot_path=wav_dir, name=wav.split('/')[-1].split('.')[0], show_plot=True)
+    plot_waveform(x, 16000, anno_file=anno, hop=feature_extractor.hop, title=wav.split('/')[-1].split('.')[0]+'_my', plot_path=wav_dir, name=wav.split('/')[-1].split('.')[0], show_plot=True)
     
   # random
   #x = np.random.randn(16000)

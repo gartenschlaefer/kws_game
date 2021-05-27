@@ -114,7 +114,7 @@ def showcase_wavs(cfg, raw_plot=True, spec_plot=True, mfcc_plot=True, show_plot=
     x, _ = librosa.load(wav, sr=feature_params['fs'])
 
     # raw waveform
-    if raw_plot: plot_waveform(x, feature_params['fs'], anno_file=anno, hop=feature_extractor.hop, context='wav', plot_path=plot_path, name='signal_raw_' + wav.split('/')[-1].split('.')[0] + '_my', show_plot=show_plot)
+    if raw_plot: plot_waveform(x, feature_params['fs'], anno_file=anno, hop=feature_extractor.hop, plot_path=plot_path, name='signal_raw_' + wav.split('/')[-1].split('.')[0] + '_my', show_plot=show_plot)
     
     # spectogram
     if spec_plot: 

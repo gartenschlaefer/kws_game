@@ -402,13 +402,16 @@ class SpeechCommandsBatchArchive(BatchArchive):
     self.feature_params = self.data[0]['params'][()]
 
     # channel size
-    self.channel_size = 1 if not self.feature_params['use_channels'] else int(self.feature_params['use_cepstral_features']) + int(self.feature_params['use_delta_features']) +  int(self.feature_params['use_double_delta_features'])
+    self.channel_size = 1 if not self.feature_params['use_channels'] or not self.feature_params['use_mfcc_features']  else int(self.feature_params['use_cepstral_features']) + int(self.feature_params['use_delta_features']) +  int(self.feature_params['use_double_delta_features'])
 
     # feature size
     self.feature_size = (self.feature_params['n_ceps_coeff'] + int(self.feature_params['use_energy_features'])) * int(self.feature_params['use_cepstral_features']) + (self.feature_params['n_ceps_coeff'] + int(self.feature_params['use_energy_features'])) * int(self.feature_params['use_delta_features']) + (self.feature_params['n_ceps_coeff'] + int(self.feature_params['use_energy_features'])) * int(self.feature_params['use_double_delta_features']) if not self.feature_params['use_channels'] else (self.feature_params['n_ceps_coeff'] + int(self.feature_params['use_energy_features']))
 
     # frame size
     self.frame_size = self.feature_params['frame_size']
+
+    # raw frame size for raw inputs in samples
+    self.raw_frame_size = int(self.feature_params['frame_size_s'] * self.feature_params['fs'])
 
     # get classes
     self.create_class_dictionary(self.data[0]['y'])
@@ -448,14 +451,13 @@ class SpeechCommandsBatchArchive(BatchArchive):
 
   def create_batches(self, data, batch_size=1):
     """
-    create batches for training [n x c x m x f] -> [m x b x c x m x f]
+    create batches for training 
+    mfcc: [n x c x m x f] -> [m x b x c x m x f]
+    raw: [n x c x m] -> [m x b x c x m]
     """
 
     # extract data
-    x, y, z, params = data['x'], data['y'], data['index'], data['params']
-
-    # get shape of things
-    n, c, m, l = x.shape
+    x, y, z = data['x'], data['y'], data['index']
 
     # randomize examples
     if self.shuffle:
@@ -481,7 +483,7 @@ class SpeechCommandsBatchArchive(BatchArchive):
       r_x, r_y, r_z, f_x, f_y, f_z = x[ss:se, :], y[ss:se], z[ss:se], x[random_samples, :], y[random_samples], z[random_samples]
 
     # init batches
-    x_batches = np.empty((batch_nums, batch_size, self.channel_size, self.feature_size, self.frame_size), dtype=np.float32)
+    x_batches = np.empty((batch_nums, batch_size, self.channel_size, self.feature_size, self.frame_size), dtype=np.float32) if self.feature_params['use_mfcc_features'] else np.empty((batch_nums, batch_size, self.channel_size, self.raw_frame_size), dtype=np.float32)
     y_batches = np.empty((batch_nums, batch_size), dtype=np.int)
     z_batches = np.empty((batch_nums, batch_size), dtype=z.dtype)
 

@@ -1,13 +1,17 @@
 """
-Handling Neural Networks
+Neural Network Handling
 """
 
 import numpy as np
 import torch
 import time
 
+# nets
 from conv_nets import ConvNetTrad, ConvNetFstride4, ConvNetExperimental, ConvEncoderClassifierNet, ConvStackedEncodersNet, ConvLatentClassifier
 from adversarial_nets import G_experimental, D_experimental
+from wavenet import Wavenet
+
+# other
 from score import TrainScore, EvalScore
 
 
@@ -46,6 +50,12 @@ class NetHandler():
         for child_child_cls in child_cls.__subclasses__():
           if child_child_cls.__name__ == 'ConvEncoderNetHandler':
             return super().__new__(ConvEncoderNetHandler)
+
+    # wavenet handler
+    elif nn_arch in ['wavenet']:
+      for child_cls in cls.__subclasses__():
+        if child_cls.__name__ == 'WavenetHandler':
+          return super().__new__(WavenetHandler)
 
     # handler specific
     return super().__new__(cls)
@@ -106,6 +116,9 @@ class NetHandler():
     
     # limited encoder conv
     elif self.nn_arch == 'conv-lim-encoder': self.models = {'cnn':ConvEncoderClassifierNet(self.n_classes, self.data_size, net_class='lim-encoder')}
+    
+    # wavenet
+    elif self.nn_arch == 'wavenet': self.models = {'wav':Wavenet()}
     
     # not found
     else: print("***Network Architecture not found!")
@@ -854,6 +867,110 @@ class ConvEncoderNetHandler(CnnHandler):
       #self.optimizer = torch.optim.Adam(self.models['cnn'].encoder_model.parameters(), lr=train_params['lr'])
 
 
+class WavenetHandler(NetHandler):
+  """
+  wavenet handler
+  """
+
+  def __init__(self, nn_arch, class_dict, data_size, encoder_model=None, decoder_model=None, use_cpu=False):
+
+      # parent class init
+      super().__init__(nn_arch, class_dict, data_size, encoder_model=encoder_model, decoder_model=decoder_model, use_cpu=use_cpu)
+
+      # loss criterion
+      self.criterion = torch.nn.CrossEntropyLoss()
+
+      # init models
+      self.init_models()
+
+
+  def set_up_training(self, train_params):
+    """
+    set optimizer in training
+    """
+
+    # create optimizer
+    self.optimizer = torch.optim.Adam(self.models['wav'].parameters(), lr=train_params['lr'])
+
+    # print message
+    print("\n--Training starts with {}".format(self.__class__.__name__))
+
+
+  def train_nn(self, train_params, batch_archive, callback_f=None):
+    """
+    train the neural network
+    train_params: {'num_epochs': [], 'lr': [], 'momentum': []}
+    """
+
+    # setup training
+    self.set_up_training(train_params)
+
+    # score collector
+    train_score = TrainScore(train_params['num_epochs'])
+
+    # start time
+    start_time = time.time()
+
+    # epochs
+    for epoch in range(train_params['num_epochs']):
+
+      # update training params if necessary
+      self.update_training_params(epoch, train_params)
+
+      # fetch data samples
+      for i, (x, y) in enumerate(zip(batch_archive.x_train.to(self.device), batch_archive.y_train.to(self.device))):
+
+        # target
+        t = torch.squeeze(x)
+
+        # zero parameter gradients
+        self.optimizer.zero_grad()
+
+        # forward pass o:[b x c]
+        o = self.models['wav'](x)
+
+        # quantize data
+        t = self.models['wav'].quantize(t, n_classes=256)
+
+        # loss
+        loss = self.criterion(o, t)
+
+        # backward
+        loss.backward()
+
+        # optimizer step - update params
+        self.optimizer.step()
+
+        # update batch loss collection
+        train_score.update_batch_losses(epoch, loss.item())
+
+        # print some infos
+        self.print_train_info(epoch, i, train_score, k_print=batch_archive.y_train.shape[0] // self.num_print_per_epoch)
+        train_score.reset_batch_losses()
+
+      # valdiation
+      #eval_score = self.eval_nn('val', batch_archive)
+
+      # update score collector
+      #train_score.val_loss[epoch], train_score.val_acc[epoch] = eval_score.loss, eval_score.acc
+
+    print('--Training finished')
+
+    # log time
+    train_score.time_usage = time.time() - start_time 
+
+    return train_score
+
+
+  def eval_nn(self, eval_set, batch_archive, collect_things=False, verbose=False):
+    """
+    evaluation of nn
+    use eval_set out of ['val', 'test', 'my']
+    """
+    pass
+
+
+
 
 if __name__ == '__main__':
   """
@@ -880,7 +997,7 @@ if __name__ == '__main__':
   #batch_archive.reduce_to_label('up')
   #batch_archive.add_noise_data(shuffle=True)
 
-  print("data: ", batch_archive.data_size)
+  print("data size: ", batch_archive.data_size)
   print("classes: ", batch_archive.class_dict)
 
   # create an cnn handler
@@ -888,16 +1005,16 @@ if __name__ == '__main__':
   print(net_handler.models)
 
   # training
-  #net_handler.train_nn(cfg['ml']['train_params'], batch_archive=batch_archive)
+  net_handler.train_nn(cfg['ml']['train_params'], batch_archive=batch_archive)
 
   # validation
   #net_handler.eval_nn(eval_set='val', batch_archive=batch_archive, collect_things=False, verbose=False)
 
   # classify sample
-  y_hat, o, label = net_handler.classify_sample(np.random.randn(net_handler.data_size[0], net_handler.data_size[1], net_handler.data_size[2]))
+  #y_hat, o, label = net_handler.classify_sample(np.random.randn(net_handler.data_size[0], net_handler.data_size[1], net_handler.data_size[2]))
 
   # print classify result
-  print("classify: [{}]\noutput: [{}]\nlabel: [{}]".format(y_hat, o, label))
+  #print("classify: [{}]\noutput: [{}]\nlabel: [{}]".format(y_hat, o, label))
 
   # count parameters
   count_dict = net_handler.count_params_and_mults()

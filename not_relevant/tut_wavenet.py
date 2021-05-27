@@ -50,8 +50,7 @@ def wavenet_training(wavenet, x_train, y_train, class_dict, num_epochs=10, lr=0.
       # target
       t = x
 
-      # print("x: ", x)
-      # print("x: ", x.shape)
+
 
       # zero parameter gradients
       optimizer.zero_grad()
@@ -59,21 +58,24 @@ def wavenet_training(wavenet, x_train, y_train, class_dict, num_epochs=10, lr=0.
       # forward pass o: [b x c x samples]
       o = wavenet(x)
 
-      # print("o1: ", o)
-      # print("o1: ", o.shape)
+      #print("x: ", x)
+      #print("x: ", x.shape)
+
+      #print("o1: ", o)
+      #print("o1: ", o.shape)
 
       # reshape
       o = o.view((-1, o.shape[1]))
       t = t.view(-1)
 
-      # print("o2: ", o)
-      # print("o2: ", o.shape)
+      #print("o2: ", o)
+      #print("o2: ", o.shape)
 
       # quantize data
       t = wavenet.quantize(t, n_classes=256)
 
-      # print("t: ", t)
-      # print("t: ", t.shape)
+      #print("t: ", t)
+      #print("t: ", t.shape)
 
       # loss
       loss = criterion(o, t)
