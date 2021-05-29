@@ -10,7 +10,6 @@ import soundfile
 
 from glob import glob
 from shutil import copyfile
-from skimage.util.shape import view_as_windows
 
 # my stuff
 from feature_extraction import FeatureExtractor, calc_onsets
@@ -563,7 +562,7 @@ class SpeechCommandsDataset(AudioDataset):
         if self.verbose: print("wav: [{}] with label: [{}], samples=[{}], time=[{}]s".format(wav, label, len(x), len(x) / self.feature_params['fs']))
 
         # extract raw samples from region of energy
-        raw, bon_pos = self.get_best_raw_samples(x)
+        raw, bon_pos = self.feature_extractor.get_best_raw_samples(x)
 
         # add dither and do normalization
         raw = self.wav_post_processing(raw)
@@ -586,26 +585,6 @@ class SpeechCommandsDataset(AudioDataset):
         if num_class_examples >= n_examples: break
 
     return raw_data, label_data, index_data
-
-
-  def get_best_raw_samples(self, x, randomize=False, rand_samples=10):
-    """
-    best raw samples computed upon energy
-    """
-
-    # search for max energy windowed [r x m]
-    e_win = np.squeeze(view_as_windows(np.abs(x)**2, self.raw_frame_size, step=1))
-
-    # energy region
-    bon_pos = np.argmax(np.sum(e_win, axis=1))
-
-    # randomize a bit
-    if randomize:
-      bon_pos += np.random.randint(-rand_frame, rand_frame)
-      if bon_pos >= x_win.shape[0]: bon_pos = x_win.shape[0]
-      elif bon_pos < 0: bon_pos = 0
-
-    return x[bon_pos:bon_pos+self.raw_frame_size], bon_pos
 
 
   def detect_damaged_file(self, mfcc, wav):

@@ -12,9 +12,11 @@ from common import create_folder
 from feature_extraction import FeatureExtractor, frames_to_sample
 from net_handler import NetHandler
 from plots import plot_waveform, plot_test_bench_shift, plot_test_bench_noise
+from legacy import legacy_adjustments_net_params
 
 # other
 from skimage.util.shape import view_as_windows
+from glob import glob
 
 
 class TestBench():
@@ -22,14 +24,11 @@ class TestBench():
   test bench class for evaluating models
   """
 
-  def __init__(self, cfg_tb, test_model_path, feature_extractor=None, net_handler=None, class_dict=None, root_path='./'):
+  def __init__(self, cfg_tb, test_model_path, root_path='./'):
 
     # arguments
     self.cfg_tb = cfg_tb
     self.test_model_path = test_model_path
-    self.feature_extractor = feature_extractor
-    self.net_handler = net_handler
-    self.class_dict = class_dict
     self.root_path = root_path
 
     # shortcuts
@@ -39,10 +38,18 @@ class TestBench():
     self.paths = dict((k, self.root_path + v) for k, v in self.cfg_tb['paths'].items())
 
     # test model path
-    self.test_model_name = test_model_path.split('/')[-2]
+    self.test_model_name = self.test_model_path.split('/')[-2]
+
+    # determine available model files
+    model_files_av = [f.split('/')[-1] for f in glob(self.test_model_path + '*model.pth')]
 
     # model file
-    self.model_file = self.test_model_path + self.cfg_tb['model_file_name']
+    self.model_files = [self.test_model_path + f for f in model_files_av if f in self.cfg_tb['model_file_names']]
+
+    # pick just the first one (errors should not occur)
+    self.model_file = self.model_files[0]
+
+    # param file
     self.params_file = self.test_model_path + self.cfg_tb['params_file_name']
 
     # wavs
@@ -58,7 +65,10 @@ class TestBench():
     self.nn_arch, self.train_params, self.class_dict = net_params['nn_arch'][()], net_params['train_params'][()], net_params['class_dict'][()]
 
     # legacy stuff
-    self.data_size, self.feature_params = self.legacy_adjustments_tb(net_params)
+    #self.data_size, self.feature_params = self.legacy_adjustments_tb(net_params)
+
+    # legacy stuff
+    self.data_size, self.feature_params = legacy_adjustments_net_params(net_params)
 
     # init feature extractor
     self.feature_extractor = FeatureExtractor(self.feature_params)
@@ -73,36 +83,10 @@ class TestBench():
     self.net_handler.set_eval_mode()
 
 
-  def legacy_adjustments_tb(self, net_params):
-    """
-    yeah another legacy :(
-    """
-
-    # for legacy models
-    try:
-      data_size = net_params['data_size'][()]
-    except:
-      data_size = (1, 39, 32)
-      print("old classifier model use fixed data size: {}".format(data_size))
-
-    try:
-      feature_params = net_params['feature_params'][()]
-    except:
-      feature_params = {'fs': 16000, 'N_s': 0.025, 'hop_s': 0.010, 'n_filter_bands': 32, 'n_ceps_coeff': 12, 'frame_size': 32, 'norm_features': False, 'use_channels': False, 'use_cepstral_features': True, 'use_delta_features': True, 'use_double_delta_features': True, 'use_energy_features': True}
-      print("old classifier model use fixed feature parameters: {}".format(feature_params))
-
-    return data_size, feature_params
-
-
   def test_invariances(self):
     """
     test all invariances
     """
-
-    # check net handler
-    if self.net_handler is None:
-      print("*** net handler not specified!")
-      return
 
     # init lists
     all_labels, all_corrects_shift, all_corrects_noise, all_probs_shift, all_probs_noise = [], [], [], [], []
@@ -182,10 +166,13 @@ class TestBench():
       # print("sigma: ", sigma), print("p_x: ", p_x_eff), print("p_n: ", p_n_eff), print("db: ", 10 * np.log10(p_x_eff / p_n_eff))
 
       # feature extraction
-      x_mfcc, _ = self.feature_extractor.extract_mfcc(x_noise, reduce_to_best_onset=True)
+      #x_mfcc, _ = self.feature_extractor.extract_mfcc(x_noise, reduce_to_best_onset=True)
+
+      # feature extraction
+      x, _ = self.feature_extractor.extract_mfcc(x_noise, reduce_to_best_onset=True) if self.net_handler.nn_arch != 'wavenet' else self.feature_extractor.get_best_raw_samples(x_noise, add_channel_dim=True)
 
       # classify
-      y_hat, o, pred_label = self.net_handler.classify_sample(x_mfcc)
+      y_hat, o, pred_label = self.net_handler.classify_sample(x)
 
       # append predicted label and probs
       pred_label_list.append(pred_label)
@@ -212,10 +199,10 @@ class TestBench():
     pred_label_list, probs = [], []
 
     # feature extraction
-    x_mfcc, _ = self.feature_extractor.extract_mfcc(x_wav, reduce_to_best_onset=False)
+    x, _ = self.feature_extractor.extract_mfcc(x_wav, reduce_to_best_onset=False) if self.net_handler.nn_arch != 'wavenet' else (x_wav[np.newaxis, :], 0)
 
     # windowed
-    x_win = np.squeeze(view_as_windows(x_mfcc, self.data_size, step=self.cfg_tb['shift_frame_step']), axis=(0, 1))
+    x_win = np.squeeze(view_as_windows(x, self.data_size, step=self.cfg_tb['shift_frame_step']), axis=(0, 1)) if self.net_handler.nn_arch != 'wavenet' else np.squeeze(view_as_windows(x, self.data_size, step=self.cfg_tb['shift_frame_step'] * self.feature_extractor.hop), axis=0)
 
     for i, x in enumerate(x_win):
 
@@ -228,7 +215,7 @@ class TestBench():
 
       # plot
       time_s = frames_to_sample(i * self.cfg_tb['shift_frame_step'], self.feature_params['fs'], self.feature_extractor.hop)
-      time_e = frames_to_sample(i * self.cfg_tb['shift_frame_step'] + self.data_size[2], self.feature_params['fs'], self.feature_extractor.hop)
+      time_e = frames_to_sample(i * self.cfg_tb['shift_frame_step'] + self.feature_params['frame_size'], self.feature_params['fs'], self.feature_extractor.hop)
 
       # plot waveform
       if self.cfg_tb['enable_plot']: plot_waveform(x_wav[time_s:time_e], self.feature_params['fs'], title='frame{} actual: [{}] pred: [{}]'.format(i, actual_label, pred_label), plot_path=self.paths['shift_wavs'], name='{}_frame{}'.format(actual_label, i))

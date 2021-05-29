@@ -3,6 +3,7 @@ Score classes for training and evaluation
 """
 
 import numpy as np
+import time
 
 
 class TrainScore():
@@ -10,79 +11,188 @@ class TrainScore():
   collection of scores
   """
 
-  def __init__(self, num_epochs, is_adv=False):
+  def __init__(self, num_epochs, invoker_class_name='', k_print=10):
 
     # arguments
     self.num_epochs = num_epochs
-    self.is_adv = is_adv
+    self.k_print= k_print
 
-    # collect losses over epochs
-    self.batch_loss = 0.0
-    self.train_loss = np.zeros(self.num_epochs)
-    self.val_loss = np.zeros(self.num_epochs)
-    self.val_acc = np.zeros(self.num_epochs)
+    # print safety
+    self.do_print_anyway, self.k_print = (True, 1) if not self.k_print else (False, self.k_print)
 
-    # adversarial losses
-    self.g_batch_loss_fake = None
-    self.g_batch_loss_sim = None
-    self.d_batch_loss_real = None
-    self.d_batch_loss_fake = None
-    self.g_train_loss = None
-    self.d_train_loss_real = None
-    self.d_train_loss_fake = None
+    # dictionaries
+    self.score_dict = {'score_class': self.__class__.__name__, 'val_loss': np.zeros(self.num_epochs), 'val_acc': np.zeros(self.num_epochs), 'time_usage': None}
+    self.batch_dict = {}
 
-    # init if activated
-    if self.is_adv:
-      self.g_loss_fake = np.zeros(self.num_epochs)
-      self.g_loss_sim = np.zeros(self.num_epochs)
-      self.d_loss_real = np.zeros(self.num_epochs)
-      self.d_loss_fake = np.zeros(self.num_epochs)
+    # specific dictionary update
+    self.init_dictionaries()
 
-    # reset batch losses
-    self.reset_batch_losses()
+    # print message
+    print("\n--Training starts {}".format(invoker_class_name))
 
-    # time score
-    self.time_usage = None
+    # start time init
+    self.start_time = time.time()
+
+
+  def define_loss_types(self):
+    """
+    define loss types
+    """
+    return ['train_loss']
+
+
+  def init_dictionaries(self):
+    """
+    init dictionaries like score dict, etc.
+    """
+
+    # loss types
+    loss_types = self.define_loss_types()
+
+    # score dictionary
+    [self.score_dict.update({k: np.zeros(self.num_epochs)}) for k in loss_types]
+
+    # batch losses
+    [self.batch_dict.update({k + '_batch': 0.0}) for k in loss_types]
 
 
   def reset_batch_losses(self):
     """
     reset batch losses to zero
     """
-
-    # reset batch loss
-    self.batch_loss = 0.0
-
-    # for adversarial networks
-    if self.is_adv:
-      self.g_batch_loss_fake = 0.0
-      self.g_batch_loss_lim = 0.0
-      self.d_batch_loss_real = 0.0
-      self.d_batch_loss_fake = 0.0
+    for k in self.batch_dict.keys(): self.batch_dict[k] = 0.0
 
 
-  def update_batch_losses(self, epoch, loss, g_loss_fake=0.0, g_loss_sim=0.0, d_loss_real=0.0, d_loss_fake=0.0):
+  def update_batch_losses(self, epoch, mini_batch, loss):
     """
     update losses
     """
 
     # update losses
-    self.batch_loss = loss
-    self.train_loss[epoch] += loss 
+    self.score_dict['train_loss'][epoch] += loss
+    self.batch_dict['train_loss_batch'] += loss
 
-    # adversarial net
-    if self.is_adv:
+    # do print
+    self.print_train_info(epoch, mini_batch)
 
-      # batch loss for score
-      self.g_batch_loss_fake = g_loss_fake
-      self.g_batch_loss_fake = g_loss_sim
-      self.d_batch_loss_real = d_loss_real
-      self.d_batch_loss_fake = d_loss_fake
+    # reset batch losses
+    self.reset_batch_losses()
 
-      self.g_loss_fake[epoch] += g_loss_fake
-      self.g_loss_sim[epoch] += g_loss_sim
-      self.d_loss_real[epoch] += d_loss_real
-      self.d_loss_fake[epoch] += d_loss_fake
+
+  def print_train_info(self, epoch, mini_batch):
+    """
+    print some training info
+    """
+
+    # print loss
+    if mini_batch % self.k_print == self.k_print-1 or self.do_print_anyway:
+
+      # print info
+      print('epoch: {}, mini-batch: {}, loss: [{:.5f}]'.format(epoch + 1, mini_batch + 1, self.batch_dict['train_loss_batch'] / self.k_print))
+
+
+  def finish(self):
+    """
+    finish training
+    """
+
+    # log time
+    self.score_dict['time_usage'] = time.time() - self.start_time 
+    print('--Training finished')
+
+
+
+class AdversarialTrainScore(TrainScore):
+  """
+  collection of scores
+  """
+
+  def define_loss_types(self):
+    """
+    define loss types
+    """
+    return ['g_loss_fake', 'g_loss_sim', 'd_loss_real', 'd_loss_fake']
+
+
+  def update_batch_losses(self, epoch, mini_batch, g_loss_fake, g_loss_sim, d_loss_real, d_loss_fake):
+    """
+    update losses
+    """
+
+    # update losses
+    self.score_dict['g_loss_fake'][epoch] += g_loss_fake
+    self.batch_dict['g_loss_fake_batch'] += g_loss_fake
+
+    self.score_dict['g_loss_sim'][epoch] += g_loss_sim
+    self.batch_dict['g_loss_sim_batch'] += g_loss_sim
+
+    self.score_dict['d_loss_real'][epoch] += d_loss_real
+    self.batch_dict['d_loss_real_batch'] += d_loss_real
+
+    self.score_dict['d_loss_fake'][epoch] += d_loss_fake
+    self.batch_dict['d_loss_fake_batch'] += d_loss_fake
+
+    # do print
+    self.print_train_info(epoch, mini_batch)
+
+    # reset batch losses
+    self.reset_batch_losses()
+
+
+  def print_train_info(self, epoch, mini_batch):
+    """
+    print some training info
+    """
+
+    # print loss
+    if mini_batch % self.k_print == self.k_print-1 or self.do_print_anyway:
+
+      # print info
+      print('epoch: {}, mini-batch: {}, G loss fake: [{:.5f}], G loss sim: [{:.5f}], D loss real: [{:.5f}], D loss fake: [{:.5f}]'.format(epoch + 1, mini_batch + 1, self.batch_dict['g_loss_fake_batch'] / self.k_print, self.batch_dict['g_loss_sim_batch'] / self.k_print, self.batch_dict['d_loss_real_batch'] / self.k_print, self.batch_dict['d_loss_fake_batch'] / self.k_print))
+
+
+
+class WavenetTrainScore(TrainScore):
+  """
+  collection of scores for wavenets
+  """
+
+  def define_loss_types(self):
+    """
+    define loss types
+    """
+    return ['loss_t', 'loss_y']
+
+
+  def update_batch_losses(self, epoch, mini_batch, loss_t, loss_y):
+    """
+    update losses
+    """
+
+    # update losses
+    self.score_dict['loss_t'][epoch] += loss_t
+    self.batch_dict['loss_t_batch'] += loss_t
+
+    self.score_dict['loss_y'][epoch] += loss_y
+    self.batch_dict['loss_y_batch'] += loss_y
+
+    # do print
+    self.print_train_info(epoch, mini_batch)
+
+    # reset batch losses
+    self.reset_batch_losses()
+
+
+  def print_train_info(self, epoch, mini_batch):
+    """
+    print some training info
+    """
+
+    # print loss
+    if mini_batch % self.k_print == self.k_print-1 or self.do_print_anyway:
+
+      # print info
+      print('epoch: {}, mini-batch: {}, loss_t: [{:.5f}], loss_y: [{:.5f}]'.format(epoch + 1, mini_batch + 1, self.batch_dict['loss_t_batch'] / self.k_print, self.batch_dict['loss_y_batch'] / self.k_print))
 
 
 
@@ -151,7 +261,7 @@ class EvalScore():
     self.info_log(do_print=True)
 
     # collecting check
-    if not self.collect_things: return
+    if not self.collect_things or not len(self.y_all): return
 
     # confusion matrix
     self.cm = confusion_matrix(np.concatenate(self.y_all), np.concatenate(self.y_hat_all))
@@ -204,3 +314,16 @@ class EvalScore():
       print("\nwrongs: ", np.concatenate(self.wrong_list) if len(self.wrong_list) else 'none')
       for y, y_hat, o, z in zip(self.y_all, self.y_hat_all, self.o_all, self.z_all): print("\nz: {}\noutput: {}\npred: {}, actu: {}, \t corr: {} ".format(z, o, y_hat, y, (np.array(y_hat) == np.array(y)).astype('int')))
 
+
+if __name__ == '__main__':
+  """
+  main
+  """
+
+  #train_score = TrainScore(5)
+  #train_score = AdversarialTrainScore(5)
+  train_score = WavenetTrainScore(5)
+
+  print("score dict: ", train_score.score_dict)
+
+  train_score.print_train_info(1, 9)

@@ -12,7 +12,7 @@ from adversarial_nets import G_experimental, D_experimental
 from wavenet import Wavenet
 
 # other
-from score import TrainScore, EvalScore
+from score import TrainScore, AdversarialTrainScore, WavenetTrainScore, EvalScore
 
 
 class NetHandler():
@@ -102,7 +102,7 @@ class NetHandler():
     elif self.nn_arch == 'adv-collected-encoder': self.models = {'g':G_experimental(self.n_classes, self.data_size, net_class='label-collect-encoder'), 'd':D_experimental(self.n_classes, self.data_size, net_class='label-collect-encoder')}
     
     # cnns
-    elif self.nn_arch == 'conv-encoder': self.models = {'cnn':ConvEncoderClassifierNet(self.n_classes, self.data_size, net_class='label-collect-encoder')}
+    elif self.nn_arch == 'conv-encoder': self.models = {'cnn':ConvEncoderClassifierNet(self.n_classes, self.data_size, net_class='label-collect-encoder', fc_layer_type='fc1')}
     elif self.nn_arch == 'conv-encoder-stacked': self.models = {'cnn':ConvStackedEncodersNet(self.n_classes, self.data_size, self.encoder_model)}
     elif self.nn_arch == 'conv-latent': self.models = {'cnn':ConvLatentClassifier(self.n_classes, self.data_size)}
 
@@ -118,7 +118,7 @@ class NetHandler():
     elif self.nn_arch == 'conv-lim-encoder': self.models = {'cnn':ConvEncoderClassifierNet(self.n_classes, self.data_size, net_class='lim-encoder')}
     
     # wavenet
-    elif self.nn_arch == 'wavenet': self.models = {'wav':Wavenet()}
+    elif self.nn_arch == 'wavenet': self.models = {'wav':Wavenet(self.n_classes)}
     
     # not found
     else: print("***Network Architecture not found!")
@@ -148,29 +148,6 @@ class NetHandler():
     sets the training mode (dropout layers active)
     """
     self.models = dict((k, model.train()) for k, model in self.models.items())
-
-
-  def print_train_info(self, epoch, mini_batch, train_score, k_print=10):
-    """
-    print some training info
-    """
-
-    do_print_anyway = False
-
-    if not k_print:
-      k_print = 1
-      do_print_anyway = True
-
-    # print loss
-    if mini_batch % k_print == k_print-1 or do_print_anyway:
-
-      # adversarial gets separate print
-      if train_score.is_adv:
-        print('epoch: {}, mini-batch: {}, G loss fake: [{:.5f}], D loss real: [{:.5f}], D loss fake: [{:.5f}]'.format(epoch + 1, mini_batch + 1, train_score.g_batch_loss_fake / k_print, train_score.d_batch_loss_real / k_print, train_score.d_batch_loss_fake / k_print))
-
-      else:
-        # print info
-        print('epoch: {}, mini-batch: {}, loss: [{:.5f}]'.format(epoch + 1, mini_batch + 1, train_score.batch_loss / k_print))
 
 
   def load_models(self, model_files):
@@ -208,13 +185,6 @@ class NetHandler():
       # save model
       torch.save(model.state_dict(), model_file)
       print("save model: {}, net handler model: {}".format(model_file, k))
-
-      # try:
-      #   print("save model: {}, net handler model: {}".format(model_file, k))
-      #   torch.save(model.state_dict(), model_file)
-
-      # except:
-      #   print("\n***could not save model!!!\n")
 
       # skip if encoder model file is None
       if encoder_model_file is None and decoder_model_file is None: continue
@@ -261,9 +231,47 @@ class NetHandler():
 
   def eval_nn(self, eval_set, batch_archive, collect_things=False, verbose=False):
     """
-    evaluation interface
+    evaluation of nn
+    use eval_set out of ['val', 'test', 'my']
     """
-    return EvalScore()
+
+    # eval mode
+    self.set_eval_mode()
+
+    # select the evaluation set
+    x_eval, y_eval, z_eval = self.eval_select_set(eval_set, batch_archive)
+
+    # if set does not exist
+    if x_eval is None or y_eval is None:
+      print("no eval set found")
+      return EvalScore(eval_set_name=eval_set, collect_things=collect_things)
+
+    # init score
+    eval_score = EvalScore(eval_set_name=eval_set, collect_things=collect_things)
+
+    # no gradients for eval
+    with torch.no_grad():
+
+      # load data
+      for mini_batch, (x, y, z) in enumerate(zip(x_eval.to(self.device), y_eval.to(self.device), z_eval)):
+
+        # forward pass
+        eval_score = self.eval_forward(mini_batch, x, y, z, eval_score, verbose=verbose)
+
+    # finish up scores
+    eval_score.finish()
+
+    # train mode
+    self.set_train_mode()
+
+    return eval_score
+
+
+  def eval_forward(self, mini_batch, x, y, z, eval_score, verbose=False):
+    """
+    eval forward pass
+    """
+    return eval_score
 
 
   def eval_select_set(self, eval_set, batch_archive):
@@ -310,6 +318,7 @@ class NetHandler():
     for k, model in self.models.items(): count_dict.update({k + '_params_layers': [p.numel() for p in model.parameters() if p.requires_grad]})
 
     return count_dict
+
 
 
 class CnnHandler(NetHandler):
@@ -372,12 +381,7 @@ class CnnHandler(NetHandler):
     self.set_up_training(train_params)
 
     # score collector
-    train_score = TrainScore(train_params['num_epochs'])
-
-    print("\n--Training starts:")
-
-    # start time
-    start_time = time.time()
+    train_score = TrainScore(train_params['num_epochs'], invoker_class_name=self.__class__.__name__, k_print=batch_archive.y_train.shape[0] // self.num_print_per_epoch)
 
     # epochs
     for epoch in range(train_params['num_epochs']):
@@ -385,9 +389,8 @@ class CnnHandler(NetHandler):
       # update training params if necessary
       self.update_training_params(epoch, train_params)
 
-      # TODO: do this with loader function from pytorch (maybe or not)
       # fetch data samples
-      for i, (x, y) in enumerate(zip(batch_archive.x_train.to(self.device), batch_archive.y_train.to(self.device))):
+      for mini_batch, (x, y) in enumerate(zip(batch_archive.x_train.to(self.device), batch_archive.y_train.to(self.device))):
 
         # zero parameter gradients
         self.optimizer.zero_grad()
@@ -404,72 +407,38 @@ class CnnHandler(NetHandler):
         # optimizer step - update params
         self.optimizer.step()
 
-        # update batch loss collection
-        train_score.update_batch_losses(epoch, loss.item())
-
-        # print some infos
-        self.print_train_info(epoch, i, train_score, k_print=batch_archive.y_train.shape[0] // self.num_print_per_epoch)
-        train_score.reset_batch_losses()
+        # update batch loss collection and do print
+        train_score.update_batch_losses(epoch, mini_batch, loss.item())
 
       # valdiation
       eval_score = self.eval_nn('val', batch_archive)
 
       # update score collector
-      train_score.val_loss[epoch], train_score.val_acc[epoch] = eval_score.loss, eval_score.acc
+      #train_score.val_loss[epoch], train_score.val_acc[epoch] = eval_score.loss, eval_score.acc
+      train_score.score_dict['val_loss'][epoch], train_score.score_dict['val_acc'][epoch] = eval_score.loss, eval_score.acc
 
-    # TODO: Early stopping if necessary
-
-    print('--Training finished')
-
-    # log time
-    train_score.time_usage = time.time() - start_time 
+    # finish train score for time measurement
+    train_score.finish()
 
     return train_score
 
 
-  def eval_nn(self, eval_set, batch_archive, collect_things=False, verbose=False):
+  def eval_forward(self, mini_batch, x, y, z, eval_score, verbose=False):
     """
-    evaluation of nn
-    use eval_set out of ['val', 'test', 'my']
+    eval forward pass
     """
 
-    # eval mode
-    self.set_eval_mode()
+    # classify
+    o = self.models['cnn'](x)
 
-    # select the evaluation set
-    x_eval, y_eval, z_eval = self.eval_select_set(eval_set, batch_archive)
+    # loss
+    loss = self.criterion(o, y)
 
-    # if set does not exist
-    if x_eval is None or y_eval is None:
-      print("no eval set found")
-      return EvalScore(eval_set_name=eval_set, collect_things=collect_things)
+    # prediction
+    _, y_hat = torch.max(o.data, 1)
 
-    # init score
-    eval_score = EvalScore(eval_set_name=eval_set, collect_things=collect_things)
-
-    # no gradients for eval
-    with torch.no_grad():
-
-      # load data
-      for i, (x, y, z) in enumerate(zip(x_eval.to(self.device), y_eval.to(self.device), z_eval)):
-
-        # classify
-        o = self.models['cnn'](x)
-
-        # loss
-        loss = self.criterion(o, y)
-
-        # prediction
-        _, y_hat = torch.max(o.data, 1)
-
-        # update eval score
-        eval_score.update(loss, y.cpu(), y_hat.cpu(), z, o.data)
-
-    # finish up scores
-    eval_score.finish()
-
-    # train mode
-    self.set_train_mode()
+    # update eval score
+    eval_score.update(loss, y.cpu(), y_hat.cpu(), z, o.data)
 
     return eval_score
 
@@ -549,40 +518,28 @@ class AdversarialNetHandler(NetHandler):
     fixed_noise = torch.randn(32, self.models['g'].n_latent, device=self.device)
 
     # score collector
-    train_score = TrainScore(train_params['num_epochs'], is_adv=True)
-
-    print("\n--Training starts:")
-
-    # start time
-    start_time = time.time()
+    train_score = AdversarialTrainScore(train_params['num_epochs'], invoker_class_name=self.__class__.__name__, k_print=batch_archive.y_train.shape[0] // self.num_print_per_epoch)
 
     # epochs
     for epoch in range(train_params['num_epochs']):
 
       # fetch data samples
-      for batch_index, (x, y) in enumerate(zip(batch_archive.x_train.to(self.device), batch_archive.y_train.to(self.device))):
+      for mini_batch, (x, y) in enumerate(zip(batch_archive.x_train.to(self.device), batch_archive.y_train.to(self.device))):
 
         # update models
-        train_score = self.update_models(x, y, batch_archive.class_dict, epoch, train_score)
-
-        # print some infos
-        self.print_train_info(epoch, batch_index, train_score, k_print=batch_archive.y_train.shape[0] // self.num_print_per_epoch)
-        train_score.reset_batch_losses()
+        train_score = self.update_models(x, y, batch_archive.class_dict, epoch, mini_batch, train_score)
 
       # check progess after epoch with callback function
       if callback_f is not None and not epoch % callback_act_epochs:
         callback_f(self.generate_samples(noise=fixed_noise, to_np=True), epoch)
 
-
-    print('--Training finished')
-
-    # log time
-    train_score.time_usage = time.time() - start_time 
+    # finish train score
+    train_score.finish()
 
     return train_score
 
 
-  def update_models(self, x, y, class_dict, epoch, train_score):
+  def update_models(self, x, y, class_dict, epoch, mini_batch, train_score):
     """
     model updates
     """
@@ -597,7 +554,7 @@ class AdversarialNetHandler(NetHandler):
     g_loss_fake = self.update_g(fakes)
 
     # update batch loss collection
-    train_score.update_batch_losses(epoch, loss=0.0, g_loss_fake=g_loss_fake.item(), d_loss_real=d_loss_real.item(), d_loss_fake=d_loss_fake.item())
+    train_score.update_batch_losses(epoch, mini_batch, g_loss_fake=g_loss_fake.item(), g_loss_sim=0.0, d_loss_real=d_loss_real.item(), d_loss_fake=d_loss_fake.item())
 
     return train_score
 
@@ -661,46 +618,18 @@ class AdversarialNetHandler(NetHandler):
     return g_loss_fake
 
 
-  def eval_nn(self, eval_set, batch_archive, collect_things=False, verbose=False):
+  def eval_forward(self, mini_batch, x, y, z, eval_score, verbose=False):
     """
-    evaluation of nn
-    use eval_set out of ['val', 'test', 'my']
+    eval forward pass
     """
+    
+    # classify
+    o = self.models['d'](x)
 
-    # eval mode
-    self.set_eval_mode()
-
-    # select the evaluation set
-    x_eval, y_eval, z_eval = self.eval_select_set(eval_set, batch_archive)
-
-    # init score
-    eval_score = EvalScore(collect_things=False)
-
-    # if set does not exist
-    if x_eval is None or y_eval is None:
-      print("no eval set found")
-      return eval_score
-
-    # no gradients for eval
-    with torch.no_grad():
-
-      # load data
-      for i, (x, y) in enumerate(zip(x_eval.to(self.device), y_eval.to(self.device))):
-
-        # classify
-        o = self.models['d'](x)
-
-        # some prints
-        if verbose:
-          if z_eval is not None:
-            print("\nlabels: {}".format(z_eval[i]))
-          print("output: {} \nactu: {} ".format(o.data, y))
-
-    # finish up scores
-    eval_score.finish()
-
-    # train mode
-    self.set_train_mode()
+    # some prints
+    if verbose:
+      if z is not None: print("\nlabels: {}".format(z))
+      print("output: {} \nactu: {} ".format(o.data, y))
 
     return eval_score
 
@@ -736,18 +665,11 @@ class AdversarialNetHandlerExperimental(AdversarialNetHandler):
     # parent class init
     super().__init__(nn_arch, class_dict, data_size, encoder_model=encoder_model, decoder_model=decoder_model, use_cpu=use_cpu)
 
-    # loss criterion
-    self.criterion = torch.nn.BCELoss()
-
-    # labels
-    self.real_label = 1.
-    self.fake_label = 0.
-
     # cosine similarity
     self.cos_sim = torch.nn.CosineSimilarity(dim=2, eps=1e-08)
 
 
-  def update_models(self, x, y, class_dict, epoch, train_score):
+  def update_models(self, x, y, class_dict, epoch, mini_batch, train_score):
     """
     model updates
     """
@@ -762,7 +684,7 @@ class AdversarialNetHandlerExperimental(AdversarialNetHandler):
     g_loss_fake, g_loss_sim = self.update_g(x, fakes, class_dict)
 
     # update batch loss collection
-    train_score.update_batch_losses(epoch, loss=0.0, g_loss_fake=g_loss_fake, g_loss_sim=g_loss_sim, d_loss_real=d_loss_real, d_loss_fake=d_loss_fake)
+    train_score.update_batch_losses(epoch, mini_batch, g_loss_fake=g_loss_fake, g_loss_sim=g_loss_sim, d_loss_real=d_loss_real, d_loss_fake=d_loss_fake)
 
     return train_score
 
@@ -867,6 +789,7 @@ class ConvEncoderNetHandler(CnnHandler):
       #self.optimizer = torch.optim.Adam(self.models['cnn'].encoder_model.parameters(), lr=train_params['lr'])
 
 
+
 class WavenetHandler(NetHandler):
   """
   wavenet handler
@@ -892,11 +815,8 @@ class WavenetHandler(NetHandler):
     # create optimizer
     self.optimizer = torch.optim.Adam(self.models['wav'].parameters(), lr=train_params['lr'])
 
-    # print message
-    print("\n--Training starts with {}".format(self.__class__.__name__))
 
-
-  def train_nn(self, train_params, batch_archive, callback_f=None):
+  def train_nn(self, train_params, batch_archive, callback_f=None, lam=2.0):
     """
     train the neural network
     train_params: {'num_epochs': [], 'lr': [], 'momentum': []}
@@ -906,10 +826,7 @@ class WavenetHandler(NetHandler):
     self.set_up_training(train_params)
 
     # score collector
-    train_score = TrainScore(train_params['num_epochs'])
-
-    # start time
-    start_time = time.time()
+    train_score = WavenetTrainScore(train_params['num_epochs'], invoker_class_name=self.__class__.__name__, k_print=batch_archive.y_train.shape[0] // self.num_print_per_epoch)
 
     # epochs
     for epoch in range(train_params['num_epochs']):
@@ -918,7 +835,7 @@ class WavenetHandler(NetHandler):
       self.update_training_params(epoch, train_params)
 
       # fetch data samples
-      for i, (x, y) in enumerate(zip(batch_archive.x_train.to(self.device), batch_archive.y_train.to(self.device))):
+      for mini_batch, (x, y) in enumerate(zip(batch_archive.x_train.to(self.device), batch_archive.y_train.to(self.device))):
 
         # target
         t = torch.squeeze(x)
@@ -927,13 +844,19 @@ class WavenetHandler(NetHandler):
         self.optimizer.zero_grad()
 
         # forward pass o:[b x c]
-        o = self.models['wav'](x)
+        o, y_hat = self.models['wav'](x)
 
         # quantize data
-        t = self.models['wav'].quantize(t, n_classes=256)
+        t = self.models['wav'].quantize(t, quant_size=256)
+
+        # loss similarity to signal
+        loss_t = self.criterion(o, t)
+
+        # loss for correct prediction
+        loss_y = self.criterion(y_hat, y)
 
         # loss
-        loss = self.criterion(o, t)
+        loss = loss_t + loss_y * lam
 
         # backward
         loss.backward()
@@ -942,34 +865,64 @@ class WavenetHandler(NetHandler):
         self.optimizer.step()
 
         # update batch loss collection
-        train_score.update_batch_losses(epoch, loss.item())
-
-        # print some infos
-        self.print_train_info(epoch, i, train_score, k_print=batch_archive.y_train.shape[0] // self.num_print_per_epoch)
-        train_score.reset_batch_losses()
+        train_score.update_batch_losses(epoch, mini_batch, loss_t=loss_t.item(), loss_y=loss_y.item() * lam)
 
       # valdiation
-      #eval_score = self.eval_nn('val', batch_archive)
+      eval_score = self.eval_nn('val', batch_archive)
 
       # update score collector
-      #train_score.val_loss[epoch], train_score.val_acc[epoch] = eval_score.loss, eval_score.acc
+      train_score.score_dict['val_loss'][epoch], train_score.score_dict['val_acc'][epoch] = eval_score.loss, eval_score.acc
 
-    print('--Training finished')
-
-    # log time
-    train_score.time_usage = time.time() - start_time 
+    # finish train score
+    train_score.finish()
 
     return train_score
 
 
-  def eval_nn(self, eval_set, batch_archive, collect_things=False, verbose=False):
+  def eval_forward(self, mini_batch, x, y, z, eval_score, verbose=False):
     """
-    evaluation of nn
-    use eval_set out of ['val', 'test', 'my']
+    forward pass
     """
-    pass
+
+    # classify
+    _, o_y = self.models['wav'](x)
+
+    # loss
+    loss = self.criterion(o_y, y)
+
+    # prediction
+    _, y_hat = torch.max(o_y.data, 1)
+
+    # update eval score
+    eval_score.update(loss, y.cpu(), y_hat.cpu(), z, o_y.data)
+
+    return eval_score
 
 
+  def classify_sample(self, x):
+    """
+    classification of a single sample presented in dim [m x f]
+    """
+
+    # input to tensor [n, c, m, f]
+    x = torch.unsqueeze(torch.from_numpy(x.astype(np.float32)), 0).to(self.device)
+
+    # no gradients for eval
+    with torch.no_grad():
+
+      # classify
+      _, o_y = self.models['wav'](x)
+
+      # prediction
+      _, y_hat = torch.max(o_y.data, 1)
+
+    # int conversion
+    y_hat = int(y_hat)
+
+    # get label
+    label = list(self.class_dict.keys())[list(self.class_dict.values()).index(y_hat)]
+
+    return y_hat, o_y, label
 
 
 if __name__ == '__main__':
@@ -985,6 +938,9 @@ if __name__ == '__main__':
 
   # yaml config file
   cfg = yaml.safe_load(open("./config.yaml"))
+
+  # change config upon nn arch
+  cfg['feature_params']['use_mfcc_features'] = False if cfg['ml']['nn_arch'] == 'wavenet' else True
 
   # audio sets
   audio_set1 = AudioDataset(cfg['datasets']['speech_commands'], cfg['feature_params'])
@@ -1008,13 +964,13 @@ if __name__ == '__main__':
   net_handler.train_nn(cfg['ml']['train_params'], batch_archive=batch_archive)
 
   # validation
-  #net_handler.eval_nn(eval_set='val', batch_archive=batch_archive, collect_things=False, verbose=False)
+  net_handler.eval_nn(eval_set='val', batch_archive=batch_archive, collect_things=False, verbose=False)
 
   # classify sample
-  #y_hat, o, label = net_handler.classify_sample(np.random.randn(net_handler.data_size[0], net_handler.data_size[1], net_handler.data_size[2]))
+  y_hat, o, label = net_handler.classify_sample(torch.randn(net_handler.data_size).numpy())
 
   # print classify result
-  #print("classify: [{}]\noutput: [{}]\nlabel: [{}]".format(y_hat, o, label))
+  print("classify: [{}]\noutput: [{}]\nlabel: [{}]".format(y_hat, o, label))
 
   # count parameters
   count_dict = net_handler.count_params_and_mults()

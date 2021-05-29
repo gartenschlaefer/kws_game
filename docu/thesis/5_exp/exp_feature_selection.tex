@@ -2,11 +2,11 @@
 % feature selection
 
 \section{Feature Selection}\label{sec:exp_fs}
-The first important Question, when using Neural Networks, is what features are used as inputs.
+The first important Question, when using neural networks, is what features are used as inputs.
 In the feature extraction section about MFCCs \rsec{signal_mfcc}, it was shown how raw audio files can be extracted to MFCCs and what enhancements can be done.
 These enhancements (deltas and energy features) are formed in groups for evaluation to see the impact on the choice and hopefully to reduce the input feature size to a minimum.
-%Now that the Neural Network Architectures are described in \rsec{nn_arch} and basic knowledge about MFCCs is given in \rsec{features} it is important to evaluate the impact of the selection of certain MFCC feature constellations to the accuracy of the Test sets.
-Beside it is good to get a general overview on what accuracies can be expected from different Neural Network Architectures.
+%Now that the neural network architectures are described in \rsec{nn_arch} and basic knowledge about MFCCs is given in \rsec{features} it is important to evaluate the impact of the selection of certain MFCC feature constellations to the accuracy of the Test sets.
+Beside it is good to get a general overview on what accuracies can be expected from different neural network architectures.
 The evaluation is done on 5 classes and 30 classes with different training parameters to observe the impact on a easy and a very hard classification task.
 In detail it is shown how models are trained with features consisting of following MFCC groups:
 \begin{enumerate}

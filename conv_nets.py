@@ -34,10 +34,11 @@ class ConvBasics():
 
     # layer dimensions
     self.conv_layer_dim = []
+
+    # first dimension
     self.conv_layer_dim.append((self.n_features, self.n_frames))
 
-    #[(self.n_channels, 8), (8, 4), (4, 5)]
-
+    # other dimensions calculated from kernel size and strides
     for i, (k, s) in enumerate(zip(self.kernel_sizes, self.strides)):
       self.conv_layer_dim.append((int((self.conv_layer_dim[i][0] - k[0]) / s[0] + 1), int((self.conv_layer_dim[i][1] - k[1]) / s[1] + 1)))
 

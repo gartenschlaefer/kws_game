@@ -1,5 +1,5 @@
 \subsection{Signal Processing and Feature Extraction Research Questions}
-This part focuses on how to acquire a meaningful representation of the input waveform from an human speaker. This representation usually is a feature vector extracted from the raw microphone data of a certain time interval. Further the retrieved feature vector is input to the Neural Network Architecture for classification. Following Questions arise here:
+This part focuses on how to acquire a meaningful representation of the input waveform from an human speaker. This representation usually is a feature vector extracted from the raw microphone data of a certain time interval. Further the retrieved feature vector is input to the neural network architecture for classification. Following Questions arise here:
 
 \begin{enumerate}[label={Q.1.\alph*)}, leftmargin=1.75cm]
 %    \item Wow is the microphone data processed and when does it show the presence of a speech command.
@@ -31,7 +31,7 @@ Another approach would be to indicate a speech command with a e.g. say a click o
 These methods with more details shall be discussed in further sections.
 
 \textbf{Question \ref{it:q1-b}:} 
-The restriction to processing input data to a feature vector in a certain time interval is essential for the design of the Neural Network.
+The restriction to processing input data to a feature vector in a certain time interval is essential for the design of the neural network.
 But more importantly it is the restriction of how long a human speaker has time to speak a speech command so that the whole command is captured. If a human speaker prolongs the pronunciation of a word, e.g. \enquote{left} for lets say 1 second, hardly all is captured if the time interval is restricted to say 500 milliseconds. If this 500 milliseconds is then sufficient for a still correct classification, must be evaluated. 
 Also in the application of a game, the user should speak commands with short duration, so that the game reacts fast. Another downside would be if one repeatedly speaks a speech commands, so that the time interval of another command would overlap each other. Ideally the time interval is flexible, but this is harder to implement than a fixed time interval.
 

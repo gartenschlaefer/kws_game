@@ -6,6 +6,7 @@ import numpy as np
 
 # my stuff
 from net_handler import NetHandler
+from legacy import legacy_adjustments_net_params
 
 
 class Classifier():
@@ -26,14 +27,11 @@ class Classifier():
     # data loading
     net_params = np.load(self.classifier_params_file, allow_pickle=True)
 
-    # see whats in data
-    print(net_params.files)
-
     # extract params
     self.nn_arch, self.train_params, self.class_dict = net_params['nn_arch'][()], net_params['train_params'][()], net_params['class_dict'][()]
 
     # legacy stuff
-    self.data_size, self.feature_params = self.legacy_adjustments_cl(net_params)
+    self.data_size, self.feature_params = legacy_adjustments_net_params(net_params)
 
     # print info
     if self.cfg_classifier['verbose']: print("\nExtract model with architecture: [{}]\nparams: [{}]\nand class dict: [{}]".format(self.nn_arch, self.train_params, self.class_dict))
@@ -49,27 +47,6 @@ class Classifier():
 
     # init to be faster
     self.classify(np.random.randn(self.net_handler.data_size[0], self.net_handler.data_size[1], self.net_handler.data_size[2]))
-
-
-  def legacy_adjustments_cl(self, net_params):
-    """
-    yeah another legacy :(
-    """
-
-    # for legacy models
-    try:
-      data_size = net_params['data_size'][()]
-    except:
-      data_size = (1, 39, 32)
-      print("old classifier model use fixed data size: {}".format(data_size))
-
-    try:
-      feature_params = net_params['feature_params'][()]
-    except:
-      feature_params = {'fs': 16000, 'N_s': 0.025, 'hop_s': 0.010, 'n_filter_bands': 32, 'n_ceps_coeff': 12, 'frame_size': 32, 'norm_features': False, 'use_channels': False, 'use_cepstral_features': True, 'use_delta_features': True, 'use_double_delta_features': True, 'use_energy_features': True}
-      print("old classifier model use fixed feature parameters: {}".format(feature_params))
-
-    return data_size, feature_params
 
 
   def classify(self, x):

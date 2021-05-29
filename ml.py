@@ -102,7 +102,7 @@ class ML():
     train_score = self.net_handler.train_nn(train_params=train_params, batch_archive=self.batch_archive, callback_f=self.image_collect)
 
     # training info
-    if log_on: logging.info('Training on arch: [{}], audio set param string: [{}], train_params: {}, device: [{}], time: {}'.format(self.cfg_ml['nn_arch'], self.audio_dataset.param_path, self.cfg_ml['train_params'], self.net_handler.device, s_to_hms_str(train_score.time_usage)))
+    if log_on: logging.info('Training on arch: [{}], audio set param string: [{}], train_params: {}, device: [{}], time: {}'.format(self.cfg_ml['nn_arch'], self.audio_dataset.param_path, self.cfg_ml['train_params'], self.net_handler.device, s_to_hms_str(train_score.score_dict['time_usage'])))
     
     # save models and params
     if save_models:
@@ -132,7 +132,7 @@ class ML():
     """
     save training metrics
     """
-    np.savez(self.metrics_file, train_score=train_score)
+    np.savez(self.metrics_file, train_score_dict=train_score.score_dict)
 
 
   def save_infos(self):
@@ -215,15 +215,11 @@ class ML():
           else: context = 'weight0'
 
           # detach weights
-          v = v.detach().cpu()
+          x = v.detach().cpu().numpy()
 
-          # info
-          #print("{} analyze: {}".format(k, v.shape))
-          
           # plot images
-          plot_grid_images(x=v.numpy(), context=context, color_balance=True, padding=1, num_cols=np.clip(v.shape[0], 1, 8), title=k + self.param_path_ml.replace('/', ' ') + ' ' + self.encoder_label + name_ext, plot_path=self.model_path, name=k + name_ext, show_plot=False)
-          plot_grid_images(x=v.numpy(), context=context+'-div', color_balance=True, padding=1, num_cols=np.clip(v.shape[0], 1, 8), title=k + self.param_path_ml.replace('/', ' ') + ' ' + self.encoder_label + name_ext, plot_path=self.model_path_folders['diff_plots'], name='div_' + k + name_ext, show_plot=False)
-          #plot_other_grid(x=v.numpy(), title=k + self.param_path_ml.replace('/', ' '), plot_path=self.model_path, name=k, show_plot=False)
+          plot_grid_images(x, context=context, color_balance=True, padding=1, num_cols=np.clip(v.shape[0], 1, 8), title=k + self.param_path_ml.replace('/', ' ') + ' ' + self.encoder_label + name_ext, plot_path=self.model_path_folders['conv_plots'], name=k + name_ext, show_plot=False)
+          plot_grid_images(x, context=context+'-div', color_balance=True, padding=1, num_cols=np.clip(v.shape[0], 1, 8), title=k + self.param_path_ml.replace('/', ' ') + ' ' + self.encoder_label + name_ext, plot_path=self.model_path_folders['conv_diff_plots'], name='div_' + k + name_ext, show_plot=False)
 
     # generate samples from trained model (only for adversarial)
     fakes = self.net_handler.generate_samples(num_samples=30, to_np=True)
@@ -523,7 +519,11 @@ def cfg_changer(cfg_file):
   change config for more convenient training
   """
 
+  # load config
   cfg = yaml.safe_load(open(cfg_file))
+
+  # change config upon nn arch
+  cfg['feature_params']['use_mfcc_features'] = False if cfg['ml']['nn_arch'] == 'wavenet' else True
 
   # no config changes allowed
   if not cfg['config_changer_allowed']: return [cfg]

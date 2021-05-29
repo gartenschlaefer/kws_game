@@ -7,6 +7,7 @@ import librosa
 import scipy
 import sys
 
+from legacy import legacy_adjustments_feature_params
 from skimage.util.shape import view_as_windows
 
 
@@ -18,19 +19,16 @@ class FeatureExtractor():
   def __init__(self, feature_params):
 
     # arguments
-    self.feature_params = feature_params
+    self.feature_params = legacy_adjustments_feature_params(feature_params)
 
     # windowing params
     self.N, self.hop = int(self.feature_params['N_s'] * self.feature_params['fs']), int(self.feature_params['hop_s'] * self.feature_params['fs'])
 
     # energy calculation
-    self.use_e_norm, self.use_e_sqrt = False, True
+    self.use_e_norm, self.use_e_sqrt = (False, True) if 'use_energy_features' in self.feature_params.keys() else (True, False)
 
     # position of energy vector (for energy region)
     self.energy_feature_pos = 0
-
-    # legacy
-    self.legacy_adjustments()
 
     # channel size
     self.channel_size = 1 if not self.feature_params['use_channels'] else int(self.feature_params['use_cepstral_features']) + int(self.feature_params['use_delta_features']) +  int(self.feature_params['use_double_delta_features'])
@@ -38,28 +36,17 @@ class FeatureExtractor():
     # feature size
     self.feature_size = (self.feature_params['n_ceps_coeff'] + int(self.feature_params['use_energy_features'])) * int(self.feature_params['use_cepstral_features']) + (self.feature_params['n_ceps_coeff'] + int(self.feature_params['use_energy_features'])) * int(self.feature_params['use_delta_features']) + (self.feature_params['n_ceps_coeff'] + int(self.feature_params['use_energy_features'])) * int(self.feature_params['use_double_delta_features']) if not self.feature_params['use_channels'] else (self.feature_params['n_ceps_coeff'] + int(self.feature_params['use_energy_features']))
 
+    # frame size
+    self.frame_size = self.feature_params['frame_size']
+
+    # raw frame size for raw inputs in samples
+    self.raw_frame_size = int(self.feature_params['frame_size_s'] * self.feature_params['fs'])
+
     # zero does not work
     if self.feature_size == 0 or self.channel_size == 0: print("feature size is zero -> select features in config"), sys.exit()
 
     # calculate weights
     self.w_f, self.w_mel, self.f, self.m = mel_band_weights(self.feature_params['n_filter_bands'], self.feature_params['fs'], self.N//2+1)
-
-
-  def legacy_adjustments(self):
-    """
-    yes we need legacy unfortunately:(
-    """
-
-    # about energy features ()
-    if 'use_energy_features' not in self.feature_params.keys(): self.use_e_norm, self.use_e_sqrt = True, False
-
-    # all feature params adjustments
-    if 'use_channels' not in self.feature_params.keys(): self.feature_params.update({'use_channels': False})
-    if 'use_cepstral_features' not in self.feature_params.keys(): self.feature_params.update({'use_cepstral_features': True})
-    if 'use_delta_features' not in self.feature_params.keys(): self.feature_params.update({'use_delta_features': True})
-    if 'use_double_delta_features' not in self.feature_params.keys(): self.feature_params.update({'use_double_delta_features': True})
-    if 'compute_deltas' in self.feature_params.keys(): self.feature_params.update({'use_delta_features': self.feature_params['compute_deltas'], 'use_double_delta_features': self.feature_params['compute_deltas']})
-    if 'use_energy_features' not in self.feature_params.keys(): self.feature_params.update({'use_energy_features': True})
 
 
   def extract_mfcc(self, x, reduce_to_best_onset=True):
@@ -102,7 +89,7 @@ class FeatureExtractor():
     _, bon_pos = self.find_max_energy_region(mfcc[self.energy_feature_pos, :])
 
     # return best onset
-    if reduce_to_best_onset: return mfcc_all[:, :, bon_pos:bon_pos+self.feature_params['frame_size']], bon_pos
+    if reduce_to_best_onset: return mfcc_all[:, :, bon_pos:bon_pos+self.frame_size], bon_pos
 
     return mfcc_all, bon_pos
 
@@ -277,6 +264,32 @@ class FeatureExtractor():
 
     # return best onset
     return mfcc[:, bon_pos:bon_pos+self.frame_size], bon_pos
+
+
+  def get_best_raw_samples(self, x, randomize=False, rand_samples=10, add_channel_dim=False):
+    """
+    best raw samples computed upon energy
+    """
+
+    # search for max energy windowed [r x m]
+    e_win = np.squeeze(view_as_windows(np.abs(x)**2, self.raw_frame_size, step=1))
+
+    # energy region
+    bon_pos = np.argmax(np.sum(e_win, axis=1))
+
+    # randomize a bit
+    if randomize:
+      bon_pos += np.random.randint(-rand_frame, rand_frame)
+      if bon_pos >= x_win.shape[0]: bon_pos = x_win.shape[0]
+      elif bon_pos < 0: bon_pos = 0
+
+    # best onset
+    x = x[bon_pos:bon_pos+self.raw_frame_size]
+
+    # channel dim
+    if add_channel_dim: x = x[np.newaxis, :]
+
+    return x, bon_pos
 
 
 

@@ -1,9 +1,11 @@
 """
-Creation of batches for training and testing neural networks with pytorch
+Batch creation for training and testing neural networks with pytorch
 """
 
 import numpy as np
 import torch
+
+from legacy import legacy_adjustments_feature_params
 
 
 class BatchArchive():
@@ -400,6 +402,9 @@ class SpeechCommandsBatchArchive(BatchArchive):
 
     # feature params
     self.feature_params = self.data[0]['params'][()]
+
+    # legacy
+    self.feature_params = legacy_adjustments_feature_params(self.feature_params)
 
     # channel size
     self.channel_size = 1 if not self.feature_params['use_channels'] or not self.feature_params['use_mfcc_features']  else int(self.feature_params['use_cepstral_features']) + int(self.feature_params['use_delta_features']) +  int(self.feature_params['use_double_delta_features'])
