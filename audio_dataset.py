@@ -121,8 +121,14 @@ class AudioDataset():
 
     # all audio files speakers
     if self.__class__.__name__ == 'SpeechCommandsDataset':
+
+      # extract speaker info
       all_speakers_files = [re.sub(r'(\./)|(\w+/)|(\w+--)|(_nohash_[0-9]+.wav)', '', i) for i in list(np.concatenate(np.concatenate(np.array(self.set_audio_files, dtype='object'))))]
+      
+      # get all unique speakers
       all_speakers = np.unique(all_speakers_files)
+
+      # print info
       print("number of audio files: ", len(all_speakers_files)), print("speakers: ", all_speakers), print("number of speakers: ", len(all_speakers))
 
       # save damaged files
@@ -450,7 +456,7 @@ class SpeechCommandsDataset(AudioDataset):
       n_examples = int(self.dataset_cfg['n_examples'] * self.dataset_cfg['split_percs'][i])
 
       # extract data
-      x, y, index = self.extract_mfcc_data(wavs=wavs, annos=annos, n_examples=n_examples, set_name=set_name) if self.feature_params['use_mfcc_features'] else self.extract_raw_data(wavs=wavs, annos=annos, n_examples=n_examples, set_name=set_name)
+      x, y, t, index = self.extract_mfcc_data(wavs=wavs, annos=annos, n_examples=n_examples, set_name=set_name) if self.feature_params['use_mfcc_features'] else self.extract_raw_data(wavs=wavs, annos=annos, n_examples=n_examples, set_name=set_name)
 
       # add noise if requested
       if self.dataset_cfg['add_noise'] and self.feature_params['use_mfcc_features']: x, y, index = self.add_noise_to_dataset(x, y, index, n_examples)
@@ -459,7 +465,7 @@ class SpeechCommandsDataset(AudioDataset):
       self.label_stats(y)
 
       # save mfcc data file
-      np.savez(self.feature_files[i], x=x, y=y, index=index, params=self.feature_params)
+      np.savez(self.feature_files[i], x=x, y=y, t=t, index=index, params=self.feature_params)
       print("--save data to: ", self.feature_files[i])
 
 
@@ -525,7 +531,7 @@ class SpeechCommandsDataset(AudioDataset):
         if num_class_examples >= n_examples: break
 
 
-    return mfcc_data, label_data, index_data
+    return mfcc_data, label_data, None, index_data
 
 
   def extract_raw_data(self, wavs, annos, n_examples, set_name=None):
@@ -534,7 +540,7 @@ class SpeechCommandsDataset(AudioDataset):
     """
 
     # raw data: [n x m], labels and index
-    raw_data, label_data, index_data = np.empty(shape=(0, self.channel_size, self.raw_frame_size), dtype=np.float64), [], []
+    raw_data, label_data, target_data, index_data = np.empty(shape=(0, self.channel_size, self.raw_frame_size), dtype=np.float64), [], np.empty(shape=(0, self.raw_frame_size), dtype=np.int64), []
 
     # extract class wavs
     for class_wavs, class_annos in zip(wavs, annos):
@@ -567,14 +573,18 @@ class SpeechCommandsDataset(AudioDataset):
         # add dither and do normalization
         raw = self.wav_post_processing(raw)
 
+        # quantize data
+        t = self.feature_extractor.quantize(raw)
+
         # plot waveform
         if self.dataset_cfg['enable_plot']: plot_waveform(x, self.feature_params['fs'],  bon_samples=[bon_pos, bon_pos+self.raw_frame_size], title=label + file_index, plot_path=self.plot_paths['waveform'], name=label + file_index, show_plot=False, close_plot=True)
 
         # collect wavs
-        if self.collect_wavs: self.pre_wavs.append((librosa.util.normalize(x), label + str(file_index) + '_' + set_name, bon_pos/self.hop))
+        if self.collect_wavs: self.pre_wavs.append((librosa.util.normalize(x), label + str(file_index) + '_' + set_name, bon_pos / self.hop))
 
         # add to mfcc_data container
         raw_data = np.vstack((raw_data, raw[np.newaxis, :]))
+        target_data = np.vstack((target_data, t))
         label_data.append(label)
         index_data.append(label + file_index)
 
@@ -584,7 +594,7 @@ class SpeechCommandsDataset(AudioDataset):
         # stop if desired examples are reached
         if num_class_examples >= n_examples: break
 
-    return raw_data, label_data, index_data
+    return raw_data, label_data, target_data, index_data
 
 
   def detect_damaged_file(self, mfcc, wav):

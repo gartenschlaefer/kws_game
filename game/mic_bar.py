@@ -14,12 +14,10 @@ class MicBar(Interactable):
   graphical bar for microphone energy measure
   """
 
-  def __init__(self, mic, position, color_bag, size=(20, 40), energy_frame_update=4):
-
-    # init parents
-    super().__init__()
+  def __init__(self, surf, mic, position, color_bag, size=(20, 40), energy_frame_update=4):
 
     # mic
+    self.surf = surf
     self.mic = mic
     self.position = position
     self.color_bag = color_bag
@@ -110,6 +108,16 @@ class MicBar(Interactable):
 
       print("act_length: ", self.bar_sprite.act_length)
 
+      # update bar
+      self.bar_sprite.update()
+
+
+  def draw(self):
+    """
+    draw
+    """
+
+    self.surf.blit(self.bar_sprite.image, self.bar_sprite.position)
 
 
 
@@ -120,7 +128,7 @@ class BarSprite(pygame.sprite.Sprite):
 
   def __init__(self, mic, position, color=(10, 200, 200), size=(20, 20), min_db=-70):
 
-    # MRO check
+    # parent init
     super().__init__()
 
     # vars

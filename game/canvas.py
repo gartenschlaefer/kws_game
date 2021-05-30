@@ -8,6 +8,7 @@ from interactable import Interactable
 from text import Text
 from button import StartButton, EndButton, HelpButton, OptionButton
 from color_bag import ColorBag
+from mic_bar import MicBar
 
 
 class Canvas(Interactable):
@@ -110,17 +111,23 @@ class CanvasOptionMenu(Canvas):
   main menu canvas
   """
 
-  def __init__(self, screen):
+  def __init__(self, screen, mic):
 
     # Parent init
     super().__init__(screen)
+
+    # arguments
+    self.mic = mic
 
     # add text
     text = Text(self.canvas_surf)
     text.render_small_msg('option', (0, 0))
 
+    # mic bar
+    mic_bar = MicBar(self.canvas_surf, self.mic, position=(300, 200), color_bag=self.color_bag, size=(50, 150))
+
     # update canvas objects
-    self.interactables_dict.update({'text': text, 'end_button': EndButton(self.canvas_surf, position=(100, 300), scale=(3, 3))})
+    self.interactables_dict.update({'text': text, 'mic_bar': mic_bar, 'end_button': EndButton(self.canvas_surf, position=(100, 300), scale=(3, 3))})
 
 
 if __name__ == '__main__':

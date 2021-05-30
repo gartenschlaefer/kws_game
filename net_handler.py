@@ -835,25 +835,20 @@ class WavenetHandler(NetHandler):
       self.update_training_params(epoch, train_params)
 
       # fetch data samples
-      for mini_batch, (x, y) in enumerate(zip(batch_archive.x_train.to(self.device), batch_archive.y_train.to(self.device))):
-
-        # target
-        t = torch.squeeze(x)
+      #for mini_batch, (x, y) in enumerate(zip(batch_archive.x_train.to(self.device), batch_archive.y_train.to(self.device))):
+      for mini_batch, (x, y, t) in enumerate(zip(batch_archive.x_train.to(self.device), batch_archive.y_train.to(self.device), batch_archive.t_train.to(self.device))):
 
         # zero parameter gradients
         self.optimizer.zero_grad()
 
         # forward pass o:[b x c]
-        o, y_hat = self.models['wav'](x)
-
-        # quantize data
-        t = self.models['wav'].quantize(t, quant_size=256)
+        o_t, o_y = self.models['wav'](x)
 
         # loss similarity to signal
-        loss_t = self.criterion(o, t)
+        loss_t = self.criterion(o_t, t)
 
         # loss for correct prediction
-        loss_y = self.criterion(y_hat, y)
+        loss_y = self.criterion(o_y, y)
 
         # loss
         loss = loss_t + loss_y * lam

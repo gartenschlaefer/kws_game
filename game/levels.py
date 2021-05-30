@@ -50,8 +50,7 @@ class Level(Interactable):
     """
 
     # interactables
-    for interactable in self.interactables:
-      interactable.event_update(event)
+    for interactable in self.interactables: interactable.event_update(event)
 
 
   def update(self):
@@ -60,14 +59,16 @@ class Level(Interactable):
     """
 
     # interactables
-    for i, interactable in enumerate(self.interactables):
-      interactable.update()
+    for interactable in self.interactables: interactable.update()
 
     # update sprites
     self.all_sprites.update()
 
     # fill screen
     self.screen.fill(self.color_bag.background)
+
+    # draw interactables
+    for interactable in self.interactables: interactable.draw()
 
     # draw sprites
     self.all_sprites.draw(self.screen)
@@ -86,26 +87,14 @@ class LevelMic(Level):
     # parent class init
     super().__init__(screen, screen_size)
 
-    # mic
+    # arguments
     self.mic = mic
 
     # mic bar
-    self.mic_bar = MicBar(mic, position=(200, 200), color_bag=self.color_bag, size=(50, 150))
-
-    # setup level
-    self.setup_level()
+    self.mic_bar = MicBar(screen, mic, position=(200, 200), color_bag=self.color_bag, size=(50, 150))
 
     # append interactable
     self.interactables.append(self.mic_bar)
-
-
-  def setup_level(self):
-    """
-    setup level
-    """
-    
-    # sprites
-    self.all_sprites.add(self.mic_bar.sprites)
 
 
 

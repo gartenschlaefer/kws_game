@@ -107,6 +107,15 @@ class Menu(Interactable):
     self.game_logic.reset()
 
 
+  def event_update(self, event):
+    """
+    event update
+    """
+
+    # game logic
+    self.game_logic.event_update(event)
+
+
   def update(self):
     """
     update menu
@@ -132,7 +141,7 @@ class Menu(Interactable):
       for event in pygame.event.get():
 
         # input handling
-        self.game_logic.event_update(event)
+        self.event_update(event)
 
       # update menu
       self.update()
@@ -200,20 +209,56 @@ class OptionMenu(Menu):
   main menu
   """
 
-  def __init__(self, cfg_game, screen):
+  def __init__(self, cfg_game, screen, mic):
 
     # Parent init
     super().__init__(cfg_game, screen)
+
+    # arguments
+    self.mic = mic
 
     # button dict, selection: button in canvas
     self.button_dict = {0: 'end_button'}
 
     # canvas
-    self.canvas = CanvasOptionMenu(self.screen)
+    self.canvas = CanvasOptionMenu(self.screen, self.mic)
 
     # set button active
     self.canvas.interactables_dict['end_button'].button_press()
 
+
+  def menu_loop(self):
+    """
+    menu loop
+    """
+
+    # add clock
+    clock = pygame.time.Clock()
+
+    # mic stream and update
+    with self.mic.stream:
+      while self.game_logic.run_loop:
+        for event in pygame.event.get():
+
+          # input handling
+          self.event_update(event)
+
+        # update menu
+        self.update()
+
+        # update display
+        pygame.display.flip()
+
+        # reduce framerate
+        clock.tick(self.cfg_game['fps'])
+
+    # action at ending loop
+    action = self.button_dict[self.button_select] if not self.game_logic.esc_key_exit else 'exit'
+
+    # reset game logic
+    self.game_logic.reset()
+
+    return action
 
 
 if __name__ == '__main__':
@@ -223,9 +268,21 @@ if __name__ == '__main__':
 
   import yaml
 
+  # append paths
+  import sys
+  sys.path.append("../")
+
+  from classifier import Classifier
+  from mic import Mic
+
   # yaml config file
   cfg = yaml.safe_load(open("../config.yaml"))
 
+  # create classifier
+  classifier = Classifier(cfg_classifier=cfg['classifier'], root_path='../')
+  
+  # create mic instance
+  mic = Mic(classifier=classifier, feature_params=cfg['feature_params'], mic_params=cfg['mic_params'], is_audio_record=True)
 
   # init pygame
   pygame.init()
@@ -235,9 +292,9 @@ if __name__ == '__main__':
 
   # menu
   #menu = Menu(cfg['game'], screen)
-  menu = MainMenu(cfg['game'], screen)
+  #menu = MainMenu(cfg['game'], screen)
   #menu = HelpMenu(cfg['game'], screen)
-  #menu = OptionMenu(cfg['game'], screen)
+  menu = OptionMenu(cfg['game'], screen, mic)
 
   # run menu loop
   menu.menu_loop()

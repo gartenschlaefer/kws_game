@@ -292,6 +292,23 @@ class FeatureExtractor():
     return x, bon_pos
 
 
+  def mu_softmax(self, x, mu=256):
+    """
+    mu softmax function
+    """
+    return np.sign(x) * np.log(1 + mu * np.abs(x)) / np.log(1 + np.ones(x.shape) * mu)
+
+
+  def quantize(self, x, quant_size=256):
+    """
+    quantize data
+    """
+    return np.digitize(self.mu_softmax(x, mu=quant_size), bins=np.linspace(-1, 1, quant_size)) - 1
+
+
+
+# --
+# other useful functions
 
 def find_min_energy_time(mfcc, fs, hop):
   """

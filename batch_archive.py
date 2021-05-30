@@ -25,21 +25,25 @@ class BatchArchive():
     # training batches
     self.x_train = None
     self.y_train = None
+    self.t_train = None
     self.z_train = None
 
     # validation batches
     self.x_val = None
     self.y_val = None
+    self.t_val = None
     self.z_val = None
 
     # test batches
     self.x_test = None
     self.y_test = None
+    self.t_test = None
     self.z_test = None
 
     # my batches
     self.x_my = None
     self.y_my = None
+    self.t_my = None
     self.z_my = None
 
     # classes
@@ -442,13 +446,13 @@ class SpeechCommandsBatchArchive(BatchArchive):
       return
 
     # create batches
-    self.x_train, self.y_train, self.z_train = self.create_batches(self.data[0], batch_size=self.batch_size)
-    self.x_val, self.y_val, self.z_val = self.create_batches(self.data[1], batch_size=self.batch_size_eval)
-    self.x_test, self.y_test, self.z_test = self.create_batches(self.data[2], batch_size=self.batch_size_eval)
+    self.x_train, self.y_train, self.t_train, self.z_train = self.create_batches(self.data[0], batch_size=self.batch_size)
+    self.x_val, self.y_val, self.t_val, self.z_val = self.create_batches(self.data[1], batch_size=self.batch_size_eval)
+    self.x_test, self.y_test, self.t_test, self.z_test = self.create_batches(self.data[2], batch_size=self.batch_size_eval)
 
     # my data included
     if len(self.feature_files) == 4:
-      self.x_my, self.y_my, self.z_my = self.create_batches(self.data[3], batch_size=1)
+      self.x_my, self.y_my, self.t_my, self.z_my = self.create_batches(self.data[3], batch_size=1)
 
     # num examples
     self.determine_num_examples()
@@ -464,10 +468,20 @@ class SpeechCommandsBatchArchive(BatchArchive):
     # extract data
     x, y, z = data['x'], data['y'], data['index']
 
+    # target
+    t = data['t'] if not self.feature_params['use_mfcc_features'] else None
+
     # randomize examples
     if self.shuffle:
+
+      # random permutation
       indices = np.random.permutation(x.shape[0])
+
+      # randomize
       x, y, z = np.take(x, indices, axis=0), np.take(y, indices, axis=0), np.take(z, indices, axis=0)
+
+      # target
+      t = np.take(t, indices, axis=0) if not self.feature_params['use_mfcc_features'] else None
 
     # number of windows
     batch_nums = x.shape[0] // batch_size
@@ -487,9 +501,13 @@ class SpeechCommandsBatchArchive(BatchArchive):
       # remaining and filling examples
       r_x, r_y, r_z, f_x, f_y, f_z = x[ss:se, :], y[ss:se], z[ss:se], x[random_samples, :], y[random_samples], z[random_samples]
 
+      # target
+      r_t, f_t = (t[ss:se, :], t[random_samples, :]) if not self.feature_params['use_mfcc_features'] else (None, None)
+
     # init batches
     x_batches = np.empty((batch_nums, batch_size, self.channel_size, self.feature_size, self.frame_size), dtype=np.float32) if self.feature_params['use_mfcc_features'] else np.empty((batch_nums, batch_size, self.channel_size, self.raw_frame_size), dtype=np.float32)
     y_batches = np.empty((batch_nums, batch_size), dtype=np.int)
+    t_batches = np.empty((batch_nums, batch_size, self.raw_frame_size), dtype=np.int) if not self.feature_params['use_mfcc_features'] else None
     z_batches = np.empty((batch_nums, batch_size), dtype=z.dtype)
 
     # batching
@@ -498,6 +516,9 @@ class SpeechCommandsBatchArchive(BatchArchive):
       y_batches[i, :] = self.get_index_of_class(y[i*batch_size:i*batch_size+batch_size])
       z_batches[i, :] = z[i*batch_size:i*batch_size+batch_size]
 
+      # target
+      if not self.feature_params['use_mfcc_features']: t_batches[i, :] = t[i*batch_size:i*batch_size+batch_size, :]
+    
     # last batch index
     i += 1
 
@@ -506,10 +527,16 @@ class SpeechCommandsBatchArchive(BatchArchive):
     y_batches[i, :] = self.get_index_of_class(y[i*batch_size:i*batch_size+batch_size]) if not r else self.get_index_of_class(np.concatenate((r_y, f_y)))
     z_batches[i, :] = z[i*batch_size:i*batch_size+batch_size] if not r else np.concatenate((r_z, f_z))
 
+    # target
+    if not self.feature_params['use_mfcc_features']: t_batches[i, :] = t[i*batch_size:i*batch_size+batch_size, :] if not r else np.concatenate((r_t, f_t))
+    
     # to torch
-    if self.to_torch: x_batches, y_batches = torch.from_numpy(x_batches), torch.from_numpy(y_batches)
+    if self.to_torch: 
 
-    return x_batches, y_batches, z_batches
+      x_batches, y_batches = torch.from_numpy(x_batches), torch.from_numpy(y_batches)
+      t_batches = torch.from_numpy(t_batches) if not self.feature_params['use_mfcc_features'] else None
+
+    return x_batches, y_batches, t_batches, z_batches
 
 
 
@@ -517,12 +544,19 @@ def print_batch_infos(batch_archive):
   """
   simply print some infos
   """
-
-  print("x_train: ", batch_archive.x_train.shape), print("y_train: ", batch_archive.y_train.shape), print("z_train: ", batch_archive.z_train.shape), print("x_val: ", batch_archive.x_val.shape), print("y_val: ", batch_archive.y_val.shape), print("z_val: ", batch_archive.z_val.shape), print("x_test: ", batch_archive.x_test.shape), print("y_test: ", batch_archive.y_test.shape), print("z_test: ", batch_archive.z_test.shape), print("x_my: ", batch_archive.x_my.shape), print("y_my: ", batch_archive.y_my.shape), print("z_my: ", batch_archive.z_my.shape)
+  try:
+    print("x_train: ", batch_archive.x_train.shape), print("y_train: ", batch_archive.y_train.shape), print("z_train: ", batch_archive.z_train.shape)
+    print("x_val: ", batch_archive.x_val.shape), print("y_val: ", batch_archive.y_val.shape), print("z_val: ", batch_archive.z_val.shape)
+    print("x_test: ", batch_archive.x_test.shape), print("y_test: ", batch_archive.y_test.shape), print("z_test: ", batch_archive.z_test.shape)
+    print("x_my: ", batch_archive.x_my.shape), print("y_my: ", batch_archive.y_my.shape), print("z_my: ", batch_archive.z_my.shape) 
+    print("t_train: ", batch_archive.t_train.shape), print("t_val: ", batch_archive.t_val.shape), print("t_test: ", batch_archive.t_test.shape), print("t_my: ", batch_archive.t_my.shape),
+    print("t_my: ", batch_archive.t_my)
+  except:
+    pass
   print("num_examples_per_class: ", batch_archive.num_examples_per_class), print("class_dict: ", batch_archive.class_dict)
-  print("y: ", batch_archive.y_train)
-  print("y data type: ", batch_archive.y_train.dtype)
-  print("y: ", batch_archive.y_test)
+  #print("y_train: ", batch_archive.y_train)
+  print("y_train type: ", batch_archive.y_train.dtype)
+  #print("y_test: ", batch_archive.y_test)
   print("y_my: ", batch_archive.y_my)
 
 
@@ -593,7 +627,7 @@ if __name__ == '__main__':
   batch_archive = SpeechCommandsBatchArchive(audio_set1.feature_files + audio_set2.feature_files, batch_size=32, batch_size_eval=5, shuffle=False)
 
   # reduce to labels algorithm
-  batch_archive.reduce_to_labels(['left', 'right'])
+  #batch_archive.reduce_to_labels(['left', 'right'])
 
   # infos
   print("\ndata: "), print_batch_infos(batch_archive)
@@ -637,8 +671,8 @@ if __name__ == '__main__':
 
 
   #plot_mfcc_profile(x=np.ones(16000), fs=16000, N=400, hop=160, mfcc=x1)
-  plot_mfcc_only(x1, fs=16000, hop=160, plot_path=None, name=batch_archive.z_train[0, 0], show_plot=False)
-  plot_mfcc_only(x2, fs=16000, hop=160, plot_path=None, name=batch_archive.z_train[0, 1], show_plot=True)
+  #plot_mfcc_only(x1, fs=16000, hop=160, plot_path=None, name=batch_archive.z_train[0, 0], show_plot=False)
+  #plot_mfcc_only(x2, fs=16000, hop=160, plot_path=None, name=batch_archive.z_train[0, 1], show_plot=True)
 
   #plot_mfcc_equal_aspect(x2, fs=16000, hop=160, cmap=None, context='mfcc', plot_path=None, name=batch_archive.z_train[0, 1], show_plot=True)
   #plot_mfcc_equal_aspect(x3, fs=16000, hop=160, cmap=None, context='mfcc', plot_path=None, name=batch_archive.z_my[0, 0], gizmos_off=True, show_plot=True)
