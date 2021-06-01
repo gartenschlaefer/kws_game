@@ -19,7 +19,7 @@ It is described why they are good features and how they can be visualized to und
 \noindent
 
 \subsection{The Idea behind}
-To comprehend the success and wide use of MFCCs features in Neural Networks and other machine learning applications, it is necessary to understand its processing scheme:
+To comprehend the success and wide use of MFCCs features in neural networks and other machine learning applications, it is necessary to understand its processing scheme:
 Raw audio samples are transformed into the frequency domain with the Short-Time Fourier Transform (STFT).
 Afterwards the power spectrum of the STFT is segmented in frequency bands (along the frequency dimension) done by a filter bank.
 The filter bands are spaced in equidistant mel frequencies,
@@ -32,7 +32,7 @@ The last step is not that straight forward, but is a technique widely used in im
 It is only to mention that is some kind of decorrelation process, so that different filter bands are mixed together.
 
 This processing steps seem rather complicated in the beginning, but are in fact nothing else but consecutive steps of appropriate scaling and data compression.
-It is to mention that Neural Networks usually are able to handle large amounts of input features, but it is always preferable to decrease the input size, such that the model size of the neural network can be decreased same-wise.
+It is to mention that neural networks usually are able to handle large amounts of input features, but it is always preferable to decrease the input size, such that the model size of the neural network can be decreased same-wise.
 Therefore it becomes more clear, why frequencies are put into certain frequency bands, are log scaled and as last step decorrelated with a method like the DCT.
 
 \subsection{Processing Pipeline in detail}
@@ -92,8 +92,8 @@ These Basis functions are illustrated in \rfig{signal_mfcc_dct}
 
 
 \subsection{MFCC Feature Usage and Enhancement}
-After the MFCCs are computed, they can be used as input features for Neural Networks. 
-The important Question here is whether an feature enhancement can be done and if all those computed features are necessarily and meaningful for the training and evaluation success of Neural Networks. Usually not all MFCC coefficients are used as inputs, this is merely done to reduce the computational cost in case the accuracy does not suffer from it.
+After the MFCCs are computed, they can be used as input features for neural networks. 
+The important Question here is whether an feature enhancement can be done and if all those computed features are necessarily and meaningful for the training and evaluation success of neural networks. Usually not all MFCC coefficients are used as inputs, this is merely done to reduce the computational cost in case the accuracy does not suffer from it.
 A good application is to compute 32 MFCC features (with 32 equidistant Mel filter bands) and use only the first 12 of them as inputs.
 Further it is also possible to compute derivatives (in the time domain) of MFCC features, denoted as Deltas. 
 Those derivatives are simple computed as frame difference of the MFCCs.
@@ -186,4 +186,4 @@ As conclusion, the normalisation in the frame space is an interesting aspect to 
 specifically for the cepstral coefficients and the energy features (not the deltas).
 Exactly this nice representation was motivating to explore normalisation of feature for neural network inputs.
 However this is a very crucial thing to do. A normalisation relatives important structures within the feature space and it cannot really be answered if this is a good thing or not.
-One more research question arises here: Is it possible to use normalisation for the features as inputs to Neural Networks and what are the results to the accuracy and training of the models.
+One more research question arises here: Is it possible to use normalisation for the features as inputs to neural networks and what are the results to the accuracy and training of the models.

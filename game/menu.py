@@ -10,7 +10,7 @@ from glob import glob
 from color_bag import ColorBag
 from interactable import Interactable
 from game_logic import MenuGameLogic
-from canvas import Canvas, CanvasMainMenu, CanvasHelpMenu, CanvasOptionMenu
+from canvas import Canvas, CanvasMainMenu, CanvasHelpMenu, CanvasOptionMenu, CanvasDevice
 
 
 class Menu(Interactable):
@@ -35,61 +35,29 @@ class Menu(Interactable):
 
     # actual up down click
     self.ud_click = 0
+    self.lr_click = 0
 
     # click
     self.click = False
 
     # selection
-    self.button_select = 0
+    self.button_state = 0
 
     # button dict, selection: button in canvas
     self.button_dict = {0: 'start_button', 1: 'help_button', 2: 'end_button'}
 
 
-  def button_state_update(self):
+  def direction_change(self, direction):
     """
-    button state
+    arrow keys pressed
     """
-
-    # check if clicked
-    if not self.click and self.ud_click:
-
-      # deselect buttons
-      if self.ud_click < 0 and self.button_select: 
-        self.button_click()
-        self.button_select -= 1
-
-      # down
-      elif self.ud_click > 0 and self.button_select < len(self.button_dict) - 1: 
-        self.button_click()
-        self.button_select += 1
-
-      # return
-      else: return
-
-      # set click
-      self.click = True
-
-      # select buttons
-      self.button_click()
-
-    # reset click
-    if self.ud_click == 0: self.click = False
+    
+    # ud click state
+    self.ud_click += direction[1]
+    self.lr_click += direction[0]
 
 
-  def button_click(self):
-    """
-    button click
-    """
-
-    # change button image
-    try:
-      self.canvas.interactables_dict[self.button_dict[self.button_select]].button_press()
-    except:
-      print("button not available in canvas: ", self.button_dict[self.button_select])
-
-
-  def button_enter(self):
+  def enter_key(self):
     """
     button enter
     """
@@ -123,9 +91,67 @@ class Menu(Interactable):
 
     # canvas
     self.canvas.update()
+    self.canvas.draw()
 
     # up down movement
     self.button_state_update()
+
+
+  def button_state_update(self):
+    """
+    button state
+    """
+
+    # check if clicked
+    if not self.click and self.ud_click:
+
+      # deselect buttons
+      if self.ud_click < 0 and self.button_state: 
+        self.button_deselect()
+        self.button_state -= 1
+
+      # down
+      elif self.ud_click > 0 and self.button_state < len(self.button_dict) - 1: 
+        self.button_deselect()
+        self.button_state += 1
+
+      # return
+      else: return
+
+      # set click
+      self.click = True
+
+      # select buttons
+      self.button_select()
+
+    # reset click
+    if self.ud_click == 0: self.click = False
+
+
+  def button_select(self):
+    """
+    button select
+    """
+    self.button_toggle()
+
+
+  def button_deselect(self):
+    """
+    button select
+    """
+    self.button_toggle()
+
+
+  def button_toggle(self):
+    """
+    button click
+    """
+
+    # change button image
+    try:
+      self.canvas.interactable_dict[self.button_dict[self.button_state]].button_press()
+    except:
+      print("button not available in canvas: ", self.button_dict[self.button_state])
 
 
   def menu_loop(self):
@@ -153,7 +179,7 @@ class Menu(Interactable):
       clock.tick(self.cfg_game['fps'])
 
     # action at ending loop
-    action = self.button_dict[self.button_select] if not self.game_logic.esc_key_exit else 'exit'
+    action = self.button_dict[self.button_state] if not self.game_logic.esc_key_exit else 'exit'
 
     # reset game logic
     self.game_logic.reset()
@@ -179,7 +205,7 @@ class MainMenu(Menu):
     self.canvas = CanvasMainMenu(self.screen)
 
     # set button active
-    self.canvas.interactables_dict['start_button'].button_press()
+    self.canvas.interactable_dict['start_button'].button_press()
 
 
 
@@ -200,7 +226,7 @@ class HelpMenu(Menu):
     self.canvas = CanvasHelpMenu(self.screen)
 
     # set button active
-    self.canvas.interactables_dict['end_button'].button_press()
+    self.canvas.interactable_dict['end_button'].button_press()
 
 
 
@@ -218,13 +244,22 @@ class OptionMenu(Menu):
     self.mic = mic
 
     # button dict, selection: button in canvas
-    self.button_dict = {0: 'end_button'}
+    self.button_dict = {0: 'cmd_button', 1: 'thresh_button', 2: 'device_button', 3: 'end_button'}
+
+    # selection
+    self.button_state = 3
 
     # canvas
     self.canvas = CanvasOptionMenu(self.screen, self.mic)
 
     # set button active
-    self.canvas.interactables_dict['end_button'].button_press()
+    self.canvas.interactable_dict['end_button'].button_press()
+
+    # device canvas
+    self.canvas.interactable_dict.update({'device_canvas': CanvasDevice(self.canvas.canvas_surf, size=(200, 200), position=(200, 200))})
+
+    # put device canvas first to render
+    self.canvas.interactable_dict = {k:v for k, v in list(self.canvas.interactable_dict.items())[-1:] + list(self.canvas.interactable_dict.items())[:-1]}
 
 
   def menu_loop(self):
@@ -253,12 +288,56 @@ class OptionMenu(Menu):
         clock.tick(self.cfg_game['fps'])
 
     # action at ending loop
-    action = self.button_dict[self.button_select] if not self.game_logic.esc_key_exit else 'exit'
+    action = self.button_dict[self.button_state] if not self.game_logic.esc_key_exit else 'exit'
 
     # reset game logic
     self.game_logic.reset()
 
     return action
+
+
+  def enter_key(self):
+    """
+    button enter
+    """
+
+    # end loop
+    if self.button_dict[self.button_state] == 'end_button': self.game_logic.run_loop = False
+
+
+  def button_select(self):
+    """
+    button select
+    """
+
+    # toggle button image
+    self.button_toggle()
+
+    # activate dev page
+    if self.button_dict[self.button_state] == 'device_button':
+      self.toggle_device_canvas()
+      print("open device page")
+
+
+  def button_deselect(self):
+    """
+    button deselect
+    """
+
+    # toggle button image
+    self.button_toggle()
+
+    if self.button_dict[self.button_state] == 'device_button': 
+      self.toggle_device_canvas()
+      print("close device page")
+
+
+  def toggle_device_canvas(self):
+    """
+    device page
+    """
+
+    self.canvas.interactable_dict['device_canvas'].enabled = not self.canvas.interactable_dict['device_canvas'].enabled
 
 
 if __name__ == '__main__':

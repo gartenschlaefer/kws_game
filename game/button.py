@@ -158,6 +158,69 @@ class OptionButton(Button):
 
 
 
+class DeviceButton(Button):
+  """
+  option button
+  """
+
+  def __init__(self, surf, position=(0, 0), scale=1):
+
+    # init parents
+    super().__init__(surf, position, scale)
+
+    # root for images
+    self.button_path = str(pathlib.Path(__file__).parent.absolute()) + "/art/buttons/"
+
+    # change image
+    self.button_images = [pygame.image.load(s).convert_alpha() for s in glob(self.button_path + 'device_button_*.png')]
+
+    # init buttons
+    self.button_images_init()
+
+
+
+class ThreshButton(Button):
+  """
+  option button
+  """
+
+  def __init__(self, surf, position=(0, 0), scale=1):
+
+    # init parents
+    super().__init__(surf, position, scale)
+
+    # root for images
+    self.button_path = str(pathlib.Path(__file__).parent.absolute()) + "/art/buttons/"
+
+    # change image
+    self.button_images = [pygame.image.load(s).convert_alpha() for s in glob(self.button_path + 'thresh_button_*.png')]
+
+    # init buttons
+    self.button_images_init()
+
+
+
+class CmdButton(Button):
+  """
+  option button
+  """
+
+  def __init__(self, surf, position=(0, 0), scale=1):
+
+    # init parents
+    super().__init__(surf, position, scale)
+
+    # root for images
+    self.button_path = str(pathlib.Path(__file__).parent.absolute()) + "/art/buttons/"
+
+    # change image
+    self.button_images = [pygame.image.load(s).convert_alpha() for s in glob(self.button_path + 'cmd_button_*.png')]
+
+    # init buttons
+    self.button_images_init()
+
+
+
 if __name__ == '__main__':
   """
   button

@@ -52,8 +52,7 @@ class Mic():
     self.collector = Collector(N=self.N, hop=self.hop, frame_size=self.feature_params['frame_size'], update_size=self.mic_params['update_size'], frames_post=self.mic_params['frames_post'], is_audio_record=self.is_audio_record)
 
     # select microphone yourself (usually not necessary)
-    if mic_params['select_device']:
-      sd.default.device = self.mic_params['device']
+    if mic_params['select_device']: sd.default.device = self.mic_params['device']
 
     # determine downsample
     self.downsample = self.mic_params['fs_device'] // self.feature_params['fs']
@@ -61,8 +60,20 @@ class Mic():
     # show devices
     print("\ndevice list: \n", sd.query_devices())
 
+    # get input devices
+    self.extract_devices()
+
+    print("\ninput devs: ", self.input_dev_dict.keys())
+
     # setup stream sounddevice
     self.stream = sd.InputStream(samplerate=self.mic_params['fs_device'], blocksize=int(self.hop * self.downsample), channels=self.mic_params['channels'], callback=self.callback_mic)
+
+
+  def extract_devices(self):
+    """
+    extract only input devices
+    """
+    self.input_dev_dict = {i:dev for i, dev in enumerate(sd.query_devices()) if dev['max_input_channels']}
 
 
   def callback_mic(self, indata, frames, time, status):
@@ -178,7 +189,7 @@ class Mic():
       # clear read queue
       self.clear_mic_queue()
 
-      return y_hat
+      return label
 
     return None
 

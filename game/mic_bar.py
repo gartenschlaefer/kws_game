@@ -101,12 +101,12 @@ class MicBar(Interactable):
       # db
       e_mu_db = 10 * np.log10(e_mu)
 
-      print("e_mu: {}, db: {}".format(e_mu, e_mu_db))
+      #print("e_mu: {}, db: {}".format(e_mu, e_mu_db))
 
       # set bar accordingly
       self.bar_sprite.act_length = (e_mu_db / (-1 * self.bar_sprite.min_db) + 1) * self.bar_sprite.total_length
 
-      print("act_length: ", self.bar_sprite.act_length)
+      #print("act_length: ", self.bar_sprite.act_length)
 
       # update bar
       self.bar_sprite.update()

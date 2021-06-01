@@ -2,31 +2,45 @@
 % spectrogram
 
 \section{Spectral Features}\label{sec:signal_spec}
-Spectral Features, such as a spectrogram, are the most intuitive form to represent audio waveforms. 
-They illustrate which frequencies are active at each time instance using a fixed analytic window $t_N$, shifted on the time axis with a time interval, denoted as hop time $t_{h}$.
-The analytic window containing a number of $N$ audio samples, is transformed with the Discrete Time Fourier Transform (DTFT):
+Spectral features, such as a spectrogram, are the most intuitive form to represent audio waveforms. 
+It is possible to observe which frequencies are active at time instances.
+Methodically this is done by shifting an \emph{analytic window} of time span $t_N$, on the time axis.
+The time shifting has also a fixed time interval, denoted as \emph{hop time} $t_{h}$.
+Both time parameters $t_N$ and $t_h$ can also be presented in samples by multiplying it with the sampling frequency $f_s$:
+
+% samples
+\begin{equation}
+  \begin{split}
+    N &= t_N \, f_s, \\
+    h &= t_h \, f_s.
+  \end{split}
+\end{equation}
+The audio samples contained by the analytic window of size $N$, are transformed with the Discrete Fourier Transform (DFT):
 
 % DTFT
 \begin{equation}\label{eq:signal_spec_dtft}
-    X[k] = \sum_{n=0}^{N-1} x[n] \, e^{-j\frac{2 \pi n}{N}k}
+  \tilde{x}[k] = \sum_{n=0}^{N-1} x[n] \, e^{-j\frac{2 \pi n}{N}k}
 \end{equation}
-into the frequency space $X \in \C^k$ with frequency index $k$, sample index $n$ and discrete audio samples $x[n]$.
-\req{signal_spec_dtft} can be conveniently written in matrix notation with:
+into the frequency space $\tilde{x}[k] \in \C$ with frequency index $k$ and discrete audio samples $x[n]$ with sample index $n$.
+More conveniently, \req{signal_spec_dtft} can be written in matrix / vector notation with the DFT operator denoted as $\mathcal{F} \in \C^{k \times n}$:
+
+% DFT matrix
 \begin{equation}\label{eq:signal_spec_dtft_matrix}
-    X[k] = D\, x[n] \quad \mathrm{with} 
-    \quad D[p, q] = e^{-j\frac{2 \pi p}{N} q},
-    \quad p, q = 0 \dots N-1.
+  \tilde{x} = \mathcal{F}\, x \quad \mathrm{with} 
+  \quad \mathcal{F}[p, q] = e^{-j\frac{2 \pi p}{N} q},
+  \quad p,\, q = 0, 1, \dots k-1,\, 0, 1 \dots n-1.
 \end{equation}
+where $p$ and $q$ are row and column index in the matrix $\mathcal{F}$.
+It follows that $\tilde{x} \in \C^k$ and $x \in \R^n$, where $n$ and $k$ denote here the dimension of input samples and frequency space respectively.
 
 The length of the analytic window in samples $N$ is crucial for the frequency resolution and the lowest frequency that can be represented.
 For example, the periodic time of a sound with $f=\SI{20}{\hertz}$ is $t=\frac{1}{f} = \SI{50}{\milli\second}$.
 To represent a waveform it is necessary to have at least a quarter of its wavelength captured.
 Within this thesis, the length of the analytic window is selected to \SI{25}{\milli\second}.
 
-The other important parameter is the \emph{hop size} (in samples) or hop time, by which the analytical window is shifted on the time axis.
-This parameter indicates the resolution in time and is especially important for changes.
-In applications like speech processing, the hop time should be selected so that the fastest pronounced phone is within this time span and that changes to other phones are as well captured with sufficient resolution.
-Usually a hop time of $t_{h}=\SI{10}{\milli\second}$ is chosen (also used within this thesis), but it could be extended like in \cite{Peter2020} to $t_{h}=\SI{20}{\milli\second}$ for saving computations.
+The other important parameter, the \emph{hop size} in samples of the hop time, by which the analytical window is shifted on the time axis, indicates the resolution in time and is especially important for changes within the audio data.
+In applications like speech processing, the hop time should be selected so that the fastest pronounced phone and its transitions to other phones is captured within this time span with sufficient resolution.
+Usually a hop time of $t_{h}=\SI{10}{\milli\second}$ is chosen for speech recognition tasks (also used within this thesis), but it could be extended to $t_{h}=\SI{20}{\milli\second}$, demonstrated in like in \cite{Peter2020}, for saving computations.
 
 With those parameters in mind and $h$ denoted as hop size in samples and $N$ the length of the analytical window, the Short-Time Fourier Transform (STFT) for discrete time signals, can be computed as:
 

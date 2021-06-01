@@ -40,7 +40,7 @@ class GameHandler():
     # menues
     self.main_menu = MainMenu(self.cfg['game'], self.screen)
     self.help_menu = HelpMenu(self.cfg['game'], self.screen)
-    self.option_menu = OptionMenu(self.cfg['game'], self.screen)
+    self.option_menu = OptionMenu(self.cfg['game'], self.screen, self.mic)
 
     # game loop
     self.game_loop_state_dict = {'main_menu_loop': 0, 'game_loop': 1, 'help_menu_loop': 2, 'option_menu_loop': 3, 'exit': 4}
@@ -102,30 +102,30 @@ class GameHandler():
     clock = pygame.time.Clock()
 
     # mic stream and update
-    #with self.mic.stream:
+    with self.mic.stream:
 
-    # game loop
-    while game_logic.run_loop:
-      for event in pygame.event.get():
+      # game loop
+      while game_logic.run_loop:
+        for event in pygame.event.get():
 
-        # input handling
-        game_logic.event_update(event)
-        level.event_update(event)
+          # input handling
+          game_logic.event_update(event)
+          level.event_update(event)
 
-      # frame update
-      level = game_logic.update()
-      level.update()
-      text.draw()
-      self.screen_capturer.update()
+        # frame update
+        level = game_logic.update()
+        level.update()
+        text.draw()
+        self.screen_capturer.update()
 
-      # update display
-      pygame.display.flip()
+        # update display
+        pygame.display.flip()
 
-      # reduce framerate
-      clock.tick(cfg['game']['fps'])
+        # reduce framerate
+        clock.tick(cfg['game']['fps'])
 
-    # save video plus audio
-    self.screen_capturer.save_video(self.mic)
+      # save video plus audio
+      self.screen_capturer.save_video(self.mic)
 
 
 if __name__ == '__main__':
@@ -135,12 +135,25 @@ if __name__ == '__main__':
 
   import yaml
 
+  # append paths
+  import sys
+  sys.path.append("../")
+
+  from classifier import Classifier
+  from mic import Mic
+
   # yaml config file
   cfg = yaml.safe_load(open("../config.yaml"))
 
+  # create classifier
+  classifier = Classifier(cfg_classifier=cfg['classifier'], root_path='../')
+  
+  # create mic instance
+  mic = Mic(classifier=classifier, feature_params=cfg['feature_params'], mic_params=cfg['mic_params'], is_audio_record=True)
+
 
   # game handler
-  game_handler = GameHandler(cfg)
+  game_handler = GameHandler(cfg, mic)
 
   # run game
   game_handler.run_game()

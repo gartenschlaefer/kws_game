@@ -176,20 +176,14 @@ class MenuGameLogic(GameLogic):
     """
     arrow keys pressed
     """
-      
-    # up down direction
-    ud_dir = direction[1]
-
-    # ud click state
-    self.menu.ud_click += ud_dir
+    self.menu.direction_change(direction)
 
 
   def enter_key(self):
     """
     if action key is pressed
     """
-    
-    self.menu.button_enter()
+    self.menu.enter_key()
 
 
   def esc_key(self):

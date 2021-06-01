@@ -46,36 +46,23 @@ class InputKeyHandler(InputHandler):
     # key down
     if event.type == pygame.KEYDOWN:
 
-      if event.key == pygame.K_LEFT:
-        self.obj.direction_change([-1, 0])
-      elif event.key == pygame.K_RIGHT:
-        self.obj.direction_change([1, 0])
-      if event.key == pygame.K_UP:
-        self.obj.direction_change([0, -1])
-      elif event.key == pygame.K_DOWN:
-        self.obj.direction_change([0, 1])
+      if event.key == pygame.K_LEFT: self.obj.direction_change([-1, 0])
+      elif event.key == pygame.K_RIGHT: self.obj.direction_change([1, 0])
+      if event.key == pygame.K_UP: self.obj.direction_change([0, -1])
+      elif event.key == pygame.K_DOWN: self.obj.direction_change([0, 1])
 
       # jump button
-      if event.key == pygame.K_SPACE:
-        self.obj.action_key()
-
-      if event.key == pygame.K_RETURN:
-        self.obj.enter_key()
-
-      if event.key == pygame.K_ESCAPE:
-        self.obj.esc_key()
+      if event.key == pygame.K_SPACE: self.obj.action_key()
+      if event.key == pygame.K_RETURN: self.obj.enter_key()
+      if event.key == pygame.K_ESCAPE: self.obj.esc_key()
 
     # key up
     elif event.type == pygame.KEYUP and not self.grid_move:
 
-      if event.key == pygame.K_LEFT:
-        self.obj.direction_change([1, 0])
-      elif event.key == pygame.K_RIGHT:
-        self.obj.direction_change([-1, 0])
-      if event.key == pygame.K_UP:
-        self.obj.direction_change([0, 1])
-      elif event.key == pygame.K_DOWN:
-        self.obj.direction_change([0, -1])
+      if event.key == pygame.K_LEFT: self.obj.direction_change([1, 0])
+      elif event.key == pygame.K_RIGHT: self.obj.direction_change([-1, 0])
+      if event.key == pygame.K_UP: self.obj.direction_change([0, 1])
+      elif event.key == pygame.K_DOWN: self.obj.direction_change([0, -1])
 
 
 
@@ -89,6 +76,7 @@ class InputMicHandler(InputHandler):
     # init of father class
     super().__init__(obj, grid_move)
 
+    # arguments
     self.mic = mic
 
 
@@ -103,18 +91,13 @@ class InputMicHandler(InputHandler):
     # interpret command
     if command is not None:
 
+      print("command: ", command)
+
       # direction
-      if command == 2:
-        self.obj.direction_change([-1, 0])
-      elif command == 3:
-        self.obj.direction_change([1, 0])
-      elif command == 4:
-        self.obj.direction_change([0, -1])
-      elif command == 0:
-        self.obj.direction_change([0, 1])
+      if command == 'left': self.obj.direction_change([-1, 0])
+      elif command == 'right': self.obj.direction_change([1, 0])
+      elif command == 'up': self.obj.direction_change([0, -1])
+      elif command == 'down': self.obj.direction_change([0, 1])
 
-      # deactivate
-      elif command == 1:
-
-        # action
-        self.obj.action_key()
+      # action
+      elif command == 'go': self.obj.action_key()

@@ -4,7 +4,25 @@
 \section{The task of Key Word Spotting}\label{sec:intro_kws}
 As described earlier Key Word Spotting (KWS) is the task of classifying a spoken word as key word out of a set of key words.
 The set of key words or vocabulary is denoted as:
+
+% kws dict
 \begin{equation}\label{eq:intro_kws_dict}
-	S \coloneqq \{s_i, \quad i=1 \dots n\}
+	S \coloneqq \{s_i, \quad i=1 \dots c\}
 \end{equation}
-with a total number of $n$ key words denoted individually as $s_i$. 
+with a total number of $c$ key words denoted individually as $s_i$.
+The task is to select the key word closest to the spoken key word from the user, denoted as target $t$.
+The target does not necessarily being a member in the set of key words $S$ in fact it can be any arbitrary word.
+With the abstract formulation:
+% kws task
+\begin{equation}\label{eq:intro_kws_task}
+	\hat{s} = \underset{s_i \in S}{\arg \min} \, \mathcal{D}(t, s_i)
+\end{equation}
+the most appropriate key word $\hat{s}$ can be selected, where $\mathcal{D}$ is some kind of distance measure between two words.
+%Further the definition of the distance measure $\mathcal{D}$ is hard to define.
+The formulation in \req{intro_kws_task} is merely semantic, but KWS in computer systems must cope with various transformations of raw input samples of audio data denoted as $x \in \R^n$, with a total number of $n$ samples.
+From the audio data an inference to output class labels $y \in \R^c$, that might represent the key words individual probabilities or energy value of similarity, the most probable is picked by:
+\begin{equation}\label{eq:intro_kws_class}
+	\hat{s} = \{s_i \, | \, \underset{i = 1 \dots c}{\arg \max} \, y_i\}
+\end{equation}
+if the highest value of $y_i$ for all $i$ is the most probable index for a spotted key word.
+Concluding this the task of KWS can be very difficult, however with neural networks and available data resources, a tool emerged to solve this complex problem without thinking too much about all its technical details.

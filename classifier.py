@@ -58,8 +58,7 @@ class Classifier():
     y_hat, o, label = self.net_handler.classify_sample(x)
 
     # print infos
-    if self.cfg_classifier['verbose']:
-      print("\nnew sample:\nprediction: {} - {}\noutput: {}".format(y_hat, label, o.data))
+    if self.cfg_classifier['verbose']: print("\nnew sample:\nprediction: {} - {}\noutput: {}".format(y_hat, label, o.data))
 
     return y_hat, label
     
