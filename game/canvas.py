@@ -147,7 +147,10 @@ class CanvasOptionMenu(Canvas):
     text.render_small_msg('option', (0, 0))
 
     # mic bar
-    mic_bar = MicBar(self.canvas_surf, self.mic, position=(300, 200), color_bag=self.color_bag, size=(50, 150))
+    mic_bar = MicBar(self.canvas_surf, self.mic, position=(575, 200), color_bag=self.color_bag, size=(30, 150))
+
+    # device canvas
+    self.interactable_dict.update({'device_canvas': CanvasDevice(self.canvas_surf, self.mic, size=(350, 400), position=(200, 50))})
 
     # update canvas objects
     self.interactable_dict.update({'text': text, 'mic_bar': mic_bar, 'cmd_button': CmdButton(self.canvas_surf, position=(50, 75), scale=(3, 3)), 'thresh_button': ThreshButton(self.canvas_surf, position=(50, 175), scale=(3, 3)), 'device_button': DeviceButton(self.canvas_surf, position=(50, 275), scale=(3, 3)), 'end_button': EndButton(self.canvas_surf, position=(50, 375), scale=(3, 3))})
@@ -156,16 +159,74 @@ class CanvasOptionMenu(Canvas):
 
 class CanvasDevice(Canvas):
 
-  def __init__(self, screen, size, position):
+  def __init__(self, screen, mic, size, position):
 
     # Parent init
     super().__init__(screen, size=size, position=position)
 
+    # arguments
+    self.mic = mic
+
     # set background color
-    self.color_background = (255, 255, 255)
+    self.color_background = self.color_bag.canvas_device_background
 
     # deselect
     self.enabled = False
+
+    # info text
+    text_device_info = Text(self.canvas_surf)
+    text_device_info.render_small_msg('devices: ', (0, 0))
+
+    # device list texts
+    self.text_device_list = []
+
+    # update
+    self.interactable_dict.update({'text_device_info': text_device_info})
+
+    # devices
+    self.devices_to_text()
+
+
+  def devices_to_text(self):
+    """
+    input devices to text messages
+    """
+
+    # get devices
+    device_dicts = self.mic.extract_devices()
+
+    # selector
+    text_device_indicator = Text(self.canvas_surf)
+
+    for i, (num_device, device_dict) in enumerate(device_dicts.items()):
+      #print("device: ", device_dict.keys())
+      text = Text(self.canvas_surf)
+      text.render_tiny_msg(device_dict['name'], (25, i*25 + 40))
+
+      # indicator
+      if i == self.mic.device: text_device_indicator.render_tiny_msg('*', (5, i*25 + 40))
+
+      # append to list
+      self.text_device_list.append(text)
+
+    # update text devices
+    [self.interactable_dict.update({'text_device{}'.format(i):t}) for i, t in enumerate(self.text_device_list)]
+
+    # update text indicator
+    self.interactable_dict.update({'text_device_indicator':text_device_indicator})
+
+
+
+  def update(self):
+    """
+    update
+    """
+    
+    if not self.enabled: return
+
+    # update all interactables
+    for interactable in self.interactable_dict.values(): interactable.update()
+
 
 
 

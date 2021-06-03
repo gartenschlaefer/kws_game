@@ -27,6 +27,7 @@ class Text(Interactable):
     # fonts
     self.big_font = pygame.font.SysFont('Courier', 40)
     self.small_font = pygame.font.SysFont('Courier', 20)
+    self.tiny_font = pygame.font.SysFont('Courier', 11)
 
     # messages
     self.big_msg = None
@@ -43,6 +44,15 @@ class Text(Interactable):
     """
 
     self.small_msg = self.small_font.render(msg, True, self.color_bag.win)
+    self.small_pos = pos
+
+
+  def render_tiny_msg(self, msg, pos):
+    """
+    render a small message
+    """
+
+    self.small_msg = self.tiny_font.render(msg, True, self.color_bag.win)
     self.small_pos = pos
 
 

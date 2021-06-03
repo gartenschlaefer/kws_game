@@ -2,16 +2,23 @@
 % dataset
 
 \section{Dataset}\label{sec:exp_dataset}
-Two dataset are used for training, one is the Speech Commands Dataset from \cite{Warden2018} and one is self made, denoted here as \enquote{My Dataset} consisting only of 5 labels.
-All Datasets merely consists of raw wav files, no feature extraction was done beforehand.
-This is very convenient, since the feature extraction is completely up to the users.
-It is mentioned, because some datasets provide the feature extraction for their users so that only the neural network Architectures are of importance.
-However it is now very important how features are extracted and this might differ from many users, such that a direct comparance of scores between two independent researchers using different methods in feature extraction is quite difficult, in regards of neural network performances.
+Two datasets are used within this thesis, one is the speech commands dataset from \cite{Warden2018} and one is self made, denoted here as \enquote{my dataset} consisting only of 5 labels especially valuable for movement in video games (\enquote{left}, \enquote{right}, ...).
+Note that the \enquote{my dataset} is merely used for evaluation and training of the neural networks is done on the speech commands dataset.
+Both datasets consists of raw wav files, no feature extraction was done beforehand.
+As already mentioned in \rsec{prev_kws_benchmark} direct comparisons between different neural network approaches is a bit difficult.
+Some datasets provide feature extraction beforehand, such that the comparability of neural network architectures performances is not influenced on the data preparation.
+More details of the datasets are presented below.
 
-Some abbreviations and references were done, so that the jungle of selected parameters get a little bit more clear to the reader of this thesis.
-The abbreviations of the dataset are shown in \rtab{exp_dataset_abbr}.
+%This is very convenient, since the feature extraction is completely up to the users.
+%It is therefore very important how features are extracted by the individual users and that direct comparisons between different approaches is a bit difficult.
+%such that a direct comparability of scores between two independent researchers using different methods in feature extraction is quite difficult.
 
-The Speech Commands Dataset is extracted before it is used for training. 
-To reduce computations in the evaluation process of neural networks, it was important to reduce the number of classes and examples per class to an suitable number.
 
-\input{./5_exp/tables/tab_exp_dataset_abbr.tex}
+
+% Some abbreviations and references were done, so that the jungle of selected parameters get a little bit more clear to the reader of this thesis.
+% The abbreviations of the dataset are shown in \rtab{exp_dataset_abbr}.
+
+% The speech commands dataset is extracted before it is used for training. 
+% To reduce computations in the evaluation process of neural networks, it was important to reduce the number of classes and examples per class to an suitable number.
+
+% \input{./5_exp/tables/tab_exp_dataset_abbr.tex}

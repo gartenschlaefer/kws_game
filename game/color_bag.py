@@ -27,5 +27,6 @@ class ColorBag():
 
     # canvas
     self.canvas_background = (230, 210, 200)
+    self.canvas_device_background = (255, 255, 255)
 
 

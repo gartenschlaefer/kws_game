@@ -255,12 +255,6 @@ class OptionMenu(Menu):
     # set button active
     self.canvas.interactable_dict['end_button'].button_press()
 
-    # device canvas
-    self.canvas.interactable_dict.update({'device_canvas': CanvasDevice(self.canvas.canvas_surf, size=(200, 200), position=(200, 200))})
-
-    # put device canvas first to render
-    self.canvas.interactable_dict = {k:v for k, v in list(self.canvas.interactable_dict.items())[-1:] + list(self.canvas.interactable_dict.items())[:-1]}
-
 
   def menu_loop(self):
     """
@@ -269,6 +263,9 @@ class OptionMenu(Menu):
 
     # add clock
     clock = pygame.time.Clock()
+
+    # init stream
+    self.mic.init_stream()
 
     # mic stream and update
     with self.mic.stream:
@@ -337,7 +334,12 @@ class OptionMenu(Menu):
     device page
     """
 
+    # enable canvas
     self.canvas.interactable_dict['device_canvas'].enabled = not self.canvas.interactable_dict['device_canvas'].enabled
+
+    # update devices
+    if self.canvas.interactable_dict['device_canvas'].enabled: self.canvas.interactable_dict['device_canvas'].devices_to_text()
+
 
 
 if __name__ == '__main__':

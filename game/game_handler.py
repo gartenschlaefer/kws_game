@@ -101,6 +101,9 @@ class GameHandler():
     # add clock
     clock = pygame.time.Clock()
 
+    # init stream
+    self.mic.init_stream()
+    
     # mic stream and update
     with self.mic.stream:
 
