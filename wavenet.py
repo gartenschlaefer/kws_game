@@ -7,6 +7,8 @@ import numpy as np
 import torch
 import torch.nn as nn
 
+from conv_nets import ConvBasics
+
 
 class WavenetResBlock(nn.Module):
   """
@@ -82,7 +84,7 @@ class WavenetResBlock(nn.Module):
 
 
 
-class Wavenet(nn.Module):
+class Wavenet(nn.Module, ConvBasics):
   """
   wavenet class
   """
@@ -117,14 +119,26 @@ class Wavenet(nn.Module):
     for i in range(1, self.n_layers): self.wavenet_layers.append(WavenetResBlock(self.out_channels, self.out_channels, skip_channels=self.skip_channels, pred_channels=self.pred_channels, dilation=2**i))
 
     # conv layer post for skip connection
-    self.conv_skip1 = nn.Conv1d(in_channels=self.skip_channels, out_channels=16, kernel_size=1, stride=1, padding=0, dilation=1, groups=1, bias=False, padding_mode='zeros')
-    self.conv_skip2 = nn.Conv1d(in_channels=16, out_channels=self.target_quant_size, kernel_size=1, stride=1, padding=0, dilation=1, groups=1, bias=False, padding_mode='zeros')
+    self.conv_skip1 = nn.Conv1d(in_channels=self.skip_channels, out_channels=16, kernel_size=1, stride=1, padding=0, dilation=1, groups=1, bias=True, padding_mode='zeros')
+    self.conv_skip2 = nn.Conv1d(in_channels=16, out_channels=self.target_quant_size, kernel_size=1, stride=1, padding=0, dilation=1, groups=1, bias=True, padding_mode='zeros')
+
+    # conv layer predictions
+    self.kernel_sizes_pred = [(1,), (1,)]
+    self.strides_pred = [(1,), (1,)]
+    self.padding_pred = [(0,), (0,)]
+
+    # conv dimensions of predictions
+    self.conv_dim_pred = self.get_conv_layer_dimensions((99,), self.kernel_sizes_pred, self.strides_pred, self.padding_pred)
 
     # conv layer post for class prediction
-    self.conv_pred1 = nn.Conv1d(in_channels=self.pred_channels, out_channels=1, kernel_size=1, stride=1, padding=0, dilation=1, groups=1, bias=False, padding_mode='zeros')
+    self.conv_pred1 = nn.Conv1d(in_channels=self.pred_channels, out_channels=self.pred_channels, kernel_size=self.kernel_sizes_pred[0], stride=self.strides_pred[0], padding=self.padding_pred[0], dilation=1, groups=1, bias=True, padding_mode='zeros')
+    self.conv_pred2 = nn.Conv1d(in_channels=self.pred_channels, out_channels=1, kernel_size=self.kernel_sizes_pred[1], stride=self.strides_pred[1], padding=self.padding_pred[1], dilation=1, groups=1, bias=True, padding_mode='zeros')
 
     # fc layer
-    self.fc1 = nn.Linear(99, self.n_classes)
+    self.fc1 = nn.Linear(np.prod(self.conv_dim_pred[-1]), self.n_classes)
+
+    # softmax layer
+    self.softmax = nn.Softmax(dim=1)
 
 
   def forward(self, x):
@@ -157,17 +171,17 @@ class Wavenet(nn.Module):
     # relu for prediction
     y = torch.relu(y)
 
-    # conv layer prediction
-    y = self.conv_pred1(y)
+    # conv layer prediction 1
+    y = torch.relu(self.conv_pred1(y))
 
-    # another relu
-    y = torch.relu(y)
+    # conv layer prediction 2
+    y = torch.relu(self.conv_pred2(y))
 
     # flatten output from conv layer
     y = y.view(-1, np.product(y.shape[1:]))
 
-    # fc layer
-    y = self.fc1(y)
+    # fc layer and softmax
+    y = self.softmax(self.fc1(y))
 
     return t, y
 

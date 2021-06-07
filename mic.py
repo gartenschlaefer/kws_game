@@ -67,12 +67,24 @@ class Mic():
     # stream
     self.stream = None
 
+    # change device flag
+    self.change_device_flag = False
+
 
   def init_stream(self):
     """
     init stream
     """
     self.stream = sd.InputStream(device=self.device, samplerate=self.mic_params['fs_device'], blocksize=int(self.hop * self.downsample), channels=self.mic_params['channels'], callback=self.callback_mic)
+    self.change_device_flag = False
+
+
+  def change_device(self, device):
+    """
+    change to device
+    """
+    self.change_device_flag = True
+    self.device = device
 
 
   def extract_devices(self):

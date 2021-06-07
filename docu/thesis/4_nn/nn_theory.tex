@@ -1,0 +1,32 @@
+% --
+% theory
+
+\section{Theory}\label{sec:nn_theory}
+This section provide the preliminaries to understand the used neural network architectures and the training procedure in general.
+
+
+% activation functions
+\subsection{Activation Functions}\label{sec:nn_theory_acti}
+Activation functions for neural networks are non-linear functions that map the sum of the weighted inputs to an output value of a node:
+\begin{equation}\label{eq:nn_theory_acti}
+  z = h(w \, x^T)
+\end{equation}
+where $h$ is the activation function, $w \in \R^n$ is an weight vector and $x \in \R^n$ an input vector for one specific node.
+One constraint of an activation function is, that an easy computable derivative of this function exist, such that the backpropagation of gradients work.
+
+
+
+% cnn
+\subsection{Convolutional Neural Networks}\label{sec:nn_theory_cnn}
+Covolutional Neural Networks (CNN) as already discussed in \rsec{prev_nn_cnn} use convolutional filters on spatial sections of the input.
+The spatial section is usually called kernel, illustrated as rectangle in 2D space with kernel width $k_w$ and height $k_h$.
+
+The kernel is shifted over its input map in each axis with an operation called \emph{stride}, denoted as $s$, and produce an output map.
+The output dimension $o_d$ for striding in along its axis with $s_d$ and kernel size for that axis $k_d$ over the input dimension $i_d$ can be computed as:
+\begin{equation}\label{eq:nn_theory_cnn_}
+  o_d = \floor*{\frac{i_d + p_d - k_d}{s_d} + 1}
+\end{equation}
+where $p_d$ is additionally a \emph{padding} term, where for instance for in zero-padding, zeros are added on both sides of the input dimension.
+The padding operation has usually the purpose to keep a the output and input dimension the same.
+This is used for instance in residual neural networks, where the input to convolutional layers of a block, is bypassed and added to the output of this block.
+To operate the addition of input and output of the residual block, their dimensions must be the same.

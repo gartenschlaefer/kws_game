@@ -27,21 +27,38 @@ class ConvBasics():
     self.n_channels, self.n_features, self.n_frames = self.data_size
 
 
-  def get_conv_layer_dimensions(self):
+  def get_conv_layer_dimensions(self, input_dim, kernel_sizes, strides, padding):
     """
-    get convolutional layer dimensions upon kernel sizes and strides
+    get convolutional layer dimensions upon kernel sizes, strides and padding
+    input_dim; (height, width) or (n_features, n_frames) for mfcc or (n_time_steps,) for raw input
     """
 
     # layer dimensions
-    self.conv_layer_dim = []
+    conv_layer_dim = []
 
     # first dimension
-    self.conv_layer_dim.append((self.n_features, self.n_frames))
+    conv_layer_dim.append(input_dim)
 
-    # other dimensions calculated from kernel size and strides
-    for i, (k, s) in enumerate(zip(self.kernel_sizes, self.strides)):
-      self.conv_layer_dim.append((int((self.conv_layer_dim[i][0] - k[0]) / s[0] + 1), int((self.conv_layer_dim[i][1] - k[1]) / s[1] + 1)))
+    # for all convolutional layers
+    for i, (k, s, p) in enumerate(zip(kernel_sizes, strides, padding)):
 
+      # init layer dim
+      layer_dim = None
+
+      # for all dimensions
+      for d, (k_d, s_d, p_d) in enumerate(zip(k, s, p)):
+
+        # dimension
+        dim = int((conv_layer_dim[i][d] + 2 * p_d - k_d) / s_d + 1)
+
+        # new dim
+        layer_dim = layer_dim + (dim,) if layer_dim is not None else (dim,)
+
+      # append to dimensions
+      conv_layer_dim.append(layer_dim)
+
+
+    return conv_layer_dim
 
 
 class ConvNetTrad(nn.Module, ConvBasics):
@@ -70,9 +87,10 @@ class ConvNetTrad(nn.Module, ConvBasics):
     # for 13x32
     self.kernel_sizes = [(4, 20), (2, 4), (2, 4)]
     self.strides = [(1, 1), (2, 4), (1, 1)]
+    self.padding = [(0, 0), (0, 0), (0, 0)]
 
     # get layer dimensions
-    self.get_conv_layer_dimensions()
+    self.conv_layer_dim = self.get_conv_layer_dimensions(input_dim=(self.n_features, self.n_frames), kernel_sizes=self.kernel_sizes, strides=self.strides, padding=self.padding)
 
     # 1. conv layer
     self.conv1 = nn.Conv2d(self.n_channels, self.n_feature_maps[0], kernel_size=self.kernel_sizes[0], stride=self.strides[0])
@@ -148,9 +166,10 @@ class ConvNetFstride4(nn.Module, ConvBasics):
     self.n_feature_maps = [54]
     self.kernel_sizes = [(8, self.n_frames)]
     self.strides = [(4, 1)]
+    self.padding = [(0, 0)]
 
     # get layer dimensions
-    self.get_conv_layer_dimensions()
+    self.conv_layer_dim = self.get_conv_layer_dimensions(input_dim=(self.n_features, self.n_frames), kernel_sizes=self.kernel_sizes, strides=self.strides, padding=self.padding)
 
     # conv layer
     self.conv = nn.Conv2d(self.n_channels, self.n_feature_maps[0], kernel_size=self.kernel_sizes[0], stride=self.strides[0])
@@ -214,9 +233,10 @@ class ConvNetExperimental1(nn.Module, ConvBasics):
     self.n_feature_maps = [16]
     self.kernel_sizes = [(self.n_features, 20)]
     self.strides = [(1, 1)]
+    self.padding = [(0, 0)]
 
     # get layer dimensions
-    self.get_conv_layer_dimensions()
+    self.conv_layer_dim = self.get_conv_layer_dimensions(input_dim=(self.n_features, self.n_frames), kernel_sizes=self.kernel_sizes, strides=self.strides, padding=self.padding)
 
     # conv layer
     self.conv = nn.Conv2d(self.n_channels, self.n_feature_maps[0], kernel_size=self.kernel_sizes[0], stride=self.strides[0])
@@ -265,36 +285,18 @@ class ConvNetExperimental2(nn.Module, ConvBasics):
     super().__init__()
     ConvBasics.__init__(self, n_classes, data_size)
 
-    # params
-    # self.n_feature_maps = (1)
-    # self.kernel_sizes = [(self.n_features, 20)]
-    # self.strides = [(1, 1)]
-
-    # # conv params
-    # self.n_feature_maps = [(self.n_channels, 5), (5, 4), (4, 5)]
-    # self.kernel_sizes = [(self.n_features, 20), (1, 5), (1, 6)]
-    # self.strides = [(1, 1), (1, 5), (1, 1)]
-
     # conv params
     self.n_feature_maps = [(self.n_channels, 4), (4, 8), (8, 5)]
     self.kernel_sizes = [(self.n_features, 20), (1, 6), (1, 9)]
     self.strides = [(1, 1), (1, 3), (1, 1)]
+    self.padding = [(0, 0), (0, 0), (0, 0)]
 
     # relu params (be carefull, last layer should be false)
     self.relu_active = [True, True, False]
     self.dropout_active = [False, True, False]
 
-    # self.n_feature_maps = [(1, 4), (4, 2)]
-    # self.kernel_sizes = [(self.n_features, 20), (1, 5)]
-    # self.strides = [(1, 1), (1, 5)]
-
-    # self.relu_active = [True, False]
-    # self.dropout_active = [False, False]
-
     # get layer dimensions
-    self.get_conv_layer_dimensions()
-    print("conv: ", self.conv_layer_dim)
-
+    self.conv_layer_dim = self.get_conv_layer_dimensions(input_dim=(self.n_features, self.n_frames), kernel_sizes=self.kernel_sizes, strides=self.strides, padding=self.padding)
 
     # conv layer
     self.conv_layers = torch.nn.ModuleList()
@@ -304,20 +306,6 @@ class ConvNetExperimental2(nn.Module, ConvBasics):
     # dimensions
     self.conv_in_dim = self.data_size
     self.conv_out_dim = ((self.n_feature_maps[-1][1],) + self.conv_layer_dim[-1])
-
-    # conv layer
-    #self.conv1 = nn.Conv2d(self.n_channels, self.n_feature_maps[0], kernel_size=self.kernel_sizes[0], stride=self.strides[0])
-    #self.bn1 = nn.BatchNorm2d(self.n_feature_maps[0])
-
-    #self.conv2 = nn.Conv2d(self.n_feature_maps[0], self.n_feature_maps[1], kernel_size=self.kernel_sizes[1], stride=self.strides[1])
-    #self.bn2 = nn.BatchNorm2d(self.n_classes)
-
-    # fully connected layers with affine transformations: y = Wx + b
-    #self.fc1 = nn.Linear(np.prod(self.conv_out_dim), self.n_classes)
-
-    # two fully connected
-    #self.fc1 = nn.Linear(np.prod(self.conv_layer_dim[-1]) * self.n_feature_maps[-1], 32)
-    #self.fc2 = nn.Linear(32, self.n_classes)
 
     # dropout layer
     #self.dropout_layer1 = nn.Dropout(p=0.5)
@@ -421,12 +409,14 @@ class ConvEncoderDecoderParams(ConvBasics):
     # conv params
     self.kernel_sizes = [(self.n_features, 20), (1, 5)]
     self.strides = [(1, 1), (1, 1)]
+    self.padding = [(0, 0), (0, 0)]
 
     # relu params (be carefull, last layer should be false)
     self.relu_active = [True, False]
 
     # get layer dimensions
-    self.get_conv_layer_dimensions()
+    self.conv_layer_dim = self.get_conv_layer_dimensions(input_dim=(self.n_features, self.n_frames), kernel_sizes=self.kernel_sizes, strides=self.strides, padding=self.padding)
+
 
 
   def transfer_conv_weights_label_coders(self, conv_coders):

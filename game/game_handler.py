@@ -86,9 +86,6 @@ class GameHandler():
     actual game loop
     """
 
-    # text
-    text = Text(self.screen)
-
     # level creation
     levels = [Level_01(self.screen, self.cfg['game']['screen_size'], self.mic), Level_02(self.screen, self.cfg['game']['screen_size'], self.mic)]
 
@@ -96,7 +93,7 @@ class GameHandler():
     level = levels[0]
 
     # game logic with dependencies
-    game_logic = ThingsGameLogic(level, levels, text)
+    game_logic = ThingsGameLogic(level, levels)
 
     # add clock
     clock = pygame.time.Clock()
@@ -118,7 +115,6 @@ class GameHandler():
         # frame update
         level = game_logic.update()
         level.update()
-        text.draw()
         self.screen_capturer.update()
 
         # update display

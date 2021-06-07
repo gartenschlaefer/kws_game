@@ -72,23 +72,21 @@ class TrainScore():
     self.score_dict['train_loss'][epoch] += loss
     self.batch_dict['train_loss_batch'] += loss
 
-    # do print
-    self.print_train_info(epoch, mini_batch)
+    # print loss
+    if mini_batch % self.k_print == self.k_print-1 or self.do_print_anyway:
 
-    # reset batch losses
-    self.reset_batch_losses()
+      # do print
+      self.print_train_info(epoch, mini_batch)
+
+      # reset batch losses
+      self.reset_batch_losses()
 
 
   def print_train_info(self, epoch, mini_batch):
     """
     print some training info
     """
-
-    # print loss
-    if mini_batch % self.k_print == self.k_print-1 or self.do_print_anyway:
-
-      # print info
-      print('epoch: {}, mini-batch: {}, loss: [{:.5f}]'.format(epoch + 1, mini_batch + 1, self.batch_dict['train_loss_batch'] / self.k_print))
+    print('epoch: {}, mini-batch: {}, loss: [{:.5f}]'.format(epoch + 1, mini_batch + 1, self.batch_dict['train_loss_batch']))
 
 
   def finish(self):
@@ -132,23 +130,21 @@ class AdversarialTrainScore(TrainScore):
     self.score_dict['d_loss_fake'][epoch] += d_loss_fake
     self.batch_dict['d_loss_fake_batch'] += d_loss_fake
 
-    # do print
-    self.print_train_info(epoch, mini_batch)
+    # print loss
+    if mini_batch % self.k_print == self.k_print-1 or self.do_print_anyway:
 
-    # reset batch losses
-    self.reset_batch_losses()
+      # do print
+      self.print_train_info(epoch, mini_batch)
+
+      # reset batch losses
+      self.reset_batch_losses()
 
 
   def print_train_info(self, epoch, mini_batch):
     """
     print some training info
     """
-
-    # print loss
-    if mini_batch % self.k_print == self.k_print-1 or self.do_print_anyway:
-
-      # print info
-      print('epoch: {}, mini-batch: {}, G loss fake: [{:.5f}], G loss sim: [{:.5f}], D loss real: [{:.5f}], D loss fake: [{:.5f}]'.format(epoch + 1, mini_batch + 1, self.batch_dict['g_loss_fake_batch'] / self.k_print, self.batch_dict['g_loss_sim_batch'] / self.k_print, self.batch_dict['d_loss_real_batch'] / self.k_print, self.batch_dict['d_loss_fake_batch'] / self.k_print))
+    print('epoch: {}, mini-batch: {}, G loss fake: [{:.5f}], G loss sim: [{:.5f}], D loss real: [{:.5f}], D loss fake: [{:.5f}]'.format(epoch + 1, mini_batch + 1, self.batch_dict['g_loss_fake_batch'], self.batch_dict['g_loss_sim_batch'], self.batch_dict['d_loss_real_batch'], self.batch_dict['d_loss_fake_batch']))
 
 
 
@@ -176,23 +172,21 @@ class WavenetTrainScore(TrainScore):
     self.score_dict['loss_y'][epoch] += loss_y
     self.batch_dict['loss_y_batch'] += loss_y
 
-    # do print
-    self.print_train_info(epoch, mini_batch)
+    # print loss
+    if mini_batch % self.k_print == self.k_print-1 or self.do_print_anyway:
 
-    # reset batch losses
-    self.reset_batch_losses()
+      # do print
+      self.print_train_info(epoch, mini_batch)
+
+      # reset batch losses
+      self.reset_batch_losses()
 
 
   def print_train_info(self, epoch, mini_batch):
     """
     print some training info
     """
-
-    # print loss
-    if mini_batch % self.k_print == self.k_print-1 or self.do_print_anyway:
-
-      # print info
-      print('epoch: {}, mini-batch: {}, loss_t: [{:.5f}], loss_y: [{:.5f}]'.format(epoch + 1, mini_batch + 1, self.batch_dict['loss_t_batch'] / self.k_print, self.batch_dict['loss_y_batch'] / self.k_print))
+    print('epoch: {}, mini-batch: {}, loss_t: [{:.5f}], loss_y: [{:.5f}]'.format(epoch + 1, mini_batch + 1, self.batch_dict['loss_t_batch'], self.batch_dict['loss_y_batch']))
 
 
 

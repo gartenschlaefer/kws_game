@@ -72,7 +72,8 @@ class ThingsGameLogic(GameLogic):
   Game Logic for things.py
   """
 
-  def __init__(self, level, levels, text):
+  #def __init__(self, level, levels, text):
+  def __init__(self, level, levels):
 
     # parent init
     super().__init__()
@@ -80,13 +81,9 @@ class ThingsGameLogic(GameLogic):
     # vars
     self.level = level
     self.levels = levels
-    self.text = text
 
     # level id always start with zero
     self.level_id = 0
-
-    # game objects
-    self.henry = self.level.henry
 
 
   def check_win_condition(self):
@@ -95,14 +92,12 @@ class ThingsGameLogic(GameLogic):
     """
 
     # henry found the things
-    if self.henry.things_collected:
+    if self.level.henry.things_collected:
 
-      # stop henry
-      self.henry.is_active = False
+      # win the level
+      self.level.win()
 
-      # write win
-      self.text.win_message(big_pos=(275, 75), small_pos=(250, 125))
-
+      # end the game
       self.end_game = True
 
 
@@ -115,7 +110,6 @@ class ThingsGameLogic(GameLogic):
     self.end_game = False
 
     # reset game objects
-    self.text.reset()
     self.level.reset()
 
 
@@ -138,9 +132,6 @@ class ThingsGameLogic(GameLogic):
 
       # new level
       self.level = self.levels[self.level_id]
-
-      # game objects
-      self.henry = self.level.henry
 
 
   def update(self):

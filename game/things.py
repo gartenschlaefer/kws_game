@@ -74,10 +74,6 @@ if __name__ == '__main__':
   # init display
   screen = pygame.display.set_mode(cfg['game']['screen_size'])
 
-  # collection of game colors
-  text = Text(screen)
-
-
   # level creation
   levels = [LevelThings(screen, cfg['game']['screen_size']), Level_01(screen, cfg['game']['screen_size'])]
 
@@ -85,7 +81,7 @@ if __name__ == '__main__':
   level = levels[0]
 
   # game logic with dependencies
-  game_logic = ThingsGameLogic(level, levels, text)
+  game_logic = ThingsGameLogic(level, levels)
 
   # add clock
   clock = pygame.time.Clock()
@@ -103,9 +99,7 @@ if __name__ == '__main__':
 
     # frame update
     level = game_logic.update()
-
     level.update()
-    text.draw()
 
     # update display
     pygame.display.flip()

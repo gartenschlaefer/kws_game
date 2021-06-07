@@ -255,6 +255,9 @@ class OptionMenu(Menu):
     # set button active
     self.canvas.interactable_dict['end_button'].button_press()
 
+    # menu buttons selection enable
+    self.menu_button_sel_enable = True
+
 
   def menu_loop(self):
     """
@@ -264,25 +267,32 @@ class OptionMenu(Menu):
     # add clock
     clock = pygame.time.Clock()
 
-    # init stream
-    self.mic.init_stream()
+    while self.game_logic.run_loop:
 
-    # mic stream and update
-    with self.mic.stream:
-      while self.game_logic.run_loop:
-        for event in pygame.event.get():
+      print("new mic loop")
 
-          # input handling
-          self.event_update(event)
+      # init stream
+      self.mic.init_stream()
 
-        # update menu
-        self.update()
+      # mic stream and update
+      with self.mic.stream:
+        while self.game_logic.run_loop:
+          for event in pygame.event.get():
 
-        # update display
-        pygame.display.flip()
+            # input handling
+            self.event_update(event)
 
-        # reduce framerate
-        clock.tick(self.cfg_game['fps'])
+          # update menu
+          self.update()
+
+          # update display
+          pygame.display.flip()
+
+          # reduce framerate
+          clock.tick(self.cfg_game['fps'])
+
+          # break loop if device is changed
+          if self.mic.change_device_flag: break
 
     # action at ending loop
     action = self.button_dict[self.button_state] if not self.game_logic.esc_key_exit else 'exit'
@@ -300,6 +310,23 @@ class OptionMenu(Menu):
 
     # end loop
     if self.button_dict[self.button_state] == 'end_button': self.game_logic.run_loop = False
+
+    # device menu
+    elif self.button_dict[self.button_state] == 'device_button': 
+
+      # update selection mode
+      self.menu_button_sel_enable = not self.menu_button_sel_enable
+
+      # set device canvas active for selection
+      self.canvas.interactable_dict['device_canvas'].set_active(not self.menu_button_sel_enable)
+
+      # enter in device select
+      if self.menu_button_sel_enable:
+
+        print("active device num: ", self.canvas.interactable_dict['device_canvas'].active_device_num)
+
+        # update mic device
+        self.mic.change_device(self.canvas.interactable_dict['device_canvas'].active_device_num)
 
 
   def button_select(self):
@@ -334,11 +361,56 @@ class OptionMenu(Menu):
     device page
     """
 
-    # enable canvas
+    # toggle canvas
     self.canvas.interactable_dict['device_canvas'].enabled = not self.canvas.interactable_dict['device_canvas'].enabled
 
     # update devices
     if self.canvas.interactable_dict['device_canvas'].enabled: self.canvas.interactable_dict['device_canvas'].devices_to_text()
+
+
+  def update(self):
+    """
+    update menu
+    """
+
+    # canvas
+    self.canvas.update()
+    self.canvas.draw()
+
+    # up down movement
+    if self.menu_button_sel_enable: self.button_state_update()
+    else: self.device_menu_update()
+
+
+  def device_menu_update(self):
+    """
+    device menu
+    """
+
+    # check if clicked
+    if not self.click and self.ud_click:
+
+      # deselect buttons
+      if self.ud_click < 0 and self.canvas.interactable_dict['device_canvas'].active_device_id: 
+        self.canvas.interactable_dict['device_canvas'].device_deselect()
+        self.canvas.interactable_dict['device_canvas'].active_device_id -= 1
+
+      # down
+      elif self.ud_click > 0 and self.canvas.interactable_dict['device_canvas'].active_device_id < len(self.canvas.interactable_dict['device_canvas'].device_id_dict) - 1: 
+        self.canvas.interactable_dict['device_canvas'].device_deselect()
+        self.canvas.interactable_dict['device_canvas'].active_device_id += 1
+
+      # return
+      else: return
+
+      # set click
+      self.click = True
+
+      # select device
+      self.canvas.interactable_dict['device_canvas'].device_select()
+
+    # reset click
+    if self.ud_click == 0: self.click = False
 
 
 

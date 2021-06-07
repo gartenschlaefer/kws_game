@@ -2,11 +2,18 @@
 % Neural Network Architectures
 
 \chapter{Neural Networks}\label{sec:nn}
-This chapter contains the theoretical foundations of developing a Key Word Spotting system with neural networks for Video Games. 
-In particular the signal processing and feature extraction is explained and visualized with many examples.
-The same holds fo the machine learning part were central concepts of applied methods are discussed and shown.
-At last it is important and has to be considered when building a video game with speech command inputs.
+%This chapter contains theoretical foundations and practical evaluation of developing a Key Word Spotting (KWS) system with neural networks, especially intended for video games
+This chapter contains theoretical foundations and practical results regarding neural networks applied to the key word spotting in classifying speech commands.
+The used architectures within this thesis are shown and explained in detail.
+The training of those networks and some special concepts, such as adversarial pre-training, are presented.
+Special focus is lied on energy efficiences, because key word spotting requires it in many practical applications, such as well as video games.
 
-% ml
+
+% theory
+\input{./4_nn/nn_theory.tex}
+
+% architectures
 \input{./4_nn/nn_arch.tex}
+
+% adversarial
 \input{./4_nn/nn_adv.tex}

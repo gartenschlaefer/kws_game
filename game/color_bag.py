@@ -20,13 +20,17 @@ class ColorBag():
     self.default_move_wall = (10, 100, 100)
 
     # text color
-    self.win = (50, 100, 100)
+    self.text_win = (50, 100, 100)
+    self.text_menu = (50, 100, 100)
+    self.text_menu_active = (100, 50, 75)
 
     # mic bar
     self.mic_bar_meter = (210, 100, 20)
 
     # canvas
     self.canvas_background = (230, 210, 200)
+    self.canvas_win_backgound = (230, 210, 200, 128)
     self.canvas_device_background = (255, 255, 255)
+
 
 

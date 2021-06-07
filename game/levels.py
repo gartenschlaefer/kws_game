@@ -6,6 +6,7 @@ import pygame
 
 from interactable import Interactable
 from color_bag import ColorBag
+from canvas import CanvasWin
 
 
 class Level(Interactable):
@@ -24,7 +25,7 @@ class Level(Interactable):
     self.all_sprites = pygame.sprite.Group()
 
     # interactables
-    self.interactables = []
+    self.interactable_dict = {}
 
 
   def setup_level(self):
@@ -38,19 +39,14 @@ class Level(Interactable):
     """
     reset level
     """
-
-    # interactables
-    for interactable in self.interactables:
-      interactable.reset()
+    for interactable in self.interactable_dict.values(): interactable.reset()
 
 
   def event_update(self, event):
     """
     event update
     """
-
-    # interactables
-    for interactable in self.interactables: interactable.event_update(event)
+    for interactable in self.interactable_dict.values(): interactable.event_update(event)
 
 
   def update(self):
@@ -59,7 +55,7 @@ class Level(Interactable):
     """
 
     # interactables
-    for interactable in self.interactables: interactable.update()
+    for interactable in self.interactable_dict.values(): interactable.update()
 
     # update sprites
     self.all_sprites.update()
@@ -68,7 +64,7 @@ class Level(Interactable):
     self.screen.fill(self.color_bag.background)
 
     # draw interactables
-    for interactable in self.interactables: interactable.draw()
+    for interactable in self.interactable_dict.values(): interactable.draw()
 
     # draw sprites
     self.all_sprites.draw(self.screen)
@@ -94,7 +90,8 @@ class LevelMic(Level):
     self.mic_bar = MicBar(screen, mic, position=(200, 200), color_bag=self.color_bag, size=(50, 150))
 
     # append interactable
-    self.interactables.append(self.mic_bar)
+    #self.interactables.append(self.mic_bar)
+    self.interactable_dict.update({'mic_bar': self.mic_bar})
 
 
 
@@ -120,7 +117,8 @@ class LevelGrid(Level):
     self.setup_level()
 
     # append interactable
-    self.interactables.append(self.grid_world)
+    #self.interactables.append(self.grid_world)
+    self.interactable_dict.update({'grid_world': self.grid_world})
 
     # sprites
     self.all_sprites.add(self.grid_world.wall_sprites, self.grid_world.move_wall_sprites)
@@ -226,7 +224,8 @@ class LevelCharacter(LevelGrid):
     self.henry.obstacle_sprites.add(self.grid_world.wall_sprites, self.grid_world.move_wall_sprites)
 
     # add interactable
-    self.interactables.append(self.henry)
+    #self.interactables.append(self.henry)
+    self.interactable_dict.update({'henry': self.henry})
 
     # add to sprites
     self.all_sprites.add(self.henry.character_sprite)
@@ -271,6 +270,21 @@ class LevelThings(LevelCharacter):
     # determine position
     self.henry.set_position(self.grid_world.grid_to_pos([10, 10]), is_init_pos=True)
 
+    # add interactables
+    self.interactable_dict.update({'win_canvas': CanvasWin(self.screen)})
+
+
+  def win(self):
+    """
+    win condition for level
+    """
+
+    # deactivate henry
+    self.henry.is_active = False
+
+    # activate win canvas
+    self.interactable_dict['win_canvas'].enabled = True
+
 
   def reset(self):
     """
@@ -283,6 +297,9 @@ class LevelThings(LevelCharacter):
     # add to sprites
     self.all_sprites.add(self.thing)
     self.henry.thing_sprites.add(self.thing)
+
+    # interactables reset
+    for interactable in self.interactable_dict.values(): interactable.reset()
 
 
 
@@ -386,9 +403,6 @@ if __name__ == '__main__':
   # init display
   screen = pygame.display.set_mode(cfg['game']['screen_size'])
 
-  # text
-  text = Text(screen)
-
   # level creation
   levels = [Level_01(screen, cfg['game']['screen_size']), Level_02(screen, cfg['game']['screen_size']), LevelSquare(screen, cfg['game']['screen_size']), LevelMoveWalls(screen, cfg['game']['screen_size'])]
 
@@ -396,7 +410,7 @@ if __name__ == '__main__':
   level = levels[0]
 
   # game logic with dependencies
-  game_logic = ThingsGameLogic(level, levels, text)
+  game_logic = ThingsGameLogic(level, levels)
 
   # add clock
   clock = pygame.time.Clock()
@@ -413,7 +427,6 @@ if __name__ == '__main__':
     # frame update
     level = game_logic.update()
     level.update()
-    text.draw()
 
     # update display
     pygame.display.flip()

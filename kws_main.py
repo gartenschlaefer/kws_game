@@ -51,7 +51,7 @@ if __name__ == '__main__':
   screen_capturer = ScreenCapturer(screen, cfg['game'])
 
   # text
-  text = Text(screen)
+  #text = Text(screen)
 
   # level creation
   levels = [Level_01(screen, cfg['game']['screen_size'], mic), Level_02(screen, cfg['game']['screen_size'], mic)]
@@ -60,10 +60,13 @@ if __name__ == '__main__':
   level = levels[0]
 
   # game logic with dependencies
-  game_logic = ThingsGameLogic(level, levels, text)
+  game_logic = ThingsGameLogic(level, levels)
 
   # add clock
   clock = pygame.time.Clock()
+
+  # init stream
+  mic.init_stream()
 
   # mic stream and update
   with mic.stream:
@@ -79,7 +82,6 @@ if __name__ == '__main__':
       # frame update
       level = game_logic.update()
       level.update()
-      text.draw()
       screen_capturer.update()
 
       # update display
