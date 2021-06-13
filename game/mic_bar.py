@@ -7,6 +7,8 @@ import numpy as np
 
 from interactable import Interactable
 from input_handler import InputKeyHandler
+from color_bag import ColorBag
+from text import Text
 
 
 class MicBar(Interactable):
@@ -14,21 +16,21 @@ class MicBar(Interactable):
   graphical bar for microphone energy measure
   """
 
-  def __init__(self, surf, mic, position, color_bag, size=(20, 40), energy_frame_update=4):
+  def __init__(self, surf, mic, position, bar_size=(20, 40), scale_margin=(10, 5), energy_frame_update=4):
 
     # mic
     self.surf = surf
     self.mic = mic
     self.position = position
-    self.color_bag = color_bag
-    self.size = size
+    self.bar_size = bar_size
+    self.scale_margin = scale_margin
     self.energy_frame_update = energy_frame_update
 
     # sprites group
     self.sprites = pygame.sprite.Group()
 
     # bar sprite
-    self.bar_sprite = BarSprite(self.mic, position, size=self.size)
+    self.bar_sprite = BarSprite(self.mic, position, bar_size=self.bar_size, scale_margin=self.scale_margin)
 
     # add to sprites
     self.sprites.add(self.bar_sprite)
@@ -44,8 +46,7 @@ class MicBar(Interactable):
 
     print("action")
 
-    if self.bar_sprite.act_length > 5:
-      self.bar_sprite.act_length -= 5
+    if self.bar_sprite.act_length > 5: self.bar_sprite.act_length -= 5
 
 
   def enter_key(self):
@@ -55,8 +56,7 @@ class MicBar(Interactable):
     
     print("enter")
 
-    if self.bar_sprite.act_length < self.size[1] - 5:
-      self.bar_sprite.act_length += 5
+    if self.bar_sprite.act_length < self.bar_size[1] - 5: self.bar_sprite.act_length += 5
 
 
   def reset(self):
@@ -80,6 +80,10 @@ class MicBar(Interactable):
     update
     """
     
+    # debug
+    #self.bar_sprite.update()
+    #return
+
     # read mic
     self.mic.read_mic_data()
 
@@ -112,11 +116,19 @@ class MicBar(Interactable):
       self.bar_sprite.update()
 
 
+  def change_energy_thresh(self, e):
+    """
+    energy threshold change
+    """
+
+    # energy thresh
+    self.bar_sprite.energy_thresh_position = int(10 * np.log10(e) * (bar_size[1] / self.min_db))
+
+
   def draw(self):
     """
     draw
     """
-
     self.surf.blit(self.bar_sprite.image, self.bar_sprite.position)
 
 
@@ -126,7 +138,7 @@ class BarSprite(pygame.sprite.Sprite):
   wall class
   """
 
-  def __init__(self, mic, position, color=(10, 200, 200), size=(20, 20), min_db=-70):
+  def __init__(self, mic, position, bar_size=(20, 40), scale_margin=(10, 5), border=2, tick_length=10, min_db=-70):
 
     # parent init
     super().__init__()
@@ -134,36 +146,66 @@ class BarSprite(pygame.sprite.Sprite):
     # vars
     self.mic = mic
     self.position = position
-    self.color = color
-    self.size = size
+    self.bar_size = bar_size
+    self.scale_margin = scale_margin
+    self.border = border
+    self.tick_length = tick_length
     self.min_db = min_db
 
+    # image size
+    self.image_size = (self.bar_size[0] + self.scale_margin[0], self.bar_size[1] + self.scale_margin[1] * 2,)
+
+    # colors
+    self.color_bag = ColorBag()
+
     # bar init
-    self.image = pygame.surface.Surface(self.size)
+    self.image = pygame.surface.Surface(self.image_size)
     self.rect = self.image.get_rect()
 
-    # set rect position
+    # set rectangle position
     self.rect.x, self.rect.y = self.position[0], self.position[1]
-
-    # fill with color
-    self.image.fill(self.color)
 
     # lengths
     self.act_length = 5
-    self.total_length = self.size[1]
+    self.total_length = self.bar_size[1]
+
+    # energy thresh
+    self.energy_thresh_position = int(10 * np.log10(self.mic.mic_params['energy_thresh']) * (bar_size[1] / self.min_db))
+
+    print("e: ", self.energy_thresh_position)
+
+    # fill with background color
+    self.image.fill(self.color_bag.mic_bar_background)
+
+    # border
+    pygame.draw.rect(self.image, self.color_bag.mic_bar_border, (0, self.scale_margin[1] - self.border, self.bar_size[0] + 2 * self.border, self.total_length + 2 * self.border))
+
+    # scale
+    scale_ticks = [i * self.total_length // (np.abs(self.min_db) // 10) for i in range(np.abs(self.min_db) // 10 + 1)]
+    scale_tick_names = [i * -10 for i in range(len(scale_ticks))]
+
+    # print("scale ticks: ", scale_ticks)
+    # print("total: ", self.total_length)
+    # print("space: ", self.total_length // (np.abs(self.min_db) // 10))
+    [pygame.draw.rect(self.image, self.color_bag.mic_bar_meter_tick, (self.bar_size[0], self.scale_margin[1] + i, self.tick_length, 2)) for i in scale_ticks]
+
+    # draw text
+    texts = [Text(self.image, message=str(m), position=(self.border + self.bar_size[0] + self.tick_length + 2, self.scale_margin[1] - 6 + i), font_size='tiny', color=self.color_bag.mic_bar_meter_tick) for i, m in zip(scale_ticks, scale_tick_names)]
+    texts.append(Text(self.image, message='[db]', position=(self.border + self.bar_size[0] + self.tick_length + 2, self.scale_margin[1] // 2 - 6), font_size='tiny', color=self.color_bag.mic_bar_meter_tick))
+    [text.draw() for text in texts]
 
 
   def update(self):
     """
-    update bar
+    update bar by drawing the rectangle
     """
 
-    # clear the image
-    self.image.fill(self.color)
+    # draw rectangles
+    pygame.draw.rect(self.image, self.color_bag.mic_bar_meter_background, (self.border, self.scale_margin[1], self.bar_size[0], self.total_length))
+    pygame.draw.rect(self.image, self.color_bag.mic_bar_meter, (5 + self.border, self.total_length - self.act_length + self.scale_margin[1], self.bar_size[0] - 10, self.act_length))
 
-    # draw the rect
-    pygame.draw.rect(self.image, (100, 0, 100), (5, self.total_length - self.act_length, self.size[0] - 10, self.act_length))
-
+    # energy thresh
+    pygame.draw.rect(self.image, self.color_bag.mic_bar_energy_thresh, (self.border, self.scale_margin[1] + self.energy_thresh_position, self.bar_size[0] + self.tick_length + 2, 2))
 
 
 if __name__ == '__main__':
@@ -194,7 +236,7 @@ if __name__ == '__main__':
   classifier = Classifier(cfg_classifier=cfg['classifier'], root_path='../')
   
   # create mic instance
-  mic = Mic(classifier=classifier, feature_params=cfg['feature_params'], mic_params=cfg['mic_params'], is_audio_record=True)
+  mic = Mic(classifier=classifier, mic_params=cfg['mic_params'], is_audio_record=True)
 
   
   # --
@@ -217,6 +259,9 @@ if __name__ == '__main__':
 
   # add clock
   clock = pygame.time.Clock()
+
+  # init stream
+  mic.init_stream()
 
   # mic stream and update
   with mic.stream:

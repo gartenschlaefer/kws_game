@@ -117,7 +117,7 @@ if __name__ == '__main__':
   classifier = Classifier(cfg_classifier=cfg['classifier'])
 
   # create mic instance
-  mic = Mic(classifier=classifier, feature_params=cfg['feature_params'], mic_params=cfg['mic_params'], is_audio_record=True)
+  mic = Mic(classifier=classifier, mic_params=cfg['mic_params'], is_audio_record=True)
   
   
   # --

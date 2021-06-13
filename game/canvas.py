@@ -129,7 +129,7 @@ class CanvasHelpMenu(Canvas):
 
 class CanvasOptionMenu(Canvas):
   """
-  main menu canvas
+  option menu canvas
   """
 
   def __init__(self, screen, mic):
@@ -144,17 +144,26 @@ class CanvasOptionMenu(Canvas):
     text = Text(self.canvas_surf, message='option', position=(0, 0), font_size='small', color=self.color_bag.text_menu)
 
     # mic bar
-    mic_bar = MicBar(self.canvas_surf, self.mic, position=(575, 200), color_bag=self.color_bag, size=(30, 150))
+    mic_bar = MicBar(self.canvas_surf, self.mic, position=(550, 200), bar_size=(30, 150), scale_margin=(50, 40))
 
     # device canvas
-    self.interactable_dict.update({'device_canvas': CanvasDevice(self.canvas_surf, self.mic, size=(350, 400), position=(200, 50))})
+    self.interactable_dict.update({'device_canvas': CanvasDevice(self.canvas_surf, self.mic, size=(350, 350), position=(200, 50))})
+
+    # thresh canvas
+    self.interactable_dict.update({'thresh_canvas': CanvasThresh(self.canvas_surf, self.mic, size=(350, 350), position=(200, 50))})
+    
+    # command canvas
+    self.interactable_dict.update({'cmd_canvas': CanvasCommand(self.canvas_surf, self.mic, size=(350, 350), position=(200, 50))})
 
     # update canvas objects
     self.interactable_dict.update({'text': text, 'mic_bar': mic_bar, 'cmd_button': CmdButton(self.canvas_surf, position=(50, 75), scale=(3, 3)), 'thresh_button': ThreshButton(self.canvas_surf, position=(50, 175), scale=(3, 3)), 'device_button': DeviceButton(self.canvas_surf, position=(50, 275), scale=(3, 3)), 'end_button': EndButton(self.canvas_surf, position=(50, 375), scale=(3, 3))})
 
 
 
-class CanvasDevice(Canvas):
+class CanvasCommand(Canvas):
+  """
+  speech commands canvas
+  """
 
   def __init__(self, screen, mic, size, position):
 
@@ -165,16 +174,58 @@ class CanvasDevice(Canvas):
     self.mic = mic
 
     # set background color
-    self.color_background = self.color_bag.canvas_device_background
+    self.color_background = self.color_bag.canvas_option_background
 
     # enable view
     self.enabled = False
 
-    # active (select devices)
-    self.active = False
+    # info text
+    self.interactable_dict.update({'text_info': Text(self.canvas_surf, message='speech command: ', position=(0, 0), font_size='small', color=self.color_bag.text_menu)})
+
+
+
+class CanvasThresh(Canvas):
+  """
+  energy threshold canvas
+  """
+
+  def __init__(self, screen, mic, size, position):
+
+    # Parent init
+    super().__init__(screen, size=size, position=position)
+
+    # arguments
+    self.mic = mic
+
+    # set background color
+    self.color_background = self.color_bag.canvas_option_background
+
+    # enable view
+    self.enabled = False
 
     # info text
-    text_info = Text(self.canvas_surf, message='devices: ', position=(0, 0), font_size='small', color=self.color_bag.text_menu)
+    self.interactable_dict.update({'text_info': Text(self.canvas_surf, message='energy threshold: ', position=(0, 0), font_size='small', color=self.color_bag.text_menu)})
+
+
+
+class CanvasDevice(Canvas):
+  """
+  device selection canvas
+  """
+
+  def __init__(self, screen, mic, size, position):
+
+    # Parent init
+    super().__init__(screen, size=size, position=position)
+
+    # arguments
+    self.mic = mic
+
+    # set background color
+    self.color_background = self.color_bag.canvas_option_background
+
+    # enable view
+    self.enabled = False
 
     # device list texts
     self.text_device_list = []
@@ -183,7 +234,7 @@ class CanvasDevice(Canvas):
     self.device_id_dict = {}
 
     # update
-    self.interactable_dict.update({'text_info': text_info})
+    self.interactable_dict.update({'text_info': Text(self.canvas_surf, message='devices: ', position=(0, 0), font_size='small', color=self.color_bag.text_menu)})
 
     # active device number and id
     self.active_device_num = 0
@@ -210,7 +261,7 @@ class CanvasDevice(Canvas):
       text = Text(self.canvas_surf, message=device_dict['name'], position=(25, i*25 + 40), font_size='tiny', color=self.color_bag.text_menu)
 
       # indicator position
-      if i == self.mic.device:
+      if num_device == self.mic.device:
         self.active_device_num = num_device
         self.active_device_id = i
         text_indicator.position = (5, i * 25 + 40)
@@ -229,42 +280,13 @@ class CanvasDevice(Canvas):
     self.interactable_dict.update({'text_indicator':text_indicator})
 
 
-  def set_active(self, active):
-    """
-    set active for device selection
-    """
-
-    # active state
-    self.active = active
-
-    if self.active: self.device_select()
-    else: self.device_deselect()
-
-
-  def device_select(self):
+  def device_select(self, active):
     """
     select device
     """
 
-    # update active device
-    self.active_device_num = self.device_id_dict[self.active_device_id]
-
-    # change indicator position
-    self.interactable_dict['text_indicator'].position = (5, self.active_device_id * 25 + 40)
-
-    # set color
-    self.interactable_dict['text_indicator'].color = self.color_bag.text_menu_active
-    self.interactable_dict['text_device{}'.format(self.active_device_num)].color = self.color_bag.text_menu_active
-
-    # render text
-    self.interactable_dict['text_indicator'].render()
-    self.interactable_dict['text_device{}'.format(self.active_device_num)].render()
-
-
-  def device_deselect(self):
-    """
-    deselect device
-    """
+    # select color
+    text_color = self.color_bag.text_menu_active if active else self.color_bag.text_menu
 
     # update active device
     self.active_device_num = self.device_id_dict[self.active_device_id]
@@ -273,25 +295,12 @@ class CanvasDevice(Canvas):
     self.interactable_dict['text_indicator'].position = (5, self.active_device_id * 25 + 40)
 
     # set color
-    self.interactable_dict['text_indicator'].color = self.color_bag.text_menu
-    self.interactable_dict['text_device{}'.format(self.active_device_num)].color = self.color_bag.text_menu
+    self.interactable_dict['text_indicator'].color = text_color
+    self.interactable_dict['text_device{}'.format(self.active_device_num)].color = text_color
 
     # render text
     self.interactable_dict['text_indicator'].render()
     self.interactable_dict['text_device{}'.format(self.active_device_num)].render()
-
-
-  # def update(self):
-  #   """
-  #   update
-  #   """
-    
-  #   if not self.enabled: return
-
-  #   # update all interactables
-  #   for interactable in self.interactable_dict.values(): interactable.update()
-
-  #   if self.active: 
 
 
 
@@ -315,9 +324,6 @@ class CanvasWin(Canvas):
     win_title = Text(self.canvas_surf, message='Win', position=(275, 75), font_size='big', color=self.color_bag.text_win)
     win_sub = Text(self.canvas_surf, message='press Enter', position=(250, 125), font_size='small', color=self.color_bag.text_win)
 
-    #big_pos=(275, 75), small_pos=(250, 125)
-    #text_info.render_small_msg('devices: ', (0, 0))
-
     # device list texts
     self.text_device_list = []
 
@@ -335,6 +341,7 @@ class CanvasWin(Canvas):
 
     # interactables reset
     for interactable in self.interactable_dict.values(): interactable.reset()
+
 
 
 if __name__ == '__main__':

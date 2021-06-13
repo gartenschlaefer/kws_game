@@ -47,3 +47,11 @@ def legacy_adjustments_net_params(net_params):
   feature_params = legacy_adjustments_feature_params(feature_params)
 
   return data_size, feature_params
+
+
+
+# --
+# comments
+#
+# renames:
+# energy_thres: 0.0001 -> energy_thresh: 0.0001

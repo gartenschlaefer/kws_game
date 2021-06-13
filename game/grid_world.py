@@ -221,7 +221,7 @@ if __name__ == '__main__':
   classifier = Classifier(cfg_classifier=cfg['classifier'], root_path='../')
 
   # create mic instance
-  mic = Mic(classifier=classifier, feature_params=cfg['feature_params'], mic_params=cfg['mic_params'], is_audio_record=False)
+  mic = Mic(classifier=classifier, mic_params=cfg['mic_params'], is_audio_record=False)
 
 
   # init pygame
@@ -242,6 +242,9 @@ if __name__ == '__main__':
 
   # add clock
   clock = pygame.time.Clock()
+
+  # init stream
+  mic.init_stream()
 
   # mic stream and update
   with mic.stream:

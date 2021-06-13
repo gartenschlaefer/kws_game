@@ -86,12 +86,8 @@ class LevelMic(Level):
     # arguments
     self.mic = mic
 
-    # mic bar
-    self.mic_bar = MicBar(screen, mic, position=(200, 200), color_bag=self.color_bag, size=(50, 150))
-
     # append interactable
-    #self.interactables.append(self.mic_bar)
-    self.interactable_dict.update({'mic_bar': self.mic_bar})
+    self.interactable_dict.update({'mic_bar': MicBar(self.screen, self.mic, position=(200, 200), bar_size=(50, 150), scale_margin=(50, 40))})
 
 
 

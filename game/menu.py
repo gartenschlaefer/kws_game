@@ -1,16 +1,18 @@
 """
-menues
+menues for the game
 """
 
 import pygame
 import pathlib
+import os
+import yaml
 
 from glob import glob
 
 from color_bag import ColorBag
 from interactable import Interactable
 from game_logic import MenuGameLogic
-from canvas import Canvas, CanvasMainMenu, CanvasHelpMenu, CanvasOptionMenu, CanvasDevice
+from canvas import Canvas, CanvasMainMenu, CanvasHelpMenu, CanvasOptionMenu
 
 
 class Menu(Interactable):
@@ -44,7 +46,10 @@ class Menu(Interactable):
     self.button_state = 0
 
     # button dict, selection: button in canvas
-    self.button_dict = {0: 'start_button', 1: 'help_button', 2: 'end_button'}
+    self.button_state_dict = {'start_button': 0, 'help_button': 1, 'end_button': 2}
+
+    # set button state
+    self.button_state = self.button_state_dict['start_button']
 
 
   def direction_change(self, direction):
@@ -111,7 +116,7 @@ class Menu(Interactable):
         self.button_state -= 1
 
       # down
-      elif self.ud_click > 0 and self.button_state < len(self.button_dict) - 1: 
+      elif self.ud_click > 0 and self.button_state < len(self.button_state_dict) - 1: 
         self.button_deselect()
         self.button_state += 1
 
@@ -149,9 +154,9 @@ class Menu(Interactable):
 
     # change button image
     try:
-      self.canvas.interactable_dict[self.button_dict[self.button_state]].button_press()
+      self.canvas.interactable_dict[list(self.button_state_dict.keys())[list(self.button_state_dict.values()).index(self.button_state)]].button_press()
     except:
-      print("button not available in canvas: ", self.button_dict[self.button_state])
+      print("button not available in canvas: ", list(self.button_state_dict.keys())[list(self.button_state_dict.values()).index(self.button_state)])
 
 
   def menu_loop(self):
@@ -179,7 +184,7 @@ class Menu(Interactable):
       clock.tick(self.cfg_game['fps'])
 
     # action at ending loop
-    action = self.button_dict[self.button_state] if not self.game_logic.esc_key_exit else 'exit'
+    action = list(self.button_state_dict.keys())[list(self.button_state_dict.values()).index(self.button_state)] if not self.game_logic.esc_key_exit else 'exit'
 
     # reset game logic
     self.game_logic.reset()
@@ -199,7 +204,10 @@ class MainMenu(Menu):
     super().__init__(cfg_game, screen)
 
     # button dict, selection: button in canvas
-    self.button_dict = {0: 'start_button', 1: 'help_button', 2: 'option_button', 3: 'end_button'}
+    self.button_state_dict = {'start_button': 0, 'help_button': 1, 'option_button': 2, 'end_button': 3}
+
+    # set button state
+    self.button_state = self.button_state_dict['start_button']
 
     # canvas
     self.canvas = CanvasMainMenu(self.screen)
@@ -220,7 +228,10 @@ class HelpMenu(Menu):
     super().__init__(cfg_game, screen)
 
     # button dict, selection: button in canvas
-    self.button_dict = {0: 'end_button'}
+    self.button_state_dict = {'end_button': 0}
+
+    # set button state
+    self.button_state = self.button_state_dict['end_button']
 
     # canvas
     self.canvas = CanvasHelpMenu(self.screen)
@@ -235,19 +246,20 @@ class OptionMenu(Menu):
   main menu
   """
 
-  def __init__(self, cfg_game, screen, mic):
+  def __init__(self, cfg_game, screen, mic, root_path='./'):
 
     # Parent init
     super().__init__(cfg_game, screen)
 
     # arguments
     self.mic = mic
+    self.root_path = root_path
 
     # button dict, selection: button in canvas
-    self.button_dict = {0: 'cmd_button', 1: 'thresh_button', 2: 'device_button', 3: 'end_button'}
+    self.button_state_dict = {'cmd_button': 0, 'thresh_button': 1, 'device_button': 2, 'end_button': 3}
 
     # selection
-    self.button_state = 3
+    self.button_state = self.button_state_dict['end_button']
 
     # canvas
     self.canvas = CanvasOptionMenu(self.screen, self.mic)
@@ -257,6 +269,9 @@ class OptionMenu(Menu):
 
     # menu buttons selection enable
     self.menu_button_sel_enable = True
+
+    # user settings file
+    self.user_setting_file = self.root_path + self.cfg_game['user_setting_file']
 
 
   def menu_loop(self):
@@ -270,6 +285,9 @@ class OptionMenu(Menu):
     while self.game_logic.run_loop:
 
       print("new mic loop")
+
+      # user settings
+      self.mic.load_user_settings(self.user_setting_file)
 
       # init stream
       self.mic.init_stream()
@@ -295,7 +313,7 @@ class OptionMenu(Menu):
           if self.mic.change_device_flag: break
 
     # action at ending loop
-    action = self.button_dict[self.button_state] if not self.game_logic.esc_key_exit else 'exit'
+    action = list(self.button_state_dict.keys())[list(self.button_state_dict.values()).index(self.button_state)] if not self.game_logic.esc_key_exit else 'exit'
 
     # reset game logic
     self.game_logic.reset()
@@ -308,25 +326,26 @@ class OptionMenu(Menu):
     button enter
     """
 
+    # update selection mode
+    self.menu_button_sel_enable = not self.menu_button_sel_enable
+    
     # end loop
-    if self.button_dict[self.button_state] == 'end_button': self.game_logic.run_loop = False
+    if self.button_state == self.button_state_dict['end_button']: self.game_logic.run_loop = False
 
     # device menu
-    elif self.button_dict[self.button_state] == 'device_button': 
-
-      # update selection mode
-      self.menu_button_sel_enable = not self.menu_button_sel_enable
+    elif self.button_state == self.button_state_dict['device_button']: 
 
       # set device canvas active for selection
-      self.canvas.interactable_dict['device_canvas'].set_active(not self.menu_button_sel_enable)
+      self.canvas.interactable_dict['device_canvas'].device_select(not self.menu_button_sel_enable)
 
       # enter in device select
       if self.menu_button_sel_enable:
 
-        print("active device num: ", self.canvas.interactable_dict['device_canvas'].active_device_num)
-
         # update mic device
         self.mic.change_device(self.canvas.interactable_dict['device_canvas'].active_device_num)
+
+        # save device
+        self.save_user_settings_select_device(self.canvas.interactable_dict['device_canvas'].active_device_num)
 
 
   def button_select(self):
@@ -337,35 +356,35 @@ class OptionMenu(Menu):
     # toggle button image
     self.button_toggle()
 
-    # activate dev page
-    if self.button_dict[self.button_state] == 'device_button':
-      self.toggle_device_canvas()
-      print("open device page")
+    # device button
+    if self.button_state == self.button_state_dict['device_button']:
+
+      # toggle canvas
+      self.canvas.interactable_dict['device_canvas'].enabled = not self.canvas.interactable_dict['device_canvas'].enabled
+
+      # update devices
+      if self.canvas.interactable_dict['device_canvas'].enabled: self.canvas.interactable_dict['device_canvas'].devices_to_text()
+
+      #self.toggle_device_canvas()
+
+    # thresh button
+    elif self.button_state == self.button_state_dict['thresh_button']:
+
+      # toggle canvas
+      self.canvas.interactable_dict['thresh_canvas'].enabled = not self.canvas.interactable_dict['thresh_canvas'].enabled
+
+    # thresh button
+    elif self.button_state == self.button_state_dict['cmd_button']:
+
+      # toggle canvas
+      self.canvas.interactable_dict['cmd_canvas'].enabled = not self.canvas.interactable_dict['cmd_canvas'].enabled
 
 
   def button_deselect(self):
     """
-    button deselect
+    button deselect, here same as button select
     """
-
-    # toggle button image
-    self.button_toggle()
-
-    if self.button_dict[self.button_state] == 'device_button': 
-      self.toggle_device_canvas()
-      print("close device page")
-
-
-  def toggle_device_canvas(self):
-    """
-    device page
-    """
-
-    # toggle canvas
-    self.canvas.interactable_dict['device_canvas'].enabled = not self.canvas.interactable_dict['device_canvas'].enabled
-
-    # update devices
-    if self.canvas.interactable_dict['device_canvas'].enabled: self.canvas.interactable_dict['device_canvas'].devices_to_text()
+    self.button_select()
 
 
   def update(self):
@@ -379,7 +398,10 @@ class OptionMenu(Menu):
 
     # up down movement
     if self.menu_button_sel_enable: self.button_state_update()
-    else: self.device_menu_update()
+
+    # options
+    else: 
+      if self.button_state == self.button_state_dict['device_button']: self.device_menu_update()
 
 
   def device_menu_update(self):
@@ -392,12 +414,12 @@ class OptionMenu(Menu):
 
       # deselect buttons
       if self.ud_click < 0 and self.canvas.interactable_dict['device_canvas'].active_device_id: 
-        self.canvas.interactable_dict['device_canvas'].device_deselect()
+        self.canvas.interactable_dict['device_canvas'].device_select(False)
         self.canvas.interactable_dict['device_canvas'].active_device_id -= 1
 
       # down
       elif self.ud_click > 0 and self.canvas.interactable_dict['device_canvas'].active_device_id < len(self.canvas.interactable_dict['device_canvas'].device_id_dict) - 1: 
-        self.canvas.interactable_dict['device_canvas'].device_deselect()
+        self.canvas.interactable_dict['device_canvas'].device_select(False)
         self.canvas.interactable_dict['device_canvas'].active_device_id += 1
 
       # return
@@ -407,10 +429,50 @@ class OptionMenu(Menu):
       self.click = True
 
       # select device
-      self.canvas.interactable_dict['device_canvas'].device_select()
+      self.canvas.interactable_dict['device_canvas'].device_select(True)
 
     # reset click
     if self.ud_click == 0: self.click = False
+
+
+  def save_user_settings_thresh(self, e):
+    """
+    save user settings energy thresh value
+    """
+
+    print("save user-settings")
+
+    # load user settings
+    user_settings = yaml.safe_load(open(self.user_setting_file)) if os.path.isfile(self.user_setting_file) else {}
+
+    print("user: ", user_settings)
+
+    # update energy thres
+    user_settings.update({'energy_thresh': 0.6})
+
+    # write file
+    with open(cfg['game']['user_setting_file'], 'w') as f:
+      yaml.dump(user_settings, f)
+
+
+  def save_user_settings_select_device(self, device):
+    """
+    save user settings selected device
+    """
+
+    print("save user-settings")
+
+    # load user settings
+    user_settings = yaml.safe_load(open(self.user_setting_file)) if os.path.isfile(self.user_setting_file) else {}
+
+    print("user: ", user_settings)
+
+    # update energy thres
+    user_settings.update({'select_device': True, 'device': device})
+
+    # write file
+    with open(self.cfg_game['user_setting_file'], 'w') as f:
+      yaml.dump(user_settings, f)
 
 
 
@@ -418,8 +480,6 @@ if __name__ == '__main__':
   """
   main
   """
-
-  import yaml
 
   # append paths
   import sys
@@ -429,13 +489,13 @@ if __name__ == '__main__':
   from mic import Mic
 
   # yaml config file
-  cfg = yaml.safe_load(open("../config.yaml"))
+  cfg = yaml.safe_load(open('../config.yaml'))
 
   # create classifier
   classifier = Classifier(cfg_classifier=cfg['classifier'], root_path='../')
   
   # create mic instance
-  mic = Mic(classifier=classifier, feature_params=cfg['feature_params'], mic_params=cfg['mic_params'], is_audio_record=True)
+  mic = Mic(classifier=classifier, mic_params=cfg['mic_params'], is_audio_record=True)
 
   # init pygame
   pygame.init()

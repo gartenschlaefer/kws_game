@@ -4,6 +4,8 @@ mic class
 
 import numpy as np
 import queue
+import yaml
+import os
 
 # sound stuff
 import sounddevice as sd
@@ -22,7 +24,7 @@ class Mic():
   Mic class
   """
 
-  def __init__(self, classifier, feature_params, mic_params, is_audio_record=False, root_path='./'):
+  def __init__(self, classifier, mic_params, is_audio_record=False, root_path='./'):
 
     # arguments
     self.classifier = classifier
@@ -71,6 +73,21 @@ class Mic():
     self.change_device_flag = False
 
 
+  def load_user_settings(self, user_setting_file):
+    """
+    load user settings like device and energy threshold
+    """
+
+    # load user settings
+    user_settings = yaml.safe_load(open(user_setting_file)) if os.path.isfile(user_setting_file) else {}
+
+    # update mic params
+    self.mic_params.update(user_settings)
+
+    # device
+    self.device = sd.default.device[0] if not self.mic_params['select_device'] else self.mic_params['device']
+
+
   def init_stream(self):
     """
     init stream
@@ -99,8 +116,8 @@ class Mic():
     Input Stream Callback
     """
 
-    if status:
-      print(status)
+    # debug
+    if status: print(status)
 
     #self.q.put(indata[:, 0].copy())
 
@@ -120,7 +137,7 @@ class Mic():
       x = self.q.get()
 
       # onset and energy archiv
-      e, _ = self.onset_energy_level(x, alpha=self.mic_params['energy_thres'])
+      e, _ = self.onset_energy_level(x, alpha=self.mic_params['energy_thresh'])
 
       # update collector
       self.collector.x_all = np.append(self.collector.x_all, x)
@@ -154,7 +171,7 @@ class Mic():
         e_collect = np.append(e_collect, 1)
 
       # detect onset
-      e_onset, is_onset = self.onset_energy_level(x_collect, alpha=self.mic_params['energy_thres'])
+      e_onset, is_onset = self.onset_energy_level(x_collect, alpha=self.mic_params['energy_thresh'])
 
       # collection update
       self.collector.update_collect(x_collect.copy(), e=e_collect.copy()*e_onset, on=is_onset)
@@ -241,7 +258,6 @@ if __name__ == '__main__':
   mic
   """
 
-  import yaml
   from plots import plot_waveform
 
   # yaml config file
@@ -251,8 +267,11 @@ if __name__ == '__main__':
   classifier = Classifier(cfg_classifier=cfg['classifier'])
   
   # create mic instance
-  mic = Mic(classifier=classifier, feature_params=cfg['feature_params'], mic_params=cfg['mic_params'], is_audio_record=True)
+  mic = Mic(classifier=classifier, mic_params=cfg['mic_params'], is_audio_record=True)
 
+  # init stream
+  mic.init_stream()
+  
   # stream and update
   with mic.stream:
 

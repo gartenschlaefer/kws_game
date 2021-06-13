@@ -39,6 +39,7 @@ class Text(Interactable):
     if font_size == 'big': return 40
     elif font_size == 'small': return 20
     elif font_size == 'tiny': return 11
+    elif font_size == 'micro': return 9
 
     return 20
 

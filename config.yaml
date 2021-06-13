@@ -153,7 +153,7 @@ datasets:
 feature_params:
 
   # mfcc_features or raw samples
-  use_mfcc_features: True
+  use_mfcc_features: False
 
   # sampling rate
   fs: 16000
@@ -231,7 +231,7 @@ ml:
     #batch_size: 512
 
     # number of epochs
-    num_epochs: 100
+    num_epochs: 200
 
     # learning rate
     lr: 0.0001
@@ -289,11 +289,11 @@ ml:
   #nn_arch: conv-fstride
   #nn_arch: conv-trad
   #nn_arch: conv-encoder
-  nn_arch: conv-encoder-fc1
+  #nn_arch: conv-encoder-fc1
   #nn_arch: conv-encoder-fc3
   #nn_arch: conv-lim-encoder
   #nn_arch: conv-latent
-  #nn_arch: wavenet
+  nn_arch: wavenet
 
   # logging enable
   logging_enabled: True
@@ -365,7 +365,7 @@ classifier:
 mic_params:
 
   # slect specific device
-  select_device: True
+  select_device: False
 
   # sel device id
   device: 0
@@ -377,7 +377,7 @@ mic_params:
   channels: 1
 
   # energy threshold for onsets
-  energy_thres: 0.0001
+  energy_thresh: 0.0001
 
   # collector update size (pre frames)
   update_size: 32
@@ -409,6 +409,9 @@ game:
   paths:
     capture_path: ignore/capture/
     frame_path: ignore/capture/frames/
+
+  # user settings file
+  user_setting_file: user_settings_game.yaml
 
 
 

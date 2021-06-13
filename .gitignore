@@ -1,6 +1,16 @@
+# --
 # my stuff
+
+# folders
 ignore/
+
+# files
 *.kra~
+user_settings_game.yaml
+
+
+# --
+# python ignore
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
