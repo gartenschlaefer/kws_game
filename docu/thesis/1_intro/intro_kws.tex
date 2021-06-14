@@ -4,7 +4,6 @@
 \section{The task of Key Word Spotting}\label{sec:intro_kws}
 As described earlier Key Word Spotting (KWS) is the task of classifying a spoken word as key word out of a set of key words.
 The set of key words or vocabulary is denoted as:
-
 % kws dict
 \begin{equation}\label{eq:intro_kws_dict}
 	S \coloneqq \{s_i, \quad i=1 \dots c\}
@@ -20,9 +19,16 @@ With the abstract formulation:
 the most appropriate key word $\hat{s}$ can be selected, where $\mathcal{D}$ is some kind of distance measure between two words.
 %Further the definition of the distance measure $\mathcal{D}$ is hard to define.
 The formulation in \req{intro_kws_task} is merely semantic, but KWS in computer systems must cope with various transformations of raw input samples of audio data denoted as $x \in \R^n$, with a total number of $n$ samples.
-From the audio data an inference to output class labels $y \in \R^c$, that might represent the key words individual probabilities or energy value of similarity, the most probable is picked by:
+%From the audio data an inference to an output class labels $y \in \R^c$, through for instance a neural network, representing the key words individual probabilities or energy value of similarity, the most probable is picked by:
+From the audio data an inference to output class probabilities $y \in \R^c$, through for instance a neural network with softmax output, the most probable is picked by:
 \begin{equation}\label{eq:intro_kws_class}
 	\hat{s} = \{s_i \, | \, \underset{i = 1 \dots c}{\arg \max} \, y_i\}
 \end{equation}
-if the highest value of $y_i$ for all $i$ is the most probable index for a spotted key word.
-Concluding this the task of KWS can be very difficult, however with neural networks and available data resources, a tool emerged to solve this complex problem without thinking too much about all its technical details.
+if the highest value of $y_i$ for all $i$ is the most probable index or indices for a spotted key word or key words.
+
+In comparison to full Automatic Speech Recognition (ASR), where whole sentences are identified, key word spotting operates merely on the word level.
+Therefore KWS is a bit easier to deploy and less complex than ASR.
+On the other hand KWS systems, used in practical application, must run very energy efficiently on low energy devices, such as mobile phones, and give immediate and accurate responses to the users. 
+A good elaboration on the requirements of KWS systems can be found in the motivation section in \cite{Warden2018}.
+%Concluding this KWS systems can be very difficult, however with neural networks and available data resources, a tool emerged to solve this complex problem without thinking too much about all its technical details.
+

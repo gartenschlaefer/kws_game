@@ -9,6 +9,7 @@ config_changer_allowed: False
 
 # --
 # dataset config
+
 datasets:
 
   # --
@@ -31,15 +32,22 @@ datasets:
 
     # path to speech command dataset
     dataset_path: ignore/dataset/speech_commands_v0.01/
+    #dataset_path: ignore/dataset/speech_commands_v0.02/
 
     # shuffle wavs for dataset separation
     shuffle_wavs: True
 
+    # extraction path
+    extraction_path: ignore/dataset/extracted/
+
     # paths to save training, testing and eval data
     data_paths:
-      train: ignore/dataset/train/
-      test: ignore/dataset/test/
-      eval: ignore/dataset/eval/
+      # train: ignore/dataset/train/
+      # test: ignore/dataset/test/
+      # eval: ignore/dataset/eval/
+      train: train/
+      test: test/
+      eval: eval/
 
     # folder names
     wav_folder: wavs/
@@ -60,7 +68,7 @@ datasets:
     enable_plot: False
 
     # recreate all datasets (copy wavs to data_paths - not necessary except the dataset is changed)
-    recreate: False
+    recreate: True
 
     # selected labels of the whole set
     sel_labels: ['left', 'right', 'up', 'down', 'go']
@@ -69,7 +77,8 @@ datasets:
 
     # add noise to dataset
     add_noise: True
-    noise_label: 'noise'
+    noise_label: noise
+    noise_data_folder: _background_noise_/
 
     # version
     version_nr: 5
@@ -98,14 +107,17 @@ datasets:
     sample_num_mininmal: 8000
 
     # path to speech command dataset
-    dataset_path: ignore/my_recordings/raw/
+    dataset_path: ignore/dataset/my_recordings/
 
     # shuffle wavs for dataset separation
     shuffle_wavs: False
 
+    # extraction path
+    extraction_path: ignore/dataset/extracted/
+
     # paths to save training, testing and eval data
     data_paths:
-      my: ignore/my_recordings/my/
+      my: my/
 
     # folder names
     wav_folder: wavs/
@@ -148,12 +160,14 @@ datasets:
     # filter damaged files
     filter_damaged_files: False
 
+
 # --
 # feature params for dataset extraction
+
 feature_params:
 
   # mfcc_features or raw samples
-  use_mfcc_features: False
+  use_mfcc_features: True
 
   # sampling rate
   fs: 16000
@@ -190,6 +204,7 @@ feature_params:
 
 # --
 # machine learning settings
+
 ml:
 
   # paths
@@ -310,6 +325,7 @@ ml:
 
 # --
 # test bench
+
 test_bench:
 
   # plot path
@@ -346,6 +362,7 @@ test_bench:
 
 # --
 # classifier
+
 classifier:
 
   # path to model
@@ -362,6 +379,7 @@ classifier:
 
 # --
 # microphone parameters
+
 mic_params:
 
   # slect specific device
@@ -394,6 +412,7 @@ mic_params:
 
 # --
 # game settings
+
 game:
 
   # frames per seconds
