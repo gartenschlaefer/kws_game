@@ -205,7 +205,7 @@ if __name__ == '__main__':
   audio_set2 = AudioDataset(cfg['datasets']['my_recordings'], cfg['feature_params'], root_path='../')
 
   # create batches
-  batch_archive = SpeechCommandsBatchArchive(audio_set1.feature_files + audio_set2.feature_files, batch_size=32, batch_size_eval=5)
+  batch_archive = SpeechCommandsBatchArchive({**audio_set1.feature_file_dict, **audio_set2.feature_file_dict}, batch_size=32, batch_size_eval=5)
 
   # net handler
   net_handler = NetHandler(nn_arch='conv-encoder', class_dict=batch_archive.class_dict, data_size=batch_archive.data_size, use_cpu=cfg['ml']['use_cpu'])

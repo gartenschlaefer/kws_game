@@ -38,7 +38,7 @@ if __name__ == '__main__':
   # batches
 
   # create batch archiv
-  batch_archive = SpeechCommandsBatchArchive(audio_set1.feature_files + audio_set2.feature_files, batch_size=1, to_torch=False)
+  batch_archive = SpeechCommandsBatchArchive({**audio_set1.feature_file_dict, **audio_set2.feature_file_dict}, batch_size=1, to_torch=False)
 
   # print classes
   print("classes: ", batch_archive.classes)

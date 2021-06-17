@@ -4,6 +4,7 @@ process of the speech command dataset and extraction to MFCC features
 """
 
 import re
+import os
 import numpy as np
 import librosa
 import soundfile
@@ -45,10 +46,23 @@ class AudioDataset():
     self.raw_frame_size = int(self.feature_params['frame_size_s'] * self.feature_params['fs'])
 
     # variables
-    self.labels = self.dataset_cfg['sel_labels']
-    self.set_names = []
-    self.set_audio_files = []
-    self.set_annotation_files = []
+    self.sel_labels = self.dataset_cfg['sel_labels']
+    self.all_labels = self.dataset_cfg['all_labels']
+
+    # add special labels
+    if self.dataset_cfg['add_noise']: self.sel_labels, self.all_labels = self.sel_labels + [self.dataset_cfg['noise_label']], self.all_labels + [self.dataset_cfg['noise_label']]
+    if self.dataset_cfg['add_mixed']: self.sel_labels, self.all_labels = self.sel_labels + [self.dataset_cfg['mixed_label']], self.all_labels + [self.dataset_cfg['mixed_label']]
+
+    # mixed labels
+    self.mixed_labels = [i for i in self.dataset_cfg['all_labels'] if i not in self.dataset_cfg['sel_labels']] if self.dataset_cfg['add_mixed'] else None
+
+
+    # init all label file dict
+    self.all_label_file_dict = {l: {} for l in self.all_labels}
+
+    # init set file dicts
+    self.sel_label_file_dict = {set_name: {} for set_name in self.dataset_cfg['set_folders'].keys()}
+    self.set_annotation_file_dict = {}
 
     # dataset path
     self.dataset_path = self.root_path + self.dataset_cfg['dataset_path']
@@ -57,10 +71,8 @@ class AudioDataset():
     self.plot_paths = dict((k, self.root_path + v) for k, v in self.dataset_cfg['plot_paths'].items())
 
     # parameter path
-    #self.param_path = 'v{}_c-{}_n-{}_f-{}x{}_n{}d{}e{}_nl-{}/'.format(self.dataset_cfg['version_nr'], len(self.labels), self.dataset_cfg['n_examples'], self.feature_size, self.frame_size, int(self.feature_params['norm_features']), int(self.feature_params['compute_deltas']), int(self.feature_params['compute_energy_features']), int(self.dataset_cfg['add_noise']))
-    #self.param_path = 'v{}_c-{}_n-{}_f-{}x{}x{}_norm{}_c{}d{}d{}e{}_nl{}/'.format(self.dataset_cfg['version_nr'], len(self.labels), self.dataset_cfg['n_examples'], self.channel_size, self.feature_size, self.frame_size, int(self.feature_params['norm_features']), int(self.feature_params['use_cepstral_features']), int(self.feature_params['use_delta_features']), int(self.feature_params['use_double_delta_features']), int(self.feature_params['use_energy_features']), int(self.dataset_cfg['add_noise']))
-    self.param_path = 'v{}_c-{}_n-{}'.format(self.dataset_cfg['version_nr'], len(self.labels), self.dataset_cfg['n_examples'])
-    self.param_path += '_f-{}x{}x{}_norm{}_c{}d{}d{}e{}_nl{}/'.format(self.channel_size, self.feature_size, self.frame_size, int(self.feature_params['norm_features']), int(self.feature_params['use_cepstral_features']), int(self.feature_params['use_delta_features']), int(self.feature_params['use_double_delta_features']), int(self.feature_params['use_energy_features']), int(self.dataset_cfg['add_noise'])) if self.feature_params['use_mfcc_features'] else '_raw/'
+    self.param_path = 'v{}_c{}n{}m{}_n-{}'.format(self.dataset_cfg['version_nr'], len(self.sel_labels), int(self.dataset_cfg['add_noise']), int(self.dataset_cfg['add_mixed']), self.dataset_cfg['n_examples'])
+    self.param_path += '_mfcc{}-{}_c{}d{}d{}e{}_norm{}_f-{}x{}x{}/'.format(self.feature_params['n_filter_bands'], self.feature_params['n_ceps_coeff'], int(self.feature_params['use_cepstral_features']), int(self.feature_params['use_delta_features']), int(self.feature_params['use_double_delta_features']), int(self.feature_params['use_energy_features']), int(self.feature_params['norm_features']), self.channel_size, self.feature_size, self.frame_size) if self.feature_params['use_mfcc_features'] else '_raw/'
 
     # dataset version number
     self.dataset_version = re.findall(r'v[0-9].[0-9]+', self.dataset_path)
@@ -69,14 +81,12 @@ class AudioDataset():
     self.extraction_path = self.root_path + self.dataset_cfg['extraction_path'] + self.dataset_path.split('/')[-2] + '/'
 
     # folders
-    self.wav_folders = [self.extraction_path + p + self.dataset_cfg['wav_folder'] for p in list(self.dataset_cfg['data_paths'].values())]
-    self.annotation_folders = [self.extraction_path + p + self.dataset_cfg['annotation_folder'] for p in list(self.dataset_cfg['data_paths'].values())]
-
-    # feature folders
-    self.feature_folders = [self.extraction_path + p + self.param_path for p in list(self.dataset_cfg['data_paths'].values())]
+    self.wav_folder_dict = {k: self.extraction_path + v + self.dataset_cfg['wav_folder'] for k, v in self.dataset_cfg['set_folders'].items()}
+    self.annotation_folder_dict = {k: self.extraction_path + v + self.dataset_cfg['annotation_folder'] for k, v in self.dataset_cfg['set_folders'].items()}
+    self.feature_folder_dict = {k: self.extraction_path + v + self.param_path for k, v in self.dataset_cfg['set_folders'].items()}
 
     # feature files
-    self.feature_files = [p + '{}.npz'.format(self.dataset_cfg['mfcc_feature_file_name']) for p in self.feature_folders] if self.feature_params['use_mfcc_features'] else [p + '{}.npz'.format(self.dataset_cfg['raw_feature_file_name']) for p in self.feature_folders]
+    self.feature_file_dict = {k: v + '{}.npz'.format(self.dataset_cfg['mfcc_feature_file_name']) for k, v in self.feature_folder_dict.items()} if self.feature_params['use_mfcc_features'] else {k: v + '{}.npz'.format(self.dataset_cfg['raw_feature_file_name']) for k, v in self.feature_folder_dict.items()}
 
     # collected wavs
     self.pre_wavs = []
@@ -111,106 +121,62 @@ class AudioDataset():
     pass
 
 
-  def analyze_damaged_files(self):
-    """
-    analyze damaged files
-    """
-
-    # histogram
-    if len(self.file_energy_list): plot_histogram(self.file_energy_list, bins=np.logspace(np.log10(0.0001),np.log10(10000), 50), y_log_scale=True, x_log_scale=True, context='None', title='Energy', plot_path=self.plot_paths['z_score'], name='energy_hist_n-{}'.format(self.dataset_cfg['n_examples']))
-    if len(self.file_num_sample_list): plot_histogram(self.file_num_sample_list, bins=20, y_log_scale=True, context='None', title='Num Samples', plot_path=self.plot_paths['z_score'], name='num_sample_hist_n-{}'.format(self.dataset_cfg['n_examples']))
-    if len(self.damaged_score_list): plot_histogram(self.damaged_score_list, bins=50, y_log_scale=True, context='None', title='Damaged Score', plot_path=self.plot_paths['z_score'], name='z_score_hist_n-{}'.format(self.dataset_cfg['n_examples']))
-
-    print("\n--Analyze damaged files of ", self.__class__.__name__)
-    print("too short files num: {}".format(len(self.short_file_list)))
-    print("too weak files num: {}".format(len(self.weak_file_list)))
-    print("damaged files num: {}".format(len(self.damaged_file_list)))
-
-    # all audio files speakers
-    if self.__class__.__name__ == 'SpeechCommandsDataset':
-
-      # extract speaker info
-      all_speakers_files = [re.sub(r'^.*(?=--)|(_nohash_[0-9]+.wav)|(--)', '', i) for i in list(np.concatenate(np.concatenate(np.array(self.set_audio_files, dtype='object'))))]
-      
-      # get all unique speakers
-      all_speakers = np.unique(all_speakers_files)
-
-      # print info
-      print("labels: ", self.labels), print("number of audio files: ", len(all_speakers_files)), print("speakers: ", all_speakers), print("number of speakers: ", len(all_speakers))
-
-      # save damaged files
-      for wav, score in self.damaged_file_list: copyfile(wav, self.plot_paths['damaged_files'] + wav.split('/')[-1])
-    
-      # prints to files
-      with open(self.info_file_damaged, 'w') as f: [print(i, file=f) for i in self.damaged_file_list]
-      with open(self.info_file_short, 'w') as f: [print(i, file=f) for i in self.short_file_list]
-      with open(self.info_file_weak, 'w') as f: [print(i, file=f) for i in self.weak_file_list]
-      with open(self.info_file_strong, 'w') as f: [print(i, file=f) for i in self.strong_file_list]
-
-    # broken file info
-    plot_damaged_file_score(self.damaged_score_list, plot_path=self.plot_paths['z_score'], name='z_score_n-{}'.format(self.dataset_cfg['n_examples']), enable_plot=True)
-
-
-  def file_naming_extraction(self, audio_file, file_ext='.wav'):
-    """
-    extracts the file name, index and label of a file
-    convention to filename: e.g. label123.wav
-    """
-
-    # extract filename
-    file_name = re.findall(r'[\w+ 0-9 -]+' + re.escape(file_ext), audio_file)[0]
-
-    # extract my name
-    file_name_no_ext = re.sub(re.escape(file_ext), '', file_name.split('--')[0])
-
-    # extract file index from filename
-    file_index = re.sub(r'[a-z A-Z]', '', file_name_no_ext)
-
-    # extract label from filename
-    label = re.sub(r'[0-9]+', '', file_name_no_ext)
-
-    return file_name, file_index, label
-
-
   def get_audiofiles(self):
     """
-    get audiofiles from datapaths
-    return [[data_path1], [data_path2], ...]
+    get audiofiles from set folder paths
     """
 
-    # for all data paths (train, test, eval)
-    for dpi, wav_folder in enumerate(self.wav_folders):
+    # update label files dict
+    [(print('\nlabel files on set wav folder: ', wav_folder), [self.all_label_file_dict[l].update({set_name: self.get_label_files_from_folder(l, wav_folder, set_name)}) for l in self.all_labels if l != self.dataset_cfg['mixed_label']]) for set_name, wav_folder in self.wav_folder_dict.items()]
 
-      # info
-      print("\nset wav folder: {}".format(wav_folder))
+    # add all labels to sets, except for mixed label
+    [[self.sel_label_file_dict[set_name].update({l: self.all_label_file_dict[l][set_name]}) for l in self.sel_labels if l != self.dataset_cfg['mixed_label']] for set_name, _ in self.wav_folder_dict.items()]
 
-      # determine set name
-      self.set_names.append(re.sub(r'/', '', re.findall(r'[\w+ 0-9]+/', wav_folder)[-2]))
+    # add mixed labels if there exists any
+    if self.mixed_labels is not None:
 
-      # init set files
-      set_files = []
+      # create mixed label
+      all_mixed_label_file_dict = {set_name: {l: self.all_label_file_dict[l][set_name] for l in self.mixed_labels} for set_name, _ in self.wav_folder_dict.items()}
 
-      # get all wavs from selected labels
-      for l in self.labels:
+      # minimum number of mixed files
+      min_num_mixed_dict = {set_name: np.min([len(wavs) for l, wavs in label_dict.items()]) for set_name, label_dict in all_mixed_label_file_dict.items()}
 
-        # regex
-        file_name_re = '*' + l + '[0-9]*' + self.dataset_cfg['file_ext']
+      # mixed label files sorted after each other
+      mixed_label_file_dict = {set_name: np.concatenate([[all_mixed_label_file_dict[set_name][l][i] for l in self.mixed_labels] for i in range(min_num_mixed_dict[set_name])]).tolist() for set_name, _ in self.wav_folder_dict.items()}
 
-        # get wavs
-        label_files = glob(wav_folder + file_name_re)
-        set_files.append(label_files)
+      # add mixed label
+      [self.sel_label_file_dict[set_name].update({self.dataset_cfg['mixed_label']: mixed_label_file_dict[set_name]}) for set_name, _ in self.wav_folder_dict.items()]
 
-        # check length of label files
-        print("overall stat of label: [{}]\tnum: [{}]".format(l, len(label_files)))
+    # print("min_num_mixed_dict: ", min_num_mixed_dict)
+    # print("set_audio_file_dict", self.sel_label_file_dict.keys())
+    # print("set_audio_file_dict", self.sel_label_file_dict['test'].keys())
+    # print("set_audio_file_dict", self.sel_label_file_dict['test']['up'][0:10])
+    # print("set_audio_file_dict", self.sel_label_file_dict['test']['_mixed'][0:10])
+    # print("set_audio_file_dict", len(self.sel_label_file_dict['test']['_mixed']))
+    # stop
 
-        # check label num
-        if len(label_files) < int(self.dataset_cfg['n_examples'] * self.dataset_cfg['split_percs'][dpi]):
-          print("***[audio set] labels are less than n_examples, recreate dataset and check files")
-          import sys
-          sys.exit()
 
-      # update set audio files
-      self.set_audio_files.append(set_files)
+  def get_label_files_from_folder(self, label, wav_folder, set_name):
+    """
+    get label files from wav folders
+    """
+
+    # regex
+    file_name_re = '*' + label + '[0-9]*' + self.dataset_cfg['file_ext']
+
+    # get wavs
+    label_files = sorted(glob(wav_folder + file_name_re))
+
+    # check length of label files
+    print("overall stat of label: [{}]\tnum: [{}]".format(label, len(label_files)))
+
+    # check label num
+    if len(label_files) < int(self.dataset_cfg['n_examples'] * self.dataset_cfg['split_percs'][set_name]):
+      print("***[audio set] labels are less than n_examples, recreate dataset and check files")
+      import sys
+      sys.exit()
+
+    return label_files
 
 
   def get_annotation_files(self):
@@ -218,8 +184,9 @@ class AudioDataset():
     get annotation files
     """
 
-    # for all data paths (train, test, eval)
-    for dpi, annotation_folder in enumerate(self.annotation_folders):
+    # for all data paths
+    #for dpi, annotation_folder in enumerate(self.annotation_folders):
+    for set_name, annotation_folder in self.annotation_folder_dict.items():
 
       # info
       print("\nset annotation folder: {}".format(annotation_folder))
@@ -228,7 +195,7 @@ class AudioDataset():
       set_files = []
 
       # get all wavs from selected labels
-      for l in self.labels:
+      for l in self.sel_labels:
 
         # regex
         file_name_re = '*' + l + '[0-9]*' + '.TextGrid'
@@ -241,7 +208,12 @@ class AudioDataset():
         print("overall stat of anno: [{}]\tnum: [{}]".format(l, len(label_files)))
 
       # update set audio files
-      self.set_annotation_files.append(set_files)
+      #self.set_annotation_files.append(set_files)
+
+      #set_annotation_file_dict
+
+      # update set file dict
+      self.set_annotation_file_dict.update({set_name: set_files})
 
 
   def label_stats(self, y):
@@ -359,6 +331,99 @@ class AudioDataset():
     return x
 
 
+  def analyze_damaged_files(self):
+    """
+    analyze damaged files
+    """
+
+    # histogram
+    if len(self.file_energy_list): plot_histogram(self.file_energy_list, bins=np.logspace(np.log10(0.0001),np.log10(10000), 50), y_log_scale=True, x_log_scale=True, context='None', title='Energy', plot_path=self.plot_paths['z_score'], name='energy_hist_n-{}'.format(self.dataset_cfg['n_examples']))
+    if len(self.file_num_sample_list): plot_histogram(self.file_num_sample_list, bins=20, y_log_scale=True, context='None', title='Num Samples', plot_path=self.plot_paths['z_score'], name='num_sample_hist_n-{}'.format(self.dataset_cfg['n_examples']))
+    if len(self.damaged_score_list): plot_histogram(self.damaged_score_list, bins=50, y_log_scale=True, context='None', title='Damaged Score', plot_path=self.plot_paths['z_score'], name='z_score_hist_n-{}'.format(self.dataset_cfg['n_examples']))
+
+    print("\n--Analyze damaged files of ", self.__class__.__name__)
+    print("too short files num: {}".format(len(self.short_file_list)))
+    print("too weak files num: {}".format(len(self.weak_file_list)))
+    print("damaged files num: {}".format(len(self.damaged_file_list)))
+
+    # all audio files speakers
+    if self.__class__.__name__ == 'SpeechCommandsDataset':
+
+
+      # get all files
+      all_files = [list(set_dict.values()) for set_dict in [self.all_label_file_dict[l] for l in self.all_labels if l != self.dataset_cfg['noise_label'] and l != self.dataset_cfg['mixed_label']]]
+
+      # concatenate them to one-dim array
+      all_files = np.concatenate(np.concatenate(np.array(all_files, dtype='object')))
+
+      print(len(all_files))
+
+      # extract speaker info
+      all_speakers_files = [re.sub(r'^.*(?=--)|(_nohash_[0-9]+.wav)|(--)', '', i) for i in all_files]
+      
+      # get all unique speakers
+      all_speakers = np.unique(all_speakers_files)
+
+      # print info
+      print("all labels: ", self.all_labels), print("number of audio files: ", len(all_speakers_files)), print("speakers: ", all_speakers), print("number of speakers: ", len(all_speakers))
+
+      # save damaged files
+      for wav, score in self.damaged_file_list: copyfile(wav, self.plot_paths['damaged_files'] + wav.split('/')[-1])
+    
+      # prints to files
+      with open(self.info_file_damaged, 'w') as f: [print(i, file=f) for i in self.damaged_file_list]
+      with open(self.info_file_short, 'w') as f: [print(i, file=f) for i in self.short_file_list]
+      with open(self.info_file_weak, 'w') as f: [print(i, file=f) for i in self.weak_file_list]
+      with open(self.info_file_strong, 'w') as f: [print(i, file=f) for i in self.strong_file_list]
+
+    # broken file info
+    plot_damaged_file_score(self.damaged_score_list, plot_path=self.plot_paths['z_score'], name='z_score_n-{}'.format(self.dataset_cfg['n_examples']), enable_plot=True)
+
+
+  def file_naming_extraction(self, audio_file, file_ext='.wav'):
+    """
+    extracts the file name, index and label of a file
+    convention to filename: e.g. label123.wav
+    """
+
+    # extract filename
+    file_name = re.findall(r'[\w+ 0-9 -]+' + re.escape(file_ext), audio_file)[0]
+
+    # remove .wav and split
+    file_name_split = re.sub(re.escape(file_ext), '', file_name).split('--')
+
+    # extract my name
+    file_name_no_ext = file_name_split[0]
+
+    # hash name
+    file_name_hash = file_name_split[1] if len(file_name_split) == 2 else 'no_hash'
+
+    # extract label from filename
+    file_label = re.sub(r'[0-9]+', '', file_name_no_ext)
+
+    # extract file index from filename
+    file_index = re.sub(r'[a-z A-Z]', '', file_name_no_ext)
+
+    return file_name, file_label, file_index, file_name_hash
+
+
+  def get_labeled_wavs_from_file(self, label, file):
+    """
+    get labeled wavs from file
+    """
+
+    # init label wavs
+    label_wavs = []
+
+    # read file
+    with open(file, "r") as f:
+
+      # read each line
+      label_wavs = [self.dataset_path + line.strip() for line in f if line.split('/')[0] == label]
+
+    return label_wavs
+
+
 
 class SpeechCommandsDataset(AudioDataset):
   """
@@ -381,13 +446,13 @@ class SpeechCommandsDataset(AudioDataset):
     create_folder(list(self.plot_paths.values()))
 
     # recreate
-    if self.dataset_cfg['recreate'] or not check_folders_existance(self.wav_folders, empty_check=True):
+    if self.dataset_cfg['recreate'] or not check_folders_existance(self.wav_folder_dict.values(), empty_check=True):
 
       # delete old data
-      delete_files_in_path(self.wav_folders, file_ext=self.dataset_cfg['file_ext'])
+      if self.dataset_cfg['clean_files']: delete_files_in_path(self.wav_folder_dict.values(), file_ext=self.dataset_cfg['file_ext'])
 
       # create folder wav folders
-      create_folder(self.wav_folders)
+      create_folder(self.wav_folder_dict.values())
 
       # create sets (specific to dataset)
       self.create_sets()
@@ -402,49 +467,8 @@ class SpeechCommandsDataset(AudioDataset):
     copy wav files from dataset path to wav folders with splitting
     """
 
-    # create noise wavs
-    noise_files = glob(self.dataset_path + self.dataset_cfg['noise_data_folder'] + '*' + self.dataset_cfg['file_ext'])
-
-    # all noise wavs
-    noise_wavs = np.empty(shape=(0, self.feature_params['fs']), dtype=np.float32)
-
-    # go through all noise files
-    for noise_file in noise_files:
-
-      # read audio from file
-      x, fs = librosa.load(noise_file, sr=self.feature_params['fs'])
-
-      # windowing the noise
-      x_win = view_as_windows(x, self.feature_params['fs'], step=self.feature_params['fs'] // 5)
-
-      # stack noise to wavs
-      noise_wavs = np.vstack((noise_wavs, x_win))
-    
-    # shuffle
-    noise_wavs = np.take(noise_wavs, np.random.permutation(noise_wavs.shape[0]), axis=0)
-
-    # calculate split numbers in train, test, eval and split position
-    n_split = (noise_wavs.shape[0] * np.array(self.dataset_cfg['split_percs'])).astype(int)
-    n_split_pos = np.cumsum(n_split)
-
-    # print some info
-    print("label: [{}]\tn_split: [{}]\ttotal:[{}]".format(self.dataset_cfg['noise_label'], n_split, np.sum(n_split)))
-
-    # actual path
-    p = 0
-
-    # save all noise wavs
-    for i, noise_wav in enumerate(noise_wavs):
-
-      # split in new path
-      if i >= n_split_pos[p]: p += 1
-
-      # stop if out of range (happens at rounding errors)
-      if p >= len(self.wav_folders): break
-
-      # save as wav
-      soundfile.write(self.wav_folders[p] + self.dataset_cfg['noise_label'] + str(i) + self.dataset_cfg['file_ext'], noise_wav, self.feature_params['fs'], subtype=None, endian=None, format=None, closefd=True)
-
+    # noise
+    self.create_noise_sets()
 
     # get all class directories except the ones starting with _
     class_dirs = glob(self.dataset_path + '[!_]*/')
@@ -458,32 +482,113 @@ class SpeechCommandsDataset(AudioDataset):
       # get all .wav files
       wavs = glob(class_dir + '*' + self.dataset_cfg['file_ext'])
 
-      # calculate split numbers in train, test, eval and split position
-      n_split = (len(wavs) * np.array(self.dataset_cfg['split_percs'])).astype(int)
-      n_split_pos = np.cumsum(n_split)
+      # shuffle
+      if self.dataset_cfg['shuffle_wavs']: np.random.seed(9999), np.random.shuffle(wavs)
+
+      # validation wavs from file
+      validation_wavs = self.get_labeled_wavs_from_file(label, file=self.dataset_path + self.dataset_cfg['validation_file_list'])
+
+      # testing wavs from file
+      testing_wavs = self.get_labeled_wavs_from_file(label, file=self.dataset_path + self.dataset_cfg['testing_file_list'])
+
+      # training wavs
+      training_wavs = [wav for wav in wavs if wav not in validation_wavs and wav not in testing_wavs]
 
       # print some info
-      print("label: [{}]\tn_split: [{}]\ttotal:[{}]".format(label, n_split, np.sum(n_split)))
+      print("label: [{}]\tn_split: [{}]\ttotal:[{}]".format(label, [len(training_wavs), len(validation_wavs), len(testing_wavs)], np.sum([len(training_wavs), len(validation_wavs), len(testing_wavs)])))
 
-      # actual path
-      p = 0
+      # copy set wavs
+      #for p, set_wavs in enumerate([training_wavs, testing_wavs, validation_wavs]): [copyfile(wav, self.wav_folders[p] + label + '{:0>4}'.format(i) + '--' + wav.split('/')[-1].split('.')[0] + self.dataset_cfg['file_ext']) for i, wav in enumerate(set_wavs) if not os.path.isfile(self.wav_folders[p] + label + '{:0>4}'.format(i) + '--' + wav.split('/')[-1].split('.')[0] + self.dataset_cfg['file_ext'])]
+      for set_name, set_wavs in {'train': training_wavs, 'test': testing_wavs, 'validation': validation_wavs}.items(): [copyfile(wav, self.wav_folder_dict[set_name] + label + '{:0>4}'.format(i) + '--' + wav.split('/')[-1].split('.')[0] + self.dataset_cfg['file_ext']) for i, wav in enumerate(set_wavs) if not os.path.isfile(self.wav_folder_dict[set_name] + label + '{:0>4}'.format(i) + '--' + wav.split('/')[-1].split('.')[0] + self.dataset_cfg['file_ext'])]
 
-      # shuffle
-      if self.dataset_cfg['shuffle_wavs']: np.random.shuffle(wavs)
 
-      # run through each path
-      for i, wav in enumerate(wavs):
+  def create_noise_sets(self):
+    """
+    noise sets
+    """
 
-        # split in new path
-        if i >= n_split_pos[p]: p += 1
-        # stop if out of range (happens at rounding errors)
-        if p >= len(self.wav_folders): break
+    # create noise wavs
+    noise_files = glob(self.dataset_path + self.dataset_cfg['noise_data_folder'] + '*' + self.dataset_cfg['file_ext'])
 
-        # wav name
-        wav_name = wav.split('/')[-1].split('.')[0]
+    # all noise wavs
+    x_noise = np.empty(shape=(0, self.feature_params['fs']), dtype=np.float32)
 
-        # copy files to folder
-        copyfile(wav, self.wav_folders[p] + label + str(i) + '--' + wav_name + self.dataset_cfg['file_ext'])
+    # go through all noise files
+    for noise_file in noise_files:
+
+      # read audio from file
+      x, fs = librosa.load(noise_file, sr=self.feature_params['fs'])
+
+      # windowing the noise
+      x_win = view_as_windows(x, self.feature_params['fs'], step=self.feature_params['fs'] // 5)
+
+      # stack noise to wavs
+      x_noise = np.vstack((x_noise, x_win))
+    
+    # shuffle
+    np.random.seed(6666)
+    x_noise = np.take(x_noise, np.random.permutation(x_noise.shape[0]), axis=0)
+
+    # calculate split numbers in sets and split position
+    #n_split = (x_noise.shape[0] * np.array(self.dataset_cfg['split_percs'].values())).astype(int)
+
+    # number files for splits
+    n_splits = {k: int(x_noise.shape[0] * v) for k, v in self.dataset_cfg['split_percs'].items()}
+
+    # determine start and end positions
+    n_split_end_pos = {k: v for k, v in zip(n_splits.keys(), np.cumsum(list(n_splits.values())))}
+    n_split_start_pos = {k: w - v for (k, v), w in zip(n_splits.items(), n_split_end_pos.values())}
+
+    # do splits
+    x_noise_split = {k: x_noise[n_split_start_pos[k]:n_split_end_pos[k]] for k in n_splits.keys()}
+
+    #n_split_pos = {k: () for k, v in n_splits.items()}
+
+    # print("n_splits: ", n_splits)
+    # print("n_splits: ", n_splits.keys())
+    # print("n_splits: ", np.cumsum(list(n_splits.values())))
+
+    # print("n_split_end_pos: ", n_split_end_pos)
+    # print("n_split_start_pos: ", n_split_start_pos)
+    # print("x_noise: ", x_noise.shape)
+    # print("x_noise_split: ", x_noise_split.keys())
+    # print("x_noise_split: ", x_noise_split['train'].shape)
+
+    # # print some info
+    # print("label: [{}]\tn_split: [{}]\ttotal:[{}]".format(self.dataset_cfg['noise_label'], n_splits, np.sum(list(n_splits.values()))))
+    #stop
+
+    # for all sets
+    for set_name, x_set in x_noise_split.items():
+
+      # for all examples
+      for i, x in enumerate(x_set):
+
+        # determine wav name
+        wav_file_name = self.wav_folder_dict[set_name] + self.dataset_cfg['noise_label'] + '{:0>4}'.format(i) + self.dataset_cfg['file_ext']
+
+        # copy file
+        if not os.path.isfile(wav_file_name): soundfile.write(wav_file_name, x, self.feature_params['fs'], subtype=None, endian=None, format=None, closefd=True)
+
+    # # actual path
+    # p = 0
+
+    # # save all noise wavs
+    # for i, x in enumerate(x_noise):
+
+    #   # split in new path
+    #   if i >= n_split_pos[p]: p += 1
+
+    #   # stop if out of range (happens at rounding errors)
+    #   #if p >= len(self.wav_folders): break
+    #   if p >= len(self.wav_folder_dict): break
+
+    #   # wav file name
+    #   #wav_file_name = self.wav_folders[p] + self.dataset_cfg['noise_label'] + '{:0>4}'.format(i) + self.dataset_cfg['file_ext']
+    #   wav_file_name = self.wav_folder_dict[p] + self.dataset_cfg['noise_label'] + '{:0>4}'.format(i) + self.dataset_cfg['file_ext']
+
+    #   # save as wav
+    #   if not os.path.isfile(wav_file_name): soundfile.write(wav_file_name, x, self.feature_params['fs'], subtype=None, endian=None, format=None, closefd=True)
 
 
   def extract_features(self):
@@ -494,61 +599,66 @@ class SpeechCommandsDataset(AudioDataset):
     print("\n--feature extraction:")
 
     # stop if already exists
-    if check_files_existance(self.feature_files) and not self.dataset_cfg['recreate']:
+    if check_files_existance(self.feature_file_dict.values()) and not self.dataset_cfg['recreate']:
       print("*** feature files already exists -> no extraction")
       return
     
     # create folder structure
-    create_folder(self.feature_folders)
+    create_folder(self.feature_folder_dict.values())
 
-    for i, (set_name, wavs, annos) in enumerate(zip(self.set_names, self.set_audio_files, self.set_annotation_files)):
+    for ((set_name, wav_dict), (_, annos)) in zip(self.sel_label_file_dict.items(), self.set_annotation_file_dict.items()):
 
-      print("{}) extract set: {} with label num: {}".format(i, set_name, len(wavs)))
+      print("extract set: {} with labels: [{}]".format(set_name, wav_dict.keys()))
 
       # examples with splits
-      n_examples = int(self.dataset_cfg['n_examples'] * self.dataset_cfg['split_percs'][i])
+      n_examples = int(self.dataset_cfg['n_examples'] * self.dataset_cfg['split_percs'][set_name])
 
       # extract data
-      x, y, t, index = self.extract_mfcc_data(wavs=wavs, annos=annos, n_examples=n_examples, set_name=set_name) if self.feature_params['use_mfcc_features'] else self.extract_raw_data(wavs=wavs, annos=annos, n_examples=n_examples, set_name=set_name)
+      #x, y, t, index = self.extract_mfcc_data(wavs=wavs, annos=annos, n_examples=n_examples, set_name=set_name) if self.feature_params['use_mfcc_features'] else self.extract_raw_data(wavs=wavs, annos=annos, n_examples=n_examples, set_name=set_name)
+      x, y, t, z = self.extract_wavs_to_features(wav_dict=wav_dict, annos=annos, n_examples=n_examples, set_name=set_name)
 
-      # add noise if requested
-      if self.dataset_cfg['add_noise'] and self.feature_params['use_mfcc_features']: x, y, index = self.add_noise_to_dataset(x, y, index, n_examples)
+      # add noise if requested (not used anymore)
+      #if self.dataset_cfg['add_noise'] and self.feature_params['use_mfcc_features']: x, y, index = self.add_noise_to_dataset(x, y, index, n_examples)
 
       # print label stats
       self.label_stats(y)
 
       # save mfcc data file
-      np.savez(self.feature_files[i], x=x, y=y, t=t, index=index, params=self.feature_params)
-      print("--save data to: ", self.feature_files[i])
+      #np.savez(self.feature_files[i], x=x, y=y, t=t, index=index, params=self.feature_params)
+      #print("--save data to: ", self.feature_files[i])
+      np.savez(self.feature_file_dict[set_name], x=x, y=y, t=t, z=z, feature_params=self.feature_params)
+      print("--saved data to: ", self.feature_file_dict[set_name])
 
 
-  def extract_mfcc_data(self, wavs, annos, n_examples, set_name=None):
+  def extract_wavs_to_features(self, wav_dict, annos, n_examples, set_name=None):
     """
-    extract mfcc data from wav-files
-    wavs must be in a 2D-array [[wavs_class1], [wavs_class2]] so that n_examples will work properly
+    extract given wavs to features, x: values, y: labels, t: target (for wavenets), z:index
     """
 
-    # mfcc_data: [n x m x l], labels and index
-    mfcc_data, label_data, index_data = np.empty(shape=(0, self.channel_size, self.feature_size, self.frame_size), dtype=np.float64), [], []
+    # init collections
+    x_data = np.empty(shape=(0, self.channel_size, self.feature_size, self.frame_size), dtype=np.float64) if self.feature_params['use_mfcc_features'] else np.empty(shape=(0, self.channel_size, self.raw_frame_size), dtype=np.float64)
+    t_data = None if self.feature_params['use_mfcc_features'] else np.empty(shape=(0, self.raw_frame_size), dtype=np.int64)
+    y_data, z_data =  [], []
 
     # extract class wavs
-    for class_wavs, class_annos in zip(wavs, annos):
+    for (label, wavs), class_annos in zip(wav_dict.items(), annos):
+
+      print("extract label: ", label)
 
       # class annotation file names extraction
-      class_annos_file_names = [l + i for f, i, l in [self.file_naming_extraction(a, file_ext='.TextGrid') for a in class_annos]]
+      class_annos_file_names = [l + i for f, l, i, h in [self.file_naming_extraction(a, file_ext='.TextGrid') for a in class_annos]]
 
-      # number of class examples
+      # class examples counter
       num_class_examples = 0
 
       # run through each example in class wavs
-      for wav in class_wavs:
+      for wav in wavs:
         
         # extract file namings
-        file_name, file_index, label = self.file_naming_extraction(wav, file_ext=self.dataset_cfg['file_ext'])
+        file_name, file_label, file_index, file_name_hash = self.file_naming_extraction(wav, file_ext=self.dataset_cfg['file_ext'])
 
         # get annotation if available
-        anno = None
-        if label + file_index in class_annos_file_names: anno = class_annos[class_annos_file_names.index(label + file_index)]
+        anno =  class_annos[class_annos_file_names.index(file_label + file_index)] if file_label + file_index in class_annos_file_names else None
 
         # load and pre-process audio
         x, wav_is_useless = self.wav_pre_processing(wav)
@@ -557,25 +667,40 @@ class SpeechCommandsDataset(AudioDataset):
         # print some info
         if self.verbose: print("wav: [{}] with label: [{}], samples=[{}], time=[{}]s".format(wav, label, len(x), len(x) / self.feature_params['fs']))
 
-        # extract feature vectors [m x l]
-        mfcc, bon_pos = self.feature_extractor.extract_mfcc(x, reduce_to_best_onset=False)
+        # extract features
+        x_feature, bon_pos = self.feature_extractor.extract_mfcc(x, reduce_to_best_onset=False) if self.feature_params['use_mfcc_features'] else self.feature_extractor.get_best_raw_samples(x)
+
+        # only for raw features
+        if not self.feature_params['use_mfcc_features']:
+
+          # add dither and do normalization
+          x_feature = self.wav_post_processing(x_feature)
+
+          # quantize data
+          t = self.feature_extractor.quantize(x_feature)
+
 
         # collect wavs
-        if self.collect_wavs: self.pre_wavs.append((librosa.util.normalize(x), label + str(file_index) + '_' + set_name, bon_pos))
+        if self.collect_wavs: self.pre_wavs.append((librosa.util.normalize(x), label + str(file_index) + '_' + set_name, bon_pos if self.feature_params['use_mfcc_features'] else bon_pos / self.hop))
 
-        # plot mfcc features
-        plot_mfcc_profile(x, self.feature_params['fs'], self.feature_extractor.N, self.feature_extractor.hop, mfcc, anno_file=anno, onsets=None, bon_pos=bon_pos, mient=None, minreg=None, frame_size=self.frame_size, plot_path=self.plot_paths['mfcc'], name=label + str(file_index) + '_' + set_name, enable_plot=self.dataset_cfg['enable_plot'])
+        # plot features
+        if self.dataset_cfg['enable_plot']: plot_mfcc_profile(x, self.feature_params['fs'], self.feature_extractor.N, self.feature_extractor.hop, x_feature, anno_file=anno, onsets=None, bon_pos=bon_pos, mient=None, minreg=None, frame_size=self.frame_size, plot_path=self.plot_paths['mfcc'], name=file_label + str(file_index) + '_' + set_name, enable_plot=self.dataset_cfg['enable_plot']) if self.feature_params['use_mfcc_features'] else plot_waveform(x, self.feature_params['fs'],  bon_samples=[bon_pos, bon_pos+self.raw_frame_size], title=file_label + file_index, plot_path=self.plot_paths['waveform'], name=file_label + file_index, show_plot=False, close_plot=True)
 
         # damaged file check
-        if self.dataset_cfg['filter_damaged_files']:
+        if self.dataset_cfg['filter_damaged_files'] and self.feature_params['use_mfcc_features']:
 
           # handle damaged files
-          if self.detect_damaged_file(mfcc, wav): continue
+          if self.detect_damaged_file(x_feature, wav): continue
 
-        # add to mfcc_data container
-        mfcc_data = np.vstack((mfcc_data, mfcc[np.newaxis, :, :, bon_pos:bon_pos+self.frame_size]))
-        label_data.append(label)
-        index_data.append(label + file_index)
+
+        # add data to container
+        x_data = np.vstack((x_data, x_feature[np.newaxis, :, :, bon_pos:bon_pos+self.frame_size])) if self.feature_params['use_mfcc_features'] else np.vstack((x_data, x_feature[np.newaxis, :]))
+
+        # add target to container
+        t_data = np.vstack((t_data, t)) if not self.feature_params['use_mfcc_features'] else None
+
+        # add label and index to container
+        y_data.append(label), z_data.append(file_name)
 
         # update number of examples per class
         num_class_examples += 1
@@ -583,71 +708,138 @@ class SpeechCommandsDataset(AudioDataset):
         # stop if desired examples are reached
         if num_class_examples >= n_examples: break
 
+    return x_data, y_data, t_data, z_data
 
-    return mfcc_data, label_data, None, index_data
 
+  # def extract_mfcc_data(self, wavs, annos, n_examples, set_name=None):
+  #   """
+  #   extract mfcc data from wav-files
+  #   wavs must be in a 2D-array [[wavs_class1], [wavs_class2]] so that n_examples will work properly
+  #   """
 
-  def extract_raw_data(self, wavs, annos, n_examples, set_name=None):
-    """
-    raw data extraction
-    """
+  #   # mfcc_data: [n x m x l], labels and index
+  #   mfcc_data, label_data, index_data = np.empty(shape=(0, self.channel_size, self.feature_size, self.frame_size), dtype=np.float64), [], []
 
-    # raw data: [n x m], labels and index
-    raw_data, label_data, target_data, index_data = np.empty(shape=(0, self.channel_size, self.raw_frame_size), dtype=np.float64), [], np.empty(shape=(0, self.raw_frame_size), dtype=np.int64), []
+  #   # extract class wavs
+  #   for class_wavs, class_annos in zip(wavs, annos):
 
-    # extract class wavs
-    for class_wavs, class_annos in zip(wavs, annos):
+  #     # class annotation file names extraction
+  #     class_annos_file_names = [l + i for f, l, i, h in [self.file_naming_extraction(a, file_ext='.TextGrid') for a in class_annos]]
 
-      # class annotation file names extraction
-      class_annos_file_names = [l + i for f, i, l in [self.file_naming_extraction(a, file_ext='.TextGrid') for a in class_annos]]
+  #     # number of class examples
+  #     num_class_examples = 0
 
-      # number of class examples
-      num_class_examples = 0
-
-      # run through each example in class wavs
-      for wav in class_wavs:
+  #     # run through each example in class wavs
+  #     for wav in class_wavs:
         
-        # extract file namings
-        file_name, file_index, label = self.file_naming_extraction(wav, file_ext=self.dataset_cfg['file_ext'])
+  #       # extract file namings
+  #       file_name, label, file_index, file_name_hash = self.file_naming_extraction(wav, file_ext=self.dataset_cfg['file_ext'])
 
-        # get annotation if available
-        anno = class_annos[class_annos_file_names.index(label + file_index)] if label + file_index in class_annos_file_names else None
+  #       print("file index: ", file_index)
+  #       stop
 
-        # load and pre-process audio
-        x, wav_is_useless = self.wav_pre_processing(wav)
-        if wav_is_useless: continue
+  #       # get annotation if available
+  #       anno = None
+  #       if label + file_index in class_annos_file_names: anno = class_annos[class_annos_file_names.index(label + file_index)]
 
-        # print some info
-        if self.verbose: print("wav: [{}] with label: [{}], samples=[{}], time=[{}]s".format(wav, label, len(x), len(x) / self.feature_params['fs']))
+  #       # load and pre-process audio
+  #       x, wav_is_useless = self.wav_pre_processing(wav)
+  #       if wav_is_useless: continue
 
-        # extract raw samples from region of energy
-        raw, bon_pos = self.feature_extractor.get_best_raw_samples(x)
+  #       # print some info
+  #       if self.verbose: print("wav: [{}] with label: [{}], samples=[{}], time=[{}]s".format(wav, label, len(x), len(x) / self.feature_params['fs']))
 
-        # add dither and do normalization
-        raw = self.wav_post_processing(raw)
+  #       # extract feature vectors [m x l]
+  #       mfcc, bon_pos = self.feature_extractor.extract_mfcc(x, reduce_to_best_onset=False)
 
-        # quantize data
-        t = self.feature_extractor.quantize(raw)
+  #       # collect wavs
+  #       if self.collect_wavs: self.pre_wavs.append((librosa.util.normalize(x), label + str(file_index) + '_' + set_name, bon_pos))
 
-        # plot waveform
-        if self.dataset_cfg['enable_plot']: plot_waveform(x, self.feature_params['fs'],  bon_samples=[bon_pos, bon_pos+self.raw_frame_size], title=label + file_index, plot_path=self.plot_paths['waveform'], name=label + file_index, show_plot=False, close_plot=True)
+  #       # plot mfcc features
+  #       plot_mfcc_profile(x, self.feature_params['fs'], self.feature_extractor.N, self.feature_extractor.hop, mfcc, anno_file=anno, onsets=None, bon_pos=bon_pos, mient=None, minreg=None, frame_size=self.frame_size, plot_path=self.plot_paths['mfcc'], name=label + str(file_index) + '_' + set_name, enable_plot=self.dataset_cfg['enable_plot'])
 
-        # collect wavs
-        if self.collect_wavs: self.pre_wavs.append((librosa.util.normalize(x), label + str(file_index) + '_' + set_name, bon_pos / self.hop))
+  #       # damaged file check
+  #       if self.dataset_cfg['filter_damaged_files']:
 
-        # add to mfcc_data container
-        raw_data = np.vstack((raw_data, raw[np.newaxis, :]))
-        target_data = np.vstack((target_data, t))
-        label_data.append(label)
-        index_data.append(label + file_index)
+  #         # handle damaged files
+  #         if self.detect_damaged_file(mfcc, wav): continue
 
-        # update number of examples per class
-        num_class_examples += 1
+  #       # add to mfcc_data container
+  #       mfcc_data = np.vstack((mfcc_data, mfcc[np.newaxis, :, :, bon_pos:bon_pos+self.frame_size]))
+  #       label_data.append(label)
+  #       index_data.append(label + file_index)
 
-        # stop if desired examples are reached
-        if num_class_examples >= n_examples: break
+  #       # update number of examples per class
+  #       num_class_examples += 1
 
-    return raw_data, label_data, target_data, index_data
+  #       # stop if desired examples are reached
+  #       if num_class_examples >= n_examples: break
+
+
+  #   return mfcc_data, label_data, None, index_data
+
+
+  # def extract_raw_data(self, wavs, annos, n_examples, set_name=None):
+  #   """
+  #   raw data extraction
+  #   """
+
+  #   # raw data: [n x m], labels and index
+  #   raw_data, label_data, target_data, index_data = np.empty(shape=(0, self.channel_size, self.raw_frame_size), dtype=np.float64), [], np.empty(shape=(0, self.raw_frame_size), dtype=np.int64), []
+
+  #   # extract class wavs
+  #   for class_wavs, class_annos in zip(wavs, annos):
+
+  #     # class annotation file names extraction
+  #     class_annos_file_names = [l + i for f, l, i, h in [self.file_naming_extraction(a, file_ext='.TextGrid') for a in class_annos]]
+
+  #     # number of class examples
+  #     num_class_examples = 0
+
+  #     # run through each example in class wavs
+  #     for wav in class_wavs:
+        
+  #       # extract file namings
+  #       file_name, label, file_index, file_name_hash = self.file_naming_extraction(wav, file_ext=self.dataset_cfg['file_ext'])
+
+  #       # get annotation if available
+  #       anno = class_annos[class_annos_file_names.index(label + file_index)] if label + file_index in class_annos_file_names else None
+
+  #       # load and pre-process audio
+  #       x, wav_is_useless = self.wav_pre_processing(wav)
+  #       if wav_is_useless: continue
+
+  #       # print some info
+  #       if self.verbose: print("wav: [{}] with label: [{}], samples=[{}], time=[{}]s".format(wav, label, len(x), len(x) / self.feature_params['fs']))
+
+  #       # extract raw samples from region of energy
+  #       raw, bon_pos = self.feature_extractor.get_best_raw_samples(x)
+
+  #       # add dither and do normalization
+  #       raw = self.wav_post_processing(raw)
+
+  #       # quantize data
+  #       t = self.feature_extractor.quantize(raw)
+
+  #       # plot waveform
+  #       if self.dataset_cfg['enable_plot']: plot_waveform(x, self.feature_params['fs'],  bon_samples=[bon_pos, bon_pos+self.raw_frame_size], title=label + file_index, plot_path=self.plot_paths['waveform'], name=label + file_index, show_plot=False, close_plot=True)
+
+  #       # collect wavs
+  #       if self.collect_wavs: self.pre_wavs.append((librosa.util.normalize(x), label + str(file_index) + '_' + set_name, bon_pos / self.hop))
+
+  #       # add to mfcc_data container
+  #       raw_data = np.vstack((raw_data, raw[np.newaxis, :]))
+  #       target_data = np.vstack((target_data, t))
+  #       label_data.append(label)
+  #       index_data.append(label + file_index)
+
+  #       # update number of examples per class
+  #       num_class_examples += 1
+
+  #       # stop if desired examples are reached
+  #       if num_class_examples >= n_examples: break
+
+  #   return raw_data, label_data, target_data, index_data
 
 
   def detect_damaged_file(self, mfcc, wav):
@@ -702,7 +894,8 @@ class MyRecordingsDataset(SpeechCommandsDataset):
     cut and copy recorded wavs
     """
 
-    print("wav: ", self.wav_folders)
+    #print("wav: ", self.wav_folders)
+    print("wav folders: ", self.wav_folder_dict)
 
     # get all .wav files
     raw_wavs = glob(self.dataset_path + '*' + self.dataset_cfg['file_ext'])
@@ -713,7 +906,7 @@ class MyRecordingsDataset(SpeechCommandsDataset):
       print("wav: ", wav)
 
       # filename extraction
-      file_name, file_index, label = self.file_naming_extraction(wav, file_ext=self.dataset_cfg['file_ext'])
+      file_name, label, file_index, file_name_hash = self.file_naming_extraction(wav, file_ext=self.dataset_cfg['file_ext'])
 
       # read audio from file
       x, _ = librosa.load(wav, sr=self.feature_params['fs'])
@@ -734,7 +927,7 @@ class MyRecordingsDataset(SpeechCommandsDataset):
         plot_waveform(xj, self.feature_params['fs'], title='{}-{}'.format(label, j), plot_path=self.plot_paths['waveform'], name='example_{}-{}'.format(label, j))
 
         # save file
-        soundfile.write('{}{}{}.wav'.format(self.wav_folders[0], label, j), xj, self.feature_params['fs'], subtype=None, endian=None, format=None, closefd=True)
+        soundfile.write('{}{}{}.wav'.format(self.wav_folder_dict['my'], label, j), xj, self.feature_params['fs'], subtype=None, endian=None, format=None, closefd=True)
 
 
   def clean_onsets(self, onsets):
@@ -825,14 +1018,8 @@ if __name__ == '__main__':
   audio_set1.analyze_damaged_files()
   audio_set2.analyze_damaged_files()
 
-  # select feature files
-  all_feature_files = audio_set1.feature_files + audio_set2.feature_files if len(audio_set1.labels) == len(audio_set2.labels) else audio_set1.feature_files
-
-
-  print("\nall feature files: ", all_feature_files)
-
   # batches
-  batch_archive = SpeechCommandsBatchArchive(feature_files=all_feature_files, batch_size=32, batch_size_eval=4, to_torch=False)
+  batch_archive = SpeechCommandsBatchArchive(feature_file_dict={**audio_set1.feature_file_dict, **audio_set2.feature_file_dict}, batch_size=32, batch_size_eval=4, to_torch=False)
 
   print("archive: ", batch_archive.x_train.shape)
   print("archive: ", batch_archive.num_examples_per_class)

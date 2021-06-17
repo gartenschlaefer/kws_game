@@ -15,12 +15,13 @@ class BatchArchive():
   x: data, y: label_num, z: index
   """
 
-  def __init__(self, batch_size=32, batch_size_eval=5, to_torch=True):
+  def __init__(self, batch_size=32, batch_size_eval=5, to_torch=True, shuffle=True):
 
     # arguments
     self.batch_size = batch_size
     self.batch_size_eval = batch_size_eval
     self.to_torch = to_torch
+    self.shuffle = shuffle
 
     # training batches
     self.x_train = None
@@ -389,23 +390,30 @@ class BatchArchive():
 
 class SpeechCommandsBatchArchive(BatchArchive):
   """
-  creates batches from feature files saved as .npz [train, test, eval]
+  creates batches from feature files saved as .npz
   """
 
-  def __init__(self, feature_files, batch_size=32, batch_size_eval=5, to_torch=True, shuffle=True):
+  def __init__(self, feature_file_dict, batch_size=32, batch_size_eval=5, to_torch=True, shuffle=True):
 
     # parent init
-    super().__init__(batch_size, batch_size_eval, to_torch=to_torch)
+    super().__init__(batch_size, batch_size_eval, to_torch=to_torch, shuffle=shuffle)
 
     # params
-    self.feature_files = feature_files
-    self.shuffle = shuffle
+    self.feature_file_dict = feature_file_dict
+
+    # set names
+    self.set_names = list(self.feature_file_dict.keys())
+
+    print("set names: ", self.set_names) 
 
     # load files [0]: train, etc.
-    self.data = [np.load(file, allow_pickle=True) for file in self.feature_files]
+    self.data_dict = {set_name: np.load(file, allow_pickle=True) for set_name, file in self.feature_file_dict.items()}
+
+    # data size
+    self.data_size = self.data_dict[self.set_names[0]]['x'].shape[1:]
 
     # feature params
-    self.feature_params = self.data[0]['params'][()]
+    self.feature_params = self.data_dict[self.set_names[0]]['feature_params'][()]
 
     # legacy
     self.feature_params = legacy_adjustments_feature_params(self.feature_params)
@@ -423,10 +431,13 @@ class SpeechCommandsBatchArchive(BatchArchive):
     self.raw_frame_size = int(self.feature_params['frame_size_s'] * self.feature_params['fs'])
 
     # get classes
-    self.create_class_dictionary(self.data[0]['y'])
+    self.create_class_dictionary(self.data_dict[self.set_names[0]]['y'])
 
     # examples per class
-    self.n_examples_class = (len(self.data[0]['x']) + len(self.data[1]['x']) + len(self.data[2]['x'])) // self.n_classes
+    #self.n_examples_class = (len(self.data_dict[0]['x']) + len(self.data_dict[1]['x']) + len(self.data_dict[2]['x'])) // self.n_classes
+    self.n_examples_class = {s: len(d['x']) // self.n_classes for s, d in self.data_dict.items()}
+
+    print("n: ", self.n_examples_class)
 
     # do extraction
     self.extract()
@@ -437,22 +448,18 @@ class SpeechCommandsBatchArchive(BatchArchive):
     extract data samples from files
     """
 
-    # set data size
-    self.data_size = self.data[0]['x'].shape[1:]
-    
     # check data sizes
-    if not all([d['x'].shape[1:] == self.data_size for d in self.data]): 
+    if not all([d['x'].shape[1:] == self.data_size for s, d in self.data_dict.items()]): 
       print("***extraction failed: data sizes are not equal")
       return
 
     # create batches
-    self.x_train, self.y_train, self.t_train, self.z_train = self.create_batches(self.data[0], batch_size=self.batch_size)
-    self.x_val, self.y_val, self.t_val, self.z_val = self.create_batches(self.data[1], batch_size=self.batch_size_eval)
-    self.x_test, self.y_test, self.t_test, self.z_test = self.create_batches(self.data[2], batch_size=self.batch_size_eval)
+    self.x_train, self.y_train, self.t_train, self.z_train = self.create_batches(self.data_dict['train'], batch_size=self.batch_size)
+    self.x_val, self.y_val, self.t_val, self.z_val = self.create_batches(self.data_dict['validation'], batch_size=self.batch_size_eval)
+    self.x_test, self.y_test, self.t_test, self.z_test = self.create_batches(self.data_dict['test'], batch_size=self.batch_size_eval)
 
     # my data included
-    if len(self.feature_files) == 4:
-      self.x_my, self.y_my, self.t_my, self.z_my = self.create_batches(self.data[3], batch_size=1)
+    if len(self.feature_file_dict) == 4: self.x_my, self.y_my, self.t_my, self.z_my = self.create_batches(self.data_dict['my'], batch_size=1)
 
     # num examples
     self.determine_num_examples()
@@ -466,7 +473,7 @@ class SpeechCommandsBatchArchive(BatchArchive):
     """
 
     # extract data
-    x, y, z = data['x'], data['y'], data['index']
+    x, y, z = data['x'], data['y'], data['z']
 
     # target
     t = data['t'] if not self.feature_params['use_mfcc_features'] else None
@@ -567,19 +574,19 @@ def plot_grid_examples(cfg, audio_set1, audio_set2):
 
   for l in cfg['datasets']['speech_commands']['sel_labels']:
 
+    print("l: ", l)
+
     # create batches
-    batch_archive = SpeechCommandsBatchArchive(audio_set1.feature_files + audio_set2.feature_files, batch_size=32, batch_size_eval=5)
+    batch_archive = SpeechCommandsBatchArchive({**audio_set1.feature_file_dict, **audio_set2.feature_file_dict}, batch_size=32, batch_size_eval=5)
 
     # reduce to label
     batch_archive.reduce_to_label(l)
-
-    print("l: ", l)
 
     # plot
     plot_grid_images(batch_archive.x_train[0, :30], context='mfcc', padding=1, num_cols=5, plot_path=cfg['datasets']['speech_commands']['plot_paths']['examples_grid'], title=l, name='grid_' + l, show_plot=False)
 
   # create batches for my data
-  batch_archive = SpeechCommandsBatchArchive(audio_set1.feature_files + audio_set2.feature_files, batch_size=32, batch_size_eval=5, shuffle=False)
+  batch_archive = SpeechCommandsBatchArchive({**audio_set1.feature_file_dict, **audio_set2.feature_file_dict}, batch_size=32, batch_size_eval=5, shuffle=False)
   print("\ndata: "), print_batch_infos(batch_archive)
   
   # plot my data
@@ -606,6 +613,7 @@ def similarity_measures(x1, x2):
   print("o1: ", o1), print("o2: ", o2), print("o3: ", o3), print("o4: ", o4), print("o5: ", o4)
 
 
+
 if __name__ == '__main__':
   """
   batching test
@@ -624,7 +632,7 @@ if __name__ == '__main__':
   audio_set2 = AudioDataset(cfg['datasets']['my_recordings'], cfg['feature_params'])
 
   # create batches
-  batch_archive = SpeechCommandsBatchArchive(audio_set1.feature_files + audio_set2.feature_files, batch_size=32, batch_size_eval=5, shuffle=False)
+  batch_archive = SpeechCommandsBatchArchive(feature_file_dict={**audio_set1.feature_file_dict, **audio_set2.feature_file_dict}, batch_size=32, batch_size_eval=5, shuffle=False)
 
   # reduce to labels algorithm
   #batch_archive.reduce_to_labels(['left', 'right'])

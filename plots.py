@@ -850,7 +850,7 @@ def plot_textGrid_annotation(anno_file, x=None, hop_space=None, plot_text=False,
       if plot_text: plt.text(s + 0.01, h, l, color=color, fontsize=get_fontsize('anno'))
 
 
-def plot_mfcc_profile(x, fs, N, hop, mfcc, sep_features=True, diff_plot=False, cmap=None, cmap_wav=None, anno_file=None, onsets=None, bon_pos=None, mient=None, minreg=None, frame_size=32, plot_path=None, name='mfcc_profile', enable_plot=True, close_plot=True, show_plot=True):
+def plot_mfcc_profile(x, fs, N, hop, mfcc, sep_features=True, diff_plot=False, cmap=None, cmap_wav=None, anno_file=None, onsets=None, bon_pos=None, mient=None, minreg=None, frame_size=32, plot_path=None, name='mfcc_profile', close_plot=True, show_plot=False):
   """
   plot mfcc extracted features from audio file
   """
@@ -861,10 +861,6 @@ def plot_mfcc_profile(x, fs, N, hop, mfcc, sep_features=True, diff_plot=False, c
   # get cmap
   if cmap is None: cmap = get_colormap_from_context(context='mfcc')
   if cmap_wav is None: cmap_wav = get_colormap_from_context(context='wav')
-
-  # no plot generation
-  if enable_plot is False:
-    return
 
   # time vectors
   t, t_hop = np.arange(0, len(x)/fs, 1/fs), np.arange(0, mfcc.shape[1] * hop / fs, hop/fs)
@@ -975,7 +971,7 @@ def plot_mfcc_profile(x, fs, N, hop, mfcc, sep_features=True, diff_plot=False, c
   # tight plot
   plt.subplots_adjust(left=0.1, bottom=0.00, right=0.97, top=0.93, wspace=0, hspace=0) if mfcc.shape[0] == 39 and sep_features else plt.subplots_adjust(left=0.1, bottom=0.00, right=0.94, top=0.90, wspace=0, hspace=0) 
 
-  # plot and close
+  # save
   if plot_path is not None: plt.savefig(plot_path + name + '.png', dpi=150)
 
   # close plot

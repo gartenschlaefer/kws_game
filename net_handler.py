@@ -942,7 +942,7 @@ if __name__ == '__main__':
   audio_set2 = AudioDataset(cfg['datasets']['my_recordings'], cfg['feature_params'])
 
   # create batches
-  batch_archive = SpeechCommandsBatchArchive(audio_set1.feature_files + audio_set2.feature_files, batch_size=32, batch_size_eval=5)
+  batch_archive = SpeechCommandsBatchArchive({**audio_set1.feature_file_dict, **audio_set2.feature_file_dict}, batch_size=32, batch_size_eval=5)
 
   # reduce to label and add noise
   #batch_archive.reduce_to_label('up')

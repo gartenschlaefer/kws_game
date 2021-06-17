@@ -31,8 +31,8 @@ datasets:
     sample_num_mininmal: 8000
 
     # path to speech command dataset
-    dataset_path: ignore/dataset/speech_commands_v0.01/
-    #dataset_path: ignore/dataset/speech_commands_v0.02/
+    #dataset_path: ignore/dataset/speech_commands_v0.01/
+    dataset_path: ignore/dataset/speech_commands_v0.02/
 
     # shuffle wavs for dataset separation
     shuffle_wavs: True
@@ -41,20 +41,22 @@ datasets:
     extraction_path: ignore/dataset/extracted/
 
     # paths to save training, testing and eval data
-    data_paths:
-      # train: ignore/dataset/train/
-      # test: ignore/dataset/test/
-      # eval: ignore/dataset/eval/
+    #data_paths:
+    set_folders:
       train: train/
       test: test/
-      eval: eval/
+      validation: validation/
+
+    # split of dataset in training, test, eval (must be a prob. distribution)
+    #split_percs: [0.8, 0.1, 0.1]
+    split_percs:
+      train: 0.8
+      test: 0.1
+      validation: 0.1
 
     # folder names
     wav_folder: wavs/
     annotation_folder: annotation/
-
-    # split of dataset in training, test, eval (must be a prob. distribution)
-    split_percs: [0.8, 0.1, 0.1]
 
     # plot path root
     plot_paths:
@@ -68,17 +70,33 @@ datasets:
     enable_plot: False
 
     # recreate all datasets (copy wavs to data_paths - not necessary except the dataset is changed)
-    recreate: True
+    recreate: False
+    clean_files: False
+
+    # v1 all labels
+    #all_labels: ['bed', 'bird', 'cat', 'dog', 'down', 'eight', 'five', 'four', 'go', 'happy', 'house', 'left', 'marvin', 'nine', 'no', 'off', 'on', 'one', 'right', 'seven', 'sheila', 'six', 'stop', 'three', 'tree', 'two', 'up', 'wow', 'yes', 'zero']
+    
+    # v2 all labels
+    all_labels: ['backward', 'bed', 'bird', 'cat', 'dog', 'down', 'eight', 'five', 'follow', 'forward', 'four', 'go', 'happy', 'house', 'learn', 'left', 'marvin', 'nine', 'no', 'off', 'on', 'one', 'right', 'seven', 'sheila', 'six', 'stop', 'three', 'tree', 'two', 'up', 'visual', 'wow', 'yes', 'zero']
 
     # selected labels of the whole set
     sel_labels: ['left', 'right', 'up', 'down', 'go']
     #sel_labels: ['yes', 'no', 'left', 'go', 'down', 'off', 'right', 'stop', 'up', 'on']
-    #sel_labels: ['eight', 'sheila', 'nine', 'yes', 'one', 'no', 'left', 'tree', 'bed', 'bird', 'go', 'wow', 'seven', 'marvin', 'dog', 'three', 'two', 'house', 'down', 'six', 'five', 'off', 'right', 'cat', 'zero', 'four', 'stop', 'up', 'on', 'happy']
+    #sel_labels: ['bed', 'bird', 'cat', 'dog', 'down', 'eight', 'five', 'four', 'go', 'happy', 'house', 'left', 'marvin', 'nine', 'no', 'off', 'on', 'one', 'right', 'seven', 'sheila', 'six', 'stop', 'three', 'tree', 'two', 'up', 'wow', 'yes', 'zero']
+    #sel_labels: ['backward', 'bed', 'bird', 'cat', 'dog', 'down', 'eight', 'five', 'follow', 'forward', 'four', 'go', 'happy', 'house', 'learn', 'left', 'marvin', 'nine', 'no', 'off', 'on', 'one', 'right', 'seven', 'sheila', 'six', 'stop', 'three', 'tree', 'two', 'up', 'visual', 'wow', 'yes', 'zero']
 
     # add noise to dataset
     add_noise: True
-    noise_label: noise
+    noise_label: '_noise'
     noise_data_folder: _background_noise_/
+
+    # add mixed to dataset
+    add_mixed: True
+    mixed_label: '_mixed'
+
+    # validation and test file list (from dataset path)
+    validation_file_list: validation_list.txt
+    testing_file_list: testing_list.txt
 
     # version
     version_nr: 5
@@ -116,15 +134,19 @@ datasets:
     extraction_path: ignore/dataset/extracted/
 
     # paths to save training, testing and eval data
-    data_paths:
+    #data_paths:
+    #  my: my/
+
+    set_folders:
       my: my/
+
+    # split of dataset
+    split_percs: 
+      my: 1.0
 
     # folder names
     wav_folder: wavs/
     annotation_folder: annotation/
-
-    # split of dataset
-    split_percs: [1.0]
 
     # plot path root
     plot_paths:
@@ -139,13 +161,22 @@ datasets:
 
     # recreate all datasets (copy wavs to data_paths - not necessary except the dataset is changed)
     recreate: False
+    clean_files: False
+
+    # all labels
+    all_labels: ['left', 'right', 'up', 'down', 'go']
 
     # selected labels of the whole set
     sel_labels: ['left', 'right', 'up', 'down', 'go']
 
     # add noise to dataset
-    add_noise: True
-    noise_label: 'noise'
+    add_noise: False
+    noise_label: _noise
+    noise_data_folder: _background_noise_/
+
+    # add mixed to dataset
+    add_mixed: False
+    mixed_label: _mixed
     
     #version
     version_nr: 5
@@ -167,7 +198,7 @@ datasets:
 feature_params:
 
   # mfcc_features or raw samples
-  use_mfcc_features: True
+  use_mfcc_features: False
 
   # sampling rate
   fs: 16000
@@ -246,7 +277,7 @@ ml:
     #batch_size: 512
 
     # number of epochs
-    num_epochs: 200
+    num_epochs: 100
 
     # learning rate
     lr: 0.0001
@@ -305,10 +336,10 @@ ml:
   #nn_arch: conv-trad
   #nn_arch: conv-encoder
   #nn_arch: conv-encoder-fc1
-  #nn_arch: conv-encoder-fc3
+  nn_arch: conv-encoder-fc3
   #nn_arch: conv-lim-encoder
   #nn_arch: conv-latent
-  nn_arch: wavenet
+  #nn_arch: wavenet
 
   # logging enable
   logging_enabled: True
