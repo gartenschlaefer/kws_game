@@ -49,7 +49,38 @@ class FeatureExtractor():
     self.w_f, self.w_mel, self.f, self.m = mel_band_weights(self.feature_params['n_filter_bands'], self.feature_params['fs'], self.N//2+1)
 
 
-  def extract_mfcc(self, x, reduce_to_best_onset=True):
+  def extract_features(self, x, reduce_to_best_onset=True, randomize_best_onset=False):
+    """
+    extract features according to feature params setting (mfcc or raw)
+    """
+
+    # extract mfcc or raw
+    x_feature, bon_pos = self.extract_mfcc(x, reduce_to_best_onset=reduce_to_best_onset, randomize_best_onset=randomize_best_onset) if self.feature_params['use_mfcc_features'] else self.extract_raw(x, reduce_to_best_onset=reduce_to_best_onset, randomize_best_onset=randomize_best_onset)
+
+    return x_feature, bon_pos
+
+
+  def extract_raw(self, x, reduce_to_best_onset=True, randomize_best_onset=False):
+    """
+    extract raw features
+    """
+
+    # get best onset
+    bon_pos = self.find_max_energy_region(x, window_size=self.raw_frame_size, randomize=randomize_best_onset)
+
+    # some standard wavefile processing
+    x_raw = self.pre_processing(x)
+
+    # reduce to best onset if required
+    if reduce_to_best_onset: x_raw = x_raw[bon_pos:bon_pos+self.raw_frame_size]
+
+    # add channel dim
+    x_raw = x_raw[np.newaxis, :]
+
+    return x_raw, bon_pos
+
+
+  def extract_mfcc(self, x, reduce_to_best_onset=True, randomize_best_onset=False):
     """
     extract mfcc features fast return [c, m, n], best onset pos
     """
@@ -86,12 +117,39 @@ class FeatureExtractor():
       for i, m in enumerate(mfcc_all[0, :]): mfcc_all[0, i] = (m + np.abs(np.min(m))) / np.linalg.norm(m + np.abs(np.min(m)), ord=np.infty)
 
     # find best onset
-    _, bon_pos = self.find_max_energy_region(mfcc[self.energy_feature_pos, :])
+    bon_pos = self.find_max_energy_region(mfcc[self.energy_feature_pos, :], window_size=self.frame_size, randomize=False)
 
     # return best onset
     if reduce_to_best_onset: return mfcc_all[:, :, bon_pos:bon_pos+self.frame_size], bon_pos
 
     return mfcc_all, bon_pos
+
+
+  def find_max_energy_region(self, x, window_size, randomize=False):
+    """
+    find frame with least amount of energy
+    """
+
+    # energy frames
+    e_win = np.squeeze(view_as_windows(np.abs(x)**2, window_size, step=1))
+
+    # max energy region -> best onset position
+    bon_pos = np.argmax(np.sum(e_win, axis=1))
+
+    # randomize a bit
+    if randomize:
+
+      # determine random spread with percent of window size
+      rand_delta = int(np.ceil(window_size * self.feature_params['rand_delta_window_percs']))
+
+      # change best onset position
+      bon_pos += np.random.randint(-rand_delta, rand_delta)
+
+      # consider limits
+      if bon_pos > e_win.shape[0]: bon_pos = e_win.shape[0]
+      elif bon_pos < 0: bon_pos = 0
+
+    return bon_pos
 
 
   def calc_energy(self, x):
@@ -201,97 +259,6 @@ class FeatureExtractor():
     return d
 
 
-  def find_max_energy_region(self, x, randomize=False, rand_frame=5):
-    """
-    find frame with least amount of energy
-    """
-
-    # windowed [r x m x f]
-    x_win = np.squeeze(view_as_windows(x, self.feature_params['frame_size'], step=1))
-
-    # energy region
-    if self.energy_feature_pos == 0: bon_pos = np.argmax(np.sum(x_win, axis=1))
-    else: bon_pos = np.argmin(np.sum(x_win, axis=1))
-
-    # randomize a bit
-    if randomize:
-      bon_pos += np.random.randint(-rand_frame, rand_frame)
-      if bon_pos >= x_win.shape[0]: bon_pos = x_win.shape[0]# - 1
-      #if bon_pos > x_win.shape[0]-1: bon_pos = x_win.shape[0]-1
-      elif bon_pos < 0: bon_pos = 0
-
-    return frames_to_time(bon_pos, self.feature_params['fs'], self.hop), bon_pos
-
-
-  def extract_mfcc39_slow(self, x):
-    """
-    extract mfcc features, slow implementation of my own - not used anymore
-    """
-
-    # pre processing
-    x_pre = self.pre_processing(x)
-
-    # stft
-    X = custom_stft(x_pre, self.N, self.hop)
-
-    # energy of fft (one-sided)
-    E = np.power(np.abs(X[:, :self.N//2+1]), 2)
-
-    # sum the weighted energies
-    u = np.inner(E, self.w_f)
-
-    # mfcc
-    mfcc = (custom_dct(np.log(u), self.n_filter_bands).T)[:self.n_ceps_coeff]
-
-    # compute deltas [feature x frames]
-    deltas = self.compute_deltas(mfcc)
-
-    # compute double deltas [feature x frames]
-    double_deltas = self.compute_deltas(deltas)
-
-    # compute energies [1 x frames]
-    e_mfcc = np.vstack((
-      np.sum(mfcc**2, axis=0) / np.max(np.sum(mfcc**2, axis=0)), 
-      np.sum(deltas**2, axis=0) / np.max(np.sum(deltas**2, axis=0)), 
-      np.sum(double_deltas**2, axis=0) / np.max(np.sum(double_deltas**2, axis=0))
-      ))
-
-    # stack and get best onset
-    mfcc = np.vstack((mfcc, deltas, double_deltas, e_mfcc))
-
-    # find best onset
-    _, bon_pos = self.find_max_energy_region(mfcc[self.energy_feature_pos, :], self.fs, self.hop)
-
-    # return best onset
-    return mfcc[:, bon_pos:bon_pos+self.frame_size], bon_pos
-
-
-  def get_best_raw_samples(self, x, randomize=False, rand_samples=10, add_channel_dim=False):
-    """
-    best raw samples computed upon energy
-    """
-
-    # search for max energy windowed [r x m]
-    e_win = np.squeeze(view_as_windows(np.abs(x)**2, self.raw_frame_size, step=1))
-
-    # energy region
-    bon_pos = np.argmax(np.sum(e_win, axis=1))
-
-    # randomize a bit
-    if randomize:
-      bon_pos += np.random.randint(-rand_frame, rand_frame)
-      if bon_pos >= x_win.shape[0]: bon_pos = x_win.shape[0]
-      elif bon_pos < 0: bon_pos = 0
-
-    # best onset
-    x = x[bon_pos:bon_pos+self.raw_frame_size]
-
-    # channel dim
-    if add_channel_dim: x = x[np.newaxis, :]
-
-    return x, bon_pos
-
-
   def mu_softmax(self, x, mu=256):
     """
     mu softmax function
@@ -310,10 +277,9 @@ class FeatureExtractor():
     """
     invert mfcc
     """
+    return librosa.feature.inverse.mfcc_to_audio(mfcc, n_mels=32, dct_type=2, norm=None, ref=1.0, lifter=0, sr=self.feature_params['fs'], n_fft=self.N, hop_length=self.hop, window='hann')
 
-    x = librosa.feature.inverse.mfcc_to_audio(mfcc, n_mels=32, dct_type=2, norm=None, ref=1.0, lifter=0, sr=self.feature_params['fs'], n_fft=self.N, hop_length=self.hop, window='hann')
 
-    return x
 
 # --
 # other useful functions

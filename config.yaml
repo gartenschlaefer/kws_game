@@ -38,10 +38,9 @@ datasets:
     shuffle_wavs: True
 
     # extraction path
-    extraction_path: ignore/dataset/extracted/
+    extraction_path: ignore/dataset/_extracted/
 
-    # paths to save training, testing and eval data
-    #data_paths:
+    # paths to save training, testing and validation data
     set_folders:
       train: train/
       test: test/
@@ -60,17 +59,18 @@ datasets:
 
     # plot path root
     plot_paths:
-      mfcc: ignore/dataset/plots/mfcc/
-      z_score: ignore/dataset/plots/z_score/
-      waveform: ignore/dataset/plots/waveform/
-      examples_grid: ignore/dataset/plots/
-      damaged_files: ignore/dataset/damaged_files/
+      main: _plots/
+      examples_grid: _plots/grid/
+      mfcc: _plots/mfcc/
+      stats: _plots/stats/
+      waveform: _plots/waveform/
+      damaged_files: _plots/damaged_files/
 
     # enable plot of each feature extraction
     enable_plot: False
 
     # recreate all datasets (copy wavs to data_paths - not necessary except the dataset is changed)
-    recreate: False
+    recreate: True
     clean_files: False
 
     # v1 all labels
@@ -89,6 +89,9 @@ datasets:
     add_noise: True
     noise_label: '_noise'
     noise_data_folder: _background_noise_/
+
+    # shift of noise window to extract noise samples [seconds]
+    noise_shift_s: 0.125
 
     # add mixed to dataset
     add_mixed: True
@@ -113,6 +116,12 @@ datasets:
     # filter damaged files
     filter_damaged_files: False
 
+    # randomize best onsets
+    randomize_best_onset: False
+
+    # verbose: plot infos during extraction
+    verbose: False
+
 
   # my recordings dataset
   my_recordings:
@@ -131,12 +140,9 @@ datasets:
     shuffle_wavs: False
 
     # extraction path
-    extraction_path: ignore/dataset/extracted/
+    extraction_path: ignore/dataset/_extracted/
 
-    # paths to save training, testing and eval data
-    #data_paths:
-    #  my: my/
-
+    # paths for sets
     set_folders:
       my: my/
 
@@ -150,11 +156,13 @@ datasets:
 
     # plot path root
     plot_paths:
-      mfcc: ignore/my_recordings/plots/mfcc/
-      z_score: ignore/my_recordings/plots/z_score/
-      onsets: ignore/my_recordings/plots/onsets/
-      waveform: ignore/my_recordings/plots/waveform/
-      examples_grid: ignore/my_recordings/plots/
+      main: _plots/
+      examples_grid: _plots/grid/
+      mfcc: _plots/mfcc/
+      stats: _plots/stats/
+      waveform: _plots/waveform/
+      damaged_files: _plots/damaged_files/
+      onsets: _plots/onsets/
 
     # enable plot of each feature extraction
     enable_plot: False
@@ -174,6 +182,9 @@ datasets:
     noise_label: _noise
     noise_data_folder: _background_noise_/
 
+    # shift of noise window to extract noise samples [seconds]
+    noise_shift_s: 0.125
+
     # add mixed to dataset
     add_mixed: False
     mixed_label: _mixed
@@ -191,6 +202,12 @@ datasets:
     # filter damaged files
     filter_damaged_files: False
 
+    # randomize best onsets
+    randomize_best_onset: False
+
+    # verbose: plot infos during extraction
+    verbose: True
+
 
 # --
 # feature params for dataset extraction
@@ -198,7 +215,7 @@ datasets:
 feature_params:
 
   # mfcc_features or raw samples
-  use_mfcc_features: False
+  use_mfcc_features: True
 
   # sampling rate
   fs: 16000
@@ -231,6 +248,9 @@ feature_params:
   use_delta_features: False
   use_double_delta_features: False
   use_energy_features: False
+
+  # if randomize best onsets set in dataset, specify spread in percent of window size
+  rand_delta_window_percs: 0.05
 
 
 # --

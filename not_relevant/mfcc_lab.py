@@ -8,6 +8,62 @@ import time
 import librosa.display
 import soundfile
 
+import sys
+sys.path.append("../")
+
+from common import create_folder
+from feature_extraction import FeatureExtractor
+
+
+class FeatureExtractorSlow(FeatureExtractor):
+  """
+  slow feature extraction (need to test yet it works)
+  overwrite extract mfcc
+  """
+
+  def extract_mfcc(self, x):
+    """
+    extract mfcc features, slow implementation of my own - not used anymore
+    """
+
+    # pre processing
+    x_pre = self.pre_processing(x)
+
+    # stft
+    X = custom_stft(x_pre, self.N, self.hop)
+
+    # energy of fft (one-sided)
+    E = np.power(np.abs(X[:, :self.N//2+1]), 2)
+
+    # sum the weighted energies
+    u = np.inner(E, self.w_f)
+
+    # mfcc
+    mfcc = (custom_dct(np.log(u), self.n_filter_bands).T)[:self.n_ceps_coeff]
+
+    # compute deltas [feature x frames]
+    deltas = self.compute_deltas(mfcc)
+
+    # compute double deltas [feature x frames]
+    double_deltas = self.compute_deltas(deltas)
+
+    # compute energies [1 x frames]
+    e_mfcc = np.vstack((
+      np.sum(mfcc**2, axis=0) / np.max(np.sum(mfcc**2, axis=0)), 
+      np.sum(deltas**2, axis=0) / np.max(np.sum(deltas**2, axis=0)), 
+      np.sum(double_deltas**2, axis=0) / np.max(np.sum(double_deltas**2, axis=0))
+      ))
+
+    # stack and get best onset
+    mfcc = np.vstack((mfcc, deltas, double_deltas, e_mfcc))
+
+    # find best onset
+    bon_pos = self.find_max_energy_region(mfcc[self.energy_feature_pos, :], self.fs, self.hop)
+
+    # return best onset
+    return mfcc[:, bon_pos:bon_pos+self.frame_size], bon_pos
+
+
 
 def some_test_signal(fs, t=1, f=500, sig_type='modulated', save_to_file=False):
   """
@@ -261,21 +317,8 @@ if __name__ == '__main__':
   
   import yaml
 
-  import sys
-  sys.path.append("../")
-
-  from common import create_folder
-  from feature_extraction import FeatureExtractor
-
-  # plot path
-  #plot_path = './ignore/plots/fe/'
-
-  # create folder
-  #create_folder([plot_path])
-
   # yaml config file
   cfg = yaml.safe_load(open("../config.yaml"))
-
 
   # init feature extractor
   feature_extractor = FeatureExtractor(cfg['feature_params'])

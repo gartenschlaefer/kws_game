@@ -272,45 +272,42 @@ def plot_test_bench_shift(x, y, cmap=None, context='bench-shift', title='shift',
   return fig
 
 
-def plot_wav_grid(wavs, feature_params, grid_size=(8, 8), cmap=None, title='', plot_path=None, name='wav_grid', show_plot=False):
+def plot_wav_grid(wav_info_dicts, feature_params, grid_size=(8, 8), cmap=None, title='', plot_path=None, name='wav_grid', show_plot=False):
   """
-  plot mfcc extracted features from audio file
-  mfcc: [m x l]
+  plot a wav grid 
   """
 
   # shortcuts
-  fs, hop, frame_size = feature_params['fs'], int(feature_params['hop_s'] * feature_params['fs']), feature_params['frame_size']
+  fs, hop = feature_params['fs'], int(feature_params['hop_s'] * feature_params['fs'])
+
+  # frame size
+  frame_size = feature_params['frame_size'] if feature_params['use_mfcc_features'] else feature_params['frame_size_s'] * fs
 
   # time vector
-  t = np.arange(0, len(wavs[0][0])/fs, 1/fs)
+  t = np.arange(0, len(wav_info_dicts[0]['x'])/fs, 1/fs)
 
   # get cmap
   if cmap is None: cmap = get_colormap_from_context(context='wav')
 
   # make a grid
   n_im_rows, n_im_cols, r_space, c_space = 3, 5, 1, 1
-  #n_rows, n_cols = n_im_rows * grid_size[1] + grid_size[1]+1, n_im_cols * grid_size[0] + grid_size[0]+1
   n_rows, n_cols = n_im_rows * grid_size[1] + r_space * grid_size[1] - 1, n_im_cols * grid_size[0] + c_space * grid_size[0] - 1
-  #print("row: {}, col: {}".format(n_rows, n_cols))
 
   # init figure
-  fig = plt.figure(figsize=get_figsize(context='square_big'))
-  gs = plt.GridSpec(n_rows, n_cols, wspace=0.4, hspace=0.3)
+  fig, gs = plt.figure(figsize=get_figsize(context='square_big')), plt.GridSpec(n_rows, n_cols, wspace=0.4, hspace=0.3)
 
-  # layout
+  # overall layout
   plt.title(title), plt.axis('off')
 
   # indices init
   i, j = 0, 0
 
   # mfcc plots
-  for x, y, bon_pos in wavs:
+  for wav_info_dict in wav_info_dicts:
 
     # row start and stop
-    rs = j * n_im_rows + j * r_space
-    re = (j + 1) * n_im_rows + j * r_space
-    cs = i * n_im_cols + i * c_space
-    ce = (i + 1) * n_im_cols + i * c_space
+    rs, re = j * n_im_rows + j * r_space, (j + 1) * n_im_rows + j * r_space
+    cs, ce = i * n_im_cols + i * c_space, (i + 1) * n_im_cols + i * c_space
     #print("rs: {}, re: {}, cs: {}, ce: {}".format(rs, re, cs, ce))
 
     # exception for one row images
@@ -323,25 +320,27 @@ def plot_wav_grid(wavs, feature_params, grid_size=(8, 8), cmap=None, title='', p
     # specify grid pos
     ax = fig.add_subplot(gs[rs:re, cs:ce])
 
-    # wav
+    # wav color
     if cmap is not None: ax.set_prop_cycle('color', cmap)
-    ax.plot(t[:len(x)], x)
+
+    # plot
+    ax.plot(t[:len(wav_info_dict['x'])], wav_info_dict['x'])
 
     # best onset mark
-    if bon_pos is not None:
-      for onset in frames_to_time(np.array([bon_pos, bon_pos+frame_size]), fs, hop): plt.axvline(x=float(onset), dashes=(3, 2), color=get_colormap_from_context(context='wav-hline'), lw=2)
+    if wav_info_dict['bon_pos'] is not None:
+      #for onset in frames_to_time(np.array([wav_info_dict['bon_pos'], wav_info_dict['bon_pos']+frame_size]), fs, hop): plt.axvline(x=float(onset), dashes=(3, 2), color=get_colormap_from_context(context='wav-hline'), lw=2)
+      for onset in np.array([wav_info_dict['bon_pos'], wav_info_dict['bon_pos']+frame_size]) / fs: plt.axvline(x=float(onset), dashes=(3, 2), color=get_colormap_from_context(context='wav-hline'), lw=2)
 
-    ax.set_ylim([-1, 1])
-    ax.axis('off')
-    ax.set_title(y, fontsize=get_fontsize('title'))
+    # layout
+    ax.set_ylim([-1, 1]), ax.axis('off'), ax.set_title(wav_info_dict['y'], fontsize=get_fontsize('title'))
 
   # tight plot
   plt.subplots_adjust(left=0.01, bottom=0.01, right=0.99, top=0.97, wspace=0, hspace=0)
 
   # plot save and show
-  if plot_path is not None: 
-    plt.savefig(plot_path + name + '.png', dpi=150)
+  if plot_path is not None: plt.savefig(plot_path + name + '.png', dpi=150)
 
+  # show plot
   if show_plot: plt.show()
 
 

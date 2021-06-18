@@ -31,9 +31,6 @@ class TestBench():
     self.test_model_path = test_model_path
     self.root_path = root_path
 
-    # shortcuts
-    self.feature_params, self.data_size = None, None
-
     # paths
     self.paths = dict((k, self.root_path + v) for k, v in self.cfg_tb['paths'].items())
 
@@ -63,9 +60,6 @@ class TestBench():
 
     # extract params
     self.nn_arch, self.train_params, self.class_dict = net_params['nn_arch'][()], net_params['train_params'][()], net_params['class_dict'][()]
-
-    # legacy stuff
-    #self.data_size, self.feature_params = self.legacy_adjustments_tb(net_params)
 
     # legacy stuff
     self.data_size, self.feature_params = legacy_adjustments_net_params(net_params)
@@ -166,10 +160,8 @@ class TestBench():
       # print("sigma: ", sigma), print("p_x: ", p_x_eff), print("p_n: ", p_n_eff), print("db: ", 10 * np.log10(p_x_eff / p_n_eff))
 
       # feature extraction
-      #x_mfcc, _ = self.feature_extractor.extract_mfcc(x_noise, reduce_to_best_onset=True)
-
-      # feature extraction
-      x, _ = self.feature_extractor.extract_mfcc(x_noise, reduce_to_best_onset=True) if self.net_handler.nn_arch != 'wavenet' else self.feature_extractor.get_best_raw_samples(x_noise, add_channel_dim=True)
+      #x, _ = self.feature_extractor.extract_mfcc(x_noise, reduce_to_best_onset=True) if self.net_handler.nn_arch != 'wavenet' else self.feature_extractor.get_best_raw_samples(x_noise, add_channel_dim=True)
+      x, _ = self.feature_extractor.extract_features(x_noise)
 
       # classify
       y_hat, o, pred_label = self.net_handler.classify_sample(x)
