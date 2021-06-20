@@ -49,24 +49,20 @@ class FeatureExtractor():
     self.w_f, self.w_mel, self.f, self.m = mel_band_weights(self.feature_params['n_filter_bands'], self.feature_params['fs'], self.N//2+1)
 
 
-  def extract_features(self, x, reduce_to_best_onset=True, randomize_best_onset=False):
+  def extract_features(self, x, reduce_to_best_onset=True, rand_best_onset=False, rand_delta_percs=0.05):
     """
     extract features according to feature params setting (mfcc or raw)
     """
-
-    # extract mfcc or raw
-    x_feature, bon_pos = self.extract_mfcc(x, reduce_to_best_onset=reduce_to_best_onset, randomize_best_onset=randomize_best_onset) if self.feature_params['use_mfcc_features'] else self.extract_raw(x, reduce_to_best_onset=reduce_to_best_onset, randomize_best_onset=randomize_best_onset)
-
-    return x_feature, bon_pos
+    return self.extract_mfcc(x, reduce_to_best_onset=reduce_to_best_onset, rand_best_onset=rand_best_onset, rand_delta_percs=rand_delta_percs) if self.feature_params['use_mfcc_features'] else self.extract_raw(x, reduce_to_best_onset=reduce_to_best_onset, rand_best_onset=rand_best_onset, rand_delta_percs=rand_delta_percs)
 
 
-  def extract_raw(self, x, reduce_to_best_onset=True, randomize_best_onset=False):
+  def extract_raw(self, x, reduce_to_best_onset=True, rand_best_onset=False, rand_delta_percs=0.05):
     """
     extract raw features
     """
 
     # get best onset
-    bon_pos = self.find_max_energy_region(x, window_size=self.raw_frame_size, randomize=randomize_best_onset)
+    bon_pos = self.find_max_energy_region(x, window_size=self.raw_frame_size, rand_best_onset=rand_best_onset, rand_delta_percs=rand_delta_percs)
 
     # some standard wavefile processing
     x_raw = self.pre_processing(x)
@@ -80,7 +76,7 @@ class FeatureExtractor():
     return x_raw, bon_pos
 
 
-  def extract_mfcc(self, x, reduce_to_best_onset=True, randomize_best_onset=False):
+  def extract_mfcc(self, x, reduce_to_best_onset=True, rand_best_onset=False, rand_delta_percs=0.05):
     """
     extract mfcc features fast return [c, m, n], best onset pos
     """
@@ -117,7 +113,7 @@ class FeatureExtractor():
       for i, m in enumerate(mfcc_all[0, :]): mfcc_all[0, i] = (m + np.abs(np.min(m))) / np.linalg.norm(m + np.abs(np.min(m)), ord=np.infty)
 
     # find best onset
-    bon_pos = self.find_max_energy_region(mfcc[self.energy_feature_pos, :], window_size=self.frame_size, randomize=False)
+    bon_pos = self.find_max_energy_region(mfcc[self.energy_feature_pos, :], window_size=self.frame_size, rand_best_onset=rand_best_onset, rand_delta_percs=rand_delta_percs)
 
     # return best onset
     if reduce_to_best_onset: return mfcc_all[:, :, bon_pos:bon_pos+self.frame_size], bon_pos
@@ -125,7 +121,7 @@ class FeatureExtractor():
     return mfcc_all, bon_pos
 
 
-  def find_max_energy_region(self, x, window_size, randomize=False):
+  def find_max_energy_region(self, x, window_size, rand_best_onset=False, rand_delta_percs=0.05):
     """
     find frame with least amount of energy
     """
@@ -137,10 +133,10 @@ class FeatureExtractor():
     bon_pos = np.argmax(np.sum(e_win, axis=1))
 
     # randomize a bit
-    if randomize:
+    if rand_best_onset:
 
       # determine random spread with percent of window size
-      rand_delta = int(np.ceil(window_size * self.feature_params['rand_delta_window_percs']))
+      rand_delta = int(np.ceil(window_size * rand_delta_percs))
 
       # change best onset position
       bon_pos += np.random.randint(-rand_delta, rand_delta)

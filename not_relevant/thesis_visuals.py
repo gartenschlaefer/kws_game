@@ -153,7 +153,7 @@ def feature_selection_tables(overwrite=False):
     tables = lt_maker.extract_table(out_file=out_file, caption=get_thesis_table_captions(in_file))
 
 
-def audio_set_wavs(cfg):
+def audio_set_wavs(cfg, wav_grid_plot=False):
   """
   audio set wavs
   """
@@ -161,39 +161,23 @@ def audio_set_wavs(cfg):
   # plot path
   plot_path = '../docu/thesis/5_exp/figs/'
 
-  # audio sets
-  a1 = AudioDataset(cfg['datasets']['speech_commands'], cfg['feature_params'], root_path='../')
-  a2 = AudioDataset(cfg['datasets']['my_recordings'], cfg['feature_params'], root_path='../')
-
-  # feature extractor
-  feature_extractor = FeatureExtractor(cfg['feature_params'])
+  # audioset init
+  audio_set1 = AudioDataset(cfg['datasets']['speech_commands'], feature_params=cfg['feature_params'], root_path='../')
+  audio_set2 = AudioDataset(cfg['datasets']['my_recordings'], feature_params=cfg['feature_params'], root_path='../')
 
   # get audio files
-  a1.get_audiofiles()
+  audio_set1.get_audiofiles()
+  audio_set2.get_audiofiles()
 
-  # random seed
-  np.random.seed(1234)
-  r = np.random.randint(low=0, high=150, size=len(a1.set_audio_files[1]))
-
-  wav_grid = []
-
-  # process wavs
-  for wav in sorted([label_wavs[r[i]] for i, label_wavs in enumerate(a1.set_audio_files[1])]):
-
-    # info
-    print("wav: ", wav)
-
-    # get raw
-    x, _ = a1.wav_pre_processing(wav)
-
-    # extract feature vectors [m x l]
-    _, bon_pos = feature_extractor.extract_mfcc(x, reduce_to_best_onset=False)
-
-    # append to wav grid
-    wav_grid.append((librosa.util.normalize(x), re.sub(r'[0-9]+-', '', wav.split('/')[-1].split('.')[0]), bon_pos))
+  # analyze
+  audio_set1.analyze_damaged_files()
 
   # plot wav grid
-  plot_wav_grid(wav_grid, feature_params=a1.feature_params, grid_size=(6, 5), plot_path=plot_path, name='wav_grid_c30', show_plot=True)
+  if wav_grid_plot: plot_wav_grid(audio_set1.extract_wav_examples(set_name='test', n_examples=1, from_selected_labels=False), feature_params=audio_set1.feature_params, grid_size=(6, 6), plot_path=plot_path, name='exp_dataset_wav_grid_speech_commands_v2', show_plot=True)
+  if wav_grid_plot: plot_wav_grid(audio_set2.extract_wav_examples(set_name='my', n_examples=5), feature_params=audio_set2.feature_params, grid_size=(5, 5), plot_path=plot_path, name='exp_dataset_wav_grid_my', show_plot=True)
+
+  # statistics from files
+  # ToDo
 
 
 
@@ -212,12 +196,12 @@ if __name__ == '__main__':
 
   # showcase wavs
   #showcase_wavs(cfg, raw_plot=True, spec_plot=True, mfcc_plot=True, show_plot=False)
-  showcase_wavs(cfg, raw_plot=False, spec_plot=False, mfcc_plot=True, show_plot=True)
+  #showcase_wavs(cfg, raw_plot=False, spec_plot=False, mfcc_plot=True, show_plot=True)
 
   # feature selection tables
   #feature_selection_tables(overwrite=True)
 
   # audio set wavs
-  #audio_set_wavs(cfg)
+  audio_set_wavs(cfg, wav_grid_plot=False)
 
 

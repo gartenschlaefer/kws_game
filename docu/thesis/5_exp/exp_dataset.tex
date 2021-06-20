@@ -62,12 +62,12 @@ However some cleanu up of the dataset was still done as described in...
 The speech command dataset exists in two versions (\texttt{v0.01} and \texttt{v0.02}), the first one was published in 2017 and the second one emerged as improved version of \texttt{v0.01} with more key words, examples and quality in 2018.
 In this thesis, the experiments are done on the second version \texttt{v0.02}.
 
-Some examples of the speech command dataset in raw audio format are shown in \rfig{exp_dataset_wav_grid_c30} and give a small glimpse on the quality of the recordings.
+Some examples of the speech command dataset in raw audio format are shown in \rfig{exp_dataset_wav_grid_speech_commands_v2} and give a small glimpse on the quality of the recordings.
 \begin{figure}[!ht]
   \centering
-    \includegraphics[width=0.65\textwidth]{./5_exp/figs/exp_dataset_wav_grid_c30}
+    \includegraphics[width=0.65\textwidth]{./5_exp/figs/exp_dataset_wav_grid_speech_commands_v2}
   \caption{One random sample of each individual speech command in the speech command dataset in normalized raw audio format.}
-  \label{fig:exp_dataset_wav_grid_c30}
+  \label{fig:exp_dataset_wav_grid_speech_commands_v2}
 \end{figure}
 \FloatBarrier
 \noindent
@@ -76,7 +76,7 @@ Some examples of the speech command dataset in raw audio format are shown in \rf
 \subsubsection{Dataset Structure}
 The speech command examples are stored in separate folders, named after each individual speech command, in the \texttt{.wav} format.
 The folder named as \texttt{\_background\_noise\_} contains six different background noise files, such as \texttt{white\_noise.wav} or \texttt{doing\_the\_dishes.wav}, with a duration of more than one minute each.
-Noise examples with a new noise label named \texttt{_noise} were extracted from those background noise files with a \SI{1}{\second} window shifted by \SI{0.2}{\second}.
+Noise examples with a new noise label named \texttt{\_noise} were extracted from those background noise files with a \SI{1}{\second} window shifted by \SI{0.2}{\second}.
 
 Each waveform file is named with an 8-digit hexadecimal hash code for the speaker identification, followed by the utterance number, for instance \texttt{3b4f8f24\_nohash\_0.wav}.
 Therefore it is possible to distinguish between different speakers, however as mentioned above, no further information about the speaker is given due to data privacy issues.
@@ -104,4 +104,27 @@ The examples per word are spoken with different emphasis and stress on individua
 Also the prolongation of the words are different, that in one example the word is fast and in the other its slow spoken.
 The emphasis and prolongation ensure the diversity of the dataset. 
 It turned out that it is not easy for neural networks to gain a $100\%$ classification score upon it, even though there is only one and the same speaker.
+
+
+% --
+% preparation for neural networks
+
+\subsection{Data preparation for neural networks}\label{sec:exp_data_prep}
+The neural networks architectures are trained with supervised learning that means a class label $y_i$ for each data example $x_i$ must exist to form a a dataset $S$ such as:
+\begin{equation}\label{eq:exp_dataset}
+  S = \{ (x_i, y_i) | i = 0 \dots n \}
+\end{equation}
+where $n$ is the total number of examples within the dataset.
+
+It was already shown how it is possible to extract MFCC features in \rsec{signal_mfcc}, however it is important that each individual $x_i$ for all $i$ has the same dimension.
+It could happen that the sample numbers of the waveform files are inconsistent and therefore yield different dimension for different $x_i$.
+To ensure the same dimension for each $x_i$ the audiofiles were adjusted to have the same sample numbers of \SI{1}{\second} with sampling frequency \SI{16}{\kilo\hertz}.
+This was done by simply zero-padding the signals to the desired length of 16000 samples.
+Further some dither noise was added, so that neural networks are not confused when seeing pure zeros emerging from the data examples.
+The dithering is Gaussian additive noise as describes:
+\begin{equation}\label{eq:exp_dither}
+  x = \tilde{x} + v, \quad v = \mathcal{N}(\mu, \sigma) * \tilde{x}_{quant}, \quad \mu, \sigma = 0, 0.5
+\end{equation}
+where $\mathcal{N}$ is the normal distribution, $\tilde{x}$ the zero-padded signal (if the sample numbers were incorrect) and $\tilde{x}_{quant}$ the quantization error, corresponding to the minimal absolute value of all samples of $\tilde{x}$ except the pure zero entries.
+When applying the dithering the signal has no pure zeros anymore and it is not altered much from the origin.
 

@@ -18,7 +18,6 @@ def legacy_adjustments_feature_params(feature_params):
   if 'use_delta_features' not in feature_params.keys(): feature_params.update({'use_delta_features': True})
   if 'use_double_delta_features' not in feature_params.keys(): feature_params.update({'use_double_delta_features': True})
   if 'use_energy_features' not in feature_params.keys(): feature_params.update({'use_energy_features': True})
-  if 'rand_delta_window_percs' not in feature_params.keys(): feature_params.update({'rand_delta_window_percs': 0.05})
 
   # old mfcc stuff, replace with new ones
   if 'compute_deltas' in feature_params.keys(): feature_params.update({'use_delta_features': feature_params['compute_deltas'], 'use_double_delta_features': feature_params['compute_deltas']})

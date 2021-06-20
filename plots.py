@@ -280,9 +280,6 @@ def plot_wav_grid(wav_info_dicts, feature_params, grid_size=(8, 8), cmap=None, t
   # shortcuts
   fs, hop = feature_params['fs'], int(feature_params['hop_s'] * feature_params['fs'])
 
-  # frame size
-  frame_size = feature_params['frame_size'] if feature_params['use_mfcc_features'] else feature_params['frame_size_s'] * fs
-
   # time vector
   t = np.arange(0, len(wav_info_dicts[0]['x'])/fs, 1/fs)
 
@@ -299,7 +296,7 @@ def plot_wav_grid(wav_info_dicts, feature_params, grid_size=(8, 8), cmap=None, t
   # overall layout
   plt.title(title), plt.axis('off')
 
-  # indices init
+  # init indices
   i, j = 0, 0
 
   # mfcc plots
@@ -328,8 +325,7 @@ def plot_wav_grid(wav_info_dicts, feature_params, grid_size=(8, 8), cmap=None, t
 
     # best onset mark
     if wav_info_dict['bon_pos'] is not None:
-      #for onset in frames_to_time(np.array([wav_info_dict['bon_pos'], wav_info_dict['bon_pos']+frame_size]), fs, hop): plt.axvline(x=float(onset), dashes=(3, 2), color=get_colormap_from_context(context='wav-hline'), lw=2)
-      for onset in np.array([wav_info_dict['bon_pos'], wav_info_dict['bon_pos']+frame_size]) / fs: plt.axvline(x=float(onset), dashes=(3, 2), color=get_colormap_from_context(context='wav-hline'), lw=2)
+      for onset in np.array([wav_info_dict['bon_pos'] / fs, wav_info_dict['bon_pos'] / fs + feature_params['frame_size_s']]): plt.axvline(x=float(onset), dashes=(3, 2), color=get_colormap_from_context(context='wav-hline'), lw=2)
 
     # layout
     ax.set_ylim([-1, 1]), ax.axis('off'), ax.set_title(wav_info_dict['y'], fontsize=get_fontsize('title'))
@@ -346,8 +342,7 @@ def plot_wav_grid(wav_info_dicts, feature_params, grid_size=(8, 8), cmap=None, t
 
 def plot_other_grid(x, grid_size=(8, 8), title='grid1', plot_path=None, name='grid1', show_plot=False):
   """
-  plot mfcc extracted features from audio file
-  mfcc: [m x l]
+  plot grid
   """
 
   # make a grid
@@ -359,6 +354,7 @@ def plot_other_grid(x, grid_size=(8, 8), title='grid1', plot_path=None, name='gr
   plt.title(title)
   plt.axis("off")
 
+  # init indices
   i, j = 0, 0
 
   # mfcc plots
@@ -385,10 +381,9 @@ def plot_other_grid(x, grid_size=(8, 8), title='grid1', plot_path=None, name='gr
     ax.axis("off")
 
   # plot save and show
-  if plot_path is not None: 
-    plt.savefig(plot_path + name + '.png', dpi=150)
-    plt.close()
+  if plot_path is not None: plt.savefig(plot_path + name + '.png', dpi=150)
 
+  # show plot
   if show_plot: plt.show()
 
 
@@ -488,14 +483,10 @@ def plot_grid_images(x, padding=1, num_cols=8, cmap=None, context='none', color_
   return fig
 
 
-def plot_damaged_file_score(z, plot_path=None, name='z_score', enable_plot=False):
+def plot_damaged_file_score(z, plot_path=None, name='z_score', show_plot=False):
   """
   damaged file score
   """
-
-  # no plot generation
-  if plot_path is None or enable_plot is False:
-    return
 
   # setup figure
   fig = plt.figure(figsize=get_figsize('half'))
@@ -505,9 +496,10 @@ def plot_damaged_file_score(z, plot_path=None, name='z_score', enable_plot=False
   plt.grid()
 
   # plot the fig
-  if plot_path is not None:
-    plt.savefig(plot_path + name + '.png', dpi=150)
-    plt.close()
+  if plot_path is not None: plt.savefig(plot_path + name + '.png', dpi=150)
+
+  # show plot
+  if show_plot: plt.show()
 
 
 def plot_waveform(x, fs, e=None, anno_file=None, bon_samples=None, hop=None, onset_frames=None, y_ax_balance=True, cmap=None, title='', xlim=None, ylim=None, plot_path=None, name='None', show_plot=False, close_plot=False):

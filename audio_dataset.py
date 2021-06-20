@@ -31,17 +31,16 @@ class AudioDataset():
     self.feature_params = feature_params
     self.root_path = root_path
 
-    # channel size
+    # data sizes
     self.channel_size = 1 if not self.feature_params['use_channels'] or not self.feature_params['use_mfcc_features'] else int(self.feature_params['use_cepstral_features']) + int(self.feature_params['use_delta_features']) +  int(self.feature_params['use_double_delta_features'])
-
-    # feature size
     self.feature_size = (self.feature_params['n_ceps_coeff'] + int(self.feature_params['use_energy_features'])) * int(self.feature_params['use_cepstral_features']) + (self.feature_params['n_ceps_coeff'] + int(self.feature_params['use_energy_features'])) * int(self.feature_params['use_delta_features']) + (self.feature_params['n_ceps_coeff'] + int(self.feature_params['use_energy_features'])) * int(self.feature_params['use_double_delta_features']) if not self.feature_params['use_channels'] else (self.feature_params['n_ceps_coeff'] + int(self.feature_params['use_energy_features']))
-    
-    # frame size
     self.frame_size = self.feature_params['frame_size']
-
-    # raw frame size for raw inputs in samples
     self.raw_frame_size = int(self.feature_params['frame_size_s'] * self.feature_params['fs'])
+
+    # feature extractor
+    self.feature_extractor = FeatureExtractor(feature_params=self.feature_params)
+    self.N = self.feature_extractor.N
+    self.hop = self.feature_extractor.hop
 
     # variables
     self.sel_labels = self.cfg_dataset['sel_labels']
@@ -71,7 +70,7 @@ class AudioDataset():
     self.plot_paths = {k: self.extraction_path + v for k, v in self.cfg_dataset['plot_paths'].items()}
 
     # parameter path
-    self.param_path = 'v{}_c{}n{}m{}_n-{}'.format(self.cfg_dataset['version_nr'], len(self.sel_labels), int(self.cfg_dataset['add_noise']), int(self.cfg_dataset['add_mixed']), self.cfg_dataset['n_examples'])
+    self.param_path = 'v{}_c{}n{}m{}_n-{}_r{}-{}'.format(self.cfg_dataset['version_nr'], len(self.sel_labels), int(self.cfg_dataset['add_noise']), int(self.cfg_dataset['add_mixed']), self.cfg_dataset['n_examples'], int(self.cfg_dataset['rand_best_onset']), int(self.cfg_dataset['rand_delta_percs'] * 100))
     self.param_path += '_mfcc{}-{}_c{}d{}d{}e{}_norm{}_f-{}x{}x{}/'.format(self.feature_params['n_filter_bands'], self.feature_params['n_ceps_coeff'], int(self.feature_params['use_cepstral_features']), int(self.feature_params['use_delta_features']), int(self.feature_params['use_double_delta_features']), int(self.feature_params['use_energy_features']), int(self.feature_params['norm_features']), self.channel_size, self.feature_size, self.frame_size) if self.feature_params['use_mfcc_features'] else '_raw/'
 
     # folders
@@ -82,18 +81,13 @@ class AudioDataset():
     # feature files
     self.feature_file_dict = {k: v + '{}.npz'.format(self.cfg_dataset['mfcc_feature_file_name']) for k, v in self.feature_folder_dict.items()} if self.feature_params['use_mfcc_features'] else {k: v + '{}.npz'.format(self.cfg_dataset['raw_feature_file_name']) for k, v in self.feature_folder_dict.items()}
 
-    # some file lists
-    self.short_file_list,  self.damaged_file_list, self.damaged_score_list,  = [], [], []
-    self.weak_file_list, self.strong_file_list = [], []
 
     # statistics dict
-    self.stats_file_dict = {'sample_num': [], 'energy': []}
+    self.stats_dict = {'sample_num': [], 'energy': [], 'damaged_score': []}
 
-    # info files
-    self.info_file_damaged = self.plot_paths['stats'] + 'info_damaged_file_list_n-{}.txt'.format(self.cfg_dataset['n_examples'])
-    self.info_file_short = self.plot_paths['stats'] + 'info_short_file_list_n-{}.txt'.format(self.cfg_dataset['n_examples'])
-    self.info_file_weak = self.plot_paths['stats'] + 'info_weak_file_list_n-{}.txt'.format(self.cfg_dataset['n_examples'])
-    self.info_file_strong = self.plot_paths['stats'] + 'info_strong_file_list_n-{}.txt'.format(self.cfg_dataset['n_examples'])
+    # info file dict
+    self.info_file_dict = {'damaged': [], 'short': [], 'weak': [], 'strong': []}
+
 
     # ignore list for damaged files
     try:
@@ -165,6 +159,23 @@ class AudioDataset():
       sys.exit()
 
     return label_files
+
+
+  def extract_wav_examples(self, set_name, n_examples, from_selected_labels=True):
+    """
+    extract some wavs for evaluation
+    """
+
+    # init info dicts
+    info_dicts = []
+
+    # each label
+    for label, wavs in self.sel_label_file_dict[set_name].items() if from_selected_labels else self.all_label_file_dict.items():
+
+      # add info dicts
+      info_dicts += [{'y': label, 'x': np.squeeze(x), 'bon_pos': bon_pos} for x, bon_pos in [self.feature_extractor.extract_raw(self.wav_pre_processing(wav)[0], reduce_to_best_onset=False) for i, wav in zip(range(n_examples), wavs if from_selected_labels else (wavs[set_name] if len(wavs.keys()) else []))]]
+
+    return info_dicts
 
 
   def get_annotation_files(self):
@@ -240,8 +251,8 @@ class AudioDataset():
     e = x_raw @ x_raw.T
 
     # save amount of samples
-    self.stats_file_dict['sample_num'].append(len(x_raw))
-    self.stats_file_dict['energy'].append(e)
+    self.stats_dict['sample_num'].append(len(x_raw))
+    self.stats_dict['energy'].append(e)
 
     # too short flag
     is_too_short = len(x_raw) < self.cfg_dataset['sample_num_mininmal']
@@ -249,9 +260,9 @@ class AudioDataset():
     is_too_strong = e > 1000.0
 
     # too short
-    if is_too_short: self.short_file_list.append((wav, len(x_raw)))
-    if is_too_weak: self.weak_file_list.append((wav, e))
-    if is_too_strong: self.strong_file_list.append((wav, e))
+    if is_too_short: self.info_file_dict['short'].append((wav, len(x_raw)))
+    if is_too_weak: self.info_file_dict['weak'].append((wav, e))
+    if is_too_strong: self.info_file_dict['strong'].append((wav, e))
 
     # check sample lengths
     if len(x_raw) < self.cfg_dataset['sample_num_normal']:
@@ -271,14 +282,14 @@ class AudioDataset():
     """
 
     # histogram
-    if len(self.stats_file_dict['energy']): plot_histogram(self.stats_file_dict['energy'], bins=np.logspace(np.log10(0.0001),np.log10(10000), 50), y_log_scale=True, x_log_scale=True, context='None', title='Energy', plot_path=self.plot_paths['stats'], name='energy_hist_n-{}'.format(self.cfg_dataset['n_examples']))
-    if len(self.stats_file_dict['sample_num']): plot_histogram(self.stats_file_dict['sample_num'], bins=20, y_log_scale=True, context='None', title='Num Samples', plot_path=self.plot_paths['stats'], name='num_sample_hist_n-{}'.format(self.cfg_dataset['n_examples']))
-    if len(self.damaged_score_list): plot_histogram(self.damaged_score_list, bins=50, y_log_scale=True, context='None', title='Damaged Score', plot_path=self.plot_paths['stats'], name='z_score_hist_n-{}'.format(self.cfg_dataset['n_examples']))
+    if len(self.stats_dict['energy']): plot_histogram(self.stats_dict['energy'], bins=np.logspace(np.log10(0.0001),np.log10(10000), 50), y_log_scale=True, x_log_scale=True, context='None', title='Energy', plot_path=self.plot_paths['stats'], name='energy_hist_n-{}'.format(self.cfg_dataset['n_examples']))
+    if len(self.stats_dict['sample_num']): plot_histogram(self.stats_dict['sample_num'], bins=20, y_log_scale=True, context='None', title='Num Samples', plot_path=self.plot_paths['stats'], name='num_sample_hist_n-{}'.format(self.cfg_dataset['n_examples']))
+    if len(self.stats_dict['damaged_score']): plot_histogram(self.stats_dict['damaged_score'], bins=50, y_log_scale=True, context='None', title='Damaged Score', plot_path=self.plot_paths['stats'], name='z_score_hist_n-{}'.format(self.cfg_dataset['n_examples']))
 
     print("\n--Analyze damaged files of ", self.__class__.__name__)
-    print("too short files num: {}".format(len(self.short_file_list)))
-    print("too weak files num: {}".format(len(self.weak_file_list)))
-    print("damaged files num: {}".format(len(self.damaged_file_list)))
+    print("too short files num: {}".format(len(self.info_file_dict['short'])))
+    print("too weak files num: {}".format(len(self.info_file_dict['weak'])))
+    print("damaged files num: {}".format(len(self.info_file_dict['damaged'])))
 
     # all audio files speakers
     if self.__class__.__name__ == 'SpeechCommandsDataset':
@@ -301,16 +312,22 @@ class AudioDataset():
       print("all labels: ", self.all_labels), print("number of audio files: ", len(all_speakers_files)), print("speakers: ", all_speakers), print("number of speakers: ", len(all_speakers))
 
       # save damaged files
-      for wav, score in self.damaged_file_list: copyfile(wav, self.plot_paths['damaged_files'] + wav.split('/')[-1])
-    
-      # prints to files
-      with open(self.info_file_damaged, 'w') as f: [print(i, file=f) for i in self.damaged_file_list]
-      with open(self.info_file_short, 'w') as f: [print(i, file=f) for i in self.short_file_list]
-      with open(self.info_file_weak, 'w') as f: [print(i, file=f) for i in self.weak_file_list]
-      with open(self.info_file_strong, 'w') as f: [print(i, file=f) for i in self.strong_file_list]
+      for wav, score in self.info_file_dict['damaged']: copyfile(wav, self.plot_paths['damaged_files'] + wav.split('/')[-1])
+
+      # info files
+      for k, info_list in self.info_file_dict.items():
+
+        # skip if empty
+        if not len(info_list): continue
+
+        # file name
+        file_name = self.plot_paths['stats'] + 'info_file_list_n-{}_{}.txt'.format(self.cfg_dataset['n_examples'], k)
+
+        # write file
+        with open(file_name, 'w') as f: [print(i, file=f) for i in info_list]
 
     # broken file info
-    plot_damaged_file_score(self.damaged_score_list, plot_path=self.plot_paths['stats'], name='z_score_n-{}'.format(self.cfg_dataset['n_examples']), enable_plot=True)
+    plot_damaged_file_score(self.stats_dict['damaged_score'], plot_path=self.plot_paths['stats'], name='z_score_n-{}'.format(self.cfg_dataset['n_examples']))
 
 
   def file_naming_extraction(self, audio_file, file_ext='.wav'):
@@ -367,13 +384,6 @@ class SpeechCommandsDataset(AudioDataset):
 
     # parent init
     super().__init__(cfg_dataset, feature_params)
-
-    # feature extractor
-    self.feature_extractor = FeatureExtractor(feature_params=self.feature_params)
-
-    # short vars
-    self.N = self.feature_extractor.N
-    self.hop = self.feature_extractor.hop
 
     # create plot plaths if not already exists
     create_folder(list(self.plot_paths.values()))
@@ -557,7 +567,7 @@ class SpeechCommandsDataset(AudioDataset):
         if self.cfg_dataset['verbose']: print("wav: [{}] with label: [{}], samples=[{}], time=[{}]s".format(wav, label, len(x), len(x) / self.feature_params['fs']))
 
         # extract features
-        x_feature, bon_pos = self.feature_extractor.extract_features(x, reduce_to_best_onset=False)
+        x_feature, bon_pos = self.feature_extractor.extract_features(x, reduce_to_best_onset=False, rand_best_onset=self.cfg_dataset['rand_best_onset'], rand_delta_percs=self.cfg_dataset['rand_delta_percs'])
 
         # quantize data (only for raw features)
         t = self.feature_extractor.quantize(np.squeeze(x_feature)[bon_pos:bon_pos+self.raw_frame_size]) if not self.feature_params['use_mfcc_features'] else None
@@ -591,23 +601,6 @@ class SpeechCommandsDataset(AudioDataset):
     return x_data, y_data, t_data, z_data
 
 
-  def extract_wav_examples(self, set_name, n_examples):
-    """
-    extract some wavs for evaluation
-    """
-
-    # init info dicts
-    info_dicts = []
-
-    # each label
-    for label, wavs in self.sel_label_file_dict[set_name].items():
-
-      # add info dicts
-      info_dicts += [{'y': label, 'x': np.squeeze(x), 'bon_pos': bon_pos} for x, bon_pos in [self.feature_extractor.extract_raw(self.wav_pre_processing(wav)[0], reduce_to_best_onset=False, randomize_best_onset=False) for i, wav in zip(range(n_examples), wavs)]]
-
-    return info_dicts
-
-
   def detect_damaged_file(self, mfcc, wav):
     """
     detect if file is damaged
@@ -631,13 +624,13 @@ class SpeechCommandsDataset(AudioDataset):
     else: z_est, z_lim = mfcc[0, 0, :-1] @ np.abs(np.diff(mfcc[0, 0, :])).T, 3.5
 
     # add score to list
-    self.damaged_score_list.append(z_est)
+    self.stats_dict['damaged_score'].append(z_est)
 
     # damaged file
     is_damaged = z_est > z_lim
 
     # add to damaged file list
-    if is_damaged: self.damaged_file_list.append((wav, z_est))
+    if is_damaged: self.info_file_dict['damaged'].append((wav, z_est))
 
     # return score and damaged indicator
     return is_damaged
@@ -648,12 +641,6 @@ class MyRecordingsDataset(SpeechCommandsDataset):
   """
   Speech Commands Dataset extraction and set creation
   """
-
-  def __init__(self, cfg_dataset, feature_params):
-
-    # parent init
-    super().__init__(cfg_dataset, feature_params)
-
 
   def create_sets(self):
     """
@@ -746,8 +733,10 @@ class MyRecordingsDataset(SpeechCommandsDataset):
     # onset index
     oi = 0
 
+    # check all onsets
     for i, onset in enumerate(onsets):
 
+      # cut accordingly
       if onset:
         x_cut[oi, :] = x[i*self.hop-pre:i*self.hop+post]
         oi += 1

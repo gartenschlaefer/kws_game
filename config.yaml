@@ -70,7 +70,7 @@ datasets:
     enable_plot: False
 
     # recreate all datasets (copy wavs to data_paths - not necessary except the dataset is changed)
-    recreate: True
+    recreate: False
     clean_files: False
 
     # v1 all labels
@@ -116,8 +116,11 @@ datasets:
     # filter damaged files
     filter_damaged_files: False
 
-    # randomize best onsets
-    randomize_best_onset: False
+    # flag for enabling randomize best onsets from find highes energy region
+    rand_best_onset: False
+
+    # if randomize best onsets set in dataset, specify spread in percent of window size
+    rand_delta_percs: 0.05
 
     # verbose: plot infos during extraction
     verbose: False
@@ -202,8 +205,11 @@ datasets:
     # filter damaged files
     filter_damaged_files: False
 
-    # randomize best onsets
-    randomize_best_onset: False
+    # flag for enabling randomize best onsets from find highes energy region
+    rand_best_onset: False
+
+    # if randomize best onsets set in dataset, specify spread in percent of window size
+    rand_delta_percs: 0.05
 
     # verbose: plot infos during extraction
     verbose: True
@@ -248,9 +254,6 @@ feature_params:
   use_delta_features: False
   use_double_delta_features: False
   use_energy_features: False
-
-  # if randomize best onsets set in dataset, specify spread in percent of window size
-  rand_delta_window_percs: 0.05
 
 
 # --
