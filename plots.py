@@ -152,7 +152,7 @@ def plot_mfcc_anim(x, cmap=None, plot_path=None, name='mfcc-anim'):
   plt.show()
 
 
-def plot_histogram(x, bins=None, color=None, y_log_scale=False, x_log_scale=False, context='None', title='', plot_path=None, name='hist', show_plot=False):
+def plot_histogram(x, bins=None, color=None, y_log_scale=False, x_log_scale=False, x_label='', y_label='', title='', plot_path=None, name='hist', show_plot=False):
   """
   histogram plot
   """
@@ -167,7 +167,8 @@ def plot_histogram(x, bins=None, color=None, y_log_scale=False, x_log_scale=Fals
   im = plt.hist(x, bins=bins, color=color)
 
   # layout
-  #plt.grid()
+  plt.title(title, fontsize=get_fontsize('title')), plt.xlabel(x_label, fontsize=get_fontsize('axis_label')), plt.ylabel(y_label, fontsize=get_fontsize('axis_label'))
+  plt.grid()
 
   if y_log_scale: plt.yscale('log')
   if x_log_scale: plt.xscale('log')
@@ -1021,8 +1022,7 @@ def plot_mfcc_only(mfcc, fs=16000, hop=160, cmap=None, context='mfcc', plot_path
     # some labels
     ax.set_title(titles[i])
     ax.set_ylabel("cepstrum coeff")
-    if i == len(sel_coefs) - 1:
-      ax.set_xlabel("time [s]")
+    if i == len(sel_coefs) - 1: ax.set_xlabel("time [s]")
     ax.set_xlim(left=0)
 
     # add colorbar

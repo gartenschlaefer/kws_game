@@ -83,7 +83,7 @@ class AudioDataset():
 
 
     # statistics dict
-    self.stats_dict = {'sample_num': [], 'energy': [], 'damaged_score': []}
+    self.stats_dict = {'all_extracted_wavs': [], 'sample_num': [], 'energy': [], 'damaged_score': []}
 
     # info file dict
     self.info_file_dict = {'damaged': [], 'short': [], 'weak': [], 'strong': []}
@@ -109,6 +109,13 @@ class AudioDataset():
     extract features from dataset
     """
     pass
+
+
+  def reset_statistics(self):
+    """
+    reset statistics
+    """
+    self.stats_dict, self.info_file_dict = {k: [] for k in self.stats_dict.keys()}, {k: [] for k in self.info_file_dict.keys()}
 
 
   def get_audiofiles(self):
@@ -248,9 +255,10 @@ class AudioDataset():
     x_raw, fs = librosa.load(wav, sr=self.feature_params['fs'])
 
     # energy of raw audio
-    e = x_raw @ x_raw.T
+    e = (x_raw @ x_raw.T) / len(x_raw)
 
-    # save amount of samples
+    # save some stats
+    self.stats_dict['all_extracted_wavs'].append(wav)
     self.stats_dict['sample_num'].append(len(x_raw))
     self.stats_dict['energy'].append(e)
 
@@ -273,61 +281,99 @@ class AudioDataset():
       # append with zeros
       x_raw = np.append(x_raw, np.zeros(self.cfg_dataset['sample_num_normal'] - len(x_raw)))
 
-    return x_raw, is_too_weak
+    # what makes the wav useless
+    wav_is_useless = is_too_weak
+
+    return x_raw, wav_is_useless
 
 
-  def analyze_damaged_files(self):
+  def analyze_dataset_extraction(self, calculate_overall_stats=False):
     """
     analyze damaged files
     """
 
+    # plot statistics if available
+    if any(self.stats_dict.keys()): self.plot_statistics(file_ext='_extracted_n-{}'.format(self.cfg_dataset['n_examples']))
+
+    # get speaker infos
+    all_speakers_files, all_speakers = self.get_speaker_infos(self.stats_dict['all_extracted_wavs'])
+
+    # print info
+    print("all labels: ", self.all_labels), print("number of files: ", len(all_speakers_files)), print("speakers: ", all_speakers), print("number of speakers: ", len(all_speakers))
+
+
+    # save some energy
+    if not calculate_overall_stats: return
+
+    # all wavs
+    all_wavs = np.concatenate(np.concatenate(np.array([list(set_dict.values()) for set_dict in [self.all_label_file_dict[l] for l in self.all_labels if l != self.cfg_dataset['noise_label'] and l != self.cfg_dataset['mixed_label']]], dtype='object')))
+
+    # get speaker infos
+    all_speakers_files, all_speakers = self.get_speaker_infos(all_wavs)
+
+    # print info
+    print("all labels: ", self.all_labels), print("number of files: ", len(all_speakers_files)), print("speakers: ", all_speakers), print("number of speakers: ", len(all_speakers))
+
+    # reset statistics
+    self.reset_statistics()
+
+    # info message
+    print("\ncompute overall stats for ", self.__class__.__name__)
+
+    # compute all wavs in dataset
+    for wav in all_wavs: self.wav_pre_processing(wav)
+
+    # plot overall stats
+    self.plot_statistics(file_ext='_overall')
+
+
+  def get_speaker_infos(self, wavs):
+    """
+    speaker infos of all files
+    """
+
+    # extract speaker info
+    all_speakers_files = [re.sub(r'^.*(?=--)|(_nohash_[0-9]+.wav)|(--)', '', i) for i in wavs]
+    
+    # get all unique speakers
+    all_speakers = np.unique(all_speakers_files)
+
+    return all_speakers_files, all_speakers
+
+
+  def plot_statistics(self, plot_path=None, file_ext=''):
+    """
+    plot statistics
+    """
+
+    if plot_path is None: plot_path = self.plot_paths['stats']
+
     # histogram
-    if len(self.stats_dict['energy']): plot_histogram(self.stats_dict['energy'], bins=np.logspace(np.log10(0.0001),np.log10(10000), 50), y_log_scale=True, x_log_scale=True, context='None', title='Energy', plot_path=self.plot_paths['stats'], name='energy_hist_n-{}'.format(self.cfg_dataset['n_examples']))
-    if len(self.stats_dict['sample_num']): plot_histogram(self.stats_dict['sample_num'], bins=20, y_log_scale=True, context='None', title='Num Samples', plot_path=self.plot_paths['stats'], name='num_sample_hist_n-{}'.format(self.cfg_dataset['n_examples']))
-    if len(self.stats_dict['damaged_score']): plot_histogram(self.stats_dict['damaged_score'], bins=50, y_log_scale=True, context='None', title='Damaged Score', plot_path=self.plot_paths['stats'], name='z_score_hist_n-{}'.format(self.cfg_dataset['n_examples']))
+    if len(self.stats_dict['energy']): plot_histogram(self.stats_dict['energy'], bins=np.logspace(np.log10(0.0001),np.log10(10000), 50), y_log_scale=True, x_log_scale=True, x_label='energy values', y_label='counts', plot_path=plot_path, name='energy_hist' + file_ext)
+    if len(self.stats_dict['sample_num']): plot_histogram(self.stats_dict['sample_num'], bins=20, y_log_scale=True, x_label='sample numbers', y_label='counts', plot_path=plot_path, name='num_sample_hist' + file_ext)
+    if len(self.stats_dict['damaged_score']): plot_histogram(self.stats_dict['damaged_score'], bins=50, y_log_scale=True, x_label='damaged score', y_label='counts', plot_path=plot_path, name='damaged_score_hist' + file_ext)
 
+    # damaged file score 2d plot
+    if len(self.stats_dict['damaged_score']): plot_damaged_file_score(self.stats_dict['damaged_score'], plot_path=self.plot_paths['stats'], name='damaged_score_hist' + file_ext)
+
+    # some info prints
     print("\n--Analyze damaged files of ", self.__class__.__name__)
-    print("too short files num: {}".format(len(self.info_file_dict['short'])))
-    print("too weak files num: {}".format(len(self.info_file_dict['weak'])))
-    print("damaged files num: {}".format(len(self.info_file_dict['damaged'])))
+    print("too short files num: {}".format(len(self.info_file_dict['short']))), print("too weak files num: {}".format(len(self.info_file_dict['weak']))), print("damaged files num: {}".format(len(self.info_file_dict['damaged'])))
 
-    # all audio files speakers
-    if self.__class__.__name__ == 'SpeechCommandsDataset':
+    # save damaged files
+    for wav, score in self.info_file_dict['damaged']: copyfile(wav, self.plot_paths['damaged_files'] + wav.split('/')[-1])
 
-      # get all files
-      all_files = [list(set_dict.values()) for set_dict in [self.all_label_file_dict[l] for l in self.all_labels if l != self.cfg_dataset['noise_label'] and l != self.cfg_dataset['mixed_label']]]
+    # save info files
+    for k, info_list in self.info_file_dict.items():
 
-      # concatenate them to one-dim array
-      all_files = np.concatenate(np.concatenate(np.array(all_files, dtype='object')))
+      # skip if empty
+      if not len(info_list): continue
 
-      print(len(all_files))
+      # file name
+      file_name = plot_path + 'info_file_list_{}{}.txt'.format(k, file_ext)
 
-      # extract speaker info
-      all_speakers_files = [re.sub(r'^.*(?=--)|(_nohash_[0-9]+.wav)|(--)', '', i) for i in all_files]
-      
-      # get all unique speakers
-      all_speakers = np.unique(all_speakers_files)
-
-      # print info
-      print("all labels: ", self.all_labels), print("number of audio files: ", len(all_speakers_files)), print("speakers: ", all_speakers), print("number of speakers: ", len(all_speakers))
-
-      # save damaged files
-      for wav, score in self.info_file_dict['damaged']: copyfile(wav, self.plot_paths['damaged_files'] + wav.split('/')[-1])
-
-      # info files
-      for k, info_list in self.info_file_dict.items():
-
-        # skip if empty
-        if not len(info_list): continue
-
-        # file name
-        file_name = self.plot_paths['stats'] + 'info_file_list_n-{}_{}.txt'.format(self.cfg_dataset['n_examples'], k)
-
-        # write file
-        with open(file_name, 'w') as f: [print(i, file=f) for i in info_list]
-
-    # broken file info
-    plot_damaged_file_score(self.stats_dict['damaged_score'], plot_path=self.plot_paths['stats'], name='z_score_n-{}'.format(self.cfg_dataset['n_examples']))
+      # write file
+      with open(file_name, 'w') as f: [print(i, file=f) for i in info_list]
 
 
   def file_naming_extraction(self, audio_file, file_ext='.wav'):
@@ -557,7 +603,7 @@ class SpeechCommandsDataset(AudioDataset):
         file_name, file_label, file_index, file_name_hash = self.file_naming_extraction(wav, file_ext=self.cfg_dataset['file_ext'])
 
         # get annotation if available
-        anno =  class_annos[class_annos_file_names.index(file_label + file_index)] if file_label + file_index in class_annos_file_names else None
+        anno = class_annos[class_annos_file_names.index(file_label + file_index)] if file_label + file_index in class_annos_file_names else None
 
         # load and pre-process audio
         x, wav_is_useless = self.wav_pre_processing(wav)
@@ -766,8 +812,8 @@ if __name__ == '__main__':
   audio_set2.extract_features()
 
   # analyze audio set
-  audio_set1.analyze_damaged_files()
-  audio_set2.analyze_damaged_files()
+  audio_set1.analyze_dataset_extraction(calculate_overall_stats=True)
+  audio_set2.analyze_dataset_extraction(calculate_overall_stats=True)
 
   # batches
   batch_archive = SpeechCommandsBatchArchive(feature_file_dict={**audio_set1.feature_file_dict, **audio_set2.feature_file_dict}, batch_size=32, batch_size_eval=4, to_torch=False)

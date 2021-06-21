@@ -170,7 +170,7 @@ def audio_set_wavs(cfg, wav_grid_plot=False):
   audio_set2.get_audiofiles()
 
   # analyze
-  audio_set1.analyze_damaged_files()
+  #audio_set1.analyze_dataset_extraction()
 
   # plot wav grid
   if wav_grid_plot: plot_wav_grid(audio_set1.extract_wav_examples(set_name='test', n_examples=1, from_selected_labels=False), feature_params=audio_set1.feature_params, grid_size=(6, 6), plot_path=plot_path, name='exp_dataset_wav_grid_speech_commands_v2', show_plot=True)
