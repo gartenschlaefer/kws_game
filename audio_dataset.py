@@ -89,7 +89,7 @@ class AudioDataset():
     self.info_file_dict = {'damaged': [], 'short': [], 'weak': [], 'strong': []}
 
 
-    # ignore list for damaged files
+    # ignore list for damaged files (was only used for speech commands v0.01, v0.02 is good enough)
     try:
       with open(self.plot_paths['damaged_files'] + 'damaged_file_list.txt') as f:
         self.ignore_file_list_re = '(' + ')|('.join([line.strip() for line in f]) +')'
@@ -124,7 +124,7 @@ class AudioDataset():
     """
 
     # update label files dict
-    [(print('\nlabel files on set wav folder: ', wav_folder), [self.all_label_file_dict[l].update({set_name: self.get_label_files_from_folder(l, wav_folder, set_name)}) for l in self.all_labels if l != self.cfg_dataset['mixed_label']]) for set_name, wav_folder in self.wav_folder_dict.items()]
+    [(print('\nlabel files in set wav folder: ', wav_folder), [self.all_label_file_dict[l].update({set_name: self.get_label_files_from_folder(l, wav_folder, set_name)}) for l in self.all_labels if l != self.cfg_dataset['mixed_label']]) for set_name, wav_folder in self.wav_folder_dict.items()]
 
     # add all labels to sets, except for mixed label
     [[self.sel_label_file_dict[set_name].update({l: self.all_label_file_dict[l][set_name]}) for l in self.sel_labels if l != self.cfg_dataset['mixed_label']] for set_name, _ in self.wav_folder_dict.items()]
@@ -264,8 +264,8 @@ class AudioDataset():
 
     # too short flag
     is_too_short = len(x_raw) < self.cfg_dataset['sample_num_mininmal']
-    is_too_weak = e < 0.01
-    is_too_strong = e > 1000.0
+    is_too_weak = e < 1e-6
+    is_too_strong = e > 0.2
 
     # too short
     if is_too_short: self.info_file_dict['short'].append((wav, len(x_raw)))
@@ -282,7 +282,7 @@ class AudioDataset():
       x_raw = np.append(x_raw, np.zeros(self.cfg_dataset['sample_num_normal'] - len(x_raw)))
 
     # what makes the wav useless
-    wav_is_useless = is_too_weak
+    wav_is_useless = is_too_weak if self.cfg_dataset['filter_damaged_files'] and not self.cfg_dataset['noise_label'] in wav else False
 
     return x_raw, wav_is_useless
 
@@ -292,6 +292,9 @@ class AudioDataset():
     analyze damaged files
     """
 
+    # some info prints
+    print("\n--analyze dataset extraction from ", self.__class__.__name__)
+
     # plot statistics if available
     if any(self.stats_dict.keys()): self.plot_statistics(file_ext='_extracted_n-{}'.format(self.cfg_dataset['n_examples']))
 
@@ -299,11 +302,13 @@ class AudioDataset():
     all_speakers_files, all_speakers = self.get_speaker_infos(self.stats_dict['all_extracted_wavs'])
 
     # print info
-    print("all labels: ", self.all_labels), print("number of files: ", len(all_speakers_files)), print("speakers: ", all_speakers), print("number of speakers: ", len(all_speakers))
-
+    print("selected labels: ", self.sel_labels), print("number of extracted files: ", len(self.stats_dict['all_extracted_wavs'])), print("speakers: ", all_speakers), print("number of speakers: ", len(all_speakers))
 
     # save some energy
     if not calculate_overall_stats: return
+
+    # info message
+    print("\n--compute overall stats for ", self.__class__.__name__)
 
     # all wavs
     all_wavs = np.concatenate(np.concatenate(np.array([list(set_dict.values()) for set_dict in [self.all_label_file_dict[l] for l in self.all_labels if l != self.cfg_dataset['noise_label'] and l != self.cfg_dataset['mixed_label']]], dtype='object')))
@@ -316,9 +321,6 @@ class AudioDataset():
 
     # reset statistics
     self.reset_statistics()
-
-    # info message
-    print("\ncompute overall stats for ", self.__class__.__name__)
 
     # compute all wavs in dataset
     for wav in all_wavs: self.wav_pre_processing(wav)
@@ -334,6 +336,9 @@ class AudioDataset():
 
     # extract speaker info
     all_speakers_files = [re.sub(r'^.*(?=--)|(_nohash_[0-9]+.wav)|(--)', '', i) for i in wavs]
+
+    # filter noise files
+    all_speakers_files = [i for i in all_speakers_files if '_noise' not in i]
     
     # get all unique speakers
     all_speakers = np.unique(all_speakers_files)
@@ -349,15 +354,15 @@ class AudioDataset():
     if plot_path is None: plot_path = self.plot_paths['stats']
 
     # histogram
-    if len(self.stats_dict['energy']): plot_histogram(self.stats_dict['energy'], bins=np.logspace(np.log10(0.0001),np.log10(10000), 50), y_log_scale=True, x_log_scale=True, x_label='energy values', y_label='counts', plot_path=plot_path, name='energy_hist' + file_ext)
+    #if len(self.stats_dict['energy']): plot_histogram(self.stats_dict['energy'], bins=np.logspace(np.log10(0.0001),np.log10(10000), 50), y_log_scale=True, x_log_scale=True, x_label='energy values', y_label='counts', plot_path=plot_path, name='energy_hist' + file_ext)
+    if len(self.stats_dict['energy']): plot_histogram(self.stats_dict['energy'], bins=np.logspace(np.log10(1e-6),np.log10(1), 50), y_log_scale=True, x_log_scale=True, x_label='energy values', y_label='counts', plot_path=plot_path, name='energy_hist' + file_ext)
     if len(self.stats_dict['sample_num']): plot_histogram(self.stats_dict['sample_num'], bins=20, y_log_scale=True, x_label='sample numbers', y_label='counts', plot_path=plot_path, name='num_sample_hist' + file_ext)
     if len(self.stats_dict['damaged_score']): plot_histogram(self.stats_dict['damaged_score'], bins=50, y_log_scale=True, x_label='damaged score', y_label='counts', plot_path=plot_path, name='damaged_score_hist' + file_ext)
 
     # damaged file score 2d plot
     if len(self.stats_dict['damaged_score']): plot_damaged_file_score(self.stats_dict['damaged_score'], plot_path=self.plot_paths['stats'], name='damaged_score_hist' + file_ext)
 
-    # some info prints
-    print("\n--Analyze damaged files of ", self.__class__.__name__)
+    # print info
     print("too short files num: {}".format(len(self.info_file_dict['short']))), print("too weak files num: {}".format(len(self.info_file_dict['weak']))), print("damaged files num: {}".format(len(self.info_file_dict['damaged'])))
 
     # save damaged files
@@ -456,6 +461,9 @@ class SpeechCommandsDataset(AudioDataset):
     copy wav files from dataset path to wav folders with splitting
     """
 
+    # create set info
+    print("\n--create wav sets for ", self.__class__.__name__)
+
     # noise
     self.create_noise_sets()
 
@@ -484,7 +492,7 @@ class SpeechCommandsDataset(AudioDataset):
       training_wavs = [wav for wav in wavs if wav not in validation_wavs and wav not in testing_wavs]
 
       # print some info
-      print("label: [{}]\tn_split: [{}]\ttotal:[{}]".format(label, [len(training_wavs), len(validation_wavs), len(testing_wavs)], np.sum([len(training_wavs), len(validation_wavs), len(testing_wavs)])))
+      print("label: [{}]\tn_split: [{}]\ttotal:[{}]".format(label, {'train': len(training_wavs), 'test': len(testing_wavs), 'validation': len(validation_wavs)}, np.sum([len(training_wavs), len(validation_wavs), len(testing_wavs)])))
 
       # copy set wavs
       for set_name, set_wavs in {'train': training_wavs, 'test': testing_wavs, 'validation': validation_wavs}.items(): [copyfile(wav, self.wav_folder_dict[set_name] + label + '{:0>4}'.format(i) + '--' + wav.split('/')[-1].split('.')[0] + self.cfg_dataset['file_ext']) for i, wav in enumerate(set_wavs) if not os.path.isfile(self.wav_folder_dict[set_name] + label + '{:0>4}'.format(i) + '--' + wav.split('/')[-1].split('.')[0] + self.cfg_dataset['file_ext'])]
@@ -548,7 +556,7 @@ class SpeechCommandsDataset(AudioDataset):
     extract mfcc features and save them
     """
 
-    print("\n--feature extraction in [{}]:".format('mfcc' if self.feature_params['use_mfcc_features'] else 'raw'))
+    print("\n--feature extraction of [{}]:".format('mfcc' if self.feature_params['use_mfcc_features'] else 'raw'))
 
     # stop if already exists
     if check_files_existance(self.feature_file_dict.values()) and not self.cfg_dataset['recreate']:
@@ -560,7 +568,7 @@ class SpeechCommandsDataset(AudioDataset):
 
     for ((set_name, wav_dict), (_, annos)) in zip(self.sel_label_file_dict.items(), self.set_annotation_file_dict.items()):
 
-      print("extract set: {} with labels: [{}]".format(set_name, wav_dict.keys()))
+      print("\nextract set: [{}] with labels: [{}]".format(set_name, list(wav_dict.keys())))
 
       # examples with splits
       n_examples = int(self.cfg_dataset['n_examples'] * self.cfg_dataset['split_percs'][set_name])
@@ -613,7 +621,7 @@ class SpeechCommandsDataset(AudioDataset):
         if self.cfg_dataset['verbose']: print("wav: [{}] with label: [{}], samples=[{}], time=[{}]s".format(wav, label, len(x), len(x) / self.feature_params['fs']))
 
         # extract features
-        x_feature, bon_pos = self.feature_extractor.extract_features(x, reduce_to_best_onset=False, rand_best_onset=self.cfg_dataset['rand_best_onset'], rand_delta_percs=self.cfg_dataset['rand_delta_percs'])
+        x_feature, bon_pos = self.feature_extractor.extract_audio_features(x, reduce_to_best_onset=False, rand_best_onset=self.cfg_dataset['rand_best_onset'], rand_delta_percs=self.cfg_dataset['rand_delta_percs'])
 
         # quantize data (only for raw features)
         t = self.feature_extractor.quantize(np.squeeze(x_feature)[bon_pos:bon_pos+self.raw_frame_size]) if not self.feature_params['use_mfcc_features'] else None
@@ -723,7 +731,7 @@ class MyRecordingsDataset(SpeechCommandsDataset):
       for j, xj in enumerate(x_cut):
 
         # plot
-        plot_waveform(xj, self.feature_params['fs'], title='{}-{}'.format(label, j), plot_path=self.plot_paths['waveform'], name='example_{}-{}'.format(label, j))
+        plot_waveform(xj, self.feature_params['fs'], title='{}-{}'.format(label, j), plot_path=self.plot_paths['waveform'], name='example_{}-{}'.format(label, j), close_plot=True)
 
         # save file
         soundfile.write('{}{}{}.wav'.format(self.wav_folder_dict['my'], label, j), xj, self.feature_params['fs'], subtype=None, endian=None, format=None, closefd=True)
@@ -812,15 +820,19 @@ if __name__ == '__main__':
   audio_set2.extract_features()
 
   # analyze audio set
-  audio_set1.analyze_dataset_extraction(calculate_overall_stats=True)
-  audio_set2.analyze_dataset_extraction(calculate_overall_stats=True)
+  audio_set1.analyze_dataset_extraction(calculate_overall_stats=False)
+  audio_set2.analyze_dataset_extraction(calculate_overall_stats=False)
+
+
+  print("\n--check dataset")
 
   # batches
   batch_archive = SpeechCommandsBatchArchive(feature_file_dict={**audio_set1.feature_file_dict, **audio_set2.feature_file_dict}, batch_size=32, batch_size_eval=4, to_torch=False)
 
   print("archive: ", batch_archive.x_train.shape)
-  print("archive: ", batch_archive.num_examples_per_class)
+  #print("archive: ", batch_archive.num_examples_per_class)
   #plot_mfcc_only(batch_archive.x_train[0, 0], name=batch_archive.z_train[0, 0], show_plot=True)
 
   # plot wav grid
-  plot_wav_grid(audio_set2.extract_wav_examples(set_name='my', n_examples=5), feature_params=audio_set2.feature_params, grid_size=(5, 5), cmap=None, title='', plot_path=audio_set2.plot_paths['examples_grid'], name='wav_grid_my', show_plot=True)
+  #plot_wav_grid(audio_set1.extract_wav_examples(set_name='test', n_examples=1, from_selected_labels=False), feature_params=audio_set1.feature_params, grid_size=(6, 6), plot_path=audio_set1.plot_paths['examples_grid'], name='wav_grid_speech_commands_v2', show_plot=False)
+  #plot_wav_grid(audio_set2.extract_wav_examples(set_name='my', n_examples=5), feature_params=audio_set2.feature_params, grid_size=(5, 5), cmap=None, title='', plot_path=audio_set2.plot_paths['examples_grid'], name='wav_grid_my', show_plot=True)

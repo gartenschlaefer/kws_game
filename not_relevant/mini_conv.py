@@ -235,7 +235,7 @@ if __name__ == '__main__':
       optimizer.step()
 
     # eval
-    #net_handler.eval_nn('val', batch_archive)
+    #net_handler.eval_nn('validation', batch_archive)
 
 
 

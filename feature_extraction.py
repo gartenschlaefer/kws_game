@@ -49,7 +49,7 @@ class FeatureExtractor():
     self.w_f, self.w_mel, self.f, self.m = mel_band_weights(self.feature_params['n_filter_bands'], self.feature_params['fs'], self.N//2+1)
 
 
-  def extract_features(self, x, reduce_to_best_onset=True, rand_best_onset=False, rand_delta_percs=0.05):
+  def extract_audio_features(self, x, reduce_to_best_onset=True, rand_best_onset=False, rand_delta_percs=0.05):
     """
     extract features according to feature params setting (mfcc or raw)
     """

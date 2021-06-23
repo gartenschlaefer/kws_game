@@ -5,6 +5,7 @@ Neural Network Handling
 import numpy as np
 import torch
 import time
+import sys
 
 # nets
 from conv_nets import ConvNetTrad, ConvNetFstride4, ConvNetExperimental, ConvEncoderClassifierNet, ConvStackedEncodersNet, ConvLatentClassifier
@@ -229,7 +230,7 @@ class NetHandler():
     return TrainScore(train_params['num_epochs'])
 
 
-  def eval_nn(self, eval_set, batch_archive, collect_things=False, verbose=False):
+  def eval_nn(self, eval_set_name, batch_archive, collect_things=False, verbose=False):
     """
     evaluation of nn
     use eval_set out of ['val', 'test', 'my']
@@ -238,22 +239,22 @@ class NetHandler():
     # eval mode
     self.set_eval_mode()
 
-    # select the evaluation set
-    x_eval, y_eval, z_eval = self.eval_select_set(eval_set, batch_archive)
+    # check if set name is in batch archive
+    if not eval_set_name in batch_archive.eval_set_names: print("***evaluation set is not in batch archive"), sys.exit()
 
     # if set does not exist
-    if x_eval is None or y_eval is None:
+    if batch_archive.x_batch_dict[eval_set_name] is None or batch_archive.y_batch_dict[eval_set_name] is None:
       print("no eval set found")
-      return EvalScore(eval_set_name=eval_set, collect_things=collect_things)
+      return EvalScore(eval_set_name=eval_set_name, class_dict=batch_archive.class_dict, collect_things=collect_things)
 
     # init score
-    eval_score = EvalScore(eval_set_name=eval_set, collect_things=collect_things)
+    eval_score = EvalScore(eval_set_name=eval_set_name, class_dict=batch_archive.class_dict, collect_things=collect_things)
 
     # no gradients for eval
     with torch.no_grad():
 
       # load data
-      for mini_batch, (x, y, z) in enumerate(zip(x_eval.to(self.device), y_eval.to(self.device), z_eval)):
+      for mini_batch, (x, y, z) in enumerate(zip(batch_archive.x_batch_dict[eval_set_name].to(self.device), batch_archive.y_batch_dict[eval_set_name].to(self.device), batch_archive.z_batch_dict[eval_set_name])):
 
         # forward pass
         eval_score = self.eval_forward(mini_batch, x, y, z, eval_score, verbose=verbose)
@@ -272,23 +273,6 @@ class NetHandler():
     eval forward pass
     """
     return eval_score
-
-
-  def eval_select_set(self, eval_set, batch_archive):
-    """
-    select set to evaluate (only for batch archive class)
-    """
-
-    # select the set
-    x_eval, y_eval, z_eval = None, None, None
-
-    # eval set selection
-    if eval_set == 'val': x_eval, y_eval, z_eval = batch_archive.x_val, batch_archive.y_val, batch_archive.z_val
-    elif eval_set == 'test': x_eval, y_eval, z_eval = batch_archive.x_test, batch_archive.y_test, batch_archive.z_test
-    elif eval_set == 'my': x_eval, y_eval, z_eval = batch_archive.x_my, batch_archive.y_my, batch_archive.z_my
-    else: print("wrong usage of eval nn, select eval_set one out of ['val', 'test', 'my']")
-
-    return x_eval, y_eval, z_eval
 
 
   def classify_sample(self, x):
@@ -381,7 +365,7 @@ class CnnHandler(NetHandler):
     self.set_up_training(train_params)
 
     # score collector
-    train_score = TrainScore(train_params['num_epochs'], invoker_class_name=self.__class__.__name__, k_print=batch_archive.y_train.shape[0] // self.num_print_per_epoch)
+    train_score = TrainScore(train_params['num_epochs'], invoker_class_name=self.__class__.__name__, k_print=batch_archive.y_batch_dict['train'].shape[0] // self.num_print_per_epoch)
 
     # epochs
     for epoch in range(train_params['num_epochs']):
@@ -390,7 +374,7 @@ class CnnHandler(NetHandler):
       self.update_training_params(epoch, train_params)
 
       # fetch data samples
-      for mini_batch, (x, y) in enumerate(zip(batch_archive.x_train.to(self.device), batch_archive.y_train.to(self.device))):
+      for mini_batch, (x, y) in enumerate(zip(batch_archive.x_batch_dict['train'].to(self.device), batch_archive.y_batch_dict['train'].to(self.device))):
 
         # zero parameter gradients
         self.optimizer.zero_grad()
@@ -411,10 +395,9 @@ class CnnHandler(NetHandler):
         train_score.update_batch_losses(epoch, mini_batch, loss.item())
 
       # valdiation
-      eval_score = self.eval_nn('val', batch_archive)
+      eval_score = self.eval_nn('validation', batch_archive)
 
       # update score collector
-      #train_score.val_loss[epoch], train_score.val_acc[epoch] = eval_score.loss, eval_score.acc
       train_score.score_dict['val_loss'][epoch], train_score.score_dict['val_acc'][epoch] = eval_score.loss, eval_score.acc
 
     # finish train score for time measurement
@@ -518,13 +501,13 @@ class AdversarialNetHandler(NetHandler):
     fixed_noise = torch.randn(32, self.models['g'].n_latent, device=self.device)
 
     # score collector
-    train_score = AdversarialTrainScore(train_params['num_epochs'], invoker_class_name=self.__class__.__name__, k_print=batch_archive.y_train.shape[0] // self.num_print_per_epoch)
+    train_score = AdversarialTrainScore(train_params['num_epochs'], invoker_class_name=self.__class__.__name__, k_print=batch_archive.y_batch_dict['train'].shape[0] // self.num_print_per_epoch)
 
     # epochs
     for epoch in range(train_params['num_epochs']):
 
       # fetch data samples
-      for mini_batch, (x, y) in enumerate(zip(batch_archive.x_train.to(self.device), batch_archive.y_train.to(self.device))):
+      for mini_batch, (x, y) in enumerate(zip(batch_archive.x_batch_dict['train'].to(self.device), batch_archive.y_batch_dict['train'].to(self.device))):
 
         # update models
         train_score = self.update_models(x, y, batch_archive.class_dict, epoch, mini_batch, train_score)
@@ -826,7 +809,7 @@ class WavenetHandler(NetHandler):
     self.set_up_training(train_params)
 
     # score collector
-    train_score = WavenetTrainScore(train_params['num_epochs'], invoker_class_name=self.__class__.__name__, k_print=batch_archive.y_train.shape[0] // self.num_print_per_epoch)
+    train_score = WavenetTrainScore(train_params['num_epochs'], invoker_class_name=self.__class__.__name__, k_print=batch_archive.y_batch_dict['train'].shape[0] // self.num_print_per_epoch)
 
     # epochs
     for epoch in range(train_params['num_epochs']):
@@ -835,8 +818,7 @@ class WavenetHandler(NetHandler):
       self.update_training_params(epoch, train_params)
 
       # fetch data samples
-      #for mini_batch, (x, y) in enumerate(zip(batch_archive.x_train.to(self.device), batch_archive.y_train.to(self.device))):
-      for mini_batch, (x, y, t) in enumerate(zip(batch_archive.x_train.to(self.device), batch_archive.y_train.to(self.device), batch_archive.t_train.to(self.device))):
+      for mini_batch, (x, y, t) in enumerate(zip(batch_archive.x_batch_dict['train'].to(self.device), batch_archive.y_batch_dict['train'].to(self.device), batch_archive.t_batch_dict['train'].to(self.device))):
 
         # zero parameter gradients
         self.optimizer.zero_grad()
@@ -863,7 +845,7 @@ class WavenetHandler(NetHandler):
         train_score.update_batch_losses(epoch, mini_batch, loss_t=loss_t.item(), loss_y=loss_y.item() * lam)
 
       # valdiation
-      eval_score = self.eval_nn('val', batch_archive)
+      eval_score = self.eval_nn('validation', batch_archive)
 
       # update score collector
       train_score.score_dict['val_loss'][epoch], train_score.score_dict['val_acc'][epoch] = eval_score.loss, eval_score.acc
@@ -942,14 +924,11 @@ if __name__ == '__main__':
   audio_set2 = AudioDataset(cfg['datasets']['my_recordings'], cfg['feature_params'])
 
   # create batches
-  batch_archive = SpeechCommandsBatchArchive({**audio_set1.feature_file_dict, **audio_set2.feature_file_dict}, batch_size=32, batch_size_eval=5)
+  batch_archive = SpeechCommandsBatchArchive(feature_file_dict={**audio_set1.feature_file_dict, **audio_set2.feature_file_dict}, batch_size_dict={'train': cfg['ml']['train_params']['batch_size'], 'test': 5, 'validation': 5, 'my': 1}, shuffle=True)
 
-  # reduce to label and add noise
-  #batch_archive.reduce_to_label('up')
-  #batch_archive.add_noise_data(shuffle=True)
-
-  print("data size: ", batch_archive.data_size)
-  print("classes: ", batch_archive.class_dict)
+  # create batches
+  batch_archive.create_batches(selected_labels=[])
+  batch_archive.print_batch_infos()
 
   # create an cnn handler
   net_handler = NetHandler(nn_arch=cfg['ml']['nn_arch'], class_dict=batch_archive.class_dict, data_size=batch_archive.data_size, use_cpu=cfg['ml']['use_cpu'])
@@ -958,8 +937,8 @@ if __name__ == '__main__':
   # training
   net_handler.train_nn(cfg['ml']['train_params'], batch_archive=batch_archive)
 
-  # validation
-  net_handler.eval_nn(eval_set='val', batch_archive=batch_archive, collect_things=False, verbose=False)
+  # test
+  net_handler.eval_nn('test', batch_archive=batch_archive, collect_things=False, verbose=False)
 
   # classify sample
   y_hat, o, label = net_handler.classify_sample(torch.randn(net_handler.data_size).numpy())

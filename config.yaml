@@ -316,7 +316,7 @@ ml:
   adv_params:
 
     # train each label with adv
-    label_train: False
+    label_train: True
 
     # adv pre-training of full network
     pre_train: False
@@ -359,10 +359,10 @@ ml:
   #nn_arch: conv-trad
   #nn_arch: conv-encoder
   #nn_arch: conv-encoder-fc1
-  nn_arch: conv-encoder-fc3
+  #nn_arch: conv-encoder-fc3
   #nn_arch: conv-lim-encoder
   #nn_arch: conv-latent
-  #nn_arch: wavenet
+  nn_arch: wavenet
 
   # logging enable
   logging_enabled: True
@@ -397,11 +397,11 @@ test_bench:
 
   # test wavs
   test_wavs:
-    - ignore/my_recordings/clean_records/left.wav
-    - ignore/my_recordings/clean_records/right.wav
-    - ignore/my_recordings/clean_records/up.wav
-    - ignore/my_recordings/clean_records/down.wav
-    - ignore/my_recordings/clean_records/go.wav
+    - ignore/dataset/my_recordings/clean_records/left.wav
+    - ignore/dataset/my_recordings/clean_records/right.wav
+    - ignore/dataset/my_recordings/clean_records/up.wav
+    - ignore/dataset/my_recordings/clean_records/down.wav
+    - ignore/dataset/my_recordings/clean_records/go.wav
 
   # file names
   model_file_names: ['cnn_model.pth', 'wav_model.pth']

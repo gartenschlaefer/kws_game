@@ -33,6 +33,9 @@ class TrainScore():
     # start time init
     self.start_time = time.time()
 
+    # loss element counter
+    self.loss_element_counter = 0
+
 
   def define_loss_types(self):
     """
@@ -61,6 +64,7 @@ class TrainScore():
     reset batch losses to zero
     """
     for k in self.batch_dict.keys(): self.batch_dict[k] = 0.0
+    self.loss_element_counter = 0
 
 
   def update_batch_losses(self, epoch, mini_batch, loss):
@@ -71,6 +75,7 @@ class TrainScore():
     # update losses
     self.score_dict['train_loss'][epoch] += loss
     self.batch_dict['train_loss_batch'] += loss
+    self.loss_element_counter += 1
 
     # print loss
     if mini_batch % self.k_print == self.k_print-1 or self.do_print_anyway:
@@ -86,7 +91,7 @@ class TrainScore():
     """
     print some training info
     """
-    print('epoch: {}, mini-batch: {}, loss: [{:.5f}]'.format(epoch + 1, mini_batch + 1, self.batch_dict['train_loss_batch']))
+    print('epoch: {}, mini-batch: {}, loss: [{:.5f}]'.format(epoch + 1, mini_batch + 1, self.batch_dict['train_loss_batch'] / self.loss_element_counter))
 
 
   def finish(self):
@@ -195,10 +200,11 @@ class EvalScore():
   typical scores for evaluation
   """
 
-  def __init__(self, eval_set_name='', collect_things=False):
+  def __init__(self, eval_set_name, class_dict, collect_things=False):
 
     # arguments
     self.eval_set_name = eval_set_name
+    self.class_dict = class_dict
     self.collect_things = collect_things
 
     # init vars
@@ -258,7 +264,7 @@ class EvalScore():
     if not self.collect_things or not len(self.y_all): return
 
     # confusion matrix
-    self.cm = confusion_matrix(np.concatenate(self.y_all), np.concatenate(self.y_hat_all))
+    self.cm = confusion_matrix(np.concatenate(self.y_all), np.concatenate(self.y_hat_all), labels=list(self.class_dict.values()))
 
 
   def info_log(self, do_print=True):

@@ -4,6 +4,7 @@ Batch creation for training and testing neural networks with pytorch
 
 import numpy as np
 import torch
+import sys
 
 from legacy import legacy_adjustments_feature_params
 
@@ -11,67 +12,29 @@ from legacy import legacy_adjustments_feature_params
 class BatchArchive():
   """
   Batch Archiv interface 
-  collector of training, validation, test adn my data batches
+  collector of training, validation, test and my data batches
   x: data, y: label_num, z: index
   """
 
-  def __init__(self, batch_size=32, batch_size_eval=5, to_torch=True, shuffle=True):
+  #def __init__(self, batch_size=32, batch_size_eval=5, to_torch=True, shuffle=False):
+  def __init__(self, batch_size_dict, to_torch=True, shuffle=False):
 
     # arguments
-    self.batch_size = batch_size
-    self.batch_size_eval = batch_size_eval
+    self.batch_size_dict = batch_size_dict
     self.to_torch = to_torch
     self.shuffle = shuffle
 
-    # training batches
-    self.x_train = None
-    self.y_train = None
-    self.t_train = None
-    self.z_train = None
+    # batch_dict
+    self.x_batch_dict = {}
+    self.y_batch_dict = {}
+    self.t_batch_dict = {}
+    self.z_batch_dict = {}
 
-    # validation batches
-    self.x_val = None
-    self.y_val = None
-    self.t_val = None
-    self.z_val = None
-
-    # test batches
-    self.x_test = None
-    self.y_test = None
-    self.t_test = None
-    self.z_test = None
-
-    # my batches
-    self.x_my = None
-    self.y_my = None
-    self.t_my = None
-    self.z_my = None
-
-    # classes
-    self.classes = None
+    # class dictionary
     self.class_dict = None
-    self.n_classes = None
 
     # data size
     self.data_size = None
-
-    # number of examples per class [train, val, test, my]
-    self.num_examples_per_class = [None, None, None, None]
-
-
-  def create_class_dictionary(self, y):
-    """
-    create class dict with label names e.g. y = ['up', 'down']
-    """
-
-    # actual classes
-    self.classes = np.unique(y)
-
-    # create class dict
-    self.class_dict = {name : i for i, name in enumerate(self.classes)}
-
-    # number of classes
-    self.n_classes = len(self.classes)
 
 
   def update_classes(self, new_labels):
@@ -98,21 +61,7 @@ class BatchArchive():
     """
     return index of class
     """
-
-    # get index from class dict
-    y_index = np.array([self.class_dict[i] for i in y])
-
-    # to torch if necessary
-    if to_torch: y_index = torch.from_numpy(y_index)
-
-    return y_index
-
-
-  def determine_num_examples(self):
-    """
-    determine number of examples in [train, val, test, my]
-    """
-    self.num_examples_per_class = [np.prod(y.shape) // self.n_classes if y is not None else 0 for y in [self.y_train, self.y_val, self.y_test, self.y_my]]
+    return torch.from_numpy(np.array([self.class_dict[i] for i in y])) if to_torch else np.array([self.class_dict[i] for i in y])
 
 
   def reduce_to_label(self, label):
@@ -125,21 +74,11 @@ class BatchArchive():
       print("***unknown label")
       return
 
-    # training batches
-    if self.y_train is not None:
-      self.x_train, self.y_train, self.z_train = self.reduce_to_label_algorithm(label, self.x_train, self.y_train, self.z_train, self.batch_size)
-
-    # validation batches
-    if self.y_val is not None:
-      self.x_val, self.y_val, self.z_val = self.reduce_to_label_algorithm(label, self.x_val, self.y_val, self.z_val, self.batch_size_eval)
-
-    # test batches
-    if self.y_test is not None:
-      self.x_test, self.y_test, self.z_test = self.reduce_to_label_algorithm(label, self.x_test, self.y_test, self.z_test, self.batch_size_eval)
-
-    # test batches
-    if self.y_my is not None:
-      self.x_my, self.y_my, self.z_my = self.reduce_to_label_algorithm(label, self.x_my, self.y_my, self.z_my, self.batch_size_eval)
+    # batches
+    if self.y_train is not None: self.x_train, self.y_train, self.z_train = self.reduce_to_label_algorithm(label, self.x_train, self.y_train, self.z_train, self.batch_size)
+    if self.y_val is not None: self.x_val, self.y_val, self.z_val = self.reduce_to_label_algorithm(label, self.x_val, self.y_val, self.z_val, self.batch_size_eval)
+    if self.y_test is not None: self.x_test, self.y_test, self.z_test = self.reduce_to_label_algorithm(label, self.x_test, self.y_test, self.z_test, self.batch_size_eval)
+    if self.y_my is not None: self.x_my, self.y_my, self.z_my = self.reduce_to_label_algorithm(label, self.x_my, self.y_my, self.z_my, self.batch_size_eval)
 
     # recreate class directory
     self.update_classes([label])
@@ -230,22 +169,10 @@ class BatchArchive():
     # add noise to class dict
     #self.create_class_dictionary(list(self.class_dict.keys()) + ['noise'])
     self.update_classes(list(self.class_dict.keys()) + [noise_label])
-
-    # training batches
-    if self.y_train is not None:
-      self.x_train, self.y_train, self.z_train = self.add_noise_data_algorithm(self.x_train, self.y_train, self.z_train, noise_label, shuffle)
-
-    # validation batches
-    if self.y_val is not None:
-      self.x_val, self.y_val, self.z_val = self.add_noise_data_algorithm(self.x_val, self.y_val, self.z_val, noise_label, shuffle)
-
-    # test batches
-    if self.y_test is not None:
-      self.x_test, self.y_test, self.z_test = self.add_noise_data_algorithm(self.x_test, self.y_test, self.z_test, noise_label, shuffle)
-
-    # my batches
-    if self.y_my is not None:
-      self.x_my, self.y_my, self.z_my = self.add_noise_data_algorithm(self.x_my, self.y_my, self.z_my, noise_label, shuffle)
+    if self.y_train is not None: self.x_train, self.y_train, self.z_train = self.add_noise_data_algorithm(self.x_train, self.y_train, self.z_train, noise_label, shuffle)
+    if self.y_val is not None: self.x_val, self.y_val, self.z_val = self.add_noise_data_algorithm(self.x_val, self.y_val, self.z_val, noise_label, shuffle)
+    if self.y_test is not None: self.x_test, self.y_test, self.z_test = self.add_noise_data_algorithm(self.x_test, self.y_test, self.z_test, noise_label, shuffle)
+    if self.y_my is not None: self.x_my, self.y_my, self.z_my = self.add_noise_data_algorithm(self.x_my, self.y_my, self.z_my, noise_label, shuffle)
 
     # recount examples
     self.determine_num_examples()
@@ -310,20 +237,10 @@ class BatchArchive():
     self.class_dict.update({others_label:9999})
 
     # training batches
-    if self.y_train is not None:
-      self.x_train, self.y_train, self.z_train = self.one_against_all_algorithm(label, others_label, self.x_train, self.y_train, self.z_train, self.batch_size, shuffle)
-
-    # validation batches
-    if self.y_val is not None:
-      self.x_val, self.y_val, self.z_val = self.one_against_all_algorithm(label, others_label, self.x_val, self.y_val, self.z_val, self.batch_size_eval, shuffle)
-
-    # test batches
-    if self.y_test is not None:
-      self.x_test, self.y_test, self.z_test = self.one_against_all_algorithm(label, others_label, self.x_test, self.y_test, self.z_test, self.batch_size_eval, shuffle)
-
-    # my batches
-    if self.y_my is not None:
-      self.x_my, self.y_my, self.z_my = self.one_against_all_algorithm(label, others_label, self.x_my, self.y_my, self.z_my, self.batch_size_eval, shuffle)
+    if self.y_train is not None: self.x_train, self.y_train, self.z_train = self.one_against_all_algorithm(label, others_label, self.x_train, self.y_train, self.z_train, self.batch_size, shuffle)
+    if self.y_val is not None: self.x_val, self.y_val, self.z_val = self.one_against_all_algorithm(label, others_label, self.x_val, self.y_val, self.z_val, self.batch_size_eval, shuffle)
+    if self.y_test is not None: self.x_test, self.y_test, self.z_test = self.one_against_all_algorithm(label, others_label, self.x_test, self.y_test, self.z_test, self.batch_size_eval, shuffle)
+    if self.y_my is not None: self.x_my, self.y_my, self.z_my = self.one_against_all_algorithm(label, others_label, self.x_my, self.y_my, self.z_my, self.batch_size_eval, shuffle)
 
     # recreate class directory
     self.update_classes([label, others_label])
@@ -393,178 +310,281 @@ class SpeechCommandsBatchArchive(BatchArchive):
   creates batches from feature files saved as .npz
   """
 
-  def __init__(self, feature_file_dict, batch_size=32, batch_size_eval=5, to_torch=True, shuffle=True):
+  def __init__(self, feature_file_dict, batch_size_dict, to_torch=True, shuffle=False):
 
     # parent init
-    super().__init__(batch_size, batch_size_eval, to_torch=to_torch, shuffle=shuffle)
+    super().__init__(batch_size_dict, to_torch=to_torch, shuffle=shuffle)
 
-    # params
+    # arguments
     self.feature_file_dict = feature_file_dict
 
     # set names
     self.set_names = list(self.feature_file_dict.keys())
 
-    print("set names: ", self.set_names) 
+    # evaluation sets
+    self.eval_set_names = self.set_names[1:]
 
     # load files [0]: train, etc.
     self.data_dict = {set_name: np.load(file, allow_pickle=True) for set_name, file in self.feature_file_dict.items()}
 
+    # extract data, labels, target and index
+    self.x_set_dict = {set_name: data['x'] for set_name, data in self.data_dict.items()}
+    self.y_set_dict = {set_name: data['y'] for set_name, data in self.data_dict.items()}
+    self.t_set_dict = {set_name: data['t'] for set_name, data in self.data_dict.items()}
+    self.z_set_dict = {set_name: data['z'] for set_name, data in self.data_dict.items()}
+
+    # extract parameters
+    self.feature_params_dict = {set_name: legacy_adjustments_feature_params(data['feature_params'][()]) for set_name, data in self.data_dict.items()}
+    self.cfg_dataset_dict = {set_name: data['cfg_dataset'][()] for set_name, data in self.data_dict.items()}
+
     # data size
-    self.data_size = self.data_dict[self.set_names[0]]['x'].shape[1:]
+    self.data_size_dict = {set_name: x.shape[1:] for set_name, x in self.x_set_dict.items()}
 
-    # feature params
-    self.feature_params = self.data_dict[self.set_names[0]]['feature_params'][()]
+    # variables from first entry
+    self.data_size, self.feature_params = self.data_size_dict[self.set_names[0]], self.feature_params_dict[self.set_names[0]]
 
-    # legacy
-    self.feature_params = legacy_adjustments_feature_params(self.feature_params)
+    # check equivalence of variables for all sets
+    if not all([d == self.data_size for d in self.data_size_dict.values()]): print("***extraction failed: data sizes are not equal"), sys.exit()
+    if not all([d == self.feature_params for d in self.feature_params_dict.values()]): print("***extraction failed: feature params are not equal"), sys.exit()
 
-    # channel size
+    # data sizes
     self.channel_size = 1 if not self.feature_params['use_channels'] or not self.feature_params['use_mfcc_features']  else int(self.feature_params['use_cepstral_features']) + int(self.feature_params['use_delta_features']) +  int(self.feature_params['use_double_delta_features'])
-
-    # feature size
     self.feature_size = (self.feature_params['n_ceps_coeff'] + int(self.feature_params['use_energy_features'])) * int(self.feature_params['use_cepstral_features']) + (self.feature_params['n_ceps_coeff'] + int(self.feature_params['use_energy_features'])) * int(self.feature_params['use_delta_features']) + (self.feature_params['n_ceps_coeff'] + int(self.feature_params['use_energy_features'])) * int(self.feature_params['use_double_delta_features']) if not self.feature_params['use_channels'] else (self.feature_params['n_ceps_coeff'] + int(self.feature_params['use_energy_features']))
-
-    # frame size
     self.frame_size = self.feature_params['frame_size']
-
-    # raw frame size for raw inputs in samples
     self.raw_frame_size = int(self.feature_params['frame_size_s'] * self.feature_params['fs'])
 
-    # get classes
-    self.create_class_dictionary(self.data_dict[self.set_names[0]]['y'])
+    # check data size equivalence to parameters
+    if self.feature_params['use_mfcc_features']: (print("***extraction failed: mfcc data sizes do not match to parameters"), sys.exit()) if (self.channel_size, self.feature_size, self.frame_size) != self.data_size else None, None
+    else: (print("***extraction failed: raw data sizes do not match to parameters"), sys.exit()) if (self.channel_size, self.raw_frame_size) != self.data_size else None, None
 
+
+    # most important class dictionary from train set
+    self.class_dict = {name : i for i, name in enumerate(np.unique(self.y_set_dict['train']))}
+
+    # init class dict only with training set
+    self.class_dicts = {set_name: {name : self.class_dict[name] for i, name in enumerate(np.unique(self.y_set_dict[set_name]))} for set_name in self.set_names}
+
+    # check if all labels from all sets are in class dict labels
+    if not np.all(np.concatenate([[l in self.class_dict.keys() for l in self.class_dicts[set_name].keys()] for set_name in self.set_names])): (print("***extraction failed: labels of sets are not all in training labels"), sys.exit())
+ 
     # examples per class
-    #self.n_examples_class = (len(self.data_dict[0]['x']) + len(self.data_dict[1]['x']) + len(self.data_dict[2]['x'])) // self.n_classes
-    self.n_examples_class = {s: len(d['x']) // self.n_classes for s, d in self.data_dict.items()}
-
-    print("n: ", self.n_examples_class)
-
-    # do extraction
-    self.extract()
+    self.n_class_examples = {s: len(x) // len(self.class_dicts[s]) for s, x in self.x_set_dict.items()}
 
 
-  def extract(self):
-    """
-    extract data samples from files
-    """
-
-    # check data sizes
-    if not all([d['x'].shape[1:] == self.data_size for s, d in self.data_dict.items()]): 
-      print("***extraction failed: data sizes are not equal")
-      return
-
-    # create batches
-    self.x_train, self.y_train, self.t_train, self.z_train = self.create_batches(self.data_dict['train'], batch_size=self.batch_size)
-    self.x_val, self.y_val, self.t_val, self.z_val = self.create_batches(self.data_dict['validation'], batch_size=self.batch_size_eval)
-    self.x_test, self.y_test, self.t_test, self.z_test = self.create_batches(self.data_dict['test'], batch_size=self.batch_size_eval)
-
-    # my data included
-    if len(self.feature_file_dict) == 4: self.x_my, self.y_my, self.t_my, self.z_my = self.create_batches(self.data_dict['my'], batch_size=1)
-
-    # num examples
-    self.determine_num_examples()
-
-
-  def create_batches(self, data, batch_size=1):
+  def create_batches(self, selected_labels=[]):
     """
     create batches for training 
     mfcc: [n x c x m x f] -> [m x b x c x m x f]
     raw: [n x c x m] -> [m x b x c x m]
     """
 
-    # extract data
-    x, y, z = data['x'], data['y'], data['z']
+    # recreate individual class dictionaries
+    self.class_dicts = {set_name: {name : self.class_dict[name] for i, name in enumerate(np.unique(self.y_set_dict[set_name]))} for set_name in self.set_names}
 
-    # target
-    t = data['t'] if not self.feature_params['use_mfcc_features'] else None
+    # go through each set
+    for set_name in self.set_names:
 
-    # randomize examples
-    if self.shuffle:
+      # copy files
+      x, y, z, t = self.x_set_dict[set_name].copy(), self.y_set_dict[set_name].copy(), self.z_set_dict[set_name].copy(), self.t_set_dict[set_name].copy()
 
-      # random permutation
-      indices = np.random.permutation(x.shape[0])
+      # batch size shortcut
+      batch_size = self.batch_size_dict[set_name]
 
-      # randomize
-      x, y, z = np.take(x, indices, axis=0), np.take(y, indices, axis=0), np.take(z, indices, axis=0)
+      # randomize examples
+      if self.shuffle:
+
+        # random permutation
+        indices = np.random.permutation(x.shape[0])
+
+        # randomize
+        x, y, z, t = np.take(x, indices, axis=0), np.take(y, indices, axis=0), np.take(z, indices, axis=0), np.take(t, indices, axis=0) if not self.feature_params['use_mfcc_features'] else None
+
+      # reduce to labels
+      if len(selected_labels) and all([l in self.class_dicts[set_name].keys() for l in selected_labels]):
+
+        # get indices for selected labels
+        label_vectors = [y == label for label in selected_labels]
+        indices = np.concatenate([[i for i, lv in enumerate(label_vector) if lv] for label_vector in label_vectors])
+
+        # take those indices
+        x, y, z, t = np.take(x, indices, axis=0), np.take(y, indices, axis=0), np.take(z, indices, axis=0), np.take(t, indices, axis=0) if not self.feature_params['use_mfcc_features'] else None
+
+        # update class dictionary
+        self.class_dicts[set_name] = {name : self.class_dict[name] for i, name in enumerate(np.unique(y))}
+
+      # number of windows
+      batch_nums = x.shape[0] // batch_size
+
+      # remaining samples
+      r = int(np.remainder(x.shape[0], batch_size))
+
+      # there are remaining samples
+      if r:
+
+        # increase batch num
+        batch_nums += 1
+
+        # indizes for remaining samples
+        ss, se, random_samples = (batch_nums - 1) * batch_size, (batch_nums - 1) * batch_size + r, np.random.randint(0, high=len(y), size=batch_size-r)
+
+        # remaining and filling examples
+        r_x, r_y, r_z, f_x, f_y, f_z = x[ss:se, :], y[ss:se], z[ss:se], x[random_samples, :], y[random_samples], z[random_samples]
+
+        # target
+        r_t, f_t = (t[ss:se, :], t[random_samples, :]) if not self.feature_params['use_mfcc_features'] else (None, None)
+
+      # init batches
+      x_batches = np.empty((batch_nums, batch_size, self.channel_size, self.feature_size, self.frame_size), dtype=np.float32) if self.feature_params['use_mfcc_features'] else np.empty((batch_nums, batch_size, self.channel_size, self.raw_frame_size), dtype=np.float32)
+      y_batches = np.empty((batch_nums, batch_size), dtype=np.int)
+      t_batches = np.empty((batch_nums, batch_size, self.raw_frame_size), dtype=np.int) if not self.feature_params['use_mfcc_features'] else None
+      z_batches = np.empty((batch_nums, batch_size), dtype=z.dtype)
+
+      # batching
+      for i in range(batch_nums - 1):
+        x_batches[i, :] = x[i*batch_size:i*batch_size+batch_size, :]
+        y_batches[i, :] = self.get_index_of_class(y[i*batch_size:i*batch_size+batch_size])
+        z_batches[i, :] = z[i*batch_size:i*batch_size+batch_size]
+
+        # target
+        if not self.feature_params['use_mfcc_features']: t_batches[i, :] = t[i*batch_size:i*batch_size+batch_size, :]
+      
+      # last batch index
+      i += 1
+
+      # last batch
+      x_batches[i, :] = x[i*batch_size:i*batch_size+batch_size, :] if not r else np.concatenate((r_x, f_x))
+      y_batches[i, :] = self.get_index_of_class(y[i*batch_size:i*batch_size+batch_size]) if not r else self.get_index_of_class(np.concatenate((r_y, f_y)))
+      z_batches[i, :] = z[i*batch_size:i*batch_size+batch_size] if not r else np.concatenate((r_z, f_z))
 
       # target
-      t = np.take(t, indices, axis=0) if not self.feature_params['use_mfcc_features'] else None
+      if not self.feature_params['use_mfcc_features']: t_batches[i, :] = t[i*batch_size:i*batch_size+batch_size, :] if not r else np.concatenate((r_t, f_t))
+      
+      # to torch
+      if self.to_torch: x_batches, y_batches, t_batches = torch.from_numpy(x_batches), torch.from_numpy(y_batches), torch.from_numpy(t_batches) if not self.feature_params['use_mfcc_features'] else None
 
-    # number of windows
-    batch_nums = x.shape[0] // batch_size
+      # update batch dict
+      self.x_batch_dict.update({set_name: x_batches})
+      self.y_batch_dict.update({set_name: y_batches})
+      self.t_batch_dict.update({set_name: t_batches})
+      self.z_batch_dict.update({set_name: z_batches})
 
-    # remaining samples
-    r = int(np.remainder(len(y), batch_size))
 
-    # there are remaining samples
-    if r:
+    # examples per class
+    self.n_class_examples = {s: np.prod(x.shape[:2]) // len(self.class_dicts[s]) for s, x in self.x_batch_dict.items()}
 
-      # increase batch num
-      batch_nums += 1
 
-      # indizes for remaining samples
-      ss, se, random_samples = (batch_nums - 1) * batch_size, (batch_nums - 1) * batch_size + r, np.random.randint(0, high=len(y), size=batch_size-r)
+  def print_batch_infos(self):
+    """
+    prints some infos of batches
+    """
 
-      # remaining and filling examples
-      r_x, r_y, r_z, f_x, f_y, f_z = x[ss:se, :], y[ss:se], z[ss:se], x[random_samples, :], y[random_samples], z[random_samples]
+    # general info
+    print("\n--batch infos:")
 
-      # target
-      r_t, f_t = (t[ss:se, :], t[random_samples, :]) if not self.feature_params['use_mfcc_features'] else (None, None)
+    # go through each set
+    for set_name in self.set_names:
 
-    # init batches
-    x_batches = np.empty((batch_nums, batch_size, self.channel_size, self.feature_size, self.frame_size), dtype=np.float32) if self.feature_params['use_mfcc_features'] else np.empty((batch_nums, batch_size, self.channel_size, self.raw_frame_size), dtype=np.float32)
-    y_batches = np.empty((batch_nums, batch_size), dtype=np.int)
-    t_batches = np.empty((batch_nums, batch_size, self.raw_frame_size), dtype=np.int) if not self.feature_params['use_mfcc_features'] else None
-    z_batches = np.empty((batch_nums, batch_size), dtype=z.dtype)
+      # print messages
+      print("\nset infos: ", set_name)
+      print("x: ", self.x_batch_dict[set_name].shape)
+      print("y: ", self.y_batch_dict[set_name].shape)
+      print("t: ", self.t_batch_dict[set_name].shape) if self.t_batch_dict[set_name] is not None else None
+      print("z: ", self.z_batch_dict[set_name].shape)
+      print("class dict: ", self.class_dicts[set_name])
+      print("examples per class: ", self.n_class_examples[set_name])
+      print("z examples: ", self.z_batch_dict[set_name][0][:20])
 
-    # batching
-    for i in range(batch_nums - 1):
-      x_batches[i, :] = x[i*batch_size:i*batch_size+batch_size, :]
-      y_batches[i, :] = self.get_index_of_class(y[i*batch_size:i*batch_size+batch_size])
-      z_batches[i, :] = z[i*batch_size:i*batch_size+batch_size]
 
-      # target
-      if not self.feature_params['use_mfcc_features']: t_batches[i, :] = t[i*batch_size:i*batch_size+batch_size, :]
+
+
+  # #def create_batches(self, data, batch_size=1):
+  # def create_batches(self):
+  #   """
+  #   create batches for training 
+  #   mfcc: [n x c x m x f] -> [m x b x c x m x f]
+  #   raw: [n x c x m] -> [m x b x c x m]
+  #   """
+
+  #   for set_name in self.set_names
+
+  #   # extract data
+  #   x, y, z = data['x'], data['y'], data['z']
+
+  #   # target
+  #   t = data['t'] if not self.feature_params['use_mfcc_features'] else None
+
+  #   # randomize examples
+  #   if self.shuffle:
+
+  #     # random permutation
+  #     indices = np.random.permutation(x.shape[0])
+
+  #     # randomize
+  #     x, y, z = np.take(x, indices, axis=0), np.take(y, indices, axis=0), np.take(z, indices, axis=0)
+
+  #     # target
+  #     t = np.take(t, indices, axis=0) if not self.feature_params['use_mfcc_features'] else None
+
+  #   # number of windows
+  #   batch_nums = x.shape[0] // batch_size
+
+  #   # remaining samples
+  #   r = int(np.remainder(len(y), batch_size))
+
+  #   # there are remaining samples
+  #   if r:
+
+  #     # increase batch num
+  #     batch_nums += 1
+
+  #     # indizes for remaining samples
+  #     ss, se, random_samples = (batch_nums - 1) * batch_size, (batch_nums - 1) * batch_size + r, np.random.randint(0, high=len(y), size=batch_size-r)
+
+  #     # remaining and filling examples
+  #     r_x, r_y, r_z, f_x, f_y, f_z = x[ss:se, :], y[ss:se], z[ss:se], x[random_samples, :], y[random_samples], z[random_samples]
+
+  #     # target
+  #     r_t, f_t = (t[ss:se, :], t[random_samples, :]) if not self.feature_params['use_mfcc_features'] else (None, None)
+
+  #   # init batches
+  #   x_batches = np.empty((batch_nums, batch_size, self.channel_size, self.feature_size, self.frame_size), dtype=np.float32) if self.feature_params['use_mfcc_features'] else np.empty((batch_nums, batch_size, self.channel_size, self.raw_frame_size), dtype=np.float32)
+  #   y_batches = np.empty((batch_nums, batch_size), dtype=np.int)
+  #   t_batches = np.empty((batch_nums, batch_size, self.raw_frame_size), dtype=np.int) if not self.feature_params['use_mfcc_features'] else None
+  #   z_batches = np.empty((batch_nums, batch_size), dtype=z.dtype)
+
+  #   # batching
+  #   for i in range(batch_nums - 1):
+  #     x_batches[i, :] = x[i*batch_size:i*batch_size+batch_size, :]
+  #     y_batches[i, :] = self.get_index_of_class(y[i*batch_size:i*batch_size+batch_size])
+  #     z_batches[i, :] = z[i*batch_size:i*batch_size+batch_size]
+
+  #     # target
+  #     if not self.feature_params['use_mfcc_features']: t_batches[i, :] = t[i*batch_size:i*batch_size+batch_size, :]
     
-    # last batch index
-    i += 1
+  #   # last batch index
+  #   i += 1
 
-    # last batch
-    x_batches[i, :] = x[i*batch_size:i*batch_size+batch_size, :] if not r else np.concatenate((r_x, f_x))
-    y_batches[i, :] = self.get_index_of_class(y[i*batch_size:i*batch_size+batch_size]) if not r else self.get_index_of_class(np.concatenate((r_y, f_y)))
-    z_batches[i, :] = z[i*batch_size:i*batch_size+batch_size] if not r else np.concatenate((r_z, f_z))
+  #   # last batch
+  #   x_batches[i, :] = x[i*batch_size:i*batch_size+batch_size, :] if not r else np.concatenate((r_x, f_x))
+  #   y_batches[i, :] = self.get_index_of_class(y[i*batch_size:i*batch_size+batch_size]) if not r else self.get_index_of_class(np.concatenate((r_y, f_y)))
+  #   z_batches[i, :] = z[i*batch_size:i*batch_size+batch_size] if not r else np.concatenate((r_z, f_z))
 
-    # target
-    if not self.feature_params['use_mfcc_features']: t_batches[i, :] = t[i*batch_size:i*batch_size+batch_size, :] if not r else np.concatenate((r_t, f_t))
+  #   # target
+  #   if not self.feature_params['use_mfcc_features']: t_batches[i, :] = t[i*batch_size:i*batch_size+batch_size, :] if not r else np.concatenate((r_t, f_t))
     
-    # to torch
-    if self.to_torch: 
+  #   # to torch
+  #   if self.to_torch: 
 
-      x_batches, y_batches = torch.from_numpy(x_batches), torch.from_numpy(y_batches)
-      t_batches = torch.from_numpy(t_batches) if not self.feature_params['use_mfcc_features'] else None
+  #     x_batches, y_batches = torch.from_numpy(x_batches), torch.from_numpy(y_batches)
+  #     t_batches = torch.from_numpy(t_batches) if not self.feature_params['use_mfcc_features'] else None
 
-    return x_batches, y_batches, t_batches, z_batches
+  #   return x_batches, y_batches, t_batches, z_batches
 
 
 
-def print_batch_infos(batch_archive):
-  """
-  simply print some infos
-  """
-  try:
-    print("x_train: ", batch_archive.x_train.shape), print("y_train: ", batch_archive.y_train.shape), print("z_train: ", batch_archive.z_train.shape)
-    print("x_val: ", batch_archive.x_val.shape), print("y_val: ", batch_archive.y_val.shape), print("z_val: ", batch_archive.z_val.shape)
-    print("x_test: ", batch_archive.x_test.shape), print("y_test: ", batch_archive.y_test.shape), print("z_test: ", batch_archive.z_test.shape)
-    print("x_my: ", batch_archive.x_my.shape), print("y_my: ", batch_archive.y_my.shape), print("z_my: ", batch_archive.z_my.shape) 
-    print("t_train: ", batch_archive.t_train.shape), print("t_val: ", batch_archive.t_val.shape), print("t_test: ", batch_archive.t_test.shape), print("t_my: ", batch_archive.t_my.shape),
-    print("t_my: ", batch_archive.t_my)
-  except:
-    pass
-  print("num_examples_per_class: ", batch_archive.num_examples_per_class), print("class_dict: ", batch_archive.class_dict)
-  #print("y_train: ", batch_archive.y_train)
-  print("y_train type: ", batch_archive.y_train.dtype)
-  #print("y_test: ", batch_archive.y_test)
-  print("y_my: ", batch_archive.y_my)
+
+# --
+# other functions
 
 
 def plot_grid_examples(cfg, audio_set1, audio_set2):
@@ -572,21 +592,21 @@ def plot_grid_examples(cfg, audio_set1, audio_set2):
   plot examples from each label
   """
 
+  # create batches
+  batch_archive = SpeechCommandsBatchArchive(feature_file_dict={**audio_set1.feature_file_dict, **audio_set2.feature_file_dict}, batch_size_dict={'train': cfg['ml']['train_params']['batch_size'], 'test': 5, 'validation': 5, 'my': 1}, shuffle=False)
+
   for l in cfg['datasets']['speech_commands']['sel_labels']:
 
     print("l: ", l)
 
     # create batches
-    batch_archive = SpeechCommandsBatchArchive({**audio_set1.feature_file_dict, **audio_set2.feature_file_dict}, batch_size=32, batch_size_eval=5)
-
-    # reduce to label
-    batch_archive.reduce_to_label(l)
+    batch_archive.create_batches(selected_labels=[l])
 
     # plot
     plot_grid_images(batch_archive.x_train[0, :30], context='mfcc', padding=1, num_cols=5, plot_path=cfg['datasets']['speech_commands']['plot_paths']['examples_grid'], title=l, name='grid_' + l, show_plot=False)
 
   # create batches for my data
-  batch_archive = SpeechCommandsBatchArchive({**audio_set1.feature_file_dict, **audio_set2.feature_file_dict}, batch_size=32, batch_size_eval=5, shuffle=False)
+  batch_archive.create_batches()
   print("\ndata: "), print_batch_infos(batch_archive)
   
   # plot my data
@@ -632,51 +652,37 @@ if __name__ == '__main__':
   audio_set2 = AudioDataset(cfg['datasets']['my_recordings'], cfg['feature_params'])
 
   # create batches
-  batch_archive = SpeechCommandsBatchArchive(feature_file_dict={**audio_set1.feature_file_dict, **audio_set2.feature_file_dict}, batch_size=32, batch_size_eval=5, shuffle=False)
+  batch_archive = SpeechCommandsBatchArchive(feature_file_dict={**audio_set1.feature_file_dict, **audio_set2.feature_file_dict}, batch_size_dict={'train': cfg['ml']['train_params']['batch_size'], 'test': 5, 'validation': 5, 'my': 1}, shuffle=False)
 
-  # reduce to labels algorithm
-  #batch_archive.reduce_to_labels(['left', 'right'])
+  # create batches
+  batch_archive.create_batches(selected_labels=['_mixed'])
 
-  # infos
-  print("\ndata: "), print_batch_infos(batch_archive)
+  # print info
+  batch_archive.print_batch_infos()
 
-  # reduce to label
-  #r_label = "up"
-  #batch_archive.reduce_to_label(r_label)
-
-  # infos
-  #print("\nreduced to label: ", r_label), print_batch_infos(batch_archive)
-
-  # add noise
-  #batch_archive.add_noise_data(shuffle=False)
-
-  # infos
-  #print("\nnoise added: "), print_batch_infos(batch_archive)
-
-  #batch_archive.one_against_all(r_label, others_label='other', shuffle=False)
-  #print("\none against all: "), print_batch_infos(batch_archive)
+  # all labels again
+  batch_archive.create_batches()
+  batch_archive.print_batch_infos()
 
 
   # plot some examples
   #plot_grid_examples(cfg, audio_set1, audio_set2)
   
-
   #plot_other_grid(batch_archive.x_train[0, :32], grid_size=(8, 8), show_plot=True)
   #plot_other_grid(batch_archive.x_train[-5, :32], grid_size=(8, 8), show_plot=False)
   #plot_other_grid(batch_archive.x_train[-1, :32], grid_size=(8, 8), show_plot=True)
 
-  x1 = batch_archive.x_train[0, 0, 0]
-  x2 = batch_archive.x_train[0, 1, 0]
-  x3 = batch_archive.x_my[0, 0, 0]
+  # x1 = batch_archive.x_train[0, 0, 0]
+  # x2 = batch_archive.x_train[0, 1, 0]
+  # x3 = batch_archive.x_my[0, 0, 0]
 
-  print("x1: ", x1.shape)
-  print("x2: ", x2.shape)
-  print("x1: ", batch_archive.z_train[0, 0])
-  print("x2: ", batch_archive.z_train[0, 1])
+  # print("x1: ", x1.shape)
+  # print("x2: ", x2.shape)
+  # print("x1: ", batch_archive.z_train[0, 0])
+  # print("x2: ", batch_archive.z_train[0, 1])
 
   # similarity measure
   #similarity_measures(x1, x2)
-
 
   #plot_mfcc_profile(x=np.ones(16000), fs=16000, N=400, hop=160, mfcc=x1)
   #plot_mfcc_only(x1, fs=16000, hop=160, plot_path=None, name=batch_archive.z_train[0, 0], show_plot=False)

@@ -213,10 +213,10 @@ class Mic():
       x_onset = self.collector.read_collection()
 
       # extract features
-      mfcc_bon, bon_pos = self.feature_extractor.extract_mfcc(x_onset)
+      x_feature_bon, bon_pos = self.feature_extractor.extract_audio_features(x_onset)
 
       # classify collection
-      y_hat, label = self.classifier.classify(mfcc_bon)
+      y_hat, label = self.classifier.classify(x_feature_bon)
 
       # plot
       plot_mfcc_profile(x_onset[bon_pos*self.hop:(bon_pos+self.feature_params['frame_size'])*self.hop], self.feature_params['fs'], self.N, self.hop, mfcc_bon, frame_size=self.feature_params['frame_size'], plot_path=self.plot_path, name='collect-{}_label-{}'.format(self.collector.collection_counter, label), enable_plot=self.mic_params['enable_plot'])

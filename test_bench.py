@@ -161,7 +161,7 @@ class TestBench():
 
       # feature extraction
       #x, _ = self.feature_extractor.extract_mfcc(x_noise, reduce_to_best_onset=True) if self.net_handler.nn_arch != 'wavenet' else self.feature_extractor.get_best_raw_samples(x_noise, add_channel_dim=True)
-      x, _ = self.feature_extractor.extract_features(x_noise)
+      x, _ = self.feature_extractor.extract_audio_features(x_noise)
 
       # classify
       y_hat, o, pred_label = self.net_handler.classify_sample(x)
@@ -191,7 +191,7 @@ class TestBench():
     pred_label_list, probs = [], []
 
     # feature extraction
-    x, _ = self.feature_extractor.extract_mfcc(x_wav, reduce_to_best_onset=False) if self.net_handler.nn_arch != 'wavenet' else (x_wav[np.newaxis, :], 0)
+    x, _ = self.feature_extractor.extract_audio_features(x_wav, reduce_to_best_onset=False)
 
     # windowed
     x_win = np.squeeze(view_as_windows(x, self.data_size, step=self.cfg_tb['shift_frame_step']), axis=(0, 1)) if self.net_handler.nn_arch != 'wavenet' else np.squeeze(view_as_windows(x, self.data_size, step=self.cfg_tb['shift_frame_step'] * self.feature_extractor.hop), axis=0)

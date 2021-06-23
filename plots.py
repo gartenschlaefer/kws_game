@@ -607,21 +607,18 @@ def plot_confusion_matrix(cm, classes, cmap=None, plot_path=None, name='None'):
   ax = plt.axes()
 
   # image
-  im = ax.imshow(cm, cmap=cmap, interpolation='none', vmin=0, vmax=np.sum(cm, axis=1)[0])
+  im = ax.imshow(cm, cmap=cmap, interpolation='none', vmin=0, vmax=np.max(np.sum(cm, axis=1)))
 
   # text handling
-  for predict in range(len(classes)):
-    for true in range(len(classes)):
+  for y_pred_pos in range(len(classes)):
+    for y_true_pos in range(len(classes)):
 
-      # color handling
-      if predict != true: font_color = 'black'
-      else: font_color = 'white'
-
-      if len(classes) > 10: fontsize = get_fontsize('conf_small')
-      else: fontsize = get_fontsize('conf_normal')
+      # font color and size
+      font_color = 'black' if y_pred_pos != y_true_pos else 'white'
+      fontsize = get_fontsize('conf_small') if len(classes) > 10 else get_fontsize('conf_normal')
 
       # write numbers inside
-      text = ax.text(true, predict, cm[predict, true], ha='center', va='center', color=font_color, fontsize=fontsize)
+      text = ax.text(y_true_pos, y_pred_pos, cm[y_pred_pos, y_true_pos], ha='center', va='center', color=font_color, fontsize=fontsize)
 
   # care about labels
   ax.set_xticks(np.arange(len(classes))), ax.set_yticks(np.arange(len(classes)))
