@@ -88,13 +88,15 @@ class FeatureExtractor():
     mfcc_all = np.empty(shape=(1, 0, mfcc.shape[1]), dtype=np.float32) if self.channel_size == 1 else np.empty(shape=(0, self.feature_size, mfcc.shape[1]), dtype=np.float32)
 
     # compute deltas [feature x frames]
-    deltas = self.compute_deltas(mfcc)
+    deltas = self.compute_deltas(mfcc) if self.feature_params['use_delta_features'] else None
 
     # compute double deltas [feature x frames]
-    double_deltas = self.compute_deltas(deltas)
+    double_deltas = self.compute_deltas(deltas) if self.feature_params['use_double_delta_features'] else None
 
-    # compute energy of mfcc
-    e_mfcc, e_deltas, e_double_deltas = self.calc_energy(mfcc), self.calc_energy(deltas), self.calc_energy(double_deltas)
+    # compute energies
+    e_mfcc = self.calc_energy(mfcc)
+    e_deltas = self.calc_energy(deltas) if self.feature_params['use_delta_features'] else None
+    e_double_deltas = self.calc_energy(double_deltas) if self.feature_params['use_double_delta_features'] else None
 
     # stack as features
     if self.channel_size == 1:
@@ -109,16 +111,22 @@ class FeatureExtractor():
       if self.feature_params['use_double_delta_features']: mfcc_all = np.concatenate((mfcc_all, double_deltas[np.newaxis, :]), axis=0) if not self.feature_params['use_energy_features'] else np.concatenate((mfcc_all, np.vstack((double_deltas, e_double_deltas))[np.newaxis, :]), axis=0)
 
     # norm -> [0, 1]
-    if self.feature_params['norm_features']: 
-      for i, m in enumerate(mfcc_all[0, :]): mfcc_all[0, i] = (m + np.abs(np.min(m))) / np.linalg.norm(m + np.abs(np.min(m)), ord=np.infty)
+    if self.feature_params['norm_features']:
 
+      # for each channel
+      for ch in range(self.channel_size):
+
+        # determine minimums of all feature vectors
+        m_abs_min = np.abs(np.min(mfcc_all[ch, :], axis=1))
+
+        # normalize mfcc
+        mfcc_all[ch, :] = [(m + m_abs_min[i]) / np.linalg.norm(m + m_abs_min[i], ord=np.infty) for i, m in enumerate(mfcc_all[ch, :])]
+      
     # find best onset
     bon_pos = self.find_max_energy_region(mfcc[self.energy_feature_pos, :], window_size=self.frame_size, rand_best_onset=rand_best_onset, rand_delta_percs=rand_delta_percs)
 
-    # return best onset
-    if reduce_to_best_onset: return mfcc_all[:, :, bon_pos:bon_pos+self.frame_size], bon_pos
-
-    return mfcc_all, bon_pos
+    # return mfcc and best onset
+    return (mfcc_all[:, :, bon_pos:bon_pos+self.frame_size], bon_pos) if reduce_to_best_onset else (mfcc_all, bon_pos)
 
 
   def find_max_energy_region(self, x, window_size, rand_best_onset=False, rand_delta_percs=0.05):
@@ -126,8 +134,11 @@ class FeatureExtractor():
     find frame with least amount of energy
     """
 
+    # determine the energy variable
+    e = np.abs(x)**2 if not self.feature_params['use_mfcc_features'] else x
+
     # energy frames
-    e_win = np.squeeze(view_as_windows(np.abs(x)**2, window_size, step=1))
+    e_win = np.squeeze(view_as_windows(e, window_size, step=1))
 
     # max energy region -> best onset position
     bon_pos = np.argmax(np.sum(e_win, axis=1))

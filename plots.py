@@ -864,8 +864,6 @@ def plot_mfcc_profile(x, fs, N, hop, mfcc, sep_features=True, diff_plot=False, c
   # specify number of rows and cols
   n_rows, n_cols = n_im_rows * grid_size[0] + r_space * grid_size[0] - 1, n_im_cols * grid_size[1] + c_space * grid_size[0] - 1
 
-  print("n_rows: ", n_rows), print("n_cols: ", n_cols)
-
   # init figure
   fig = plt.figure(figsize=get_figsize(context='square_big')) if mfcc.shape[0] == 39 and sep_features else plt.figure(figsize=get_figsize(context='half'))
 
@@ -914,13 +912,8 @@ def plot_mfcc_profile(x, fs, N, hop, mfcc, sep_features=True, diff_plot=False, c
   for i, c in enumerate(sel_coefs, start=1):
 
     # row start and stop
-    #rs, re = i * n_im_rows + i * r_space, (i + 1) * n_im_rows + i * r_space
     rs, re = int(i * n_im_rows * grid_row_usage[i-1]) + i * r_space, int((i + 1) * n_im_rows * np.sum([grid_row_usage[j] for j in range(i + 1)])) + i * r_space
     
-    # row start and stop
-    #rs, re = int(n_im_rows * grid_row_usage[0]) + r_space, int(n_im_rows * 2) + r_space
-    print("rs: {}, re: {}".format(rs, re))
-
     # specify grid pos
     ax = fig.add_subplot(gs[rs:re, :n_im_cols-3-2])
 

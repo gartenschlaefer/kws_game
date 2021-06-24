@@ -359,10 +359,10 @@ ml:
   #nn_arch: conv-trad
   #nn_arch: conv-encoder
   #nn_arch: conv-encoder-fc1
-  #nn_arch: conv-encoder-fc3
+  nn_arch: conv-encoder-fc3
   #nn_arch: conv-lim-encoder
   #nn_arch: conv-latent
-  nn_arch: wavenet
+  #nn_arch: wavenet
 
   # logging enable
   logging_enabled: True
@@ -371,10 +371,10 @@ ml:
   use_cpu: False
 
   # plot animation
-  plot_animation: True
+  create_animation: False
 
   # plot collections
-  plot_collections: True
+  create_collections: False
 
 
 # --

@@ -229,16 +229,19 @@ class ML():
       plot_mfcc_only(fakes[0, 0], fs=16000, hop=160, plot_path=self.model_path, name='generated_sample_' + self.encoder_label + name_ext, show_plot=False)
 
     # animation (for generative networks)
-    if self.cfg_ml['plot_animation']: self.create_anim()
+    if self.cfg_ml['create_animation']: self.create_anim()
 
     # plot collections
-    if self.cfg_ml['plot_collections']: self.collections()
+    if self.cfg_ml['create_collections']: self.collections()
 
 
   def image_collect(self, x, epoch):
     """
     collect images of mfcc's (used as callback function in the training of adversarial networks)
     """
+
+    # disabled feature
+    if not self.cfg_ml['create_collections']: return
 
     # append image
     self.img_list.append(x)

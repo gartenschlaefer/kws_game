@@ -11,12 +11,10 @@ from legacy import legacy_adjustments_feature_params
 
 class BatchArchive():
   """
-  Batch Archiv interface 
-  collector of training, validation, test and my data batches
-  x: data, y: label_num, z: index
+  batch archive base class, collector of training, validation, test and my data batches
+  x: data, y: label_num, t: target, z: index
   """
 
-  #def __init__(self, batch_size=32, batch_size_eval=5, to_torch=True, shuffle=False):
   def __init__(self, batch_size_dict, to_torch=True, shuffle=False):
 
     # arguments
@@ -390,6 +388,9 @@ class SpeechCommandsBatchArchive(BatchArchive):
       # batch size shortcut
       batch_size = self.batch_size_dict[set_name]
 
+      # safety for batch size
+      if len(y) < batch_size: print("***number of examples is to small to create batches"), sys.exit()
+
       # randomize examples
       if self.shuffle:
 
@@ -439,8 +440,10 @@ class SpeechCommandsBatchArchive(BatchArchive):
       t_batches = np.empty((batch_nums, batch_size, self.raw_frame_size), dtype=np.int) if not self.feature_params['use_mfcc_features'] else None
       z_batches = np.empty((batch_nums, batch_size), dtype=z.dtype)
 
-      # batching
+      # batching until last batch
       for i in range(batch_nums - 1):
+
+        # update batches
         x_batches[i, :] = x[i*batch_size:i*batch_size+batch_size, :]
         y_batches[i, :] = self.get_index_of_class(y[i*batch_size:i*batch_size+batch_size])
         z_batches[i, :] = z[i*batch_size:i*batch_size+batch_size]
@@ -449,7 +452,7 @@ class SpeechCommandsBatchArchive(BatchArchive):
         if not self.feature_params['use_mfcc_features']: t_batches[i, :] = t[i*batch_size:i*batch_size+batch_size, :]
       
       # last batch index
-      i += 1
+      i = batch_nums - 1 if (batch_nums - 2) > 0 else 0 
 
       # last batch
       x_batches[i, :] = x[i*batch_size:i*batch_size+batch_size, :] if not r else np.concatenate((r_x, f_x))
@@ -587,14 +590,12 @@ class SpeechCommandsBatchArchive(BatchArchive):
 # other functions
 
 
-def plot_grid_examples(cfg, audio_set1, audio_set2):
+def plot_grid_examples(cfg, batch_archive):
   """
   plot examples from each label
   """
 
-  # create batches
-  batch_archive = SpeechCommandsBatchArchive(feature_file_dict={**audio_set1.feature_file_dict, **audio_set2.feature_file_dict}, batch_size_dict={'train': cfg['ml']['train_params']['batch_size'], 'test': 5, 'validation': 5, 'my': 1}, shuffle=False)
-
+  # for all labels
   for l in cfg['datasets']['speech_commands']['sel_labels']:
 
     print("l: ", l)
@@ -603,14 +604,16 @@ def plot_grid_examples(cfg, audio_set1, audio_set2):
     batch_archive.create_batches(selected_labels=[l])
 
     # plot
-    plot_grid_images(batch_archive.x_train[0, :30], context='mfcc', padding=1, num_cols=5, plot_path=cfg['datasets']['speech_commands']['plot_paths']['examples_grid'], title=l, name='grid_' + l, show_plot=False)
+    #plot_grid_images(batch_archive.x_train[0, :30], context='mfcc', padding=1, num_cols=5, plot_path=cfg['datasets']['speech_commands']['plot_paths']['examples_grid'], title=l, name='grid_' + l, show_plot=False)
+    plot_grid_images(batch_archive.x_batch_dict['train'][0, :30], context='mfcc', padding=1, num_cols=5, title=l, name='grid_' + l, show_plot=False)
 
   # create batches for my data
   batch_archive.create_batches()
-  print("\ndata: "), print_batch_infos(batch_archive)
+  batch_archive.print_batch_infos()
   
   # plot my data
-  plot_grid_images(np.squeeze(batch_archive.x_my, axis=1), context='mfcc', padding=1, num_cols=5, plot_path=cfg['datasets']['my_recordings']['plot_paths']['examples_grid'], title='grid', name='grid', show_plot=False)
+  #plot_grid_images(np.squeeze(batch_archive.x_my, axis=1), context='mfcc', padding=1, num_cols=5, title='grid', name='grid', show_plot=True)
+  plot_grid_images(np.squeeze(batch_archive.x_batch_dict['my'], axis=1), context='mfcc', padding=1, num_cols=5, title='grid', name='grid', show_plot=True)
 
 
 def similarity_measures(x1, x2):
@@ -654,7 +657,7 @@ if __name__ == '__main__':
   # create batches
   batch_archive = SpeechCommandsBatchArchive(feature_file_dict={**audio_set1.feature_file_dict, **audio_set2.feature_file_dict}, batch_size_dict={'train': cfg['ml']['train_params']['batch_size'], 'test': 5, 'validation': 5, 'my': 1}, shuffle=False)
 
-  # create batches
+  # create batches of selected label
   batch_archive.create_batches(selected_labels=['_mixed'])
 
   # print info
@@ -666,7 +669,7 @@ if __name__ == '__main__':
 
 
   # plot some examples
-  #plot_grid_examples(cfg, audio_set1, audio_set2)
+  plot_grid_examples(cfg, batch_archive)
   
   #plot_other_grid(batch_archive.x_train[0, :32], grid_size=(8, 8), show_plot=True)
   #plot_other_grid(batch_archive.x_train[-5, :32], grid_size=(8, 8), show_plot=False)

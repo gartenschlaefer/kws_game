@@ -627,7 +627,7 @@ class SpeechCommandsDataset(AudioDataset):
         t = self.feature_extractor.quantize(np.squeeze(x_feature)[bon_pos:bon_pos+self.raw_frame_size]) if not self.feature_params['use_mfcc_features'] else None
 
         # plot features
-        if self.cfg_dataset['enable_plot']: plot_mfcc_profile(x, self.feature_params['fs'], self.feature_extractor.N, self.feature_extractor.hop, x_feature, anno_file=anno, onsets=None, bon_pos=bon_pos, mient=None, minreg=None, frame_size=self.frame_size, plot_path=self.plot_paths['mfcc'], name=file_label + str(file_index) + '_' + set_name, enable_plot=self.cfg_dataset['enable_plot']) if self.feature_params['use_mfcc_features'] else plot_waveform(x, self.feature_params['fs'],  bon_samples=[bon_pos, bon_pos+self.raw_frame_size], title=file_label + file_index, plot_path=self.plot_paths['waveform'], name=file_label + file_index, show_plot=False, close_plot=True)
+        if self.cfg_dataset['enable_plot']: plot_mfcc_profile(x, self.feature_params['fs'], self.feature_extractor.N, self.feature_extractor.hop, x_feature, anno_file=anno, onsets=None, bon_pos=bon_pos, mient=None, minreg=None, frame_size=self.frame_size, plot_path=self.plot_paths['mfcc'], name=file_label + str(file_index) + '_' + set_name, close_plot=True) if self.feature_params['use_mfcc_features'] else plot_waveform(x, self.feature_params['fs'],  bon_samples=[bon_pos, bon_pos+self.raw_frame_size], title=file_label + file_index, plot_path=self.plot_paths['waveform'], name=file_label + file_index, show_plot=False, close_plot=True)
 
         # damaged file check
         if self.cfg_dataset['filter_damaged_files'] and self.feature_params['use_mfcc_features']:
@@ -827,9 +827,13 @@ if __name__ == '__main__':
   print("\n--check dataset")
 
   # batches
-  batch_archive = SpeechCommandsBatchArchive(feature_file_dict={**audio_set1.feature_file_dict, **audio_set2.feature_file_dict}, batch_size=32, batch_size_eval=4, to_torch=False)
+  batch_archive = SpeechCommandsBatchArchive(feature_file_dict={**audio_set1.feature_file_dict, **audio_set2.feature_file_dict}, batch_size_dict={'train': cfg['ml']['train_params']['batch_size'], 'test': 5, 'validation': 5, 'my': 1}, shuffle=False)
 
-  print("archive: ", batch_archive.x_train.shape)
+  # create batches
+  batch_archive.create_batches()
+  
+  print("archive: ", batch_archive.x_batch_dict.keys())
+  print("archive: ", batch_archive.x_batch_dict['train'].shape)
   #print("archive: ", batch_archive.num_examples_per_class)
   #plot_mfcc_only(batch_archive.x_train[0, 0], name=batch_archive.z_train[0, 0], show_plot=True)
 

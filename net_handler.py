@@ -513,8 +513,7 @@ class AdversarialNetHandler(NetHandler):
         train_score = self.update_models(x, y, batch_archive.class_dict, epoch, mini_batch, train_score)
 
       # check progess after epoch with callback function
-      if callback_f is not None and not epoch % callback_act_epochs:
-        callback_f(self.generate_samples(noise=fixed_noise, to_np=True), epoch)
+      if callback_f is not None and not epoch % callback_act_epochs: callback_f(self.generate_samples(noise=fixed_noise, to_np=True), epoch)
 
     # finish train score
     train_score.finish()

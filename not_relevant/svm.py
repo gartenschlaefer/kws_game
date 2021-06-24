@@ -37,11 +37,14 @@ if __name__ == '__main__':
   # --
   # batches
 
-  # create batch archiv
-  batch_archive = SpeechCommandsBatchArchive({**audio_set1.feature_file_dict, **audio_set2.feature_file_dict}, batch_size=1, to_torch=False)
+  # create batches
+  batch_archive = SpeechCommandsBatchArchive(feature_file_dict={**audio_set1.feature_file_dict, **audio_set2.feature_file_dict}, batch_size_dict={'train': cfg['ml']['train_params']['batch_size'], 'test': 5, 'validation': 5, 'my': 1}, shuffle=False)
+
+  # create batches of selected label
+  batch_archive.create_batches()
 
   # print classes
-  print("classes: ", batch_archive.classes)
+  print("classes: ", batch_archive.class_dict)
 
   x = np.squeeze(batch_archive.x_train, axis=1).reshape(batch_archive.x_train.shape[0], -1)
   y = np.squeeze(batch_archive.y_train, axis=1)
