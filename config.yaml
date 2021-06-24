@@ -70,7 +70,7 @@ datasets:
     enable_plot: False
 
     # recreate all datasets (copy wavs to data_paths - not necessary except the dataset is changed)
-    recreate: False
+    recreate: True
     clean_files: False
 
     # v1 all labels
@@ -300,7 +300,7 @@ ml:
     #batch_size: 512
 
     # number of epochs
-    num_epochs: 100
+    num_epochs: 1001
 
     # learning rate
     lr: 0.0001
@@ -370,11 +370,13 @@ ml:
   # use cpu
   use_cpu: False
 
-  # plot animation
+  # animation
   create_animation: False
 
-  # plot collections
+  # collections
   create_collections: False
+
+
 
 
 # --

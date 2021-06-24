@@ -14,7 +14,7 @@ sys.path.append("../")
 from audio_dataset import AudioDataset
 from feature_extraction import FeatureExtractor, custom_dct_matrix
 from plots import plot_mel_band_weights, plot_mfcc_profile, plot_waveform, plot_dct, plot_wav_grid, plot_spec_profile, plot_mel_scale
-from latex_table_maker import LatexTableMaker
+from latex_table_maker import LatexTableMaker, LatexTableMakerAudiosetLabels
 
 
 def get_infos_from_log(in_file):
@@ -153,13 +153,14 @@ def feature_selection_tables(overwrite=False):
     tables = lt_maker.extract_table(out_file=out_file, caption=get_thesis_table_captions(in_file))
 
 
-def audio_set_wavs(cfg, wav_grid_plot=False):
+def audio_set_wavs(cfg, wav_grid_plot=False, do_label_table=False):
   """
   audio set wavs
   """
 
   # plot path
   plot_path = '../docu/thesis/5_exp/figs/'
+  plot_path_tab = '../docu/thesis/5_exp/tables/'
 
   # audioset init
   audio_set1 = AudioDataset(cfg['datasets']['speech_commands'], feature_params=cfg['feature_params'], root_path='../')
@@ -169,15 +170,12 @@ def audio_set_wavs(cfg, wav_grid_plot=False):
   audio_set1.get_audiofiles()
   audio_set2.get_audiofiles()
 
-  # analyze
-  #audio_set1.analyze_dataset_extraction()
+  # label table
+  if do_label_table: LatexTableMakerAudiosetLabels(audio_set1.all_label_file_dict, caption='all labels', label='tab:exp_dataset_all_labels', out_file=plot_path_tab + 'tab_exp_dataset_all_labels__not_released.tex')
 
   # plot wav grid
   if wav_grid_plot: plot_wav_grid(audio_set1.extract_wav_examples(set_name='test', n_examples=1, from_selected_labels=False), feature_params=audio_set1.feature_params, grid_size=(6, 6), plot_path=plot_path, name='exp_dataset_wav_grid_speech_commands_v2', show_plot=True)
   if wav_grid_plot: plot_wav_grid(audio_set2.extract_wav_examples(set_name='my', n_examples=5), feature_params=audio_set2.feature_params, grid_size=(5, 5), plot_path=plot_path, name='exp_dataset_wav_grid_my', show_plot=True)
-
-  # statistics from files
-  # ToDo
 
 
 

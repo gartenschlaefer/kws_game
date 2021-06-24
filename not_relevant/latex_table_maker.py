@@ -217,6 +217,41 @@ class LatexTableMaker(LatexTableFunctions):
     return norm_list, feature_sel_list, data_size_list, acc_list
 
 
+
+class LatexTableMakerAudiosetLabels(LatexTableFunctions):
+  """
+  latex table maker class
+  """
+
+  def __init__(self, all_label_file_dict, caption, label, out_file):
+
+    # vars
+    titles = ['label', 'train', 'test', 'validation', 'total']
+    col_spaces_cm = [3, 3, 3, 3, 3]
+
+    # row entries
+    row_entries = [[label, len(set_dict['train']), len(set_dict['test']), len(set_dict['validation']), len(set_dict['train']) + len(set_dict['test']) + len(set_dict['validation'])] for label, set_dict in all_label_file_dict.items() if len(set_dict.keys())]
+
+    # header
+    table_str = self.table_header(col_spaces_cm=col_spaces_cm, sep=[], caption=caption)
+
+    # title string
+    table_str += self.table_titles(titles=titles, textbf=True, midrule=True, color=False)
+
+    # row entries
+    table_str += ''.join([self.table_row_entry(row_entry) for row_entry in row_entries])
+
+    # footer
+    table_str += self.table_footer(label=label)
+
+    # message
+    print("table_str: ", table_str)
+
+    # save to file
+    with open(out_file, 'w') as f: print(table_str, file=f)
+
+
+
 if __name__ == '__main__':
   """
   main

@@ -7,9 +7,9 @@ Two datasets are used within this thesis, one is the second version of the speec
 %(\enquote{left}, \enquote{right}, \enquote{right}, \enquote{right}).
 
 Note that the \enquote{my dataset} is merely used for evaluation.
-The training, validation and also testing of the neural network architectures is done on the speech commands dataset.
+The training, validation and testing of the neural network architectures is done on the speech commands dataset.
 Both datasets consists of raw waveform files in the \texttt{.wav} format, no feature extraction was done beforehand.
-As already mentioned in \rsec{prev_kws_benchmark} direct comparisons between different neural network approaches is a bit difficult if the feature extraction is left to the user alone.
+As already mentioned in \rsec{prev_kws_benchmark} direct comparisons between different neural network approaches is difficult if the feature extraction is left to the user alone.
 Some datasets provide feature extraction beforehand, so that the comparability of neural network architectures performances is not influenced on it.
 The speech commands dataset does no explicit separation into train, test and validation sets, but provides file lists that refers to distinct waveform files that should be used for test and validation.
 More details of the datasets are presented below.
@@ -38,9 +38,9 @@ The recording devices of the speakers, who contributed examples to the dataset, 
 
 The personal experiments made, when listening to the examples in the dataset, were:
 \begin{itemize}
-  \item The quality of the examples in the dataset are ranging from really good and understandable to very bad, noisy and unrecognizable, though most of the examples are good.
+  \item The quality of the examples in the dataset are ranging from really good and understandable to very bad, noisy, unrecognizable and cut away, though most of the examples are good.
 
-  \item Different accents can be perceived, that suggests that people from several countries were involved. However the bias is more on American English as noted in the paper.
+  \item Different accents can be perceived, that suggests that people from several countries were involved. However the bias is layed on American English as noted in the paper.
 
   \item No children speakers were found on the personal listening.
 \end{itemize}
@@ -50,19 +50,28 @@ Further it is not clear if there are equal amounts of male and female speakers a
 The last would be especially interesting for a video games suited for kids.
 
 In many recordings the background noise is imminent, such as traffic noise, chattering people, office sounds, etc.
-Some quality check of the recorded files in the dataset was done by the author of \cite{Warden2018} to reject bad samples.
+A quality check of the recorded files in the dataset was done as described in \cite{Warden2018} to ensure that bad samples are rejected.
 However there are still some existing flaws such as too loud or too silent files or examples with inconsistent sample numbers or some examples that are prone with too much noise or in the worst case, noise only.
 Those quality issues in the dataset are for most cases neglectable or can be fixed, such as inconsistent sample numbers. 
 Other more problematic cases, for instance noise-only examples, should be filtered out.
 %Still it is a great dataset, because there is no need for a perfect dataset when working with neural networks and one can be happy that there exists one with this amount of diversity and free of access under the creative common license.
-Usually its not a problem for neural networks to cope with unclean datasets, because of their ability to learn invariance against noise, loudness differences and other nuisances during training.
-Further if the training dataset is large enough and the test and validation sets do not include really bad examples, then there should be no big issues.
-However some cleanu up of the dataset was still done as described in...
+Usually it is not a problem for neural networks to cope with unclean datasets, because of their ability to learn invariance against noise, loudness differences and other nuisances during training.
+Further if the training dataset is large enough and the test and validation sets do not contain very bad examples, there should be no problem in training and evaluation of different models.
+%However some clean up of the dataset was still done as described in...
 
-The speech command dataset exists in two versions (\texttt{v0.01} and \texttt{v0.02}), the first one was published in 2017 and the second one emerged as improved version of \texttt{v0.01} with more key words, examples and quality in 2018.
+The speech command dataset exists in two versions (\texttt{v0.01} and \texttt{v0.02}), the first one was published in 2017 and the second one emerged as improved version of \texttt{v0.01} with 4 more key words, class examples and quality in 2018.
 In this thesis, the experiments are done on the second version \texttt{v0.02}.
+All labels with their separation in training, test and validation set are shown in \rtab{exp_dataset_all_labels}.
 
-Some examples of the speech command dataset in raw audio format are shown in \rfig{exp_dataset_wav_grid_speech_commands_v2} and give a small glimpse on the quality of the recordings.
+% all labels tab
+\input{./5_exp/tables/tab_exp_dataset_all_labels.tex}
+It can be seen, that some labels are occurring significantly more often than others.
+The idea is to have main key words and key words that have some similarity to the main key words or just some random words.
+The main key words are usually classified by a neural networks and the other key words gather to a single separate output class, representing words that are not the main key words.
+Those other key words are labeled in papers with \enquote{Unknown}, but in this thesis it is referred as \enquote{\_mixed} label.
+So the \enquote{\_mixed} label consist of all data examples that are not the main key words with ideally an equal amounts of examples per individual mixed label. 
+
+Some examples of the speech command dataset in raw audio format are shown in \rfig{exp_dataset_wav_grid_speech_commands_v2} to provide a small glimpse on the recordings.
 \begin{figure}[!ht]
   \centering
     \includegraphics[width=0.65\textwidth]{./5_exp/figs/exp_dataset_wav_grid_speech_commands_v2}
