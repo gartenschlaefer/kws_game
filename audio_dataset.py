@@ -317,7 +317,8 @@ class AudioDataset():
     all_speakers_files, all_speakers = self.get_speaker_infos(all_wavs)
 
     # print info
-    print("all labels: ", self.all_labels), print("number of files: ", len(all_speakers_files)), print("speakers: ", all_speakers), print("number of speakers: ", len(all_speakers))
+    print("all labels: ", self.all_labels), print("num of labels: ", len(self.all_label_file_dict.keys()))
+    print("number of files: ", len(all_speakers_files)), print("speakers: ", all_speakers), print("number of speakers: ", len(all_speakers))
 
     # reset statistics
     self.reset_statistics()
@@ -356,7 +357,7 @@ class AudioDataset():
     # histogram
     #if len(self.stats_dict['energy']): plot_histogram(self.stats_dict['energy'], bins=np.logspace(np.log10(0.0001),np.log10(10000), 50), y_log_scale=True, x_log_scale=True, x_label='energy values', y_label='counts', plot_path=plot_path, name='energy_hist' + file_ext)
     if len(self.stats_dict['energy']): plot_histogram(self.stats_dict['energy'], bins=np.logspace(np.log10(1e-6),np.log10(1), 50), y_log_scale=True, x_log_scale=True, x_label='energy values', y_label='counts', plot_path=plot_path, name='energy_hist' + file_ext)
-    if len(self.stats_dict['sample_num']): plot_histogram(self.stats_dict['sample_num'], bins=20, y_log_scale=True, x_label='sample numbers', y_label='counts', plot_path=plot_path, name='num_sample_hist' + file_ext)
+    if len(self.stats_dict['sample_num']): plot_histogram(self.stats_dict['sample_num'], bins=50, y_log_scale=True, x_label='sample numbers', y_label='counts', plot_path=plot_path, name='num_sample_hist' + file_ext)
     if len(self.stats_dict['damaged_score']): plot_histogram(self.stats_dict['damaged_score'], bins=50, y_log_scale=True, x_label='damaged score', y_label='counts', plot_path=plot_path, name='damaged_score_hist' + file_ext)
 
     # damaged file score 2d plot

@@ -2,10 +2,24 @@
 % prev convolutional nets
 
 \subsection{Convolutional Neural Networks}\label{sec:prev_nn_cnn}
-Convolutional Neural Networks (CNNs) are a class of neural networks, that are able to incorporate spatial information with convolutional filters.
-Spatial information is very important in images where neighboring pixels are releated to each other and convolutional filters are very commonly used in image processing and therefore naturally understandable in its mechanics.
-This is one reason why CNNs are so practicable for image recognition tasks and usually state of the art image recognition architectures have some kind of convolutional neural network implemented within.
+Convolutional Neural Networks (CNNs) are a class of neural networks, that are able to incorporate spatial information with the application of convolutional filtering.
+Spatial information is very important in images, where neighboring pixels are releated to each other.
+The same holds for audio, but in only one dimension and with a higher amount of samples.
+Convolutional filters are very commonly applied in image processing tasks, such as denoising or other enhancement of images.
+In audio processing, a classical application of convolutional filters is a simple average filter of the signals energy, to determine onsets like the start of a speech signal.
 
+Still it took relatively long till convolutional filters were a common used asset in neural network architectures.
+The general concepts of CNNs with feature maps (convolutional filters) and weight sharing through those feature maps
+were examined by LeCun et. al. on handwritten postal codes in 1989 \cite{LeCun1989_Generalization}.
 CNNs were introduced and examined by LeCun et. al. on handwritten digits of the MNIST dataset in the late 90s
 \cite{LeCun1998}.
-With their restricted and highly spatial connections and weight sharing through convolutional filters, they are an valuable asset no researchers should miss when working with images or audio recognition.
+%Since then many famous image recognition models were introduced that incorporated CNNs and achieved state of the art performances.
+
+%This is one reason why CNNs are so practicable for image recognition tasks and usually state of the art image recognition architectures have some kind of convolutional neural network implemented within.
+
+%With their restricted and highly spatial connections and weight sharing through convolutional filters, they are an valuable asset no researchers should miss when working with images or audio recognition.
+
+  
+% best quote ever
+%It is trivial to design a machine that learns very quickly, does not generalize, and requires an enormous amount of hardware. 
+%In fact this learning machine has already been built and is called a Random Access Memory.

@@ -11,11 +11,11 @@ The training, validation and testing of the neural network architectures is done
 Both datasets consists of raw waveform files in the \texttt{.wav} format, no feature extraction was done beforehand.
 As already mentioned in \rsec{prev_kws_benchmark} direct comparisons between different neural network approaches is difficult if the feature extraction is left to the user alone.
 Some datasets provide feature extraction beforehand, so that the comparability of neural network architectures performances is not influenced on it.
-The speech commands dataset does no explicit separation into train, test and validation sets, but provides file lists that refers to distinct waveform files that should be used for test and validation.
+The speech commands dataset does not explicitly separate each \texttt{.wav} file into train, test and validation sets, but provides file lists that refers to distinct waveform files that should be used for testing and validation.
 More details of the datasets are presented below.
 
 
-% Some abbreviations and references were done, so that the jungle of selected parameters get a little bit more clear to the reader of this thesis.
+% Some abbreviations and references were done, so that the jungle of selected parameters get a little bit more clear to the reader of this thesis.in the \texttt{.wav} format
 % The abbreviations of the dataset are shown in \rtab{exp_dataset_abbr}.
 
 % The speech commands dataset is extracted before it is used for training. 
@@ -27,8 +27,71 @@ More details of the datasets are presented below.
 % speech commands dataset
 
 \subsection{Speech Commands Dataset}\label{sec:exp_dataset_speech_cmd}
-The speech command dataset \cite{Warden2018} consists of \SI{1}{\second} recordings from more than 30 different words, done by over thousands of different speakers.
-The examples within the dataset were not recorded by professionals with high-end recording equipment, in fact their recording was done in an amateur kind of fashion, so that the dataset is more suited to realistic environments intended for user applications.
+The speech command dataset \cite{Warden2018} consists of \SI{1}{\second} speech recordings of more than 30 different words, done by over thousands of different speakers.
+The dataset exists in two versions (\texttt{v0.01} and \texttt{v0.02}), the first one was published in 2017 and the second one emerged as improved version of \texttt{v0.01} with 4 more key words \{\enquote{backward}, \enquote{forward}, \enquote{follow}, \enquote{learn}\}, class examples and quality in 2018.
+In this thesis, the experiments are done on the second version \texttt{v0.02}.
+The hard-facts about the speech command dataset \texttt{v0.02} are shown in \rtab{exp_dataset_hard_facts}.
+
+% hard facts
+\input{./5_exp/tables/tab_exp_dataset_hard_facts.tex}
+
+All labels with their separation in training, test and validation set are shown in \rtab{exp_dataset_all_labels}.
+
+% all labels tab
+\input{./5_exp/tables/tab_exp_dataset_all_labels.tex}
+In \rtab{exp_dataset_all_labels} it can be observed, that some labels are occurring significantly more often than others.
+The idea behind this is, as described in \cite{Warden2018}, to separate the key words into \emph{core key words} and \emph{auxiliary key words}.
+The core key words are the more frequent ones with about 3000 examples each, in detail they are \{\enquote{yes}, \enquote{no}, \enquote{up}, \enquote{down}, \enquote{left}, \enquote{right}, \enquote{on}, \enquote{off}, \enquote{stop}, \enquote{go}, \enquote{zero}, \enquote{one}, ..., \enquote{nine} \}.
+
+The auxiliary words are the less frequent ones that are not already in the core key words of all available key words in the dataset.
+The intention is that the core key words should get an own class label each, when used in a machine learning system. 
+The auxiliary key words should gather to a single separate class label, representing all unknown words that are not the main key words.
+Those auxiliary key words are often labeled in papers with \enquote{unknown}, but in this thesis it is referred as \enquote{\_mixed} label.
+Further some of the auxiliary key words are similar to core key words, such as \enquote{three} and \enquote{tree}, so that the classification gets more difficult.
+In the creation of those \enquote{\_mixed} label examples it is important to have an equal amounts of examples per individual auxiliary key word. 
+
+Some examples of the speech command dataset in raw audio format are shown in \rfig{exp_dataset_wav_grid_speech_commands_v2} to provide a small glimpse on the recordings.
+\begin{figure}[!ht]
+  \centering
+    \includegraphics[width=0.65\textwidth]{./5_exp/figs/exp_dataset_wav_grid_speech_commands_v2}
+  \caption{One random sample of each individual speech command in the speech command dataset in normalized raw audio format.}
+  \label{fig:exp_dataset_wav_grid_speech_commands_v2}
+\end{figure}
+\FloatBarrier
+\noindent
+
+% statistics
+\subsubsection{Observations of all examples in the dataset}
+Two histograms were created to observe the quality of all recorded files, those are an energy measure for each file and the count of the sample length.
+The energy of a recorded file provides information about if a recording is too silent (background noise only) or too loud (overdrive distortions). In the first version of the speech command dataset (\texttt{v0.01}) too silent files were an issue.
+Luckily this was solved in the second version by rejecting those silent files.
+The energy value $e \in \R$ is computed as:
+\begin{equation}\label{eq:exp_dataset_energy}
+  e = \frac{1}{n} \left( x\, x^T \right)
+\end{equation}
+where $x \in \R^n$ are the values of all samples from the recorded files.
+The division through the length each individual file in samples $n$, has to be done, because not every file has a \SI{1}{\second} duration with 16000 samples.
+The sample length is simply the amount of samples in a recording file, those ideally should have a duration of \SI{1}{\second}, but for some unknown reason some of the recordings have less.
+It would be problematic if the sample length is too low to capture a word, but the minimum duration of all files is about \SI{0.4}{\second}, and this is enough for words like \enquote{go}, etc.
+The histograms of all available examples in the dataset are shown in \rfig{exp_dataset_hist}.
+
+\begin{figure}[!ht]
+  \centering
+    \subfigure[energy]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_dataset_hist_energy_overall}}
+    \subfigure[sample length]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_dataset_hist_sample_overall}}
+  \caption{Energy value and sample length histograms in log-log and log-scale respectively of all examples in the speech commands dataset \texttt{v0.02}.}
+  \label{fig:exp_dataset_hist}
+\end{figure}
+\FloatBarrier
+\noindent
+The energy histogram has one main lobe, which is good, so it means that there are no clusters of extremely silent or loud files.
+For comparison, if silent files were extracted from for instance the given background files, the energy of some of those is in range of $10^{-7} \dots 10^{-6}$. Therefore it seems that most of the files are okay.
+The sample length histogram shows, that most of the files have a duration of \SI{1}{\second}, but many other have less sample numbers. 
+This is important and has to be regarded in the pre-processing of audio files, because the neural networks inputs are usually a fixed size input, if no sequential neural networks are deployed, such as Recurrent Neural Networks (RNN).
+
+% recording quality
+\subsubsection{Recording Quality and Personal Experience}
+The examples within the dataset were not recorded by professionals with high-end recording equipment, in fact the recordings had been done in an amateur kind of fashion, so that the dataset is more suited to realistic environments intended for user applications.
 This is also noted in the paper \cite{Warden2018}:
 \begin{quote}
 ...This meant that the use of studio-captured samples seemed unrealistic, since that audio would lack background noise, would be captured with high-quality microphones, and in a formal setting. 
@@ -50,47 +113,27 @@ Further it is not clear if there are equal amounts of male and female speakers a
 The last would be especially interesting for a video games suited for kids.
 
 In many recordings the background noise is imminent, such as traffic noise, chattering people, office sounds, etc.
-A quality check of the recorded files in the dataset was done as described in \cite{Warden2018} to ensure that bad samples are rejected.
-However there are still some existing flaws such as too loud or too silent files or examples with inconsistent sample numbers or some examples that are prone with too much noise or in the worst case, noise only.
+A quality check of the recorded files in the dataset was done, as described in \cite{Warden2018}, to ensure that bad samples are rejected.
+However there are still some existing flaws such as extremely loud or silent files or examples with inconsistent sample numbers or too much noise in it or in the worst case, noise only (very rarely).
 Those quality issues in the dataset are for most cases neglectable or can be fixed, such as inconsistent sample numbers. 
-Other more problematic cases, for instance noise-only examples, should be filtered out.
+Other more problematic cases, for instance noise-only examples, should actually be filtered out, but since there occurrence is very rare, it does not really matter.
 %Still it is a great dataset, because there is no need for a perfect dataset when working with neural networks and one can be happy that there exists one with this amount of diversity and free of access under the creative common license.
-Usually it is not a problem for neural networks to cope with unclean datasets, because of their ability to learn invariance against noise, loudness differences and other nuisances during training.
+Usually it is not a problem for neural networks to cope with noisy datasets, actually it is a good so they could learn invariance against noise, loudness differences and other nuisances during training.
 Further if the training dataset is large enough and the test and validation sets do not contain very bad examples, there should be no problem in training and evaluation of different models.
 %However some clean up of the dataset was still done as described in...
 
-The speech command dataset exists in two versions (\texttt{v0.01} and \texttt{v0.02}), the first one was published in 2017 and the second one emerged as improved version of \texttt{v0.01} with 4 more key words, class examples and quality in 2018.
-In this thesis, the experiments are done on the second version \texttt{v0.02}.
-All labels with their separation in training, test and validation set are shown in \rtab{exp_dataset_all_labels}.
-
-% all labels tab
-\input{./5_exp/tables/tab_exp_dataset_all_labels.tex}
-It can be seen, that some labels are occurring significantly more often than others.
-The idea is to have main key words and key words that have some similarity to the main key words or just some random words.
-The main key words are usually classified by a neural networks and the other key words gather to a single separate output class, representing words that are not the main key words.
-Those other key words are labeled in papers with \enquote{Unknown}, but in this thesis it is referred as \enquote{\_mixed} label.
-So the \enquote{\_mixed} label consist of all data examples that are not the main key words with ideally an equal amounts of examples per individual mixed label. 
-
-Some examples of the speech command dataset in raw audio format are shown in \rfig{exp_dataset_wav_grid_speech_commands_v2} to provide a small glimpse on the recordings.
-\begin{figure}[!ht]
-  \centering
-    \includegraphics[width=0.65\textwidth]{./5_exp/figs/exp_dataset_wav_grid_speech_commands_v2}
-  \caption{One random sample of each individual speech command in the speech command dataset in normalized raw audio format.}
-  \label{fig:exp_dataset_wav_grid_speech_commands_v2}
-\end{figure}
-\FloatBarrier
-\noindent
-
 % dataset structure
 \subsubsection{Dataset Structure}
-The speech command examples are stored in separate folders, named after each individual speech command, in the \texttt{.wav} format.
+The speech command examples are stored in separate folders named after each individual key word, in the \texttt{.wav} format.
 The folder named as \texttt{\_background\_noise\_} contains six different background noise files, such as \texttt{white\_noise.wav} or \texttt{doing\_the\_dishes.wav}, with a duration of more than one minute each.
 Noise examples with a new noise label named \texttt{\_noise} were extracted from those background noise files with a \SI{1}{\second} window shifted by \SI{0.2}{\second}.
 
 Each waveform file is named with an 8-digit hexadecimal hash code for the speaker identification, followed by the utterance number, for instance \texttt{3b4f8f24\_nohash\_0.wav}.
 Therefore it is possible to distinguish between different speakers, however as mentioned above, no further information about the speaker is given due to data privacy issues.
 
-%It has to be mentioned, that it is wonderful, that a dataset for simple key word spotting on speech commands with this amount of diversity and free of access under the creative common license exist.
+Further the dataset provides a testing file list called \texttt{testing\_list.txt} and a validation file list \texttt{validation\_list.txt} where each row entry refers to a file in the dataset, for example \texttt{right/bb05582b\_nohash\_3.wav}
+Those file lists for testing and validation should ensure the comparability between different neural network approaches from individual researchers.
+In this thesis, those file list are applied and the separation into the sets already shown in \rtab{exp_dataset_all_labels}.
 
 
 % --
@@ -119,21 +162,22 @@ It turned out that it is not easy for neural networks to gain a $100\%$ classifi
 % preparation for neural networks
 
 \subsection{Data preparation for neural networks}\label{sec:exp_data_prep}
-The neural networks architectures are trained with supervised learning that means a class label $y_i$ for each data example $x_i$ must exist to form a a dataset $S$ such as:
+The neural networks architectures are trained with supervised learning, that means a class label $y_i$ correspondence to each data example $x_i$ must exist.
+Some selected examples and their labels form a dataset $S$ for example for training or testing and can be written as:
 \begin{equation}\label{eq:exp_dataset}
   S = \{ (x_i, y_i) | i = 0 \dots n \}
 \end{equation}
 where $n$ is the total number of examples within the dataset.
 
-It was already shown how it is possible to extract MFCC features in \rsec{signal_mfcc}, however it is important that each individual $x_i$ for all $i$ has the same dimension.
-It could happen that the sample numbers of the waveform files are inconsistent and therefore yield different dimension for different $x_i$.
-To ensure the same dimension for each $x_i$ the audiofiles were adjusted to have the same sample numbers of \SI{1}{\second} with sampling frequency \SI{16}{\kilo\hertz}.
+It was already shown how to extract MFCC features in \rsec{signal_mfcc}, however it is important that each individual $x_i$ for all $i$ has the same dimension.
+It could happen that the sample numbers of the waveform files are inconsistent as describe in \rsec{exp_dataset_speech_cmd} and therefore yield different dimension for different $x_i$.
+To ensure that each $x_i$ has the same dimension, the audiofiles were adjusted to have the same sample length of a duration of \SI{1}{\second} with sampling frequency \SI{16}{\kilo\hertz}.
 This was done by simply zero-padding the signals to the desired length of 16000 samples.
 Further some dither noise was added, so that neural networks are not confused when seeing pure zeros emerging from the data examples.
-The dithering is Gaussian additive noise as describes:
+The dithering is usually done by Gaussian additive noise as describes:
 \begin{equation}\label{eq:exp_dither}
-  x = \tilde{x} + v, \quad v = \mathcal{N}(\mu, \sigma) * \tilde{x}_{quant}, \quad \mu, \sigma = 0, 0.5
+  x = \tilde{x} + v, \quad v = \mathcal{N}(\mu=0, \sigma=0.5) \cdot \tilde{x}_{quant}%, \quad \mu, \sigma = 0, 0.5
 \end{equation}
 where $\mathcal{N}$ is the normal distribution, $\tilde{x}$ the zero-padded signal (if the sample numbers were incorrect) and $\tilde{x}_{quant}$ the quantization error, corresponding to the minimal absolute value of all samples of $\tilde{x}$ except the pure zero entries.
-When applying the dithering the signal has no pure zeros anymore and it is not altered much from the origin.
+When the dithering is applied to the signal, it has no pure zeros anymore and it is not altered much from the origin, since the maximum change lies in a normal range of the quantization noise from the original recording quantization.
 

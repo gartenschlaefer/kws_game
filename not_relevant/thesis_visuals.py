@@ -153,7 +153,7 @@ def feature_selection_tables(overwrite=False):
     tables = lt_maker.extract_table(out_file=out_file, caption=get_thesis_table_captions(in_file))
 
 
-def audio_set_wavs(cfg, wav_grid_plot=False, do_label_table=False):
+def audio_set_wavs(cfg, do_statistics=True, wav_grid_plot=False, do_label_table=False):
   """
   audio set wavs
   """
@@ -169,6 +169,9 @@ def audio_set_wavs(cfg, wav_grid_plot=False, do_label_table=False):
   # get audio files
   audio_set1.get_audiofiles()
   audio_set2.get_audiofiles()
+
+  # statistics (saves them in dataset folder)
+  if do_statistics: audio_set1.analyze_dataset_extraction(calculate_overall_stats=True)
 
   # label table
   if do_label_table: LatexTableMakerAudiosetLabels(audio_set1.all_label_file_dict, caption='all labels', label='tab:exp_dataset_all_labels', out_file=plot_path_tab + 'tab_exp_dataset_all_labels__not_released.tex')

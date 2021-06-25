@@ -170,8 +170,12 @@ def plot_histogram(x, bins=None, color=None, y_log_scale=False, x_log_scale=Fals
   plt.title(title, fontsize=get_fontsize('title')), plt.xlabel(x_label, fontsize=get_fontsize('axis_label')), plt.ylabel(y_label, fontsize=get_fontsize('axis_label'))
   plt.grid()
 
+  # log scaling
   if y_log_scale: plt.yscale('log')
   if x_log_scale: plt.xscale('log')
+
+  # tight plot
+  plt.tight_layout()
 
   # plot save and show
   if plot_path is not None: plt.savefig(plot_path + name + '.png', dpi=150)
