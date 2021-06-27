@@ -23,7 +23,7 @@ class Thing(pygame.sprite.Sprite):
     self.scale = scale
 
     # load image and create rect
-    self.image = pygame.image.load(str(pathlib.Path(__file__).parent.absolute()) + "/art/thing.png").convert_alpha()
+    self.image = pygame.image.load(str(pathlib.Path(__file__).parent.absolute()) + "/art/thing/thing.png").convert_alpha()
     self.rect = self.image.get_rect()
 
     # proper scaling

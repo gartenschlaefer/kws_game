@@ -157,7 +157,7 @@ class CharacterSprite(pygame.sprite.Sprite):
     self.sprite_index = 0
 
     # root for sprites
-    self.sprite_root_path = str(pathlib.Path(__file__).parent.absolute()) + "/art/"
+    self.sprite_root_path = str(pathlib.Path(__file__).parent.absolute()) + "/art/henry/"
 
     # image file names
     self.image_file_names = ["henry_front.png", "henry_side-1.png", "henry_side-2.png", "henry_side-3.png"]
