@@ -2,18 +2,36 @@
 % intro overview of thesis
 
 \section{Overview of this thesis and notations}\label{sec:intro_overview}
-
-This thesis is organized such, that each chapter leads to the next one and guiding someone who is interested in creating her own KWS game to follow through the process and challenges that might appear.
+\thesisStateReady
+%This thesis is organized such, that each chapter leads to the next one and guiding someone who is interested in creating her own KWS game to follow through the process and challenges that might appear.
+This thesis is organized that each chapter connects to the next one in a typical processing stage to create a KWS game.
+% prev
 After this introduction, \rsec{prev} provides information about previous and related work.
-Some history about neural networks is given and the most important neural network achievements regarding this thesis, are explained in their essential structures.
-Further some works are presented that influenced and motivated this thesis and
-others provide benchmarks on the speech commands dataset used or describe neural networks models that perform well on speech.
-In any way it is important to know, what is happening in the field of KWS and in which direction research is heading towards.
+A small history sections about neural networks is given and important works on neural network architecture regarding this thesis are referrenced.
+Further some works are presented that influenced and motivated this thesis.
+Others works provide benchmarks on the used speech commands dataset or describe neural networks models that perform well on speech.
+%In any way it is important to know, what is happening in the field of KWS and in which direction research is heading towards.
 %Some works are used as motivation and some to get an idea.
+% signal
+\rsec{signal} is about audio signals processing and the extraction of meaningful features, such as MFCCs.
+The feature extraction is explained in detail and examples are shown to visualize the results.
+% neural networks
+The used neural network architectures are described in \rsec{nn}. 
+Further some theory of neural networks in general, CNNs, GANs and Wavenets is provided and highlighted with training results from experiments.
+% experiments
+In the \rsec{exp} information about the dataset and feature extraction is given and the experiments are presented.
+Experiments are done on feature selection to determine the best suitable feature constellation the further experiments.
+Adversarial pre-training is evaluated and Wavenets are compared to results from CNN based architectures.
+% game
+\rsec{game} describes the online and classification scheme in a possibile video game application.
+Further some game design is presented and everything that is important for a KWS video game.
+% conclusion
+The thesis finishes with the conclusion in \rsec{conclusion}.
+
 
 % visual guidance
-\subsection{Visual Guidance}\label{sec:intro_overview_visual}
-To get a better overview on the presentation of data and results, context specific color color-schemes are used within this thesis.
+%\subsection{Visual Guidance}\label{sec:intro_overview_visual}
+%To get a better overview on the presentation of data and results, context specific color color-schemes are used within this thesis.
 % There exist following context abstractions:
 
 % \begin{itemize}
@@ -25,17 +43,17 @@ To get a better overview on the presentation of data and results, context specif
 
 % ipa
 \subsection{International Phonetic Alphabet}\label{sec:intro_overview_ipa}
-The International Phonetic Alphabet is, as it name suggest, an alphabet of phonetics, where phonetics can be defined as human speaking sounds.
-A word formed with letters from a real Alphabet might trick the speaker of this word on how to pronounce it correctly, but described with the IPA, there is no misconception.
-In some sections within this thesis, there are plots with phonetic transcriptions containing IPA characters, some special ones are described in \rtab{intro_overview_ipa}.
+The International Phonetic Alphabet (IPA) defines phonetics by human speaking sounds, where each symbol represents one specific sound.
+A word formed with letters from a language alphabet, does not necessaryily represent the pronunciation of that word, therefore many dictionaries provide an IPA transcription so that no misconceptions may happen.
+The plots, in some sections within this thesis, contain phonetic transcriptions with IPA characters, some of the more special ones are described in \rtab{intro_overview_ipa}.
 
 % ipa table
 \input{./1_intro/tables/tab_intro_overview_ipa.tex}
 
 % math
 \subsection{Mathematical Notations}\label{sec:intro_overview_math}
-The mathematical equations or expressions contained in this thesis are following some criteria.
-Vectors and scalars are usually written in small letters with no special indication for vectors, such as making them bold.
-Matrices are usually written in capital letters.
-The dimension of vectors and matrices are provided, such as $x\in\R^n$ or $X\in\C^{m \times n}$, or follow from the context.
-Other than that
+The mathematical equations or expressions are following some criteria.
+Vectors and scalars are usually written in small letters with no special indication for vectors and matrices are written in capital letters.
+The dimension of vectors and matrices are usually provided, such as $x\in\R^n$ or $X\in\C^{m \times n}$, or follow from the context.
+Many letters like $n$ or $x$ are likewise used in different sections, but with different meaning and representations and should hopefully not confuse the reader of this thesis.
+The letters $m$ and $n$ usually describes the length of a signal, $x$  and $y$ often represents input and output variables, etc.

@@ -1,4 +1,8 @@
-\section{Problem Formulation for this Thesis}
+% --
+% research questions
+
+\section{Problem Formulation for this Thesis}\label{sec:intro_rq}
+\thesisStateRevised
 In this section, several research question regarding Key Word Spotting in Video Games are asked and described in their interpretation.
 The problem formulation for this thesis can be split into to 3 parts:
 
@@ -9,6 +13,120 @@ The problem formulation for this thesis can be split into to 3 parts:
 \end{enumerate}
 Note that a Key Word has the same meaning as a Speech Command in this thesis and therefore might be referred in either way.
 Further note that not all research questions can be answered within the scope of this thesis in satisfactory way.
-Nevertheless those questions can be asked and some solution concepts discussed. 
+Nevertheless those questions can be asked and some solution concepts discussed.
+
+% signal
+\subsection{Signal Processing and Feature Extraction Research Questions}\label{sec:intro_rq_signal}
+This part focuses on how to acquire a meaningful representation of the input waveform from an human speaker. This representation usually is a feature vector extracted from the raw microphone data of a certain time interval. Further the retrieved feature vector is input to the neural network architecture for classification. Following Questions arise here:
+
+\begin{enumerate}[label={Q.1.\alph*)}, leftmargin=1.75cm]
+%    \item How is the microphone data processed and when does it show the presence of a speech command.
+    \item When should the feature extraction be activated, so to reduce computations?
+    \label{it:q1-a}
+    
+    \item Which time interval should be captured to represent a speech command?
+    \label{it:q1-b}
+    
+    \item Does the signal processing have to be invariant to background noise and especially to game sounds?
+    \label{it:q1-c}
+    
+    \item What are meaningful features for speech recognition?
+    \label{it:q1-d}
+    
+\end{enumerate}
+\noindent
+\textbf{Question \ref{it:q1-a}:} 
+It is crucial to reduce computations in a running game, so that the game is not slowed down with unnecessary processing of meaningless input data.
+%as it is not meaningful to compute features the whole time. 
+Ideally a feature vector is only processed, when there is actually a speech command present from a human speaker. 
+This however is not always trivial.
+To indicate that a speech command is present, one possibility is to compute the, relatively efficient calculation, of an energy value within a certain time interval of the raw input data and have a simple threshold value decide, when a speech command is available. 
+The downsides of this approach is, that the microphone and the background sound (including the game sound) should be less energy intensive than the speech command of the speaker, so that a speech command is not triggered the whole time.
+%Therefore the microphone should be close to the speaker and capture more of the speech commands and less of the background and gaming sound.
+%Also it might happen that some disturbance of the microphone, e.g. mechanical strike to the mic, yield an actual command.
+Another approach would be to indicate a speech command with a e.g. say a click of a certain button on the keyboard, and use the push and talk principle. 
+These methods with more details shall be discussed in further sections.
+
+\textbf{Question \ref{it:q1-b}:} 
+The restriction to processing input data to a feature vector in a certain time interval is essential for the design of the neural network.
+But more importantly it is the restriction of how long a human speaker has time to speak a speech command so that the whole command is captured. If a human speaker prolongs the pronunciation of a word, e.g. \enquote{left} for lets say 1 second, hardly all is captured if the time interval is restricted to say 500 milliseconds. If this 500 milliseconds is then sufficient for a still correct classification, must be evaluated. 
+Also in the application of a game, the user should speak commands with short duration, so that the game reacts fast. Another downside would be if one repeatedly speaks a speech commands, so that the time interval of another command would overlap each other. Ideally the time interval is flexible, but this is harder to implement than a fixed time interval.
+
+\textbf{Question \ref{it:q1-c}:}
+Usually low background noise should not be a problem for neural networks trained on a large enough data set. 
+A more difficult problem are the game sounds when turned up loud enough and without use of headphones during playing. 
+Therefore the microphone will not only capture the voice of a speaker, but also a fair amount of unwanted game sounds. 
+This problem seems to be theoretically solvable, as the shape of the nuisance is known and could therefore be cut out in some way. 
+However in practise this might be hard to solve, so that the signal of interest is not disturbed. 
+A solution to this problem would probably take too much time and should be prioritized low in this thesis. 
+However playing a video game without game sound is unsatisfying and therefore this problem should be solved in future works.
+
+\textbf{Question \ref{it:q1-d}:} 
+Meaningful features for speech is a classical problem in speech recognition.
+Therefore it is important to know of what a word is essentially composed of. 
+A word is a sequential combination of either vowels (e.g. a, e, ...) or consonants (e.g. k, l, ...) with a certain length. 
+In linguistics for instance, one can distinguish vowels with frequency peaks in a spectogram, where a spectogram is the frequency response of small time chunks over the time duration of a signal. 
+However, due to many different factors involved in speakers, like age, gender, nathionality and physiology of the vocal tract, there is a huge variance in the pronunciation of words from different persons and yields in a difficult problem to solve. 
+Very commonly Mel Frequency Cepstral Coefficients (MFCC) are used for speech recognition tasks, because of their frequency representation in equidistant mel-bands.
+MFCCs are described in \rsec{signal_mfcc}).
 
 
+% neural networks
+\subsection{Neural Network Implementation Research Questions}\label{sec:intro_rq}
+%To deploy a Key Word Spotting system with neural networks into a game, it is crucial to know the neural networks architecture and its in- and output representations.
+For the deployment of a Key Word Spotting system with neural networks into a video game, it is crucial to know of waht are the inputs to it and what are the possible outputs. 
+The inputs are the extracted features from the signal processing pipline and the outputs are the classes representing the speech commands of the game. 
+An inference is then done by the neural network, which is the process of classification of an input feature to one output class.
+The Architecture of an neural network describes how the features are processed through layers in the network.
+Further every neural network has to train its parameters with enough data and some special techniques so to generalize well to unseen data.
+Following Questions can therefore be asked here in general:
+
+\begin{enumerate}[label={Q.2.\alph*)}, leftmargin=1.75cm]
+    \item What vocabulary of speech commands is used in the game and is there enough training data with sufficient diversity available for the neural network to learn from?
+    \label{it:q2-a}
+    
+    \item What happens if an input feature represents a spoken word, which is not in the speech commands vocabulary (Non Key Word) and how should this exception be handled?
+    \label{it:q2-b}
+    
+    \item What is the best neural network architecture so that the classification yields good results and the game is not slowed down during the inference process.
+    \label{it:q2-c}
+    \begin{enumerate}[label=(\roman*)]
+        \item Are Wavenets a solution to this task? 
+        \item Can Adversarial Networks improve the generalization?
+    \end{enumerate}
+    
+\end{enumerate}
+\noindent
+\textbf{Question \ref{it:q2-a}:} The question of availability of a speech command data set can be answered right away, as there exists with enough and diverse data (more about the dataset in section ...). The more important question is, which of these speech commands should be used for the game? This mainly depends on the game itself and the actions to be controlled. Usually commands like \enquote{left}, \enquote{right}, etc. are a good choice to move things within a game for instance.
+Another point is to restrict the amount of speech commands, so that a simpler neural network architecture can be deployed, which of course should still be sufficient for a good classification rate.
+
+\textbf{Question \ref{it:q2-b}:} Without doubt players will try out words, which are not in the speech commands vocabulary (denoted as Non Key Words) and observe what happens.
+The ideal response would be that nothing happens or an indication is shown that the word is not present in the vocabulary. 
+However it might happen that the similarly of a Non Key Word is too close to a Key Word, so that a command is triggered in the game. 
+At the same time the neural network should not classify Key Words as Non Key Words, which is even more important, that the game is not interrupted or disturbed.
+It is better to rely, that players are using Key Words most of the time, so that they are preferred over Non Key Words.
+
+\textbf{Question \ref{it:q2-c}:}
+Several different neural network approaches with a low computational footprint should be tested and compared with each other regarding classification rate and energy efficiency. 
+A video game with online speech input restricts the amount of computation and time for classification by the minimum frames per second (FPS) a game should be played.
+This is because the FPS should not fall under a certain limit (usually 30 FPS in video games), otherwise the fluidity of the game is not ensured.
+Further Wavenets and Adversarial Networks shall be evaluated regarding their value in this task.
+
+
+% video games
+\subsection{Video Games with Speech Commands Research Questions}\label{sec:intro_rq_games}
+Video Games using speech commands as inputs are a very rarely seen curiosity in the gaming industry and therefore it is important to show and discuss its capability. This rather empirical section asks following important question:
+
+\begin{enumerate}[label={Q.3.\alph*)}, leftmargin=1.75cm]
+    \item What is the added value of speech commands in the gaming experience of players and what do game developers need to consider, when designing a game with speech commands?
+    \label{it:q3-a}
+    
+\end{enumerate}
+\noindent
+\textbf{Question \ref{it:q3-a}:} The Game Design is the focus of this question and it should be answered in the player and game developers view.
+In certain video game scenarios, speech commands are very useful, interesting and enhance the gaming experience, in other they might even disturb the game play or spoil it completely.
+It certainly can be stated, that speech commands are not always reliable and therefore a main game mechanic solely based on speech commands is not preferable.
+Therefore a game developer has to design a game with speech commands with care.
+Some game ideas and prototypes should be shown and some existing games discussed.
+
+%\textbf{Question \ref{it:q3-b}} is about the problems and obstacles a game developer meets, when deciding to use speech commands. It is about how

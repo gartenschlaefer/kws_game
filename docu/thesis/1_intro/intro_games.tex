@@ -1,19 +1,32 @@
 % --
 % video games with speech commands
 
-\section{Video Games with Speech Input}
-Video games with speech inputs are an rarely occurrence in the gaming industry, though it is a very interesting and immersive way to interact.
-Technically the voice of the player of the video game, has to be recorded by a microphone.
-The input stream from this microphone is then processed through a online or realtime system to convert the intention of the player to a real action within the game.
-Easy to define, but not that hard to implement compared to other more hardware based input channels, such as a click on a keyboard button.
-Also speech input is very slow compared to hardware input, where players interact within tens of milliseconds (the input lag of gaming controllers should ideally be under 50ms).
-This is not possible with speech, the player has to physically form a waveform, representing the action in the game.
-Further the waveform has to be pre-processed, feautre extracted and classified to the best estimation on the available key words.
-Concluding this, a good estimate to create and process a speech input is about under one second, the less the better for the playing experience of the players.
+\section{Video Games with Speech Input}\label{sec:intro_games}
+\thesisStateReady
+Video games with speech inputs are a rarely seen occurrence in the gaming industry, though it is a very interesting and immersive way to interact.
+Technically the voice of the player of the video game, has to be recorded by a microphone, therefore one additional requirement of being able to play the video game is to own a microphone, which however does not need to be high-end.
+The input stream of a microphone can be processed through an online or realtime system to extract the input data for the classification system.
+The classification system, such as a neural network, infers the input data and therefore hopefully the intention of the player to a real action within the game.
+The processing scheme is easy to define, but not that easy to implement compared to other more hardware based input channels, such as a click on a keyboard button.
+Also speech input is very slow compared to hardware input, where players interact within tens of milliseconds (the input lag of gaming controllers should ideally be under \SI{50}{\milli\second}).
+This is not possible with speech, the player has to physically form a waveform representing the action in the game.
+Further the waveform captured from the online system has to be pre-processed, feature extracted and classified to the best estimation of all the available key words in the games vocabulary.
+Concluding this, a good estimate to create and process a speech input should ideally be under one second, the less the better for the playing experience.
 
-Maybe those issues and the complexity of the task hinders game developers to produce more content with Key Word Spotting.
+Another important question is how many key words or speech commands, should be used for the vocabulary.
+A high number of key words will increase the chance of confusion and a small number of key words restrict the possible actions a player can choose from.
+The possibility to create separate classifiers with different sets of smaller vocabularies of speech commands arises depending on which commands the player actually needs in the actual scenario within the video game. For instance if the player is in a dialogue with a Non Player Character (NPC) it makes sense to reduce the vocabulary to only \{\enquote{yes}, \enquote{no}\} if those are the only actions to choose from.
 
+The use of labels for background noise, silence and unknown words depends on the game and how the classification process is activated.
+If the assumption is made that a player chooses only from the key words in the dictionary, then the label of unknown words is not really necessary.
+However the unknown label would be very interesting if key words are not that common to a player, such as words from a different language or fantasy words.
+The unknown label will therefore motivate the player to correctly pronounce the word itself, which could be also used in language learning games.
+The labels for background noise and silence are useful if the activation of the classification process is initiated by the energy value of the input stream of the microphone.
+A stroke on the microphone or loud background sound can therefore elicit an unwanted command within the game, if those labels do not exist.
 
+In any case there are much problems to consider when using KWS in video games and probably therefore hinders game developers to produce more content with it.
+
+%Maybe those issues and the complexity of the task hinders game developers to produce more content with Key Word Spotting.
 % A speech input for video games is a spoken waveform, recorded through a microphone, from any speaker intending to inflict a certain change while playing a Video Game. 
 % Certainly this spoken waveform has to be processed, such as other inputs channels have to be (like keyboard buttons pressed), so that its meaning can be understood by the computer system behind the game. 
 % Although this processing of a waveform is much more complicated and prone to errors, compared to a simple click on the keyboard or mouse. 

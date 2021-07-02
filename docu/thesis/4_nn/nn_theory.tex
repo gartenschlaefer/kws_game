@@ -2,25 +2,38 @@
 % theory
 
 \section{Theory}\label{sec:nn_theory}
-This section provide the preliminaries to understand the used neural network architectures and the training procedure in general.
-
+This section provides the preliminaries of theory to understand the used neural network architectures and the training procedure in general.
 
 % activation functions
 \subsection{Activation Functions}\label{sec:nn_theory_acti}
-Activation functions for neural networks are non-linear functions that map the sum of the weighted inputs to an output value of a node:
+Activation functions for neural networks are non-linear functions that usually maps the sum of the weighted inputs of a node to a single output value $z$:
 \begin{equation}\label{eq:nn_theory_acti}
   z = h(w \, x^T)
 \end{equation}
 where $h$ is the activation function, $w \in \R^n$ is an weight vector and $x \in \R^n$ an input vector for one specific node.
-One constraint of an activation function is, that an easy computable derivative of this function exist, such that the backpropagation of gradients work.
+The constraint of an activation function is, that an easy computable derivative of this function exist, in order to backpropagate gradients.
 
+The most famous activation function nowadays is the RELU function: ...cite relu
+\begin{equation}\label{eq:nn_theory_relu}
+  z = \max{(0, a)}
+\end{equation}
+with $a \in \R$ as input to the activation function.
+The big advantage is that this function and its subgradients are very easy and fast to compute.
+The two other activation functions that are used in wavenets are the sigmoid function:
+\begin{equation}\label{eq:nn_theory_sigmoid}
+  z = 
+\end{equation}
+and the tanh functions:
+\begin{equation}\label{eq:nn_theory_tanh}
+  z = 
+\end{equation}
 
 % cnn
 \subsection{Convolutional Neural Networks}\label{sec:nn_theory_cnn}
 Covolutional Neural Networks (CNN) as already discussed in \rsec{prev_nn_cnn} use convolutional filters on spatial sections of the input.
-Those convolutional filters are also called kernels, for images illustrated as rectangle in 2D space with kernel width $k_w$ and height $k_h$.
+Those convolutional filters are also called kernels and illustrated in case of images as a rectangle in 2D space with kernel width $k_w$ and height $k_h$.
 
-The kernel is shifted over its input map in each axis with an operation called \emph{stride}, denoted as $s$, and produce a output map.
+The kernel is shifted over its input map in each axis with an operation called \emph{stride}, denoted as $s$, and produce a output map through convolution.
 The output dimension $o_d$ for striding in along its axis with $s_d$ and kernel size for that axis $k_d$ over the input dimension $i_d$ can be computed as:
 \begin{equation}\label{eq:nn_theory_cnn_}
   o_d = \floor*{\frac{i_d + p_d - k_d}{s_d} + 1}
@@ -30,18 +43,28 @@ For example if a $16 \times 16$ image is convoluted by a $5 \times 5$ kernel wit
 The padding operation has usually the purpose to keep a the output and input dimension the same.
 This is used for instance in residual neural networks, where the input to convolutional layers of a block, is bypassed and added to the output of this block again.
 Being able to compute the addition operation from input and output of the residual block, their dimensions must be the same.
-However in most usual convolutional network applications without residual blocks, it is preferred not to pad the image, so that dimensions are reduced hence parameters and multiplications saved.
-Further there exist special convolutional layers that should reduce the dimensions, such as a Max-Pooling layers. 
+However in most convolutional network applications without residual blocks, it is preferred not to pad the image, so that dimensions are reduced hence parameters and multiplications saved.
+Further there exist some special convolutional layers designed to reduce the dimensions (subsampling), such as a Max-Pooling layer. 
 
 As already mentioned above CNNs are defined with the amount of input and output channels (feature maps), the kernel size, the stride of the kernel and some other specialties like dilation.
-However it is not immediately clear from those parameter, how many convolutional filters are applied and what how the output feature maps are calculated.
-Usually in most applications, the convolution to output feature maps are done with:
-A typical example is shown in...
+However it is not immediately clear from those parameter, how many convolutional filters are applied and what how the output feature maps are calculated exactly.
+The amount of convolutional filters is in most practical examples always:
+\begin{equation}\label{eq:nn_theory_n_filters}
+  \#k = i \cdot j
+\end{equation}
+where $i$ and $j$ is the amount of input and output channels respectively.
+Each kernel produces an output map, but the idea is to constraint the number of output maps $\#k$ to the defined output channels $j$.
+This is usually done by summing up all output maps of input channels $i$ for one output channel $j$:
+\begin{equation}
+  o_j = \sum_{i} k_{i, j} * x_i
+\end{equation}
+where $o_j$ is the j-th feature map, $k_{i, j}$ the kernel of $i$ and $j$ and $x_i$ the i-th input channel.
+A gaphical example of this procedure is shown in \rfig{nn_theory_cnn_basics}.
 
 \begin{figure}[!ht]
   \centering
     \includegraphics[width=0.6\textwidth]{./4_nn/figs/cnn_basics.eps}
-  \caption{CNN basic architecture}
+  \caption{Basic CNN layer with a $16 \times 16$ input image, decomposed in 3 channels (CYM) and 4 output feature maps. Kernel size is $5 \times 5$ and the stride is $1$.}
   \label{fig:nn_theory_cnn_basics}
 \end{figure}
 \FloatBarrier
