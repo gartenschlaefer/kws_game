@@ -2,5 +2,115 @@
 % prev neural networks basics
 
 \section{Neural Networks Basics Architectures}\label{sec:prev_nn}
-This section is a summary and history review of some specific neural network architectures, such as convolutional neural networks.
-The purpose is merely to give a slight overview on these architectures and the researchers that contributed to them.
+\thesisStateReady
+This section is a summary and history review of some specific neural network architectures used within this thesis.
+The purpose is merely to give a slight overview of these architectures and the researchers that contributed to them.
+
+% --
+% prev history
+
+\subsection{Historical Remarks on Neural Networks}\label{sec:prev_nn_history}
+The first step towards computational neural networks, as we know them today, was the introduction of the so called \enquote{Perceptron} by Rosenblatt in the year 1958 \cite{Rosenblatt1958}. 
+The idea of the Perceptron emerged from physiologists, trying to model a physiological neural network in computational terms. 
+This first model was based on the information processing of the retina (input nodes), which passes through several physiological neural networks (hidden nodes) and finally elicit an action or decision (output nodes).
+Publishing his work and implementing those ideas in an actual computer system (at those time computers were huge boxes), Rosenblatt kicked of the domain of computational learning systems.
+The race of finding best neural network architectures for specific regression or classification tasks had begun.
+
+Another big advance in the history of neural networks, was the introduction of a very famous learning algorithm known as \enquote{Backpropagation}, evolved by several authors at the same time \cite{LeCun1986} and \cite{Rumelhart1986} in the late 80s. 
+Even nowadays, 35 years after introducing backpropagation, it is still the \emph{de facto} standard in training neural networks.
+Nowadays backpropagation is implemented in every machine learning framework for neural networks as its core element.
+Such frameworks are for instance \texttt{Pytorch} or \texttt{Tensorflow} and of course many others, handling the gradient calculation and backpropagation algorithm of those gradients in the background.
+
+The neural networks reputation during the time until now, was not always seen that splendid.
+The general problem of handling overfitting (prevent networks from learning data samples by heart) and generalize better on unseen data, is still an open issue in many applications.
+Some mathematicians working in the field of statistical methods in learning theory for pattern recognition, regard neural networks as being not meaningful in the advance of learning theory, such as one quote from \cite{Vapnik1995} of Vapnik's book in 1995 about natural learning theory:
+
+\begin{quote}
+...In spite of important achievements in some specific applications using neural networks, the theoretical results obtained did not contribute much to general learning theory...
+\end{quote}
+
+This quote is a bit tough, but unfortunately true in some sense. 
+The complexity of neural networks with many layers, makes the tracing of the learning process very difficult.
+No concrete formulas, apart from the calculation of gradients, can exactly explain what neural networks are actually learning.
+
+Therefore on one side there were the classical statistical learning methods, the most famous one called Support Vector Machines (SVM) \cite{Cortes1995} and one the other side there were neural network approaches.
+Over a long period of time SVMs were preferred over neural networks, because they were better understood with profound mathematical methods and achieved state of the art performance with sophisticated feature extraction algorithms.
+Not until 2012, neural networks gained more popularity again by scoring new benchmarks in image classification tasks with one famous paper \cite{Krizhevsky2012}, by beating the previous benchmark with a significant score.
+Deep Learning was the new key to success, with network architecture consisting of many layers and a large amount of parameters to train.
+Also in audio and language processing tasks, such as Automatic Speech Recognition (ASR) and Natural Language Processing (NLP), the famous Hidden Markov Models (HMM) and other statistical methods get more and more replaced by neural networks.
+
+With this remarks the short review on neural network history are closed and readers may forgive that not more details are presented and more papers referenced.
+The interested reader is recommended to look through the references of the above mentioned papers for finding more detailed informations about its interesting history.
+
+
+% --
+% convolutional nets
+
+\subsection{Convolutional Neural Networks}\label{sec:prev_nn_cnn}
+Convolutional Neural Networks (CNNs) are a special class of neural networks, that are able to incorporate spatial information from the input data, with the application of convolutional filtering to create feature maps.
+Spatial information is very important in images, where neighboring pixels are related to each other.
+The same holds for audio, but in only one dimension and with a higher amount of samples.
+Convolutional filters are very commonly applied in image processing tasks, such as denoising or other enhancements of images.
+In audio processing, a classical application of convolutional filters is a simple average filter of the signals energy, to determine onsets like the start of a speech signal.
+
+Still it took relatively long till convolutional filters were a common and a widely used asset in neural network architectures.
+The general concepts of CNNs with feature maps (outputs of applied convolutional filters) and weight sharing through convolutional filters, were examined by LeCun et. al. on handwritten postal codes in 1989 \cite{LeCun1989_Generalization}.
+Further research and experiments on the famous MNIST dataset of handwritten digits, were done in the late 90s \cite{LeCun1998} and asserted the success of CNNs.
+A classical convolutional layer in CNNs usually consists of multiple convolutional filters with trainable weights and an additive bias terms per filter, followed by a non-linear activation function.
+More details about CNNs is presented in
+%Since then many famous image recognition models were introduced that incorporated CNNs and achieved state of the art performances.
+
+%This is one reason why CNNs are so practicable for image recognition tasks and usually state of the art image recognition architectures have some kind of convolutional neural network implemented within.
+
+%With their restricted and highly spatial connections and weight sharing through convolutional filters, they are an valuable asset no researchers should miss when working with images or audio recognition.
+
+  
+% best quote ever
+%It is trivial to design a machine that learns very quickly, does not generalize, and requires an enormous amount of hardware. 
+%In fact this learning machine has already been built and is called a Random Access Memory.
+
+
+% --
+% recurrent neural networks
+
+\subsection{Recurrent Neural Networks}\label{sec:prev_nn_rnn}
+Recurrent Neural Networks (RNN) are a type of neural networks, that are using feedback loops from their output nodes back to the input nodes.
+With those feedback loops it is possible to improve the processing of sequential data, such as audio waveforms, over time.
+The sequential information is stored within the network architecture of RNNs and the neural network architecture can then be seen as unrolled over time.
+However this unrolling multiplies the per time instance network architecture for each additional time instance, which easily becomes a huge network with many parameters to train.
+Also RNNs are known to be hard to train because of the well known exploding or vanishing gradients problem.
+This problem can be solve by using so called Long Short Time Memory (LSTM) neural networks that are incorporating gates for the information storage in each cell. 
+However the LSTM cell also increases the amount of parameters to be trained for each node.
+
+Through their design to capture sequential data, RNNs are commonly used in speech recognition tasks.
+However they are not subject in this thesis, because of being too cost intensive for a video game deployment.
+The interested reader might read a good comprehension in \cite{Staudenmeyer2019} with further references upon RNN works.
+
+
+% --
+% wavenets
+
+\subsection{Wavenets}\label{sec:prev_nn_wavenet}
+Processing raw audio data as inputs to neural networks seemed to be difficult for a long time.
+This is mainly due to their huge amount of input data, consider a \SI{1}{\second} audio file with a sampling rate of \SI{16}{\kilo\hertz} yield into 16000 samples and therefore a 16000 dimensional input vector.
+Recently neural network architectures emerged with the ability to process raw audio samples.
+One very prominent architecture, originally intended for natural speech generation, are so called \emph{Wavenets} \cite{Oord2016}.
+
+With a smart convolution technique called \emph{dilated convolution} and a quantization of the audio sample values, wavenets could afford to process this huge amount of raw audio inputs.
+Wavenets are in some sense similar to RNNs, because they also use outputs from previous time steps, but the implementation of wavenets is much more efficient, such as the quote from \cite{Oord2016} states:
+\begin{quote}
+  %Recurrent neural networks such as LSTM-RNNs (Hochreiter & Schmidhuber, 1997) have been a key component in these new speech classification pipelines, because they allow for building models with long range contexts. 
+  ...With WaveNets we have shown that layers of dilated convolutions allow the receptive field to grow longer in a much cheaper way than using LSTM units...
+\end{quote}
+
+
+% --
+% adversarial nets
+
+\subsection{Generative Adversarial Neural Networks}\label{sec:prev_nn_adv}
+Generative Adversarial Neural Networks (GAN) are motivated by Game Theory, in a way that they contain usually two separate networks, denoted as players, playing a game against each other.
+The game hereby is to outperform the other player in an adversary task.
+The idea of GANs emerged from Goodfellow in 2014 \cite{Goodfellow2014}, where one player (network) produces fake images, that are similar to real ones and the other player has to detect if it given image is a real or fake one.
+Both players are therefore improving themselves upon each other, to either create more realistic fakes or to detect fakes from reals with low error rates.
+
+In this thesis, the concept of GANs is used for pre-training weights to hopefully improve generalization and performance in a CNN network.
