@@ -2,7 +2,7 @@
 % prev neural networks basics
 
 \section{Neural Networks Basics Architectures}\label{sec:prev_nn}
-\thesisStateReady
+\thesisStateNotReady
 This section is a summary and history review of some specific neural network architectures used within this thesis.
 The purpose is merely to give a slight overview of these architectures and the researchers that contributed to them.
 
@@ -74,17 +74,15 @@ More details about CNNs is presented in
 % recurrent neural networks
 
 \subsection{Recurrent Neural Networks}\label{sec:prev_nn_rnn}
-Recurrent Neural Networks (RNN) are a type of neural networks, that are using feedback loops from their output nodes back to the input nodes.
-With those feedback loops it is possible to improve the processing of sequential data, such as audio waveforms, over time.
-The sequential information is stored within the network architecture of RNNs and the neural network architecture can then be seen as unrolled over time.
-However this unrolling multiplies the per time instance network architecture for each additional time instance, which easily becomes a huge network with many parameters to train.
-Also RNNs are known to be hard to train because of the well known exploding or vanishing gradients problem.
-This problem can be solve by using so called Long Short Time Memory (LSTM) neural networks that are incorporating gates for the information storage in each cell. 
-However the LSTM cell also increases the amount of parameters to be trained for each node.
+Recurrent Neural Networks (RNN) are a type of neural networks, that are using feedback loops from the output of each node back to its input.
+With those feedback loops it is possible to input sequential data with no fixed length restrictions.
+%The information state is stored within the network.
+RNNs are known to be hard to train because of the well known exploding or vanishing gradients problem.
+This problem can be solved by using so called Long Short Time Memory (LSTM) that are incorporating gates for the information storage in each cell. 
+However the LSTM cell also increases the amount of parameters to be trained for each node and backpropagation over a large amount of time steps is computationally intensive.
 
 Through their design to capture sequential data, RNNs are commonly used in speech recognition tasks.
-However they are not subject in this thesis, because of being too cost intensive for a video game deployment.
-The interested reader might read a good comprehension in \cite{Staudenmeyer2019} with further references upon RNN works.
+However they are not subject in this thesis, the interested reader if referred to a good comprehension in \cite{Staudenmeyer2019} with further references upon RNN works.
 
 
 % --
@@ -92,11 +90,12 @@ The interested reader might read a good comprehension in \cite{Staudenmeyer2019}
 
 \subsection{Wavenets}\label{sec:prev_nn_wavenet}
 Processing raw audio data as inputs to neural networks seemed to be difficult for a long time.
-This is mainly due to their huge amount of input data, consider a \SI{1}{\second} audio file with a sampling rate of \SI{16}{\kilo\hertz} yield into 16000 samples and therefore a 16000 dimensional input vector.
+This is mainly due to their huge amount of input data. 
+Consider a \SI{1}{\second} audio file with a sampling rate of \SI{16}{\kilo\hertz} give 16000 samples and therefore a 16000 dimensional input vector.
 Recently neural network architectures emerged with the ability to process raw audio samples.
-One very prominent architecture, originally intended for natural speech generation, are so called \emph{Wavenets} \cite{Oord2016}.
+One very prominent architecture, originally intended for natural speech generation, is the so called \emph{Wavenets} \cite{Oord2016}.
 
-With a smart convolution technique called \emph{dilated convolution} and a quantization of the audio sample values, wavenets could afford to process this huge amount of raw audio inputs.
+With the \emph{dilated convolution} and a quantization of the audio sample values, Wavenets can afford to process this huge amount of inputs.
 Wavenets are in some sense similar to RNNs, because they also use outputs from previous time steps, but the implementation of wavenets is much more efficient, such as the quote from \cite{Oord2016} states:
 \begin{quote}
   %Recurrent neural networks such as LSTM-RNNs (Hochreiter & Schmidhuber, 1997) have been a key component in these new speech classification pipelines, because they allow for building models with long range contexts. 

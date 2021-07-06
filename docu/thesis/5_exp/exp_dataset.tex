@@ -2,21 +2,15 @@
 % dataset
 
 \section{Dataset}\label{sec:exp_dataset}
-\thesisStateRevised
-\thesisStateNotReady
 \thesisStateReady
 Two datasets are used within this thesis, one is the second version of the speech commands dataset from \cite{Warden2018} and one is self made, denoted as \enquote{my dataset} which consists of only 5 labels that are especially valuable for movement in video games.
-
-%(\enquote{left}, \enquote{right}, \enquote{right}, \enquote{right}).
-
 Note that the \enquote{my dataset} is merely used for evaluation.
 The training, validation and testing of the neural network architectures is done on the speech commands dataset.
 Both datasets consists of raw waveform files in the \texttt{.wav} format, no feature extraction was done beforehand.
 As already mentioned in \rsec{prev_kws_benchmark} direct comparisons between different neural network approaches is difficult if the feature extraction is left to the user alone.
 Some datasets provide feature extraction beforehand, so that the comparability of neural network architectures performances is not influenced on it.
-The speech commands dataset does not explicitly separate each \texttt{.wav} file into train, test and validation sets, but provides file lists that refers to distinct waveform files that should be used for testing and validation.
+The speech commands dataset does not explicitly separate each \texttt{.wav} file into train, test and validation sets, but provides file lists that refers to distinct waveform files that should be used for testing and validation and therefore gives a guidline for comparison.
 More details of the datasets are presented below.
-
 
 % Some abbreviations and references were done, so that the jungle of selected parameters get a little bit more clear to the reader of this thesis.in the \texttt{.wav} format
 % The abbreviations of the dataset are shown in \rtab{exp_dataset_abbr}.
@@ -26,32 +20,31 @@ More details of the datasets are presented below.
 
 % \input{./5_exp/tables/tab_exp_dataset_abbr.tex}
 
+
 % --
 % speech commands dataset
 
 \subsection{Speech Commands Dataset}\label{sec:exp_dataset_speech_cmd}
-The speech command dataset \cite{Warden2018} consists of \SI{1}{\second} speech recordings of more than 30 different words, done by over thousands of different speakers.
-The dataset exists in two versions (\texttt{v0.01} and \texttt{v0.02}), the first one was published in 2017 and the second one emerged as improved version of \texttt{v0.01} with 4 more key words \{\enquote{backward}, \enquote{forward}, \enquote{follow}, \enquote{learn}\}, class examples and quality in 2018.
-In this thesis, the experiments are done on the second version \texttt{v0.02}.
-The hard-facts about the speech command dataset \texttt{v0.02} are shown in \rtab{exp_dataset_hard_facts}.
+The speech command dataset \cite{Warden2018} exists in two versions (\texttt{v0.01} and \texttt{v0.02}), the first one was published in 2017 and the second one emerged as improved version of \texttt{v0.01} with 5 more key words \{\enquote{backward}, \enquote{forward}, \enquote{follow}, \enquote{learn}, \enquote{visual}\}, class examples and quality in 2018.
+The  dataset consists of \SI{1}{\second} speech recordings of 30 different words in \texttt{v0.01} and 35 different words in \texttt{v0.02}, done by over thousands of individual speakers.
 
+In this thesis, the experiments are done on the second version \texttt{v0.02} of the dataset.
+The hard-facts about the speech command dataset \texttt{v0.02} are listed in \rtab{exp_dataset_hard_facts}.
 % hard facts
 \input{./5_exp/tables/tab_exp_dataset_hard_facts.tex}
-
-All labels with their separation in training, test and validation set are shown in \rtab{exp_dataset_all_labels}.
-
+All speech command key words with their separation in training, test and validation set are shown in \rtab{exp_dataset_all_labels}.
 % all labels tab
 \input{./5_exp/tables/tab_exp_dataset_all_labels.tex}
 In \rtab{exp_dataset_all_labels} it can be observed, that some labels are occurring significantly more often than others.
 The idea behind this is, as described in \cite{Warden2018}, to separate the key words into \emph{core key words} and \emph{auxiliary key words}.
-The core key words are the more frequent ones with about 3000 examples each, in detail they are \{\enquote{yes}, \enquote{no}, \enquote{up}, \enquote{down}, \enquote{left}, \enquote{right}, \enquote{on}, \enquote{off}, \enquote{stop}, \enquote{go}, \enquote{zero}, \enquote{one}, ..., \enquote{nine} \}.
+The core key words are the more frequent ones with about 3000 to 4000 examples each, in detail they are \{\enquote{yes}, \enquote{no}, \enquote{up}, \enquote{down}, \enquote{left}, \enquote{right}, \enquote{on}, \enquote{off}, \enquote{stop}, \enquote{go}, \enquote{zero}, \enquote{one}, ..., \enquote{nine} \}.
 
-The auxiliary words are the less frequent ones that are not already in the core key words of all available key words in the dataset.
-The intention is that the core key words should get an own class label each, when used in a machine learning system. 
-The auxiliary key words should gather to a single separate class label, representing all unknown words that are not the main key words.
+The auxiliary words are the less frequent ones that are not already listed above in the core key words of all available key words in the dataset.
+The intention is that the core key words should be classified individually and therefore get an own class label each. 
+The auxiliary key words should gather to a single separate class label representing all other possible unknown words to the classification system.
 Those auxiliary key words are often labeled in papers with \enquote{unknown}, but in this thesis it is referred as \enquote{\_mixed} label.
-Further some of the auxiliary key words are similar to core key words, such as \enquote{three} and \enquote{tree}, so that the classification gets more difficult.
-In the creation of those \enquote{\_mixed} label examples it is important to have an equal amounts of examples per individual auxiliary key word. 
+Further some of the auxiliary key words are similar to core key words, such as \enquote{three} and \enquote{tree}, which should increase the difficulty in the classification task. 
+In the creation of the examples for the \enquote{\_mixed} label, it is important to have an equal amounts of examples per individual auxiliary key word.
 
 Some examples of the speech command dataset in raw audio format are shown in \rfig{exp_dataset_wav_grid_speech_commands_v2} to provide a small glimpse on the recordings.
 \begin{figure}[!ht]
@@ -63,7 +56,10 @@ Some examples of the speech command dataset in raw audio format are shown in \rf
 \FloatBarrier
 \noindent
 
+
+% --
 % statistics
+
 \subsubsection{Observations of all examples in the dataset}
 Two histograms were created to observe the quality of all recorded files, those are an energy measure for each file and the count of the sample length.
 The energy of a recorded file provides information about if a recording is too silent (background noise only) or too loud (overdrive distortions). In the first version of the speech command dataset (\texttt{v0.01}) too silent files were an issue.
@@ -92,7 +88,10 @@ For comparison, if silent files were extracted from for instance the given backg
 The sample length histogram shows, that most of the files have a duration of \SI{1}{\second}, but many other have less sample numbers. 
 This is important and has to be regarded in the pre-processing of audio files, because the neural networks inputs are usually a fixed size input, if no sequential neural networks are deployed, such as Recurrent Neural Networks (RNN).
 
+
+% --
 % recording quality
+
 \subsubsection{Recording Quality and Personal Experience}
 The examples within the dataset were not recorded by professionals with high-end recording equipment, in fact the recordings had been done in an amateur kind of fashion, so that the dataset is more suited to realistic environments intended for user applications.
 This is also noted in the paper \cite{Warden2018}:
@@ -125,7 +124,10 @@ Usually it is not a problem for neural networks to cope with noisy datasets, act
 Further if the training dataset is large enough and the test and validation sets do not contain very bad examples, there should be no problem in training and evaluation of different models.
 %However some clean up of the dataset was still done as described in...
 
+
+% --
 % dataset structure
+
 \subsubsection{Dataset Structure}
 The speech command examples are stored in separate folders named after each individual key word, in the \texttt{.wav} format.
 The folder named as \texttt{\_background\_noise\_} contains six different background noise files, such as \texttt{white\_noise.wav} or \texttt{doing\_the\_dishes.wav}, with a duration of more than one minute each.

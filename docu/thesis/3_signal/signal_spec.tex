@@ -2,12 +2,12 @@
 % spectrogram
 
 \section{Spectral Features}\label{sec:signal_spec}
+\thesisStateReady
 Spectral features, such as a spectrogram, are the most intuitive form to represent audio waveforms. 
-It is possible to observe which frequencies are active at time instances.
+It is possible to observe active energy regions of certain frequency bands that are active at consecutive time chunks.
 Methodically this is done by shifting an \emph{analytic window} of time span $t_N$, on the time axis.
 The time shifting has also a fixed time interval, denoted as \emph{hop time} $t_{h}$.
-Both time parameters $t_N$ and $t_h$ can also be presented in samples by multiplying it with the sampling frequency $f_s$:
-
+Both time parameters $t_N$ and $t_h$ can also be presented in samples through a multiplication with the sampling frequency $f_s$:
 % samples
 \begin{equation}
   \begin{split}
@@ -16,34 +16,31 @@ Both time parameters $t_N$ and $t_h$ can also be presented in samples by multipl
   \end{split}
 \end{equation}
 The audio samples contained by the analytic window of size $N$, are transformed with the Discrete Fourier Transform (DFT):
-
 % DTFT
 \begin{equation}\label{eq:signal_spec_dtft}
   \tilde{x}[k] = \sum_{n=0}^{N-1} x[n] \, e^{-j\frac{2 \pi n}{N}k}
 \end{equation}
 into the frequency space $\tilde{x}[k] \in \C$ with frequency index $k$ and discrete audio samples $x[n]$ with sample index $n$.
 More conveniently, \req{signal_spec_dtft} can be written in matrix / vector notation with the DFT operator denoted as $\mathcal{F} \in \C^{k \times n}$:
-
 % DFT matrix
 \begin{equation}\label{eq:signal_spec_dtft_matrix}
   \tilde{x} = \mathcal{F}\, x \quad \mathrm{with} 
   \quad \mathcal{F}[p, q] = e^{-j\frac{2 \pi p}{N} q},
   \quad p,\, q = 0, 1, \dots k-1,\, 0, 1 \dots n-1.
 \end{equation}
-where $p$ and $q$ are row and column index in the matrix $\mathcal{F}$.
+where $p$ and $q$ are row and column indices in the matrix $\mathcal{F}$.
 It follows that $\tilde{x} \in \C^k$ and $x \in \R^n$, where $n$ and $k$ denote here the dimension of input samples and frequency space respectively.
 
 The length of the analytic window in samples $N$ is crucial for the frequency resolution and the lowest frequency that can be represented.
 For example, the periodic time of a sound with $f=\SI{20}{\hertz}$ is $t=\frac{1}{f} = \SI{50}{\milli\second}$.
 To represent a waveform it is necessary to have at least a quarter of its wavelength captured.
-Within this thesis, the length of the analytic window is selected to \SI{25}{\milli\second}.
+Within this thesis, the length of the analytic window is selected to \SI{25}{\milli\second}, which is totally enough for speech signals.
 
-The other important parameter, the \emph{hop size} in samples of the hop time, by which the analytical window is shifted on the time axis, indicates the resolution in time and is especially important for changes within the audio data.
-In applications like speech processing, the hop time should be selected so that the fastest pronounced phone and its transitions to other phones is captured within this time span with sufficient resolution.
-Usually a hop time of $t_{h}=\SI{10}{\milli\second}$ is chosen for speech recognition tasks (also used within this thesis), but it could be extended to $t_{h}=\SI{20}{\milli\second}$, demonstrated in like in \cite{Peter2020}, for saving computations.
+The \emph{hop size} $h$ in samples of the hop time $t_h$, by which the analytical window is shifted on the time axis, indicates the resolution in time and is especially important for sequential changes within the audio data.
+In applications like speech processing, the hop time should be selected so that the fastest pronounced phone and its transitions to other phones is captured with sufficient resolution.
+Usually a hop time of $t_{h}=\SI{10}{\milli\second}$ is chosen for speech recognition tasks (also used within this thesis), but it could be extended to $t_{h}=\SI{20}{\milli\second}$, applied in \cite{Peter2020} to save computations.
 
-With those parameters in mind and $h$ denoted as hop size in samples and $N$ the length of the analytical window, the Short-Time Fourier Transform (STFT) for discrete time signals, can be computed as:
-
+With the hop size $h$ in samples and $N$ the length of the analytical window, the Short-Time Fourier Transform (STFT) for discrete time signals, can be computed as:
 % stft
 \begin{equation}\label{eq:signal_spec_stft}
     X[m, k] = \sum_{n=0}^{N-1} x[n + m] \, w[n] \, e^{-j\frac{2 \pi n}{N}k}, \qquad m = 0 \cdot h, \, 1 \cdot h, \, \dots, \, M \cdot h 
@@ -60,15 +57,12 @@ A summary of the STFT parameters are shown in \rtab{signal_spec_stft}.
 
 % stft params
 \input{./3_signal/tables/tab_signal_spec_stft.tex}
-
 A spectrogram $P \in \R^{m \times k}$ is simply the power spectrum of the STFT signal and is computed with:
-
 % spec
 \begin{equation}\label{eq:signal_spec_spec}
   P[m, k] = \abs{X[m, k]}^2.
 \end{equation}
-A spectrogram with linear representation is shown in \rfig{signal_spec_lin_examples}.
-
+The recorded examples transformed to a spectrogram with linear representation is shown in \rfig{signal_spec_lin_examples}.
 \begin{figure}[!ht]
   \centering
     \subfigure[left]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_spec-lin_left0_my}}
@@ -81,17 +75,14 @@ A spectrogram with linear representation is shown in \rfig{signal_spec_lin_examp
 \end{figure}
 \FloatBarrier
 \noindent
-
-One can see here, that most of the energy of the signal is in the lower frequency regions under \SI{1}{\kilo\hertz}.
+One can see here, that most of the energy of the signal is in the lower frequency regions of under \SI{1}{\kilo\hertz}.
 It is more interesting to transform the signal into the log scale with:
-
 % log
 \begin{equation}\label{eq:signal_spec_log}
   P_{DB}[m, k] = 10 \cdot \log{P[m, k]}
 \end{equation}
 so that small energies are visualized much better. 
-The same examples with log scale are shown in \rfig{signal_spec_log_examples}.
-
+The same examples with log scaling in the value and frequency space are shown in \rfig{signal_spec_log_examples}.
 \begin{figure}[!ht]
   \centering
     \subfigure[left]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_spec-log_left0_my}}
@@ -105,5 +96,6 @@ The same examples with log scale are shown in \rfig{signal_spec_log_examples}.
 \FloatBarrier
 \noindent
 
-Now it is possible to see some interesting structures and movements in the spectrograms in the frequency axis over time.
-Still it is possible to improve the visualization of the spoken command words with a better compression scheme, such as the Mel Frequency Cepstral Coefficients, explained in the next section.
+It is now possible to observe some interesting structures and movements in certain frequency bands of the spectrograms.
+A compression scheme, such as the Mel Frequency Cepstral Coefficients (MFCC) explained in the next section, reduces the high dimensional frequency feature vectors to a more compact feature vectors and further improves the visualization of the spoken command words.
+%Still it is possible to improve the visualization of the spoken command words with a better compression scheme, such as the Mel Frequency Cepstral Coefficients, explained in the next section.

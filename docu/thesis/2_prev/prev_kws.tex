@@ -5,8 +5,8 @@
 \thesisStateNotReady
 Some important works regarding KWS with neural networks are presented here. 
 The aspect of energy efficients is very important within this thesis, because of the deployment of a KWS system in a video game.
-Further the neural network architectures evaluated in this thesis are trained and tested on an already profoundly examined speech command dataset \cite{Warden2018} with many different solution concepts operating with neural networks. 
-A benchmark is therefore given on classification accuracies on the test set of this dataset.
+Further the neural network architectures evaluated in this thesis are trained and tested on an already profoundly examined speech command dataset \cite{Warden2018}.
+Actual benchmarks are provided on classification accuracies from different neural network approaches.
 
 
 % --
@@ -18,23 +18,31 @@ One of the most famous papers on low computational footprint regarding KWS syste
 Two neural networks architectures are chosen from this paper, one is a traditional CNN network for comparison and the other is a limited multipliers network with a CNN striding only in the frequency axis.
 Both networks are described in detail in \rsec{nn_arch}.
 
-A deployment of a KWS system on microcontrollers is examined in \cite{Zhang2017}. 
+A deployment of a KWS system on microcontrollers is examined in \cite{Zhang2017}.
 Different neural network architectures were evaluated regarding their memory usage and operations per inference.
+The work showed that 32-bit to 8-bit quantization does not reduce the classification accuracy and that the depthwise separable CNN (DS-CNN) was the best choice with regards to limited amounts of memory and operations compared to the other evaluated networks.
+
+Another highly optimized resource efficient Deep Neural Network (DNN) based on CNNs obtained with a Neural Architecture Search (NAS) is described by \cite{Peter2020}.
+This work also showed that a 1-bit quantization of the weights performs nearly as good as the 8-bit quantization, which decreases the memory usage even further.
 
 
 % --
 % benchmark
 
 \subsection{Benchmark Networks for this thesis}\label{sec:prev_kws_benchmark}
-First it is to mention that the speech command dataset \cite{Warden2018} consists of raw audio data in the \texttt{.wav} format and there is no pre-processing or feature extraction done beforehand.
+First it is to mention that the speech command dataset \cite{Warden2018} exists in two versions \texttt{v0.01} and \texttt{v0.02} consisting of raw audio data in the \texttt{.wav} format and there is no pre-processing or feature extraction done beforehand.
 Also it is up to the users for which labels are to be selected.
-The main idea however is to choose the \emph{core words} as classification labels and add an unkown label for the \emph{auxiliary words} words.
-Also a separate noise or silence label can be added from given noise data files.
-More details are presented in \rsec{exp_dataset}.
+The main idea however is to choose the \emph{core words} as classification labels and add an \enquote{unknown} label for the \emph{auxiliary words} words.
+Also a separate noise or \enquote{silence} label can be added from given noise data files.
+In most papers the core words were \{\enquote{left},  \enquote{right}, \enquote{up}, \enquote{down}, \enquote{go}\, \enquote{stop}, \enquote{yes}, \enquote{no}, \enquote{on}, \enquote{off}\} and two label for \enquote{silence} and \enquote{unknown} (all other words) used for comparison to previous papers.
+This constellation of selected key words is referred here as \texttt{L12}, the speech command dataset version is referenced with \texttt{V1} or \texttt{V2}.
+More details about the dataset is presented in \rsec{exp_dataset}.
 
-Therefore it is difficult to compare scores between two different papers.
-Still the classification task is not an easy one in any constellation of chosen labels or feature extraction and usually everything that has a accuracy score over 85\% for at least 7 - 10 labels is already pretty good.
+One benchmark is hold by \cite{Berg2021} introducing a Key Word Transformer (KWT) network, which performs accuracy scores of almost 100\%.
 A good overview of actual benchmark scores regarding the speech command dataset is given in \cite{PaperswithcodeKWS}.
+
+Benchmark scores from the referenced works in this section are shown in \rtab{prev_kws_bench}.
+\input{./2_prev/tables/tab_prev_kws_bench.tex}
 
 
 
