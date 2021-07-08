@@ -41,24 +41,30 @@ def get_figsize(context='none'):
 
   return (6, 6)
 
-def get_fontsize(context='none'):
+def get_fontsize(context='none', add_size=0):
   """
   get font size
   """
 
+  # init font size
+  font_size = 8
+
   # usuals
-  if context == 'title': return 14
-  elif context == 'axis_label': return 11
-  elif context == 'axis_tick_major': return 10
-  elif context == 'axis_tick_minor': return 9
+  if context == 'title': font_size = 14
+  elif context == 'axis_label': font_size = 11
+  elif context == 'axis_tick_major': font_size = 10
+  elif context == 'axis_tick_minor': font_size = 9
 
   # special
-  elif context == 'colorbar': return 9
-  elif context == 'conf_normal': return 10
-  elif context == 'conf_small': return 7
-  elif context == 'anno': return 12
+  elif context == 'colorbar': font_size = 9
+  elif context == 'conf_normal': font_size = 10
+  elif context == 'conf_small': font_size = 7
+  elif context == 'anno': font_size = 12
 
-  return 8
+  # modification
+  font_size += add_size
+
+  return font_size
 
 
 def get_colormap_from_context(context='none'):
@@ -115,15 +121,13 @@ def get_colormap_from_context(context='none'):
   return None
 
 
-def add_colorbar(fig, im, cax=None):
+def add_colorbar(fig, im, cax=None, size='2%', pad='2%'):
   """
   adds colorbar to plot
   """
 
   # devider for cax
-  if cax is None:
-    divider = make_axes_locatable(plt.gca())
-    cax = divider.append_axes("right", size="2%", pad="2%")
+  if cax is None: cax = make_axes_locatable(plt.gca()).append_axes('right', size=size, pad=pad)
 
   # colorbar
   color_bar = fig.colorbar(im, cax=cax)
@@ -1099,8 +1103,11 @@ def plot_mel_band_weights(w_f, w_mel, f, m, cmap=None, plot_path=None, name='mel
   # plot frequency weights
   ax.plot(f, w_f.T)
 
+  # tick size
+  ax.tick_params(axis='both', which='major', labelsize=get_fontsize('axis_tick_major', add_size=2)), ax.tick_params(axis='both', which='minor', labelsize=get_fontsize('axis_tick_minor', add_size=2))
+
   # layout
-  plt.ylabel('magnitude', fontsize=get_fontsize('axis_label')), plt.xlabel('frequency [Hz]', fontsize=get_fontsize('axis_label')), plt.grid()
+  plt.ylabel('magnitude', fontsize=get_fontsize('axis_label', add_size=2)), plt.xlabel('frequency [Hz]', fontsize=get_fontsize('axis_label', add_size=2)), plt.grid()
 
   # tight plot
   plt.tight_layout()
@@ -1118,8 +1125,11 @@ def plot_mel_band_weights(w_f, w_mel, f, m, cmap=None, plot_path=None, name='mel
   # plot
   ax.plot(m, w_mel.T)
 
+  # tick size
+  ax.tick_params(axis='both', which='major', labelsize=get_fontsize('axis_tick_major', add_size=2)), ax.tick_params(axis='both', which='minor', labelsize=get_fontsize('axis_tick_minor', add_size=2))
+
   # layout
-  plt.ylabel('magnitude', fontsize=get_fontsize('axis_label')), plt.xlabel('mel [mel]', fontsize=get_fontsize('axis_label')), plt.grid()
+  plt.ylabel('magnitude', fontsize=get_fontsize('axis_label', add_size=2)), plt.xlabel('mel [mel]', fontsize=get_fontsize('axis_label', add_size=2)), plt.grid()
 
   # tight plot
   plt.tight_layout()
@@ -1157,8 +1167,11 @@ def plot_mel_scale(cmap=None, plot_path=None, name='mel', show_plot=False):
   # plot
   ax.plot(f, m)
 
+  # tick size
+  ax.tick_params(axis='both', which='major', labelsize=get_fontsize('axis_tick_major', add_size=2)), ax.tick_params(axis='both', which='minor', labelsize=get_fontsize('axis_tick_minor', add_size=2))
+
   # layout
-  plt.ylabel('mel scale [mel]'), plt.xlabel('frequency [Hz]'), plt.grid()
+  plt.ylabel('mel [mel]', fontsize=get_fontsize('axis_label', add_size=2)), plt.xlabel('frequency [Hz]', fontsize=get_fontsize('axis_label', add_size=2)), plt.grid()
 
   # tight plot
   plt.tight_layout()
@@ -1191,7 +1204,7 @@ def plot_dct(h, cmap=None, context='dct', plot_path=None, name='dct', show_plot=
   plt.axis("off")
 
   # colorbar
-  add_colorbar(fig, im)
+  add_colorbar(fig, im, size='4%', pad='4%')
 
   # tight plot
   plt.tight_layout()
@@ -1252,7 +1265,7 @@ def plot_spec_profile(x, x_spec, fs, N, hop, log_scale=False, cmap=None, cmap_wa
 
   # layout of time plot
   if len(title): ax.set_title('Time Signal of ' + '"' + title + '"', fontsize=get_fontsize('title'))
-  else: ax.set_title('Time Signal ', fontsize=get_fontsize('title'))
+  else: ax.set_title('Time Signal', fontsize=get_fontsize('title'))
 
   # labels
   ax.set_ylabel("magnitude", fontsize=get_fontsize('axis_label'))

@@ -2,49 +2,58 @@
 % mfcc
 
 \section{Mel Frequency Cepstral Coefficients}\label{sec:signal_mfcc}
-Most commonly the Mel Frequency Cepstral Coefficients (MFCC) are used as input features for neural network classifications tasks of audio data.
-It is described why they are good features and how they can be visualized to understand them better.
+\thesisStateNotReady
+Very commonly Mel Frequency Cepstral Coefficients (MFCC) are used as input features for neural network classifications tasks in speech recognition.
+It is described why MFCCs are good features for speech signals, how they are calculated in detail and in which way they can be visualized to understand them better.
 
 \begin{figure}[!ht]
   \centering
-    \subfigure[left]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_mfcc_left0_my}}
-    \subfigure[right]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_mfcc_right0_my}}
-    \subfigure[up]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_mfcc_up0_my}}
-    \subfigure[down]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_mfcc_down0_my}}
-    \subfigure[go]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_mfcc_go0_my}}
+    \subfigure[left]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_mfcc_showcase_left0}}
+    \subfigure[right]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_mfcc_showcase_right0}}
+    \subfigure[up]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_mfcc_showcase_up0}}
+    \subfigure[down]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_mfcc_showcase_down0}}
+    \subfigure[go]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_mfcc_showcase_go0}}
   \caption{MFCC visualized with frame-based normalization.}
-  \label{fig:signal_mfcc_examples}
+  \label{fig:signal_mfcc_showcase}
 \end{figure}
 \FloatBarrier
 \noindent
 
+
+% --
+% idea
+
 \subsection{The Idea behind}
-To comprehend the success and wide use of MFCCs features in neural networks and other machine learning applications, it is necessary to understand its processing scheme:
+The processing scheme of MFCCs is as following:
 Raw audio samples are transformed into the frequency domain with the Short-Time Fourier Transform (STFT).
 Afterwards the power spectrum of the STFT is segmented in frequency bands (along the frequency dimension) done by a filter bank.
-The filter bands are spaced in equidistant mel frequencies,
-where the term mel frequencies is referred to the non-linear relationship between the mel and frequency scale.
-The mel scale was developed in psycho-acoustic experiments, where researchers found out, that high frequency sounds are perceived lower by humans, than they actual are (in musical hearing). For instance, in the musical sense an octave is the doubling of the frequency, but for human hearing it is strongly different and frequency doubling is not enough so that the same pitch is perceived.
-This effect usually becomes imminent over \SI{500}{\hertz}.
-As conclusion the mel scale is suited human hearing perception and taking equidistant mel bands is a reasonable decision.
-In the following a logarithmic scaling in the value space of the power spectrum is done, which is also related to human hearing.
-The last step is not that straight forward, but is a technique widely used in image processing, called the Discrete Cosine Transform (DCT).
-It is only to mention that is some kind of decorrelation process, so that different filter bands are mixed together.
+The filter bands are spaced in equidistant Mel frequencies, where Mel frequencies represent the non-linear relationship between the Mel and frequency scale.
+The Mel scale was developed in psycho-acoustic experiments, where researchers found out, that high frequency sounds (above approximately \SI{500}{\hertz}) are perceived lower than they actual are in the musical description of pitch.
+In the musical sense of a pitch an octave is the doubling of the frequency, but human hearing is different and frequency doubling is not necessarily a doubling of the perceived pitch.
+As conclusion the Mel scale is suited human hearing perception of pitch and taking equidistant Mel bands is a reasonable approach.
 
-This processing steps seem rather complicated in the beginning, but are in fact nothing else but consecutive steps of appropriate scaling and data compression.
-It is to mention that neural networks usually are able to handle large amounts of input features, but it is always preferable to decrease the input size, such that the model size of the neural network can be decreased same-wise.
-Therefore it becomes more clear, why frequencies are put into certain frequency bands, are log scaled and as last step decorrelated with a method like the DCT.
+Another important processing step is the logarithmic scaling of the power spectrum's value space.
+Humans perceive loudness in the logarithmic scale.
+The last step is not that straight forward, but is a technique widely used in image processing called the Discrete Cosine Transform (DCT).
+Note that the DCT is some kind of decorrelation process to mix filter bands in different constellations together.
+
+This processing steps seem rather complicated, but are in fact nothing else but consecutive steps of appropriate scaling and data compression.
+In fact neural networks are able to handle large amounts of input features, but it is always preferable to minimize the input size, such that the model size and training time are decreased and therefore computations saved.
+
+
+% --
+% processing pipeline
 
 \subsection{Processing Pipeline in detail}
-The frequency spectrum is spitted into filter bands, done by triangular window functions.
-Those window functions must have a fixed length on the mel space (equidistant mel bands), that results in different spacing in
-the frequency space.
-The mel - frequency relation can be approximated with:
+The frequency spectrum is separated into filter bands through triangular window functions on the frequency axis with fixed length on the Mel scale (equidistant Mel bands).
+The Mel - Frequency relation is approximated with:
+% mel
 \begin{equation}\label{eq:signal_mfcc_mel}
   m(f) = 2595 \cdot \log_{10} \left(1 + \frac{f}{700} \right) 
 \end{equation}
-where $m$ is the result in mel scale as function of the frequency $f$.
-The mel scale plotted against the frequency scale is illustrated in \rfig{signal_mfcc_mel_scale}
+where $m$ is the result in Mel scale as function of the frequency $f$.
+The Mel scale plotted against the frequency scale is illustrated in \rfig{signal_mfcc_mel_scale}.
+% mel fig
 \begin{figure}[!ht]
   \centering
   \includegraphics[width=0.40\textwidth]{./3_signal/figs/signal_mfcc_mel_scale}
@@ -53,46 +62,57 @@ The mel scale plotted against the frequency scale is illustrated in \rfig{signal
 \end{figure}
 \FloatBarrier
 \noindent
-
-
-The mel and frequency window functions are shown in \rfig{filter_bands}.
+The Mel and frequency window functions are shown in \rfig{filter_bands}.
 \begin{figure}[!ht]
   \centering
   \subfigure[mel space]{\includegraphics[width=0.40\textwidth]{./3_signal/figs/signal_mfcc_weights_mel}}
   \quad
   \subfigure[frequency space]{\includegraphics[width=0.40\textwidth]{./3_signal/figs/signal_mfcc_weights_f}}
-  \caption{Equidistant mel filter bands with a total number of 32 bands.}
+  \caption{Equidistant Mel filter bands with a total number of 32 bands.}
   \label{fig:filter_bands}
 \end{figure}
 \FloatBarrier
 \noindent
-
-The DCT is similar to the Fourier Transform and projects the input signal to a set of basis functions, with following general calculation for the type 2 DCT:
-
+The DCT is very similar to the Fourier transform and projects the input signal to a set of orthogonal basis functions, but a projection only in real valued output signals.
+Different types of DCTs exists, but most commonly the \enquote{type 2} DCT is used and calculated as:
+% --
 % dct
 \begin{equation}\label{eq:signal_mfcc_dct}
-  X[k] = \sum_{n=0}^{N-1} x[n] \, \cos{\left[ \frac{\pi}{N} \left( n + \frac{1}{2} \right) k  \right]}
+  X[c] = \sum_{n=0}^{N-1} x[n] \, \cos{\left[ \frac{\pi}{N} \left( n + \frac{1}{2} \right) c \right]}
 \end{equation}
-or conveniently with matrix notation basis functions:
+with $c$ as cepstrum index and $n$ as sample index of a signal with total length of $N$.
+This can be conveniently written in matrix notation with a total number of $C$ cepstral coefficients:
+% --
+% dct matrix
 \begin{equation}\label{eq:signal_mfcc_dct_matrix}
-  X[k] = D \, x[n] \quad \mathrm{with} \quad D[n, k] = \cos{\left[ \frac{\pi}{N} \left( n + \frac{1}{2} \right) k  \right]}, \quad n, k = 0 \dots N - 1
+  X =  x \, \mathcal{D} \quad \mathrm{with} \quad \mathcal{D}[n, c] = \cos{\left[ \frac{\pi}{N} \left( n + \frac{1}{2} \right) c  \right]}, 
+  \quad n, c = (0, 1 \dots N - 1), (0, 1 \dots C) 
 \end{equation}
-
-These Basis functions are illustrated in \rfig{signal_mfcc_dct}
+with $\mathcal{D} \in \R^{N \times C}$ as DCT matrix and input signal $x \in \R^N$ which gives the transformed signal $X \in \R^C$
+The DCT basis functions illustrated in a matrix in two different color schemes are shown in \rfig{signal_mfcc_dct}.
 \begin{figure}[!ht]
   \centering
-  \subfigure[DCT with continuous color scheme]{\includegraphics[width=0.40\textwidth]{./3_signal/figs/signal_mfcc_dct}}
+  \subfigure[DCT with continuous color scheme]{\includegraphics[width=0.35\textwidth]{./3_signal/figs/signal_mfcc_dct}}
   \quad
-  \subfigure[DCT with diverging color scheme]{\includegraphics[width=0.40\textwidth]{./3_signal/figs/signal_mfcc_dct-div}}
+  \subfigure[DCT with diverging color scheme]{\includegraphics[width=0.35\textwidth]{./3_signal/figs/signal_mfcc_dct-div}}
   \caption{DCT matrix with 32 basis functions illustrated with a continuous and a diverging color scheme.}
   \label{fig:signal_mfcc_dct}
 \end{figure}
 \FloatBarrier
 \noindent
+The MFCCs $U \in R^{M \times C}$ are calculated from the log scaled power spectrum of the STFT $\tilde{X} \in \C^{M \times N}$ computed in \req{signal_spec_stft_matrix}, the filter band weights collected in the matrix $W_m \in \R^{N \times C}$ and transformed with the DCT matrix $\mathcal{D} \in R^{C \times C}$ as following:
+\begin{equation}
+    U = \log{ \left[ \abs{\tilde{X}}^2 W_m \right] } \mathcal{D}.
+\end{equation}
+Note that the rows represent all shifts with the hop size and the columns are the individual cepstral coefficients of $U$.
+The parameters to choose from are therefore the amount of filter bands and the amount of cepstral coefficients.
 
+
+% --
+% enhancement
 
 \subsection{MFCC Feature Usage and Enhancement}
-After the MFCCs are computed, they can be used as input features for neural networks. 
+After the MFCCs are computed, they can be used as input features for neural networks.
 The important Question here is whether an feature enhancement can be done and if all those computed features are necessarily and meaningful for the training and evaluation success of neural networks. Usually not all MFCC coefficients are used as inputs, this is merely done to reduce the computational cost in case the accuracy does not suffer from it.
 A good application is to compute 32 MFCC features (with 32 equidistant Mel filter bands) and use only the first 12 of them as inputs.
 Further it is also possible to compute derivatives (in the time domain) of MFCC features, denoted as Deltas. 
@@ -111,9 +131,9 @@ In this thesis the feature vectors are stacked as following:
 \end{enumerate}
 Which sums up to a 39-dimensional feature vector.
 
-\subsection{Visualisation of MFCC features}
-A good visualisation of MFCC features is necessary to observe the difference between different spoken words.
-MFCCs computed in their traditional way, are not well intended for visualisations, since their individual coefficients value space differs strongly from each other.
+\subsection{Visualization of MFCC features}
+A good visualization of MFCC features is necessary to observe the difference between different spoken words.
+MFCCs computed in their traditional way, are not well intended for visualizations, since their individual coefficients value space differs strongly from each other.
 For example, the first coefficient equals a summation of all filter bands of the spectrogram and is therefore some kind of energy measure, while the other coefficients are weighted sum combinations of the filter bands.
 This forms a totally different value spaces between the individual coefficients and since their value should be represented with colors in linear scale, the visualization cannot show the important structure that is given by the MFCCs.
 Further the most of the signal energy is located in the lower frequency bands, which also impacts the value space of the individual coefficients.
@@ -143,7 +163,7 @@ Further the most of the signal energy is located in the lower frequency bands, w
 
 One solution is to show the features in different value groups. 
 For instance putting the first coefficient and its deltas is in one group, the other coefficients in another and their deltas and energies as well in own groups. 
-Now it is possible to observe some structure in the visualisations, with an example shown in \rfig{left0_order}.
+Now it is possible to observe some structure in the visualizations, with an example shown in \rfig{left0_order}.
 
 \begin{figure}[!ht]
   \centering
@@ -153,7 +173,7 @@ Now it is possible to observe some structure in the visualisations, with an exam
 \end{figure}
 \FloatBarrier
 \noindent
-Another way to improve the visualisation is to normalize the feature vectors over each frame dimension with the infinity norm as:
+Another way to improve the visualization is to normalize the feature vectors over each frame dimension with the infinity norm as:
 
 % frame normalisation
 \begin{equation}\label{eq:signal_mfcc_norm}
@@ -162,12 +182,12 @@ Another way to improve the visualisation is to normalize the feature vectors ove
 where $m$ is again the variable in frames, $l$ the individual MFCC coefficient and $u_l[m]$ the individual MFCC coefficient vector over all frames.
 This equation gives a value space between $[0, 1]$ for each feature vector $u_l[m]$.
 
-A visualisation with frame normalisation of the 39 MFCC feature vectors of \enquote{left0.wav} is shown in \rfig{left0_order},
+A visualization with frame normalization of the 39 MFCC feature vectors of \enquote{left0.wav} is shown in \rfig{left0_order},
 
 \begin{figure}[!ht]
   \centering
     \includegraphics[width=0.75\textwidth]{./3_signal/figs/signal_mfcc_left0_no_order_norm1.png}
-  \caption{Normalisation of 39 MFCC features extracted from \enquote{left0.wav}.}
+  \caption{Normalization of 39 MFCC features extracted from \enquote{left0.wav}.}
   \label{fig:left0_no_order_norm1}
 \end{figure}
 \FloatBarrier
@@ -182,8 +202,8 @@ or in an even better one shown in \rfig{left0_order_norm1}.
 \end{figure}
 \FloatBarrier
 \noindent
-As conclusion, the normalisation in the frame space is an interesting aspect to improve the visualisation of the MFCC features, 
+As conclusion, the normalization in the frame space is an interesting aspect to improve the visualization of the MFCC features, 
 specifically for the cepstral coefficients and the energy features (not the deltas).
-Exactly this nice representation was motivating to explore normalisation of feature for neural network inputs.
-However this is a very crucial thing to do. A normalisation relatives important structures within the feature space and it cannot really be answered if this is a good thing or not.
-One more research question arises here: Is it possible to use normalisation for the features as inputs to neural networks and what are the results to the accuracy and training of the models.
+Exactly this nice representation was motivating to explore normalization of feature for neural network inputs.
+However this is a very crucial thing to do. A normalization relatives important structures within the feature space and it cannot really be answered if this is a good thing or not.
+One more research question arises here: Is it possible to use normalization for the features as inputs to neural networks and what are the results to the accuracy and training of the models.

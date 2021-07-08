@@ -63,7 +63,7 @@ def get_thesis_table_captions(in_file):
   return caption
 
 
-def mfcc_stuff(cfg):
+def mfcc_stuff(cfg, show_plot=False):
   """
   for dct, filter bands, etc
   """
@@ -75,14 +75,14 @@ def mfcc_stuff(cfg):
   feature_extractor = FeatureExtractor(cfg['feature_params'])
 
   # plot dct
-  plot_dct(custom_dct_matrix(cfg['feature_params']['n_filter_bands']), plot_path=plot_path, name='signal_mfcc_dct', show_plot=False)
-  plot_dct(custom_dct_matrix(cfg['feature_params']['n_filter_bands']), plot_path=plot_path, context='dct-div', name='signal_mfcc_dct-div', show_plot=False)
+  plot_dct(custom_dct_matrix(cfg['feature_params']['n_filter_bands']), plot_path=plot_path, name='signal_mfcc_dct', show_plot=show_plot)
+  plot_dct(custom_dct_matrix(cfg['feature_params']['n_filter_bands']), plot_path=plot_path, context='dct-div', name='signal_mfcc_dct-div', show_plot=show_plot)
 
   # mel scale
-  plot_mel_scale(plot_path=plot_path, name='signal_mfcc_mel_scale', show_plot=False)
+  plot_mel_scale(plot_path=plot_path, name='signal_mfcc_mel_scale', show_plot=show_plot)
 
   # plot mel bands
-  plot_mel_band_weights(feature_extractor.w_f, feature_extractor.w_mel, feature_extractor.f, feature_extractor.m, plot_path=plot_path, name='signal_mfcc_weights', show_plot=True)
+  plot_mel_band_weights(feature_extractor.w_f, feature_extractor.w_mel, feature_extractor.f, feature_extractor.m, plot_path=plot_path, name='signal_mfcc_weights', show_plot=show_plot)
 
 
 def showcase_wavs(cfg, raw_plot=True, spec_plot=True, mfcc_plot=True, show_plot=False):
@@ -102,7 +102,8 @@ def showcase_wavs(cfg, raw_plot=True, spec_plot=True, mfcc_plot=True, show_plot=
   feature_extractor = FeatureExtractor(feature_params)
 
   # wav, anno dir
-  wav_dir, anno_dir = '../ignore/my_recordings/showcase_wavs/', '../ignore/my_recordings/showcase_wavs/annotation/'
+  #wav_dir, anno_dir = '../ignore/my_recordings/showcase_wavs/', '../ignore/my_recordings/showcase_wavs/annotation/'
+  wav_dir, anno_dir = '../docu/showcase_wavs/', '../docu/showcase_wavs/annotation/'
 
   # analyze some wavs
   for wav, anno in zip(glob(wav_dir + '*.wav'), glob(anno_dir + '*.TextGrid')):
@@ -114,17 +115,17 @@ def showcase_wavs(cfg, raw_plot=True, spec_plot=True, mfcc_plot=True, show_plot=
     x, _ = librosa.load(wav, sr=feature_params['fs'])
 
     # raw waveform
-    if raw_plot: plot_waveform(x, feature_params['fs'], anno_file=anno, hop=feature_extractor.hop, plot_path=plot_path, name='signal_raw_' + wav.split('/')[-1].split('.')[0] + '_my', show_plot=show_plot)
+    if raw_plot: plot_waveform(x, feature_params['fs'], anno_file=anno, hop=feature_extractor.hop, plot_path=plot_path, name='signal_raw_showcase_' + wav.split('/')[-1].split('.')[0], show_plot=show_plot)
     
     # spectogram
-    if spec_plot: 
-      plot_spec_profile(x, feature_extractor.calc_spectogram(x).T, feature_params['fs'], feature_extractor.N, feature_extractor.hop, anno_file=anno, plot_path=plot_path, title=wav.split('/')[-1].split('.')[0]+'_my', name='signal_spec-lin_' + wav.split('/')[-1].split('.')[0] + '_my', show_plot=show_plot)
-      plot_spec_profile(x, feature_extractor.calc_spectogram(x).T, feature_params['fs'], feature_extractor.N, feature_extractor.hop, log_scale=True, anno_file=anno, plot_path=plot_path, title=wav.split('/')[-1].split('.')[0]+'_my', name='signal_spec-log_' + wav.split('/')[-1].split('.')[0] + '_my', show_plot=show_plot)
+    if spec_plot:
+      plot_spec_profile(x, feature_extractor.calc_spectogram(x).T, feature_params['fs'], feature_extractor.N, feature_extractor.hop, anno_file=anno, plot_path=plot_path, name='signal_spec-lin_showcase_' + wav.split('/')[-1].split('.')[0], show_plot=show_plot)
+      plot_spec_profile(x, feature_extractor.calc_spectogram(x).T, feature_params['fs'], feature_extractor.N, feature_extractor.hop, log_scale=True, anno_file=anno, plot_path=plot_path, name='signal_spec-log_showcase_' + wav.split('/')[-1].split('.')[0], show_plot=show_plot)
 
     # mfcc
     if mfcc_plot:
       mfcc, bon_pos = feature_extractor.extract_mfcc(x, reduce_to_best_onset=False)
-      plot_mfcc_profile(x, cfg['feature_params']['fs'], feature_extractor.N, feature_extractor.hop, mfcc, anno_file=anno, sep_features=True, bon_pos=bon_pos, frame_size=cfg['feature_params']['frame_size'], plot_path=plot_path, name='signal_mfcc_' + wav.split('/')[-1].split('.')[0] + '_my', close_plot=False, show_plot=show_plot)
+      plot_mfcc_profile(x, cfg['feature_params']['fs'], feature_extractor.N, feature_extractor.hop, mfcc, anno_file=anno, sep_features=True, bon_pos=bon_pos, frame_size=cfg['feature_params']['frame_size'], plot_path=plot_path, name='signal_mfcc_showcase_' + wav.split('/')[-1].split('.')[0], close_plot=False, show_plot=show_plot)
 
 
 def feature_selection_tables(overwrite=False):
@@ -193,16 +194,15 @@ if __name__ == '__main__':
   cfg = yaml.safe_load(open("../config.yaml"))
 
   # mfcc stuff
-  #mfcc_stuff(cfg)
+  mfcc_stuff(cfg, show_plot=True)
 
   # showcase wavs
-  #showcase_wavs(cfg, raw_plot=True, spec_plot=True, mfcc_plot=True, show_plot=False)
-  #showcase_wavs(cfg, raw_plot=False, spec_plot=False, mfcc_plot=True, show_plot=True)
+  #showcase_wavs(cfg, raw_plot=True, spec_plot=True, mfcc_plot=True, show_plot=True)
 
   # feature selection tables
   #feature_selection_tables(overwrite=True)
 
   # audio set wavs
-  audio_set_wavs(cfg, wav_grid_plot=False)
+  #audio_set_wavs(cfg, wav_grid_plot=False)
 
 

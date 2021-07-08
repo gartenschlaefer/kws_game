@@ -118,11 +118,10 @@ In many recordings the background noise is imminent, such as traffic noise, chat
 A quality check of the recorded files in the dataset was done, as described in \cite{Warden2018}, to ensure that bad samples are rejected.
 However there are still some existing flaws such as extremely loud or silent files or examples with inconsistent sample numbers or too much noise in it or in the worst case, noise only (very rarely).
 Those quality issues in the dataset are for most cases neglectable or can be fixed, such as inconsistent sample numbers. 
-Other more problematic cases, for instance noise-only examples, should actually be filtered out, but since there occurrence is very rare, it does not really matter.
+Other more problematic cases, for instance noise-only examples, should actually be filtered out, but since their occurrence is very rare, it is not worth the effort.
 %Still it is a great dataset, because there is no need for a perfect dataset when working with neural networks and one can be happy that there exists one with this amount of diversity and free of access under the creative common license.
-Usually it is not a problem for neural networks to cope with noisy datasets, actually it is a good so they could learn invariance against noise, loudness differences and other nuisances during training.
+Usually it is not a problem for neural networks to cope with noisy datasets, actually it is good if many noisy samples are contained, so that they could learn invariance against noise, loudness differences and other nuisances during training.
 Further if the training dataset is large enough and the test and validation sets do not contain very bad examples, there should be no problem in training and evaluation of different models.
-%However some clean up of the dataset was still done as described in...
 
 
 % --
@@ -185,4 +184,3 @@ The dithering is usually done by Gaussian additive noise as describes:
 \end{equation}
 where $\mathcal{N}$ is the normal distribution, $\tilde{x}$ the zero-padded signal (if the sample numbers were incorrect) and $\tilde{x}_{quant}$ the quantization error, corresponding to the minimal absolute value of all samples of $\tilde{x}$ except the pure zero entries.
 When the dithering is applied to the signal, it has no pure zeros anymore and it is not altered much from the origin, since the maximum change lies in a normal range of the quantization noise from the original recording quantization.
-
