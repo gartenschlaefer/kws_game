@@ -2,18 +2,22 @@
 % theory
 
 \section{Theory}\label{sec:nn_theory}
-This section provides the preliminaries of theory to understand the used neural network architectures and the training procedure in general.
+\thesisStateNotReady
+This section provides the preliminaries of theory to understand the used neural network architectures in their structure. 
+Further the general training procedure of neural networks is explained.
 
+% --
 % activation functions
+
 \subsection{Activation Functions}\label{sec:nn_theory_acti}
-Activation functions for neural networks are non-linear functions that usually maps the sum of the weighted inputs of a node to a single output value $z$:
+Activation functions for neural networks are non-linear functions that usually maps the sum of the weighted inputs of a node to a single output value $z$ as following:
 \begin{equation}\label{eq:nn_theory_acti}
   z = h(w \, x^T)
 \end{equation}
 where $h$ is the activation function, $w \in \R^n$ is an weight vector and $x \in \R^n$ an input vector for one specific node.
 The constraint of an activation function is, that an easy computable derivative of this function exist, in order to backpropagate gradients.
 
-The most famous activation function nowadays is the RELU function: ...cite relu
+The most famous activation function nowadays is the RELU function:
 \begin{equation}\label{eq:nn_theory_relu}
   z = \max{(0, a)}
 \end{equation}
@@ -28,13 +32,39 @@ and the tanh functions:
   z = 
 \end{equation}
 
-% cnn
-\subsection{Convolutional Neural Networks}\label{sec:nn_theory_cnn}
-Covolutional Neural Networks (CNN) as already discussed in \rsec{prev_nn_cnn} use convolutional filters on spatial sections of the input.
-Those convolutional filters are also called kernels and illustrated in case of images as a rectangle in 2D space with kernel width $k_w$ and height $k_h$.
+% --
+% fully connected
 
+\subsection{Fully Connected Layer}
+A fully connected (FC) layer is the simplest and most basic forms in neural networks.
+Each node from the previous layer is connected in forward direction to all nodes in the FC layer and each node in the FC layer is further connected to all nodes in the next layer.
+Further each connection has one trainable weight and each node has a bias term.
+A simple FC layer is illustrated in \rfig{nn_theory_fc}.
+% fc
+\begin{figure}[!ht]
+  \centering
+    \includegraphics[width=0.35\textwidth]{./4_nn/figs/nn_theory_fc.eps}
+  \caption{Basic fully connected layer with 3 nodes, receiving connections from 2 input nodes and outputing connections to 2 output nodes.}
+  \label{fig:nn_theory_fc}
+\end{figure}
+\FloatBarrier
+\noindent
+In one node usually following computation is processed:
+\begin{equation}
+  z = h(w \, x^T + b)
+\end{equation}
+with the same notations as in \req{nn_theory_acti} and an additional bias term $b \in \R$.
+
+
+% --
+% cnn
+
+\subsection{Convolutional Layers}\label{sec:nn_theory_cnn}
+Convolutional layers are the fundament of every Covolutional Neural Networks (CNN) as already discussed in \rsec{prev_nn_cnn}.
+They use convolutional filters on small areas of the input data, so that spatial information is retrieved.
+Those convolutional filters are also called kernels and illustrated in case of images as rectangle in 2D space with kernel width $k_w$ and height $k_h$.
 The kernel is shifted over its input map in each axis with an operation called \emph{stride}, denoted as $s$, and produce a output map through convolution.
-The output dimension $o_d$ for striding in along its axis with $s_d$ and kernel size for that axis $k_d$ over the input dimension $i_d$ can be computed as:
+The output dimension $o_d$ for striding along this axis with $s_d$ and kernel size for that axis $k_d$ over the input dimension $i_d$ can be computed as:
 \begin{equation}\label{eq:nn_theory_cnn_}
   o_d = \floor*{\frac{i_d + p_d - k_d}{s_d} + 1}
 \end{equation}
@@ -63,7 +93,7 @@ A gaphical example of this procedure is shown in \rfig{nn_theory_cnn_basics}.
 
 \begin{figure}[!ht]
   \centering
-    \includegraphics[width=0.6\textwidth]{./4_nn/figs/cnn_basics.eps}
+    \includegraphics[width=0.6\textwidth]{./4_nn/figs/nn_theory_cnn_basics.eps}
   \caption{Basic CNN layer with a $16 \times 16$ input image, decomposed in 3 channels (CYM) and 4 output feature maps. Kernel size is $5 \times 5$ and the stride is $1$.}
   \label{fig:nn_theory_cnn_basics}
 \end{figure}
@@ -78,3 +108,5 @@ A gaphical example of this procedure is shown in \rfig{nn_theory_cnn_basics}.
 % \end{figure}
 % \FloatBarrier
 % \noindent
+
+
