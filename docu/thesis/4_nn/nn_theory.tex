@@ -25,12 +25,14 @@ with $a \in \R$ as input to the activation function.
 The big advantage is that this function and its subgradients are very easy and fast to compute.
 The two other activation functions that are used in wavenets are the sigmoid function:
 \begin{equation}\label{eq:nn_theory_sigmoid}
-  z = 
+  z = \frac{1}{1 + \exp{-x}}
 \end{equation}
 and the tanh functions:
 \begin{equation}\label{eq:nn_theory_tanh}
-  z = 
+  z = \frac{\exp{x} - \exp{-x}}{\exp{x} + \exp{-x}}
 \end{equation}
+
+
 
 % --
 % fully connected
@@ -43,7 +45,7 @@ A simple FC layer is illustrated in \rfig{nn_theory_fc}.
 % fc
 \begin{figure}[!ht]
   \centering
-    \includegraphics[width=0.35\textwidth]{./4_nn/figs/nn_theory_fc.eps}
+    \includegraphics[width=0.30\textwidth]{./4_nn/figs/nn_theory_fc.eps}
   \caption{Basic fully connected layer with 3 nodes, receiving connections from 2 input nodes and outputing connections to 2 output nodes.}
   \label{fig:nn_theory_fc}
 \end{figure}
@@ -90,7 +92,7 @@ This is usually done by summing up all output maps of input channels $i$ for one
 \end{equation}
 where $o_j$ is the j-th feature map, $k_{i, j}$ the kernel of $i$ and $j$ and $x_i$ the i-th input channel.
 A gaphical example of this procedure is shown in \rfig{nn_theory_cnn_basics}.
-
+% cnn basics
 \begin{figure}[!ht]
   \centering
     \includegraphics[width=0.6\textwidth]{./4_nn/figs/nn_theory_cnn_basics.eps}
@@ -100,13 +102,20 @@ A gaphical example of this procedure is shown in \rfig{nn_theory_cnn_basics}.
 \FloatBarrier
 \noindent
 
-% \begin{figure}[h]
-%   \centering{
-%   \resizebox{0.5\textwidth}{!}{\input{./4_nn/figs/cnn_basics.tex}}}
-%   \caption{CNN basic architecture}
-%   \label{fig:nn_theory_cnn_basic}
-% \end{figure}
-% \FloatBarrier
-% \noindent
 
+% --
+% loss functions
+\subsection{Loss Functions and Softmax}
+Loss functions or also called cost functions are used to calculate the difference between the predicted labels $\hat{y}$ compared to the actual or ground truth labels $y$.
+In neural networks the predicted labels are usually equal to an output node each.
+Therefore $\hat{y} = [\hat{y_1}, \, \hat{y_2}, \dots, \hat{y_c}]^T$ has the dimension of the number of labels or classes $c$.
+Often it is preferred that $\hat{y} \in R^c$ provides a probability distribution such that:
+\begin{equation}
+  \sum_{i=0}^c \hat{y}_i = 1
+\end{equation}
+which can be achieved with the softmax function:
+\begin{equation}\label{eq:nn_theory_softmax}
+  \hat{y}_i = \frac{\exp{x_i}}{\sum_{j=0}^{c}\exp{x_j}}
+\end{equation}
+where $c$ is the amount of nodes in this layer, if it is the last layer as usual for the softmax, $c$ is the amount of classes and $\hat{y}_i$ the probability value of the corresponding class $i$.
 

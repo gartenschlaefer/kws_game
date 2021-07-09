@@ -63,7 +63,7 @@ def get_thesis_table_captions(in_file):
   return caption
 
 
-def mfcc_stuff(cfg, show_plot=False):
+def mfcc_stuff(cfg, dct_plot=False, mel_scale_plot=False, mel_band_plot=False, show_plot=False):
   """
   for dct, filter bands, etc
   """
@@ -75,17 +75,18 @@ def mfcc_stuff(cfg, show_plot=False):
   feature_extractor = FeatureExtractor(cfg['feature_params'])
 
   # plot dct
-  plot_dct(custom_dct_matrix(cfg['feature_params']['n_filter_bands']), plot_path=plot_path, name='signal_mfcc_dct', show_plot=show_plot)
-  plot_dct(custom_dct_matrix(cfg['feature_params']['n_filter_bands']), plot_path=plot_path, context='dct-div', name='signal_mfcc_dct-div', show_plot=show_plot)
+  if dct_plot:
+    plot_dct(custom_dct_matrix(N=32, C=12), plot_path=plot_path, name='signal_mfcc_dct12', show_plot=show_plot)
+    plot_dct(custom_dct_matrix(N=32, C=12), plot_path=plot_path, context='dct-div', name='signal_mfcc_dct12-div', show_plot=show_plot)
 
   # mel scale
-  plot_mel_scale(plot_path=plot_path, name='signal_mfcc_mel_scale', show_plot=show_plot)
+  if mel_scale_plot: plot_mel_scale(plot_path=plot_path, name='signal_mfcc_mel_scale', show_plot=show_plot)
 
   # plot mel bands
-  plot_mel_band_weights(feature_extractor.w_f, feature_extractor.w_mel, feature_extractor.f, feature_extractor.m, plot_path=plot_path, name='signal_mfcc_weights', show_plot=show_plot)
+  if mel_band_plot: plot_mel_band_weights(feature_extractor.w_f, feature_extractor.w_mel, feature_extractor.f, feature_extractor.m, plot_path=plot_path, name='signal_mfcc_weights', show_plot=show_plot)
 
 
-def showcase_wavs(cfg, raw_plot=True, spec_plot=True, mfcc_plot=True, show_plot=False):
+def showcase_wavs(cfg, raw_plot=True, spec_plot=True, mfcc_plot=True, use_mfcc_39=False, show_plot=False):
   """
   showcase wavs
   """
@@ -95,7 +96,10 @@ def showcase_wavs(cfg, raw_plot=True, spec_plot=True, mfcc_plot=True, show_plot=
 
   # change params
   feature_params = cfg['feature_params'].copy()
-  feature_params['n_ceps_coeff'] = 32
+  feature_params['n_ceps_coeff'] = 12 if use_mfcc_39 else 32
+  feature_params['use_delta_features'] = True if use_mfcc_39 else False
+  feature_params['use_double_delta_features'] = True if use_mfcc_39 else False
+  feature_params['use_energy_features'] = True if use_mfcc_39 else False
   feature_params['norm_features'] = True
 
   # init feature extractor
@@ -125,7 +129,8 @@ def showcase_wavs(cfg, raw_plot=True, spec_plot=True, mfcc_plot=True, show_plot=
     # mfcc
     if mfcc_plot:
       mfcc, bon_pos = feature_extractor.extract_mfcc(x, reduce_to_best_onset=False)
-      plot_mfcc_profile(x, cfg['feature_params']['fs'], feature_extractor.N, feature_extractor.hop, mfcc, anno_file=anno, sep_features=True, bon_pos=bon_pos, frame_size=cfg['feature_params']['frame_size'], plot_path=plot_path, name='signal_mfcc_showcase_' + wav.split('/')[-1].split('.')[0], close_plot=False, show_plot=show_plot)
+      name = 'signal_mfcc_showcase_mfcc32_' + wav.split('/')[-1].split('.')[0] if not use_mfcc_39 else 'signal_mfcc_showcase_mfcc39_' + wav.split('/')[-1].split('.')[0]
+      plot_mfcc_profile(x, cfg['feature_params']['fs'], feature_extractor.N, feature_extractor.hop, mfcc, anno_file=anno, sep_features=False, bon_pos=bon_pos, frame_size=cfg['feature_params']['frame_size'], plot_path=plot_path, name=name, close_plot=False, show_plot=show_plot)
 
 
 def feature_selection_tables(overwrite=False):
@@ -194,10 +199,10 @@ if __name__ == '__main__':
   cfg = yaml.safe_load(open("../config.yaml"))
 
   # mfcc stuff
-  mfcc_stuff(cfg, show_plot=True)
+  mfcc_stuff(cfg, dct_plot=True, show_plot=True)
 
   # showcase wavs
-  #showcase_wavs(cfg, raw_plot=True, spec_plot=True, mfcc_plot=True, show_plot=True)
+  #showcase_wavs(cfg, raw_plot=False, spec_plot=False, mfcc_plot=True, use_mfcc_39=True, show_plot=True)
 
   # feature selection tables
   #feature_selection_tables(overwrite=True)

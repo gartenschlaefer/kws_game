@@ -408,18 +408,18 @@ def custom_mfcc(x, fs, N=1024, hop=512, n_filter_bands=8):
   return custom_dct(np.log(u), n_filter_bands).T
 
 
-def custom_dct_matrix(N):
+def custom_dct_matrix(N, C):
   """
   get custom dct matrix
   """
-  return np.cos(np.pi / N * np.outer((np.arange(N) + 0.5), np.arange(N)))
+  return np.cos(np.pi / N * np.outer((np.arange(N) + 0.5), np.arange(C)))
 
 
 def custom_dct(x, N):
   """
   discrete cosine transform of matrix [MxN]
   """
-  return np.dot(x, custom_dct_matrix(N))
+  return np.dot(x, custom_dct_matrix(N, N))
 
 
 def mel_to_f(m):
@@ -743,9 +743,9 @@ if __name__ == '__main__':
     plot_waveform(x, 16000, anno_file=anno, hop=feature_extractor.hop, title=wav.split('/')[-1].split('.')[0]+'_my', plot_path=wav_dir, name=wav.split('/')[-1].split('.')[0], show_plot=False)
     
   # random
-  #x = np.random.randn(16000)
-  #mfcc, bon_pos = feature_extractor.extract_mfcc(x, reduce_to_best_onset=False)
-  #plot_mfcc_profile(x, 16000, feature_extractor.N, feature_extractor.hop, mfcc, bon_pos=bon_pos, name='rand', show_plot=True)
+  x = np.random.randn(16000)
+  mfcc, bon_pos = feature_extractor.extract_mfcc(x, reduce_to_best_onset=False)
+  plot_mfcc_profile(x, 16000, feature_extractor.N, feature_extractor.hop, mfcc, bon_pos=bon_pos, name='rand', show_plot=True)
 
 
 
