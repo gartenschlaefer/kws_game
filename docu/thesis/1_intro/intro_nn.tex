@@ -7,40 +7,31 @@ Neural networks enable computers to automatically learn from data to be able to 
 The examples or samples from the input data can be paired with annotations, denoted as \emph{labels} or \emph{classes}.
 If the label information of each example is used during the \emph{training} of a machine learning system, such as a neural network, it is called \emph{supervised learning} otherwise it is called \emph{unsupervised learning}, however supervised learning is more commonly applied.
 
-%The big advantage of neural networks is that they are able to cope with huge amounts of input variables per data example and are able to extract their own features of those inputs through many layers within the network.
 The big advantage of neural networks is that they are able to cope with large amounts of input variables per data example.
 Considering a raw waveform file of merely \SI{1}{s} time duration, sampled with \SI{16}{\kilo\hertz} would give a input size of 16000 features.
 This huge amount of input features is even difficult for neural networks to learn from and usually a feature extraction stage is placed in between to reduce the input dimension.
-For instance the computation of MFCCs, using 12 out of 32 coefficients and a time duration of \SI{0.5}{s} with a time shift of \SI{10}{\milli\second}, reduces the input feature size dramatically to $12 \times 50 = 600$, which is still a high number of input features, but much more affordable and faster to train.
+For instance the computation of MFCCs with 12 coefficients and a time duration of \SI{0.5}{s} with a time shift of \SI{10}{\milli\second}, reduces the input feature size dramatically to $12 \times 50 = 600$, which is still a high number of input features, but much more affordable and faster to train.
 
-%In this thesis, the word \emph{feature} has several meanings, one is as name of extracted data and therefore be the same as input variables. 
-%Another is, that a feature is simply some kind of compressed representation of a high dimensional data.
 Neural networks are able to learn own feature representations, selection and interpretation, rather than using hand-crafted ones done by humans with expertise in the application.
 Note that hand-crafting features of a complex recognition task, is in most cases not even possible or extremely cumbersome.
 So researchers prefer neural networks because of their easy deployment scheme and state of the art performances.
 Further it enables everyone who is capable of using neural network tools, to create solution to rather complex problems usually solved by experts in the field, given there is enough data and processing power available.
-Therefore elaborate feature extraction stages become less important to the users.
+Therefore elaborate feature extraction stages become less relevant to the users.
 This on the other side may lead into less understanding of the actual problem and more \enquote{try and error} approaches of different neural network architectures and training parameters.
-The energy consumption required to train large neural network with many parameters on a huge training dataset, shall not be forgotten, especially in times of climatic change.
-Reusing pre-trained weights from renowned network architectures is a good way to reduce energy consumption in finding an optimal classifier for a specific task.
-The re-usability of pre-trained weights is often named as \emph{transfer learning}. 
-A small summary on transfer learning can be found in \cite{TransferLearning}.
-%This led to the thinking that everyone, who owns data and computational power, is the superior of solving complex problems such as image or audio classifications.
-%However it is not always like this rather negative example, when using neural network approaches.
+The energy consumption required to train Deep Neural Network (DNN) with many parameters on a huge training dataset, shall not be forgotten, especially in times of climatic change.
+Reusing pre-trained weights from renowned network architectures is a good way to reduce energy consumption in finding an optimal classifier for an already widely examined classification task.
+The re-usability of pre-trained weights is often named as \emph{transfer learning} and a small summary on it can be found in \cite{TransferLearning}.
 
 The potential of neural networks in research are vast.
 The observation on how the learning from data is done and what recognition patterns are obtained after training, might allow researchers and experts to better understand the problem or gain a different viewpoint on it.
-%However if neural networks are observed on how they are able to learn from data and what recognition patterns they have obtained after training, it might benefit researchers and experts to better understand the problem or gain a different viewpoint on it.
-%It is extremely interesting to work with them and get knowlege about how and why they are able to produce such good results.
-%This again feedbacks experts to gain more understanding or a different viewpoint on the topic.
 Especially when using Convolutional Neural Networks (CNN), researchers are actually able to observe and visualize the learned filters and interpret the results.
 A very interesting example of investigating learned CNN filters is shown by Zeiler el. al. \cite{Zeiler2013}.
-Other interesting subjects in research are generative models, such as Generative Adversarial Networks (GAN) \cite{Goodfellow2014}, which are able to create convincing samples from the learned data distribution.
+Other exciting subjects in research are generative models, such as Generative Adversarial Networks (GAN) \cite{Goodfellow2014}, which are able to create convincing samples from the learned data distribution.
 
 Neural network architectures for speech recognition are a little bit different from image recognition, mainly because of the sequential nature of time signals.
 However if time signals are restricted in time, that means limited to a fixed number of samples, and frequency features are extracted over that time span, then speech signals can be represented in 2D space (frequency and time) and classified like images.
 That suggests that CNNs are reasonable network architectures for speech as well.
-Another interesting architecture for audio signals is the Wavenet \cite{Oord2016}, because of its ability to process raw audio data.
+Another appropriate architecture for audio signals is the Wavenet \cite{Oord2016}, because of its ability to process raw audio data.
 %and were originally intended for speech synthesis, but could also be used for recognition tasks.
 
 

@@ -12,7 +12,7 @@ In terms of video games, those key words might be commands like \enquote{left} o
 The limited set of key words, or sometimes referred as vocabulary, is crucial to restrict the complexity of the recognition task, because usually in all KWS applications it is not necessary to cover all words in a natural language.
 % which is an extremely difficult task in full automatic speech recognition.
 Especially in video games, where the game environment is restricted by rules, technical limits and play-ability, KWS is suited perfectly as an alternative or augmented control system.
-The size of the vocabulary and the selected words are two parameters that influence for one the choice of the neural network architecture in its energy efficiency and for second the game experience over the controls a player can choose from.
+The size of the vocabulary and the selected words are two parameters that influence for one the choice of the neural network architecture in its energy efficiency and accuracy and for second the game experience over the controls a player can choose from.
 If the vocabulary of a KWS system would be too large, the chance of confusion between two different key words grows naturally.
 In many KWS applications it is absolutely necessary that the vocabulary includes labels for \emph{background noise}, \emph{silence} and \emph{unknown words}. 
 This is especially interesting in \emph{wake word} applications, where a single key word must be detected over the previously mentioned labels.
@@ -40,7 +40,7 @@ Also the complexity of KWS and lack of training data are often two valid reasons
 The following section in this introduction will explain and illustrate further details about the individual disciplines, necessary to embed KWS in video games. 
 Further the research questions are listed and an overview of this thesis with further notations is given.
 In summary, the focus of this thesis lies on key word spotting with neural networks in supervised learning trained on a speech command dataset \cite{Warden2018}.
-The best suitable solutions of speech commands classification for video games are presented and evaluated with special interests in Convolutional Neural Networks (CNN), Generative Adversarial Neural Networks (GAN) and wavenets.
+The best suitable solutions of speech commands classification for video games are presented and evaluated with special interests in Convolutional Neural Networks (CNN), Generative Adversarial Neural Networks (GAN) and Wavenets.
 
 % disciplines
 \input{./1_intro/intro_kws.tex}
