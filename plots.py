@@ -167,16 +167,22 @@ def plot_histogram(x, bins=None, color=None, y_log_scale=False, x_log_scale=Fals
   # init figure
   fig = plt.figure(figsize=get_figsize(context='square_big'))
 
+  # image
+  ax = plt.axes()
+
   # plot hist
-  im = plt.hist(x, bins=bins, color=color)
+  im = ax.hist(x, bins=bins, color=color)
 
   # layout
-  plt.title(title, fontsize=get_fontsize('title')), plt.xlabel(x_label, fontsize=get_fontsize('axis_label')), plt.ylabel(y_label, fontsize=get_fontsize('axis_label'))
+  plt.title(title, fontsize=get_fontsize('title', add_size=2)), plt.xlabel(x_label, fontsize=get_fontsize('axis_label', add_size=2)), plt.ylabel(y_label, fontsize=get_fontsize('axis_label', add_size=2))
   plt.grid()
 
   # log scaling
   if y_log_scale: plt.yscale('log')
   if x_log_scale: plt.xscale('log')
+
+  # tick size
+  ax.tick_params(axis='both', which='major', labelsize=get_fontsize('axis_tick_major', add_size=2)), ax.tick_params(axis='both', which='minor', labelsize=get_fontsize('axis_tick_minor', add_size=2))
 
   # tight plot
   plt.tight_layout()

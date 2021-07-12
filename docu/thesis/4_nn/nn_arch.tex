@@ -76,10 +76,6 @@ The self designed \texttt{conv-encoder-fc3} model is shown in \rfig{nn_arch_cnn_
 
 \subsection{GANs}\label{sec:nn_arch_gan}
 t.b.d
-
-\subsection{Wavenets}\label{sec:nn_arch_wavenet}
-t.b.d
-
 %With adversarial neural networks all architectures are meant, with at least two separate neural network architectures, e.g. a Discriminator and a Generator Network and the intention to outperform the other Network in a task where both play a game against each other.
 %The word game is meant in the sense of game theory, where the goal is to find an equilibrium state of players competing against each other.
 %An equilibrium state is usually found if all players are satisfied with the outcome.
@@ -87,3 +83,28 @@ t.b.d
 %An overview of all models is shown in \rtab{nn_arch_overview} with abbreviations in \rtab{nn_arch_abbreviation}.
 %\input{./4_nn/tables/tab_nn_arch_abbreviation.tex}
 %\input{./4_nn/tables/tab_nn_arch.tex}
+
+
+% --
+% wavenets
+\subsection{Wavenets}\label{sec:nn_arch_wavenet}
+
+A Wavenet residual block introduced by \cite{Oord2016}, with an extension for class prediction is illustrated in \rfig{nn_arch_wavenet_block} 
+\begin{figure}[!ht]
+  \centering
+    \includegraphics[width=0.7\textwidth]{./4_nn/figs/nn_arch_wavenet_block.eps}
+  \caption{Wavenet residual block \cite{Oord2016} with extension of class prediction layers.}
+  \label{fig:nn_arch_wavenet_block}
+\end{figure}
+\FloatBarrier
+\noindent
+The whole Wavenet architecture with class and sample prediction is shown in \rfig{nn_arch_wavenet_all}.
+\begin{figure}[!ht]
+  \centering
+    \includegraphics[width=0.9\textwidth]{./4_nn/figs/nn_arch_wavenet_all.eps}
+  \caption{Wavenet architecture with class prediction extension.}
+  \label{fig:nn_arch_wavenet_all}
+\end{figure}
+\FloatBarrier
+\noindent
+

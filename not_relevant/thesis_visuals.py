@@ -159,7 +159,7 @@ def feature_selection_tables(overwrite=False):
     tables = lt_maker.extract_table(out_file=out_file, caption=get_thesis_table_captions(in_file))
 
 
-def audio_set_wavs(cfg, do_statistics=True, wav_grid_plot=False, do_label_table=False):
+def audio_set_wavs(cfg, statistics_plot=True, wav_grid_plot=False, label_table_plot=False):
   """
   audio set wavs
   """
@@ -177,14 +177,15 @@ def audio_set_wavs(cfg, do_statistics=True, wav_grid_plot=False, do_label_table=
   audio_set2.get_audiofiles()
 
   # statistics (saves them in dataset folder)
-  if do_statistics: audio_set1.analyze_dataset_extraction(calculate_overall_stats=True)
+  if statistics_plot: audio_set1.analyze_dataset_extraction(calculate_overall_stats=True)
 
   # label table
-  if do_label_table: LatexTableMakerAudiosetLabels(audio_set1.all_label_file_dict, caption='all labels', label='tab:exp_dataset_all_labels', out_file=plot_path_tab + 'tab_exp_dataset_all_labels__not_released.tex')
+  if label_table_plot: LatexTableMakerAudiosetLabels(audio_set1.all_label_file_dict, caption='all labels', label='tab:exp_dataset_all_labels', out_file=plot_path_tab + 'tab_exp_dataset_all_labels__not_released.tex')
 
   # plot wav grid
-  if wav_grid_plot: plot_wav_grid(audio_set1.extract_wav_examples(set_name='test', n_examples=1, from_selected_labels=False), feature_params=audio_set1.feature_params, grid_size=(6, 6), plot_path=plot_path, name='exp_dataset_wav_grid_speech_commands_v2', show_plot=True)
-  if wav_grid_plot: plot_wav_grid(audio_set2.extract_wav_examples(set_name='my', n_examples=5), feature_params=audio_set2.feature_params, grid_size=(5, 5), plot_path=plot_path, name='exp_dataset_wav_grid_my', show_plot=True)
+  if wav_grid_plot: 
+    plot_wav_grid(audio_set1.extract_wav_examples(set_name='test', n_examples=1, from_selected_labels=False), feature_params=audio_set1.feature_params, grid_size=(6, 6), plot_path=plot_path, name='exp_dataset_wav_grid_speech_commands_v2', show_plot=True)
+    plot_wav_grid(audio_set2.extract_wav_examples(set_name='my', n_examples=5), feature_params=audio_set2.feature_params, grid_size=(5, 5), plot_path=plot_path, name='exp_dataset_wav_grid_my', show_plot=True)
 
 
 
@@ -199,7 +200,7 @@ if __name__ == '__main__':
   cfg = yaml.safe_load(open("../config.yaml"))
 
   # mfcc stuff
-  mfcc_stuff(cfg, dct_plot=True, show_plot=True)
+  #mfcc_stuff(cfg, dct_plot=True, show_plot=True)
 
   # showcase wavs
   #showcase_wavs(cfg, raw_plot=False, spec_plot=False, mfcc_plot=True, use_mfcc_39=True, show_plot=True)
@@ -208,6 +209,6 @@ if __name__ == '__main__':
   #feature_selection_tables(overwrite=True)
 
   # audio set wavs
-  #audio_set_wavs(cfg, wav_grid_plot=False)
+  audio_set_wavs(cfg, statistics_plot=True, wav_grid_plot=False, label_table_plot=False)
 
 

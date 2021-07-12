@@ -47,7 +47,7 @@ For instance this might happen often for words with glottal stops before consona
 But since Key Word Spotting (KWS) is restricted in its vocabulary and no similar words are included in the vocabulary, it should be no problem in distinguishing those.
 
 Another important aspect is to detect the onset position of the speech commands on the time axis. 
-It is easy to see in \rfig{raw_audio_my} where the words are starting and ending, but usually not all recordings are as clean as those.
+It is easy to see in \rfig{signal_raw_showcase} where the spoken words are beginning and ending, but usually not all recordings are as clean as those.
 There might be a huge noise level or background noise or cut away signals, so that the detection of the right onset position for the \SI{500}{\milli\second} time interval within the \SI{1}{\second} recordings is not always appropriate.
 An intuitive method is to simply use the signal energy to determine the onset of the key words.
 If the signal $x$ is windowed with the length of a \SI{500}{\milli\second} striding frame with sample length $N$, the energy of each windowed signal is calculated with:

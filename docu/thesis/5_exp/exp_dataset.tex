@@ -43,8 +43,8 @@ The auxiliary words are the less frequent ones that are not already listed above
 The intention is that the core key words should be classified individually and therefore get an own class label each. 
 The auxiliary key words should gather to a single separate class label representing all other possible unknown words to the classification system.
 Those auxiliary key words are often labeled in papers with \enquote{unknown}, but in this thesis it is referred as \enquote{\_mixed} label.
-Further some of the auxiliary key words are similar to core key words, such as \enquote{three} and \enquote{tree}, which should increase the difficulty in the classification task. 
-In the creation of the examples for the \enquote{\_mixed} label, it is important to have an equal amounts of examples per individual auxiliary key word.
+Further some of the auxiliary key words are similar to core key words, such as \enquote{three} and \enquote{tree}, which should increase the difficulty in the classification task.
+In the creation of the examples for the \enquote{\_mixed} label, it is important to have equal amounts of examples per individual auxiliary key word.
 
 Some examples of the speech command dataset in raw audio format are shown in \rfig{exp_dataset_wav_grid_speech_commands_v2} to provide a small glimpse on the recordings.
 \begin{figure}[!ht]
@@ -135,9 +135,9 @@ Noise examples with a new noise label named \texttt{\_noise} were extracted from
 Each waveform file is named with an 8-digit hexadecimal hash code for the speaker identification, followed by the utterance number, for instance \texttt{3b4f8f24\_nohash\_0.wav}.
 Therefore it is possible to distinguish between different speakers, however as mentioned above, no further information about the speaker is given due to data privacy issues.
 
-Further the dataset provides a testing file list called \texttt{testing\_list.txt} and a validation file list \texttt{validation\_list.txt} where each row entry refers to a file in the dataset, for example \texttt{right/bb05582b\_nohash\_3.wav}
+Further the dataset provides a testing file list called \texttt{testing\_list.txt} and a validation file list \texttt{validation\_list.txt} where each row entry refers to a file in the dataset, for example \texttt{right/bb05582b\_nohash\_3.wav}.
 Those file lists for testing and validation should ensure the comparability between different neural network approaches from individual researchers.
-In this thesis, those file list are applied and the separation into the sets already shown in \rtab{exp_dataset_all_labels}.
+The testing and validation file lists are applied in this thesis and the separation into sets already shown in \rtab{exp_dataset_all_labels}.
 
 
 % --
@@ -169,18 +169,21 @@ It turned out that it is not easy for neural networks to gain a $100\%$ classifi
 The neural networks architectures are trained with supervised learning, that means a class label $y_i$ correspondence to each data example $x_i$ must exist.
 Some selected examples and their labels form a dataset $S$ for example for training or testing and can be written as:
 \begin{equation}\label{eq:exp_dataset}
-  S = \{ (x_i, y_i) | i = 0 \dots n \}
+  S = \{ (\,x_i, \, y_i\,) \quad | \, i = 0 \dots n \}
 \end{equation}
 where $n$ is the total number of examples within the dataset.
+Class labels $y_i$ are usually translated to integer numbers that are referencing to indices in a class vocabulary, for instance $y_1 = 0$ refers to the label \enquote{left} in the indexed vocabulary \{0: \enquote{left}, 1: \enquote{right}\}.
+It is important that the enumeration of class labels starts with zero, because they refer to the output nodes for each class in the used neural networks.
 
-It was already shown how to extract MFCC features in \rsec{signal_mfcc}, however it is important that each individual $x_i$ for all $i$ has the same dimension.
-It could happen that the sample numbers of the waveform files are inconsistent as describe in \rsec{exp_dataset_speech_cmd} and therefore yield different dimension for different $x_i$.
-To ensure that each $x_i$ has the same dimension, the audiofiles were adjusted to have the same sample length of a duration of \SI{1}{\second} with sampling frequency \SI{16}{\kilo\hertz}.
-This was done by simply zero-padding the signals to the desired length of 16000 samples.
-Further some dither noise was added, so that neural networks are not confused when seeing pure zeros emerging from the data examples.
-The dithering is usually done by Gaussian additive noise as describes:
+It was already shown how to extract MFCC features in \rsec{signal_mfcc}, however it is important that each individual $x_i$ for all $i$ has the same dimension, because of data preparation for training with neural networks.
+It could happen that the sample numbers of the waveform files are inconsistent as described in \rsec{exp_dataset_speech_cmd} and therefore a different dimension is obtained.
+To ensure that each $x_i$ has the same dimension, the audio files were adjusted to have the same sample length of a duration of \SI{1}{\second} with sampling frequency \SI{16}{\kilo\hertz}.
+This was done by zero-padding the signals to the desired length of 16000 samples.
+Further dither noise was added, so that neural networks are not confused when seeing pure zeros emerging from the data examples.
+The dithering was done by Gaussian additive noise with:
 \begin{equation}\label{eq:exp_dither}
   x = \tilde{x} + v, \quad v = \mathcal{N}(\mu=0, \sigma=0.5) \cdot \tilde{x}_{quant}%, \quad \mu, \sigma = 0, 0.5
 \end{equation}
-where $\mathcal{N}$ is the normal distribution, $\tilde{x}$ the zero-padded signal (if the sample numbers were incorrect) and $\tilde{x}_{quant}$ the quantization error, corresponding to the minimal absolute value of all samples of $\tilde{x}$ except the pure zero entries.
-When the dithering is applied to the signal, it has no pure zeros anymore and it is not altered much from the origin, since the maximum change lies in a normal range of the quantization noise from the original recording quantization.
+where $\mathcal{N}$ is the normal distribution, $\tilde{x} \in \R^n$ the zero-padded signal (if the sample numbers were incorrect) and $\tilde{x}_{quant} \in \R$ the quantization error, corresponding to the minimal absolute value of all samples of $\tilde{x}$ except the pure zero entries.
+When the dithering is applied to the signal, no pure zeros exist anymore with less altering of the original signal, because the maximum change lies in a normal range of the quantization noise from the original recording quantization.
+
