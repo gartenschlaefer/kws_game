@@ -205,7 +205,7 @@ if __name__ == '__main__':
   audio_set2 = AudioDataset(cfg['datasets']['my_recordings'], cfg['feature_params'], root_path='../')
 
   # create batches
-  batch_archive = SpeechCommandsBatchArchive(feature_file_dict={**audio_set1.feature_file_dict, **audio_set2.feature_file_dict}, batch_size_dict={'train': cfg['ml']['train_params']['batch_size'], 'test': 5, 'validation': 5, 'my': 1}, shuffle=False)
+  batch_archive = SpeechCommandsBatchArchive(feature_file_dict={**audio_set1.feature_file_dict, **audio_set2.feature_file_dict}, batch_size_dict={'train': 32, 'test': 5, 'validation': 5, 'my': 1}, shuffle=False)
 
   # create batches of selected label
   batch_archive.create_batches()
@@ -217,7 +217,6 @@ if __name__ == '__main__':
   #net_handler.load_models(model_files=['/world/cavern/git/kws_game/not_relevant/ignore/models/bs-32_it-1077_lr-0p0001/cnn_model.pth'])
   #net_handler.load_models(model_files=['./ignore/models/bs-32_it-500_lr-0p0001/cnn_model.pth'])
   #print(net_handler.models['cnn'].state_dict().keys())
-
 
   # get some examples
   x1 = batch_archive.x_train[0, 0, 0]

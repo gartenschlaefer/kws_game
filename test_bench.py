@@ -59,7 +59,7 @@ class TestBench():
     net_params = np.load(self.params_file, allow_pickle=True)
 
     # extract params
-    self.nn_arch, self.train_params, self.class_dict = net_params['nn_arch'][()], net_params['train_params'][()], net_params['class_dict'][()]
+    self.nn_arch, self.class_dict = net_params['nn_arch'][()], net_params['class_dict'][()]
 
     # legacy stuff
     self.data_size, self.feature_params = legacy_adjustments_net_params(net_params)

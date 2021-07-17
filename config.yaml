@@ -70,7 +70,7 @@ datasets:
     enable_plot: False
 
     # recreate all datasets (copy wavs to data_paths - not necessary except the dataset is changed)
-    recreate: True
+    recreate: False
     clean_files: False
 
     # v1 all labels
@@ -117,7 +117,7 @@ datasets:
     filter_damaged_files: False
 
     # flag for enabling randomize best onsets from find highes energy region
-    rand_best_onset: False
+    rand_best_onset: True
 
     # if randomize best onsets set in dataset, specify spread in percent of window size
     rand_delta_percs: 0.05
@@ -242,7 +242,7 @@ feature_params:
   n_ceps_coeff: 12
 
   # normalized features -> [0, 1] over frames
-  norm_features: True
+  norm_features: False
 
   # old ones do not use anymore: #compute_deltas: True #compute_energy_features: True
 
@@ -261,28 +261,50 @@ feature_params:
 
 ml:
 
-  # paths
-  paths:
-    log: ignore/logs/
-    model: ignore/models/ 
-    model_pre: ignore/models/pre/
+  # nn architecture available
+  nn_architectures: {1: 'conv-trad', 2: 'conv-fstride', 3: 'adv-experimental', 4: 'conv-experimental', 5: 'conv-encoder'}
 
-  # folders in model path
-  model_path_folders:
-    conv_plots: conv_plots/
-    conv_diff_plots: conv_plots/diff_plots/
-    train_collections: train_collections/
+  # choose architecture
+  #nn_arch: conv-experimental
+  #nn_arch: conv-fstride
+  #nn_arch: conv-trad
+  nn_arch: conv-jim
+  #nn_arch: adv-experimental
+  #nn_arch: adv-jim
+  #nn_arch: adv-jim-label
+  #nn_arch: wavenet
 
-  # file names
-  model_file_name: model.pth
-  params_file_name: params.npz
-  metrics_file_name: metrics.npz
-  info_file_name: info.txt
-  score_file_name: info_score.txt
+  # params
+  train_params:
 
-  # encoder model file name
-  encoder_model_file_name: encoder_model.pth
-  decoder_model_file_name: decoder_model.pth
+    # training params for cnn architectures
+    cnn: {'batch_size': 32, 'num_epochs': 100, 'lr': 0.0001, 'beta': 0.9}
+
+    # adv
+    adv: {'batch_size': 32, 'num_epochs': 100, 'lr_d': 0.0001, 'lr_g': 0.0001, 'beta_d': 0.9, 'beta_g': 0.9}
+
+    # pre adv dual
+    adv_dual: {'batch_size': 32, 'num_epochs': 100, 'lr_d': 0.0001, 'lr_g': 0.001, 'beta_d': 0.9, 'beta_g': 0.9}
+
+    # pre adv label train
+    adv_label: {'batch_size': 32, 'num_epochs': 1000, 'lr_d': 0.0001, 'lr_g': 0.001, 'beta_d': 0.9, 'beta_g': 0.9}
+
+    # wavenet
+    wave: {'batch_size': 32, 'num_epochs': 10, 'lr': 0.001, 'beta': 0.9}
+
+
+  # adversarial parameters
+  adv_params:
+
+    # pre training with dual network
+    dual_train: False
+
+    # pre training with label network
+    label_train: True
+
+    # use decoder weights for further training
+    use_decoder_weights: False
+
 
   # use a pre trained model at pre trained model path
   load_pre_model: False
@@ -290,79 +312,8 @@ ml:
   # saves the model as pre trained model
   save_as_pre_model: False
 
-  # params
-  train_params:
-
-    # batch size
-    batch_size: 32
-    #batch_size: 64
-    #batch_size: 128
-    #batch_size: 512
-
-    # number of epochs
-    num_epochs: 1001
-
-    # learning rate
-    lr: 0.0001
-
-    # momentum
-    beta: 0.5
-
-  # conv coder folders
-  #conv_folder: 'conv_coder/'
-  conv_folder: '../conv_coder/'
-
-  # adversarial parameters
-  adv_params:
-
-    # train each label with adv
-    label_train: True
-
-    # adv pre-training of full network
-    pre_train: False
-
-    # use decoder weights for further training
-    use_decoder_weights: True
-
-    # label epochs
-    num_epochs_label: 1000
-
-    # pre epochs
-    num_epochs_pre: 1000
-
-    # iterating algorithm of label: num_iterations_label x num_epochs_label
-    num_iterations_label: 1
-
-    # archs for label train:
-    #nn_archs_label: ['conv-experimental', 'adv-experimental']
-    #nn_archs_label: ['conv-experimental']
-    #nn_archs_label: ['adv-experimental']
-    #nn_archs_label: ['conv-experimental', 'adv-experimental3']
-    #nn_archs_label: ['adv-experimental3', 'conv-experimental']
-    nn_archs_label: ['adv-experimental3']
-
-    # normalize label weights
-    norm_label_weights: False
-
   # retrain existing model
-  #retrain: True
   retrain: False
-
-  # nn architecture available
-  nn_architectures: {1: 'conv-trad', 2: 'conv-fstride', 3: 'adv-experimental', 4: 'conv-experimental', 5: 'conv-encoder'}
-
-  # choose architecture
-  #nn_arch: conv-experimental
-  #nn_arch: adv-experimental
-  #nn_arch: adv-experimental3
-  #nn_arch: conv-fstride
-  #nn_arch: conv-trad
-  #nn_arch: conv-encoder
-  #nn_arch: conv-encoder-fc1
-  nn_arch: conv-encoder-fc3
-  #nn_arch: conv-lim-encoder
-  #nn_arch: conv-latent
-  #nn_arch: wavenet
 
   # logging enable
   logging_enabled: True
@@ -376,7 +327,28 @@ ml:
   # collections
   create_collections: False
 
+  # paths
+  paths:
+    log: ignore/logs/
+    model: ignore/models/ 
 
+  # folders in model path
+  model_path_folders:
+    conv_plots: conv_plots/
+    conv_diff_plots: conv_plots/diff_plots/
+    train_collections: train_collections/
+
+  # adv pre training folder
+  adv_pre_folder: adv_pre/
+  #conv_folder: ../conv_coder/
+
+  # file names
+  model_file_name: model.pth
+  model_pre_file_name: model_pre.pth
+  params_file_name: params.npz
+  metrics_file_name: metrics.npz
+  info_file_name: info.txt
+  score_file_name: info_score.txt
 
 
 # --
@@ -487,7 +459,3 @@ game:
 
   # user settings file
   user_setting_file: user_settings_game.yaml
-
-
-
-

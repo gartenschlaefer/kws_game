@@ -1,11 +1,12 @@
 % --
 % adversarial training
 
-\section{Adversarial Training}\label{sec:exp_adv}
+\section{Adversarial Pre-Training}\label{sec:exp_adv}
 \thesisStateNotReady
-Here the Adversarial Training is evalutated.
-The first comparance is between a the conv-encoder-fc3 once with adversarial init (use of) and once with simple random init.
-The training losses of those two methods are shown in \rfig{exp_adv_fc3_train_loss} and their accuracies in \rfig{exp_adv_fc3_val_acc}.
+Adversarial pre-training al already described in \rsec{nn_adv} is the transfer of learned weights obtained from adversarial training between a Generator (G) and a Discriminator (D) network.
+The only neural network architecture used for adversarial pre-training is the \texttt{conv-jim} described in \rsec{nn_arch_cnn}.
+To evaluate the gain of adversarial pre-training, the architecture is trained first with random init and compared to a training with adversarial pre-training. 
+The training losses of those two training methods are shown in \rfig{exp_adv_fc3_train_loss} as well as their obtained accuracies in \rfig{exp_adv_fc3_val_acc}.
 
 \begin{figure}[!ht]
   \centering

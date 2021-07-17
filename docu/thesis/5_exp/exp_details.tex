@@ -17,11 +17,12 @@ The feature extraction with Mel Frequency Cepstral Coefficients (MFCC) was done 
 Matrix computations usually are done with the package \texttt{numpy}.
 Several other \texttt{Python} packages were used within the project, but are not named explicitly.
 
+
 % --
 % training details
 
 \subsection{Neural Network Training Details}\label{sec:exp_details_training}
-The training details of neural networks can be split into following parameters:
+The training details of the used neural networks can be split into following parameters:
 \begin{enumerate}
   \item Features extraction parameters
   \item Dataset parameters
@@ -29,16 +30,22 @@ The training details of neural networks can be split into following parameters:
   \item Transfer Learning parameters
   \item Training parameters
 \end{enumerate}
-The feature extraction parameters provide information about how the features were extracted, such as the hop size, frame size, filter bands of the MFCC, etc.
-The dataset parameters provides the selected labels, how many examples per labels are used and the feature selection of the extracted MFCCs. 
+The feature extraction parameters provide information about how the MFCC feautes were extracted.
+Note that no
+During the feature selection experiments the parameters for cepstral coefficients with enhancements are varying normalization.
+If not other stated, the feature extraction parameters in \rtab{exp_details_params_feature} are used.
+\input{./5_exp/tables/tab_exp_details_params_feature}
+The dataset parameters are the selected labels and the number of examples per labels.
+The selected labels are either the 12 labels for comparison to the benchmark networks described in \rsec{prev_kws_benchmark} or 7 labels used for the deployed KWS Game are listed as well as the number of examples per label in \rtab{exp_details_params_dataset}.
+\input{./5_exp/tables/tab_exp_details_params_dataset}
 %The Abbreviation regarding dataset parameters and feature selection were already listed in \rtab{exp_dataset_abbr}.
 %The feature selection is the information about what input feature groups are used in the training, e.g. use cepstral coefficients only, or add delta and energy features, their references are shown in \rtab{dataset_feature_groups}.
-The transfer learning parameters are details about how the pre-trained weights from adversarial pre-training is used for the actual neural network architecture.
+The transfer learning parameters describe the training details of the adversarial networks and what
 For instance it describes if the weights are used from the discriminator or generator network or how much epochs were used for the adversarial training, etc.
 %The Abbreviations for training parameters can be specified as listed in \rtab{exp_details_adv}
 %\input{./5_exp/tables/tab_exp_details_adv.tex}
 
-The training parameters are the parameters used for neural network training, such as learning rate, number of epochs, etc.
+The training parameters are classical parameters for neural network training, such as learning rate, number of epochs, etc.
 %Their selection and references are listed in \rtab{exp_details_train_params}
 %\input{./5_exp/tables/tab_exp_details_train_params.tex}
 

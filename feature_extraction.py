@@ -153,7 +153,7 @@ class FeatureExtractor():
       bon_pos += np.random.randint(-rand_delta, rand_delta)
 
       # consider limits
-      if bon_pos > e_win.shape[0]: bon_pos = e_win.shape[0]
+      if bon_pos >= e_win.shape[0]: bon_pos = e_win.shape[0]-1
       elif bon_pos < 0: bon_pos = 0
 
     return bon_pos

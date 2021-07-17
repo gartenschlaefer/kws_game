@@ -13,7 +13,8 @@ sys.path.append("../")
 
 from audio_dataset import AudioDataset
 from feature_extraction import FeatureExtractor, custom_dct_matrix
-from plots import plot_mel_band_weights, plot_mfcc_profile, plot_waveform, plot_dct, plot_wav_grid, plot_spec_profile, plot_mel_scale
+from batch_archive import SpeechCommandsBatchArchive
+from plots import plot_mel_band_weights, plot_mfcc_profile, plot_waveform, plot_dct, plot_wav_grid, plot_spec_profile, plot_mel_scale, plot_grid_images
 from latex_table_maker import LatexTableMaker, LatexTableMakerAudiosetLabels
 
 
@@ -188,6 +189,37 @@ def audio_set_wavs(cfg, statistics_plot=True, wav_grid_plot=False, label_table_p
     plot_wav_grid(audio_set2.extract_wav_examples(set_name='my', n_examples=5), feature_params=audio_set2.feature_params, grid_size=(5, 5), plot_path=plot_path, name='exp_dataset_wav_grid_my', show_plot=True)
 
 
+def batch_archive_grid_examples(cfg, show_plot=False):
+  """
+  batch archive examples from each label ploted as grid
+  """
+
+  # audioset init
+  audio_set1 = AudioDataset(cfg['datasets']['speech_commands'], feature_params=cfg['feature_params'], root_path='../')
+  audio_set2 = AudioDataset(cfg['datasets']['my_recordings'], feature_params=cfg['feature_params'], root_path='../')
+
+  # create batches
+  batch_archive = SpeechCommandsBatchArchive(feature_file_dict={**audio_set1.feature_file_dict, **audio_set2.feature_file_dict}, batch_size_dict={'train': 32, 'test': 5, 'validation': 5, 'my': 1}, shuffle=False)
+
+  # for all labels
+  for l in cfg['datasets']['speech_commands']['sel_labels']:
+
+    print("l: ", l)
+
+    # create batches
+    batch_archive.create_batches(selected_labels=[l])
+
+    # plot
+    plot_grid_images(batch_archive.x_batch_dict['train'][0, :30], context='mfcc', padding=1, num_cols=5, title=l, name='grid_' + l, show_plot=show_plot)
+
+  # create batches for my data
+  batch_archive.create_batches()
+  batch_archive.print_batch_infos()
+  
+  # plot my data
+  plot_grid_images(np.squeeze(batch_archive.x_batch_dict['my'], axis=1), context='mfcc', padding=1, num_cols=5, title='grid', name='grid', show_plot=show_plot)
+
+
 
 if __name__ == '__main__':
   """
@@ -209,6 +241,9 @@ if __name__ == '__main__':
   #feature_selection_tables(overwrite=True)
 
   # audio set wavs
-  audio_set_wavs(cfg, statistics_plot=True, wav_grid_plot=False, label_table_plot=False)
+  #audio_set_wavs(cfg, statistics_plot=True, wav_grid_plot=False, label_table_plot=False)
+
+  # batch archive
+  batch_archive_grid_examples(cfg, show_plot=True)
 
 

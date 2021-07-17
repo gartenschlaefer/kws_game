@@ -1,5 +1,5 @@
 """
-Machine Learning file for training and evaluating the model with graphical collections and param savings
+machine learning
 """
 
 import numpy as np
@@ -7,60 +7,70 @@ import logging
 
 # my stuff
 from common import s_to_hms_str, create_folder, check_files_existance
-from plots import plot_train_score, plot_confusion_matrix, plot_mfcc_only, plot_grid_images, plot_other_grid, plot_mfcc_anim
+from plots import plot_train_score, plot_confusion_matrix, plot_mfcc_only, plot_grid_images, plot_mfcc_anim
 
 
 class ML():
   """
-  Machine Learning class
+  machine learning class
   """
 
-  def __init__(self, cfg_ml, audio_dataset, batch_archive, net_handler, sub_model_path=None, encoder_label='', root_path='./'):
+  def __init__(self, cfg_ml, audio_dataset, audio_dataset_my=None, nn_arch_context='config', encoder_label='', encoder_model=None, decoder_model=None, root_path='./'):
 
     # arguments
     self.cfg_ml = cfg_ml
     self.audio_dataset = audio_dataset
-    self.batch_archive = batch_archive
-    self.net_handler = net_handler
-    self.sub_model_path = sub_model_path
+    self.audio_dataset_my = audio_dataset_my
+    self.nn_arch_context = nn_arch_context
+    #self.sub_model_path = sub_model_path
     self.encoder_label = encoder_label
+    self.encoder_model = encoder_model
+    self.decoder_model = decoder_model
     self.root_path = root_path
+
+    # get architecture for net handler
+    self.nn_arch = self.get_net_handler_arch()
+
+    # train params
+    self.train_params = self.get_training_params()
+
+    # create batch archive
+    self.batch_archive = SpeechCommandsBatchArchive(feature_file_dict={**self.audio_dataset.feature_file_dict, **self.audio_dataset_my.feature_file_dict}, batch_size_dict={'train': self.train_params['batch_size'], 'test': 5, 'validation': 5, 'my': 1}, shuffle=True) if audio_dataset_my is not None else SpeechCommandsBatchArchive(feature_file_dict=self.audio_dataset.feature_file_dict, batch_size_dict={'train': self.train_params['batch_size'], 'test': 5, 'validation': 5, 'my': 1}, shuffle=True)
+
+    # create batches
+    self.batch_archive.create_batches() if not self.nn_arch.startswith('adv') else self.batch_archive.create_batches(selected_labels=['left'])
+
+    # net handler
+    self.net_handler = NetHandler(nn_arch=self.nn_arch, class_dict=self.batch_archive.class_dict, data_size=self.batch_archive.data_size, encoder_model=self.encoder_model, decoder_model=self.decoder_model, use_cpu=self.cfg_ml['use_cpu'])
+
 
     # paths
     self.paths = dict((k, self.root_path + v) for k, v in self.cfg_ml['paths'].items())
 
-    # parameter path ml
-    self.param_path_ml = 'bs-{}_it-{}_lr-{}/'.format(self.cfg_ml['train_params']['batch_size'], self.cfg_ml['train_params']['num_epochs'], str(self.cfg_ml['train_params']['lr']).replace('.', 'p'))
+    # adv pre train folder
+    self.param_path_ml = self.cfg_ml['adv_pre_folder'] if self.nn_arch_context in ['adv_dual', 'adv_label', 'adv_label_all'] else ''
 
-    # adv parameter path
-    self.adv_params_path = 'l{}p{}d{}_itl-{}_itp-{}/'.format(int(self.cfg_ml['adv_params']['label_train']), int(self.cfg_ml['adv_params']['pre_train']), int(self.cfg_ml['adv_params']['use_decoder_weights']), self.cfg_ml['adv_params']['num_epochs_label'], self.cfg_ml['adv_params']['num_epochs_pre'])
+    # parameter path ml
+    self.param_path_ml += 'bs-{}_it-{}_lr-{}'.format(self.train_params['batch_size'], self.train_params['num_epochs'], str(self.train_params['lr']).replace('.', 'p')) if not self.nn_arch.startswith('adv') else 'bs-{}_it-{}_lr-d-{}_lr-g-{}'.format(self.train_params['batch_size'], self.train_params['num_epochs'], str(self.train_params['lr_d']).replace('.', 'p'), str(self.train_params['lr_g']).replace('.', 'p'))
+    self.param_path_ml += '_dual' if self.cfg_ml['adv_params']['dual_train'] and self.nn_arch_context in ['adv_dual'] else ''
+    self.param_path_ml += '_label' if self.cfg_ml['adv_params']['label_train'] and self.nn_arch_context in ['adv_label', 'adv_label_all'] else ''
+    self.param_path_ml += '_pre-adv/' if (self.cfg_ml['adv_params']['label_train'] or self.cfg_ml['adv_params']['dual_train']) and not self.nn_arch_context in ['adv_dual', 'adv_label', 'adv_label_all'] else '/'
 
     # model path
     self.model_path = self.paths['model'] + self.cfg_ml['nn_arch'] + '/' + self.audio_dataset.param_path + self.param_path_ml
 
-    # create model path before (useful for sub model path changes with ../)
-    create_folder([self.model_path])
-
-    # sub dir
-    if self.sub_model_path is not None:
-      
-      # add parameter
-      if self.sub_model_path.find(cfg_ml['conv_folder']) != -1: self.model_path = self.model_path + self.sub_model_path + self.adv_params_path
-
     # new sub dir for encoder label
-    if len(self.encoder_label): self.model_path = self.model_path + encoder_label + '/'
+    self.model_path += self.encoder_label + '/' if len(self.encoder_label) else ''
+
+    # create model path
+    create_folder([self.model_path])
 
     # model path folders
     self.model_path_folders = dict((k, self.model_path + v) for k, v in self.cfg_ml['model_path_folders'].items())
 
     # model file
-    self.model_files = [self.model_path + model_name + '_' + self.cfg_ml['model_file_name'] for model_name, v in net_handler.models.items()]
-    self.model_pre_files = [self.paths['model_pre'] + model_name + '_' + '{}_c-{}.pth'.format(self.cfg_ml['nn_arch'], len(self.batch_archive.class_dict)) for model_name, v in net_handler.models.items()]
-    
-    # encoder decoder available
-    enc, dec = net_handler.get_nn_arch_has_conv_coder()
-    self.encoder_model_file = self.model_path + self.cfg_ml['encoder_model_file_name'] if enc else None
-    self.decoder_model_file = self.model_path + self.cfg_ml['decoder_model_file_name'] if dec else None
+    self.model_files = [self.model_path + model_name + '_' + self.cfg_ml['model_file_name'] for model_name, v in self.net_handler.models.items()]
+    self.model_pre_files = [self.model_path + model_name + '_' + self.cfg_ml['model_pre_file_name'] for model_name, v in self.net_handler.models.items()]
 
     # parameter and metrics files
     self.params_file = self.model_path + self.cfg_ml['params_file_name']
@@ -84,29 +94,81 @@ class ML():
     if self.cfg_ml['load_pre_model']: self.net_handler.load_models(model_files=self.model_pre_files)
 
 
+  def get_training_params(self):
+    """
+    training params for each architecture
+    """
+
+    # cnn networks
+    if self.nn_arch.startswith('conv'): return self.cfg_ml['train_params']['cnn']
+
+    # adversarial networks
+    elif self.nn_arch.startswith('adv'):
+
+      # pre training dual
+      if self.nn_arch_context == 'adv_dual': return self.cfg_ml['train_params']['adv_dual']
+      elif self.nn_arch_context in ['adv_label', 'adv_label_all']: return self.cfg_ml['train_params']['adv_label']
+      return self.cfg_ml['train_params']['adv']
+
+    # wavenet
+    elif self.nn_arch.startswith('wave'): return self.cfg_ml['train_params']['wave']
+
+    return self.cfg_ml['train_params']['cnn']
+
+
+  def get_net_handler_arch(self):
+    """
+    get nn arch for net handler
+    """
+
+    print(self.nn_arch_context)
+
+    # from config (usual)
+    if self.nn_arch_context == 'config': return self.cfg_ml['nn_arch']
+
+    # get adv dual arch
+    elif self.nn_arch_context in ['adv_dual', 'adv_label_all']: return self.get_adversarial_pair_arch(self.cfg_ml['nn_arch'], label_arch=False)
+
+    # get adv label arch
+    elif self.nn_arch_context == 'adv_label': return self.get_adversarial_pair_arch(self.cfg_ml['nn_arch'], label_arch=True)
+
+    return self.cfg_ml['nn_arch']
+
+
+  def get_adversarial_pair_arch(self, nn_arch, label_arch=False):
+    """
+    adversarial pair architecture for dual and label architecture
+    """
+
+    # jim network
+    if nn_arch in ['conv-jim']: return 'adv-jim' if not label_arch else 'adv-jim-label'
+
+    return 'adv-jim'
+
+
   def train(self, new_train_params=None, log_on=True, name_ext='', save_models=True):
     """
     training
     """
 
     # check if model already exists
-    if check_files_existance([self.encoder_model_file, self.decoder_model_file] + self.model_files) and not self.cfg_ml['retrain']:
+    if check_files_existance(self.model_files) and not self.cfg_ml['retrain']:
 
       # load model and check if it was possible
       if self.net_handler.load_models(model_files=self.model_files): return
 
     # if train params need to be changed
-    train_params = self.cfg_ml['train_params'] if new_train_params is None else new_train_params
+    train_params = self.train_params if new_train_params is None else new_train_params
 
     # train
     train_score = self.net_handler.train_nn(train_params=train_params, batch_archive=self.batch_archive, callback_f=self.image_collect)
 
     # training info
-    if log_on: logging.info('Training on arch: [{}], audio set param string: [{}], train_params: {}, device: [{}], time: {}'.format(self.cfg_ml['nn_arch'], self.audio_dataset.param_path, self.cfg_ml['train_params'], self.net_handler.device, s_to_hms_str(train_score.score_dict['time_usage'])))
+    if log_on: logging.info('Training on arch: [{}], audio set param string: [{}], train_params: {}, device: [{}], time: {}'.format(self.cfg_ml['nn_arch'], self.audio_dataset.param_path, train_params, self.net_handler.device, s_to_hms_str(train_score.score_dict['time_usage'])))
     
     # save models and params
     if save_models:
-      self.net_handler.save_models(model_files=self.model_files, encoder_model_file=self.encoder_model_file, decoder_model_file=self.decoder_model_file)
+      self.net_handler.save_models(model_files=self.model_files)
       self.save_params()
       self.save_metrics(train_score=train_score)
 
@@ -114,8 +176,7 @@ class ML():
     self.save_infos()
 
     # save as pre trained model
-    if self.cfg_ml['save_as_pre_model']:
-      self.net_handler.save_models(model_files=self.model_pre_files)
+    if self.cfg_ml['save_as_pre_model']: self.net_handler.save_models(model_files=self.model_pre_files)
 
     # plot score
     plot_train_score(train_score, plot_path=self.model_path, name_ext=name_ext)
@@ -125,7 +186,7 @@ class ML():
     """
     save parameter file
     """
-    np.savez(self.params_file, nn_arch=self.net_handler.nn_arch, train_params=self.cfg_ml['train_params'], class_dict=self.batch_archive.class_dict, data_size=self.net_handler.data_size, feature_params=self.audio_dataset.feature_params)
+    np.savez(self.params_file, nn_arch=self.net_handler.nn_arch, train_params=self.train_params, class_dict=self.batch_archive.class_dict, data_size=self.net_handler.data_size, feature_params=self.audio_dataset.feature_params)
 
 
   def save_metrics(self, train_score=None):
@@ -155,10 +216,10 @@ class ML():
     eval_score = self.net_handler.eval_nn('test', batch_archive=self.batch_archive, collect_things=True, verbose=False)
 
     # score print of collected
-    eval_score.info_collected(self.net_handler.nn_arch, self.audio_dataset.param_path, self.cfg_ml['train_params'], info_file=self.score_file, do_print=False)
+    eval_score.info_collected(self.net_handler.nn_arch, self.audio_dataset.param_path, self.train_params, info_file=self.score_file, do_print=False)
 
     # log to file
-    if self.cfg_ml['logging_enabled']: logging.info(eval_score.info_detail_log(self.net_handler.nn_arch, self.audio_dataset.param_path, self.cfg_ml['train_params']))
+    if self.cfg_ml['logging_enabled']: logging.info(eval_score.info_detail_log(self.net_handler.nn_arch, self.audio_dataset.param_path, self.train_params))
 
     # print confusion matrix
     print("confusion matrix:\n{}\n".format(eval_score.cm))
@@ -181,10 +242,10 @@ class ML():
     eval_score = self.net_handler.eval_nn('my', batch_archive=self.batch_archive, collect_things=True, verbose=True)
     
     # score print of collected
-    eval_score.info_collected(self.net_handler.nn_arch, self.audio_dataset.param_path, self.cfg_ml['train_params'], info_file=self.score_file, do_print=False)
+    eval_score.info_collected(self.net_handler.nn_arch, self.audio_dataset.param_path, self.train_params, info_file=self.score_file, do_print=False)
 
     # log to file
-    if self.cfg_ml['logging_enabled']: logging.info(eval_score.info_detail_log(self.net_handler.nn_arch, self.audio_dataset.param_path, self.cfg_ml['train_params']))
+    if self.cfg_ml['logging_enabled']: logging.info(eval_score.info_detail_log(self.net_handler.nn_arch, self.audio_dataset.param_path, self.train_params))
 
     # confusion matrix
     print("confusion matrix:\n{}\n".format(eval_score.cm))
@@ -291,14 +352,24 @@ class ML():
     plot_mfcc_anim(self.img_list, plot_path=self.model_path, name='mfcc-anim')
 
 
-def label_train_conv_encoder(cfg, batch_archive, num_label_split, model_path):
+
+# --
+# pre-train
+
+def pre_train_adv_label(cfg, audio_set1, encoder_model=None, decoder_model=None):
   """
-  label train
+  adv-label train
   """
+
+  # check architecture
+  if cfg['ml']['nn_arch'] not in ['conv-jim', 'conv-encoder-fc1', 'conv-encoder-fc3']: return None, None
 
   # encoder model list
   encoder_models = torch.nn.ModuleList()
   decoder_models = torch.nn.ModuleList()
+
+  # calculate label split
+  num_label_split = 48 // 8
 
   # split lim
   num_label_split = len(cfg['datasets']['speech_commands']['sel_labels']) if num_label_split > len(cfg['datasets']['speech_commands']['sel_labels']) else num_label_split
@@ -310,169 +381,83 @@ def label_train_conv_encoder(cfg, batch_archive, num_label_split, model_path):
   for l_split in label_split:
 
     # concatenate splits for info
-    l = '_'.join(l_split)
+    l_split_names = '_'.join(l_split)
 
     # info
-    print("\nconv encoder for: ", l)
+    print("\nadv-pre model for: ", l_split_names)
     encoder_model, decoder_model = None, None
 
-    # coder files
-    coder_files = [model_path + l + '/' + p for p in [cfg['ml']['encoder_model_file_name'], cfg['ml']['decoder_model_file_name']]]
+    # ml
+    ml = ML(cfg_ml=cfg['ml'], audio_dataset=audio_set1, nn_arch_context='adv_label', encoder_label=l_split_names)
 
-    # check if encoder file exists
-    if check_files_existance(coder_files):
+    # check if files exists
+    if check_files_existance(ml.model_files):
 
       print("files found, load...")
       
-      # create net handler
-      net_handler = NetHandler(nn_arch=cfg['ml']['adv_params']['nn_archs_label'][-1], class_dict={l:0}, data_size=batch_archive.data_size, use_cpu=cfg['ml']['use_cpu'])
-
       # load models
-      net_handler.models['d'].conv_encoder.load_state_dict(torch.load(coder_files[0]))
-      net_handler.models['g'].conv_decoder.load_state_dict(torch.load(coder_files[1]))
+      ml.net_handler.load_models(ml.model_files)
 
-      # add encoder model
-      encoder_models.append(net_handler.models['d'].conv_encoder)
-      decoder_models.append(net_handler.models['g'].conv_decoder)
+      # add encoder and decoder
+      encoder_models.append(ml.net_handler.models['d']), decoder_models.append(ml.net_handler.models['g'])
 
       continue
 
+    # create batches
+    ml.batch_archive.create_batches(l_split)
 
-    # iterations for learning conv encoders
-    for i in range(cfg['ml']['adv_params']['num_iterations_label']):
-      
-      # go through selected archs
-      for j, nn_arch in enumerate(cfg['ml']['adv_params']['nn_archs_label']):
+    # training
+    ml.analyze(name_ext='_1-0_pre-adv')
+    ml.train(log_on=False, name_ext='_adv-post_train', save_models=True)
+    ml.analyze(name_ext='_1-1_post-adv')
 
-        # reduce to labels
-        batch_archive.create_batches(l_split)
-
-        # ToDo if required
-        # add noise data for conv-exp
-        # if nn_arch in ['conv-experimental', 'adv-experimental3']:
-        # if nn_arch in ['conv-experimental']:
-        #   batch_archive.one_against_all(l, others_label='other', shuffle=True)
-        #  batch_archive.add_noise_data(shuffle=True)
-
-        # net handler
-        net_handler = NetHandler(nn_arch=nn_arch, class_dict=batch_archive.class_dict, data_size=batch_archive.data_size, encoder_model=encoder_model, decoder_model=decoder_model, use_cpu=cfg['ml']['use_cpu'])
-
-        # ml
-        ml = ML(cfg_ml=cfg['ml'], audio_dataset=audio_set1, batch_archive=batch_archive, net_handler=net_handler, sub_model_path=cfg['ml']['conv_folder'], encoder_label=l)
-
-        # change train params
-        train_params = cfg['ml']['train_params'].copy()
-        train_params['num_epochs'] = cfg['ml']['adv_params']['num_epochs_label']
-
-        # train and analyze
-        name_ext = '_{}-{}_{}'.format(i, j, nn_arch)
-        ml.train(new_train_params=train_params, log_on=False, name_ext=name_ext, save_models=(i==cfg['ml']['adv_params']['num_iterations_label']-1))
-        ml.analyze(name_ext=name_ext)
-
-        # update encoder models
-        if nn_arch == 'conv-experimental': encoder_model, decoder_model = net_handler.models['cnn'], None
-        elif nn_arch in ['adv-experimental', 'adv-experimental3']: encoder_model, decoder_model = net_handler.models['d'], net_handler.models['g']
-
-    # add encoder model
-    encoder_models.append(encoder_model.conv_encoder)
-    decoder_models.append(decoder_model.conv_decoder)
-
-  return encoder_models, decoder_models
+    # add encoder and decoder
+    encoder_models.append(ml.net_handler.models['d']), decoder_models.append(ml.net_handler.models['g'])
 
 
-def get_adversarial_pair_arch(nn_arch):
-  """
-  adversarial pair architecture for adversarial conv encoder training
-  """
-  if nn_arch in ['conv-lim-encoder']: return 'adv-lim-encoder'
-  elif nn_arch in ['conv-encoder-fc1', 'conv-encoder-fc3']: return 'adv-lim-encoder-6'
-  return 'adv-collected-encoder'
+  # ml dual network
+  ml_all = ML(cfg_ml=cfg['ml'], audio_dataset=audio_set1, nn_arch_context='adv_label_all')
+
+  # transfer coder weights
+  ml_all.analyze(name_ext='_init')
+  ml_all.net_handler.models['d'].transfer_params_label_models(encoder_models)
+  ml_all.net_handler.models['g'].transfer_params_label_models(decoder_models)
+  ml_all.analyze()
+  ml_all.net_handler.save_models(ml_all.model_files)
+
+  return (None, ml_all.net_handler.models['g']) if cfg['ml']['adv_params']['use_decoder_weights'] else (ml_all.net_handler.models['d'], None)
 
 
-def train_conv_encoders(cfg, audio_set1, audio_set2, encoder_model=None, decoder_model=None):
+def pre_train_adv_dual(cfg, audio_set1, encoder_model=None, decoder_model=None):
   """
   train convolutional encoders
   """
 
   # check architecture
-  if cfg['ml']['nn_arch'] not in ['conv-encoder', 'conv-lim-encoder', 'conv-latent', 'conv-encoder-fc1', 'conv-encoder-fc3']: return None, None
+  if cfg['ml']['nn_arch'] not in ['conv-jim', 'conv-encoder-fc1', 'conv-encoder-fc3']: return None, None
 
-  # batch archive
-  batch_archive = SpeechCommandsBatchArchive(feature_file_dict={**audio_set1.feature_file_dict, **audio_set2.feature_file_dict}, batch_size_dict={'train': cfg['ml']['train_params']['batch_size'], 'test': 5, 'validation': 5, 'my': 1}, shuffle=True)
-
-  # net handler
-  net_handler = NetHandler(nn_arch=get_adversarial_pair_arch(cfg['ml']['nn_arch']), class_dict=batch_archive.class_dict, data_size=batch_archive.data_size, encoder_model=encoder_model, decoder_model=decoder_model, use_cpu=cfg['ml']['use_cpu'])
-  
-  # ml
-  ml = ML(cfg_ml=cfg['ml'], audio_dataset=audio_set1, batch_archive=batch_archive, net_handler=net_handler, sub_model_path=cfg['ml']['conv_folder'])
-
+  # ml dual network
+  ml = ML(cfg_ml=cfg['ml'], audio_dataset=audio_set1, nn_arch_context='adv_dual')
 
   # check if encoder file exists
-  if check_files_existance([ml.encoder_model_file, ml.decoder_model_file]):
+  if check_files_existance(ml.model_files):
     
     # load models
-    net_handler.models['d'].conv_encoder.load_state_dict(torch.load(ml.model_path + cfg['ml']['encoder_model_file_name']))
-    net_handler.models['g'].conv_decoder.load_state_dict(torch.load(ml.model_path + cfg['ml']['decoder_model_file_name']))
+    ml.net_handler.load_models(ml.model_files)
 
     # return encoder or decoder model
-    return (None, net_handler.models['g']) if cfg['ml']['adv_params']['use_decoder_weights'] else (net_handler.models['d'], None)
+    return (None, ml.net_handler.models['g']) if cfg['ml']['adv_params']['use_decoder_weights'] else (ml.net_handler.models['d'], None)
 
+  # create batches with all labels
+  ml.batch_archive.create_batches()
 
-  # adversarial pre training on each label separately
-  if cfg['ml']['adv_params']['label_train']:
-
-    # number of labels split, devide by number of feature maps each gets
-    num_label_split = net_handler.models['d'].conv_encoder.n_feature_maps[0][1] // 8
-
-    # label train
-    encoder_models, decoder_models = label_train_conv_encoder(cfg, batch_archive, num_label_split, model_path=ml.model_path)
-
-    # transfer coder weights
-    net_handler.models['d'].conv_encoder.transfer_conv_weights_label_coders(encoder_models)
-    net_handler.models['g'].conv_decoder.transfer_conv_weights_label_coders(decoder_models)
-
-    ml.analyze(name_ext='_0-0_pre_norm')
-
-    # normalize if requested
-    if cfg['ml']['adv_params']['norm_label_weights']:
-      for encoder_model, decoder_model in zip(encoder_models, decoder_models):
-        with torch.no_grad():
-          encoder_model.conv_layers[0].weight.div_(torch.norm(encoder_model.conv_layers[0].weight, keepdim=True))
-          encoder_model.conv_layers[1].weight.div_(torch.norm(encoder_model.conv_layers[1].weight, keepdim=True))
-          decoder_model.deconv_layers[0].weight.div_(torch.norm(decoder_model.deconv_layers[0].weight, keepdim=True))
-          decoder_model.deconv_layers[1].weight.div_(torch.norm(decoder_model.deconv_layers[1].weight, keepdim=True))
-
-      # transfer coder weights
-      net_handler.models['d'].conv_encoder.transfer_conv_weights_label_coders(encoder_models)
-      net_handler.models['g'].conv_decoder.transfer_conv_weights_label_coders(decoder_models)
-
-      ml.analyze(name_ext='_0-1_post_norm')
-
-    # # add noise to each weight
-    # with torch.no_grad():
-    #   for param in encoder_model.parameters():
-    #     param.add_(torch.randn(param.shape) * 0.01)
-    #torch.nn.init.xavier_uniform_(collected_encoder_model.conv_layers[1].weight, gain=torch.nn.init.calculate_gain('relu'))
-
-
-  # adversarial pre training on all labels
-  if cfg['ml']['adv_params']['pre_train']:
-
-    # create batches with all labels
-    batch_archive.create_batches()
-
-    # set epochs
-    train_params = cfg['ml']['train_params'].copy()
-    train_params['num_epochs'] = cfg['ml']['adv_params']['num_epochs_pre']
-
-    # training
-    ml.analyze(name_ext='_1-0_pre-adv')
-    ml.train(new_train_params=train_params, log_on=False, name_ext='_adv-post_train', save_models=True)
-    ml.analyze(name_ext='_1-1_post-adv')
-
+  # training
+  ml.analyze(name_ext='_1-0_pre-adv')
+  ml.train(log_on=False, name_ext='_adv-post_train', save_models=True)
+  ml.analyze(name_ext='_1-1_post-adv')
 
   # return either encoder or decoder model
-  return (None, net_handler.models['g']) if cfg['ml']['adv_params']['use_decoder_weights'] else (net_handler.models['d'], None)
+  return (None, ml.net_handler.models['g']) if cfg['ml']['adv_params']['use_decoder_weights'] else (ml.net_handler.models['d'], None)
 
 
 def get_audiosets(cfg):
@@ -540,16 +525,15 @@ def cfg_changer(cfg_file):
 
 if __name__ == '__main__':
   """
-  ML - Machine Learning file
+  machine learning main
   """
 
   import yaml
   import torch
 
-  from conv_nets import ConvEncoder, ConvDecoder
+  from audio_dataset import AudioDataset, SpeechCommandsDataset, MyRecordingsDataset
   from batch_archive import SpeechCommandsBatchArchive
   from net_handler import NetHandler
-  from audio_dataset import AudioDataset, SpeechCommandsDataset, MyRecordingsDataset
   from test_bench import TestBench
 
 
@@ -565,33 +549,22 @@ if __name__ == '__main__':
       continue
 
 
-    # conv encoder training
-    (encoder_model, decoder_model) = train_conv_encoders(cfg, audio_set1, audio_set2) if cfg['ml']['adv_params']['label_train'] or cfg['ml']['adv_params']['pre_train'] else (None, None)
-
-    # create batch archive
-    batch_archive = SpeechCommandsBatchArchive(feature_file_dict={**audio_set1.feature_file_dict, **audio_set2.feature_file_dict}, batch_size_dict={'train': cfg['ml']['train_params']['batch_size'], 'test': 5, 'validation': 5, 'my': 1}, shuffle=True)
-
-    # create batches
-    batch_archive.create_batches() if not cfg['ml']['nn_arch'] in ['adv-experimental', 'adv-experimental3'] else batch_archive.create_batches(selected_labels=['left'])
-
-    # net handler
-    net_handler = NetHandler(nn_arch=cfg['ml']['nn_arch'], class_dict=batch_archive.class_dict, data_size=batch_archive.data_size, encoder_model=encoder_model, decoder_model=decoder_model, use_cpu=cfg['ml']['use_cpu'])
+    # adversarial pre training with dual network
+    (encoder_model, decoder_model) = pre_train_adv_dual(cfg, audio_set1, encoder_model=None, decoder_model=None) if cfg['ml']['adv_params']['dual_train'] else (None, None)
+    
+    # adversarial pre training with label networks
+    (encoder_model, decoder_model) = pre_train_adv_label(cfg, audio_set1, encoder_model=None, decoder_model=None) if cfg['ml']['adv_params']['label_train'] else (None, None)
 
 
     # --
     # machine learning and evaluation
 
     # instance
-    ml = ML(cfg_ml=cfg['ml'], audio_dataset=audio_set1, batch_archive=batch_archive, net_handler=net_handler)
+    ml = ML(cfg_ml=cfg['ml'], audio_dataset=audio_set1, audio_dataset_my=audio_set2, encoder_model=encoder_model, decoder_model=decoder_model)
 
-    # analyze and train
+    # analyze and train eval analyze
     ml.analyze(name_ext='_init')
     ml.train()
-
-    # add all labels again for adv (removed above to one label)
-    if cfg['ml']['nn_arch'].startswith('adv-'): batch_archive.create_batches()
-
-    # eval and analyze
     ml.eval()
     ml.analyze()
 
@@ -607,7 +580,3 @@ if __name__ == '__main__':
 
       # shift invariance test
       test_bench.test_invariances()
-
-
-
-

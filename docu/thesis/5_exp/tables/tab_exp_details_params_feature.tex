@@ -1,0 +1,27 @@
+% --
+% feature extraction parameters
+\begin{table}[ht!]
+\begin{center}
+\caption{Parameters for MFCC feature extraction.}
+\begin{tabular}{ M{6cm}  M{2cm} M{2cm}}
+\toprule
+\textbf{Parameter} & \textbf{Value} & \textbf{Varying for experiments} \\
+\midrule
+Length of signal & \SI{500}{\milli\second} & - \\
+Analytic window size & \SI{25}{\milli\second} & -\\
+Hop size & \SI{10}{\milli\second} & -\\
+Window Function & Hanning & -\\
+\midrule
+Number of filter bands & 32 & -\\
+Number of cepstral coefficients & 12 & yes\\
+Delta features & 12 & yes \\
+Double delta features & 12 & yes \\
+Energy features & 3 & yes \\
+Frame based normalization & yes & yes\\
+\bottomrule
+\label{tab:exp_details_params_feature}
+\end{tabular}
+\end{center}
+\end{table}
+\FloatBarrier
+\noindent

@@ -825,19 +825,13 @@ if __name__ == '__main__':
   audio_set2.analyze_dataset_extraction(calculate_overall_stats=False)
 
 
-  print("\n--check dataset")
+  print("\n--check dataset with batch archive:")
 
   # batches
-  batch_archive = SpeechCommandsBatchArchive(feature_file_dict={**audio_set1.feature_file_dict, **audio_set2.feature_file_dict}, batch_size_dict={'train': cfg['ml']['train_params']['batch_size'], 'test': 5, 'validation': 5, 'my': 1}, shuffle=False)
+  batch_archive = SpeechCommandsBatchArchive(feature_file_dict={**audio_set1.feature_file_dict, **audio_set2.feature_file_dict}, batch_size_dict={'train': 32, 'test': 5, 'validation': 5, 'my': 1}, shuffle=False)
 
   # create batches
   batch_archive.create_batches()
-  
-  print("archive: ", batch_archive.x_batch_dict.keys())
-  print("archive: ", batch_archive.x_batch_dict['train'].shape)
-  #print("archive: ", batch_archive.num_examples_per_class)
-  #plot_mfcc_only(batch_archive.x_train[0, 0], name=batch_archive.z_train[0, 0], show_plot=True)
 
-  # plot wav grid
-  #plot_wav_grid(audio_set1.extract_wav_examples(set_name='test', n_examples=1, from_selected_labels=False), feature_params=audio_set1.feature_params, grid_size=(6, 6), plot_path=audio_set1.plot_paths['examples_grid'], name='wav_grid_speech_commands_v2', show_plot=False)
-  #plot_wav_grid(audio_set2.extract_wav_examples(set_name='my', n_examples=5), feature_params=audio_set2.feature_params, grid_size=(5, 5), cmap=None, title='', plot_path=audio_set2.plot_paths['examples_grid'], name='wav_grid_my', show_plot=True)
+  # show info
+  batch_archive.print_batch_infos()

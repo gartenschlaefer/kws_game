@@ -36,6 +36,9 @@ class TrainScore():
     # loss element counter
     self.loss_element_counter = 0
 
+    # actual epoch
+    self.actual_epoch = 0
+
 
   def define_loss_types(self):
     """
@@ -149,7 +152,8 @@ class AdversarialTrainScore(TrainScore):
     """
     print some training info
     """
-    print('epoch: {}, mini-batch: {}, G loss fake: [{:.5f}], G loss sim: [{:.5f}], D loss real: [{:.5f}], D loss fake: [{:.5f}]'.format(epoch + 1, mini_batch + 1, self.batch_dict['g_loss_fake_batch'], self.batch_dict['g_loss_sim_batch'], self.batch_dict['d_loss_real_batch'], self.batch_dict['d_loss_fake_batch']))
+    if self.actual_epoch != epoch: self.actual_epoch, _ = epoch, print('')
+    print('epoch: {}, mini-batch: {}, G: [fake: [{:.2f}], sim: [{:.2f}]], D: [real: [{:.2f}], fake: [{:.2f}]]'.format(epoch + 1, mini_batch + 1, self.batch_dict['g_loss_fake_batch'], self.batch_dict['g_loss_sim_batch'], self.batch_dict['d_loss_real_batch'], self.batch_dict['d_loss_fake_batch']))
 
 
 

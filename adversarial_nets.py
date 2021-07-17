@@ -1,7 +1,5 @@
 """
-adversarial networks
-D - Discriminator
-G - Generator
+adversarial networks with notations: D - Discriminator, G - Generator
 """
 
 import numpy as np
@@ -9,7 +7,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 
-from conv_nets import ConvBasics, ConvEncoder, ConvDecoder
+from conv_nets import ConvBasics
 
 
 class AdvBasics(ConvBasics):
@@ -39,33 +37,39 @@ class AdvBasics(ConvBasics):
 
 
 
-class G_experimental(nn.Module, AdvBasics):
+class Adv_G_Experimental(nn.Module, AdvBasics):
   """
-  Generator for experimental purpose
-  input: noise of size [n_latent]
-  output: [batch x channels x m x f]
-  m - features
-  f - frames
+  adv generator jim label network
   """
 
-  def __init__(self, n_classes, data_size, n_latent=100, net_class='label-encoder'):
+  def __init__(self, n_classes, data_size, n_latent=100):
 
     # parent init
     super().__init__()
+    AdvBasics.__init__(self, n_classes, data_size)
 
     # arguments
     self.n_classes = n_classes
     self.data_size = data_size
     self.n_latent = n_latent
 
-    # convolutional decoder
-    self.conv_decoder = ConvDecoder(self.n_classes, self.data_size, n_latent=self.n_latent, net_class=net_class)
+    # conv params (not transposed)
+    self.feature_maps = [(self.n_channels, 8), (8, 8)]
+    self.kernel_sizes = [(self.n_features, 20), (1, 5)]
+    self.strides = [(1, 1), (1, 1)]
+    self.padding = [(0, 0), (0, 0)]
 
-    # # fully connected layers
-    # self.fc1 = nn.Linear(self.n_latent, 32)
-    # self.fc2 = nn.Linear(32, np.prod(self.conv_decoder.conv_in_dim))
+    # dimensions
+    self.conv_layer_dim = self.get_conv_layer_dimensions(input_dim=(self.n_features, self.n_frames), kernel_sizes=self.kernel_sizes, strides=self.strides, padding=self.padding)
+    self.conv_in_dim = ((self.feature_maps[-1][1],) + self.conv_layer_dim[-1])
+    self.conv_out_dim = self.data_size
 
-    self.fc1 = nn.Linear(self.n_latent, np.prod(self.conv_decoder.conv_in_dim))
+    # fully connected
+    self.fc1 = nn.Linear(self.n_latent, np.prod(self.conv_in_dim))
+
+    # create deconv layers
+    self.deconv_layer0 = nn.ConvTranspose2d(self.feature_maps[1][1], self.feature_maps[1][0], kernel_size=self.kernel_sizes[1], stride=self.strides[1], bias=False)
+    self.deconv_layer1 = nn.ConvTranspose2d(self.feature_maps[0][1], self.feature_maps[0][0], kernel_size=self.kernel_sizes[0], stride=self.strides[0], bias=False)
 
     # init weights
     self.apply(self.weights_init)
@@ -76,56 +80,118 @@ class G_experimental(nn.Module, AdvBasics):
     forward pass
     """
 
-    # # fully connected layers
-    # x = self.fc1(x)
-    # x = torch.relu(self.fc2(x))
-    
+    # fully connected layers
     x = self.fc1(x)
 
     # reshape for conv layer
-    x = torch.reshape(x, ((x.shape[0],) + self.conv_decoder.conv_in_dim))
+    x = torch.reshape(x, ((x.shape[0],) + self.conv_in_dim))
 
     # conv decoder
-    x = self.conv_decoder(x)
+    x = torch.relu(self.deconv_layer0(x))
+    x = self.deconv_layer1(x)
+    #x = self.deconv_layer1(x)
 
     # last layer activation
+    #x = torch.sigmoid(x)
+
+    return x
+
+
+
+class Adv_D_Experimental(nn.Module, AdvBasics):
+  """
+  adv generator jim label network
+  """
+
+  def __init__(self, n_classes, data_size, n_latent=100):
+
+    # parent init
+    super().__init__()
+    AdvBasics.__init__(self, n_classes, data_size)
+
+    # arguments
+    self.n_classes = n_classes
+    self.data_size = data_size
+    self.n_latent = n_latent
+
+    # conv params
+    self.feature_maps = [(self.n_channels, 8), (8, 8)]
+    self.kernel_sizes = [(self.n_features, 20), (1, 5)]
+    self.strides = [(1, 1), (1, 1)]
+    self.padding = [(0, 0), (0, 0)]
+
+    # get conv layer dimensions
+    self.conv_layer_dim = self.get_conv_layer_dimensions((self.n_features, self.n_frames), self.kernel_sizes, self.strides, self.padding)
+    self.conv_in_dim = self.data_size
+    self.conv_out_dim = ((self.feature_maps[-1][1],) + self.conv_layer_dim[-1])
+
+    # conv layer
+    self.conv_layer0 = nn.Conv2d(self.feature_maps[0][0], self.feature_maps[0][1], kernel_size=self.kernel_sizes[0], stride=self.strides[0], bias=False)
+    self.conv_layer1 = nn.Conv2d(self.feature_maps[1][0], self.feature_maps[1][1], kernel_size=self.kernel_sizes[1], stride=self.strides[1], bias=False)
+
+    # fully connected
+    self.fc1 = nn.Linear(np.prod(self.conv_out_dim), 1)
+
+    # init weights
+    self.apply(self.weights_init)
+
+
+  def forward(self, x):
+    """
+    forward pass
+    """
+
+    # conv layers
+    x = torch.relu(self.conv_layer0(x))
+    x = torch.relu(self.conv_layer1(x))
+
+    # flatten
+    x = x.view(-1, np.product(x.shape[1:]))
+
+    # fully connected layers
+    x = self.fc1(x)
+
+    # sigmoid
     x = torch.sigmoid(x)
 
     return x
 
 
 
-class D_experimental(nn.Module, AdvBasics):
+class Adv_G_Jim(nn.Module, AdvBasics):
   """
-  Discriminator for experimental purpose
-  input: [batch x channels x m x f]
-  output: [1]
-  m - features
-  f - frames
+  adv generator jim label network
   """
 
-  def __init__(self, n_classes, data_size, out_dim=1, net_class='label-encoder'):
+  def __init__(self, n_classes, data_size, n_latent=100, n_feature_maps_l0=48):
 
     # parent init
     super().__init__()
+    AdvBasics.__init__(self, n_classes, data_size)
 
     # arguments
     self.n_classes = n_classes
     self.data_size = data_size
-    self.out_dim = out_dim
+    self.n_latent = n_latent
+    self.n_feature_maps_l0 = n_feature_maps_l0
 
-    # encoder model
-    self.conv_encoder = ConvEncoder(self.n_classes, self.data_size, net_class=net_class)
+    # conv params (not transposed)
+    self.feature_maps = [(self.n_channels, self.n_feature_maps_l0), (self.n_feature_maps_l0, 8)]
+    self.kernel_sizes = [(self.n_features, 20), (1, 5)]
+    self.strides = [(1, 1), (1, 1)]
+    self.padding = [(0, 0), (0, 0)]
 
-    # fully connected layers
-    self.fc1 = nn.Linear(np.prod(self.conv_encoder.conv_out_dim), self.out_dim)
+    # dimensions
+    self.conv_layer_dim = self.get_conv_layer_dimensions(input_dim=(self.n_features, self.n_frames), kernel_sizes=self.kernel_sizes, strides=self.strides, padding=self.padding)
+    self.conv_in_dim = ((self.feature_maps[-1][1],) + self.conv_layer_dim[-1])
+    self.conv_out_dim = self.data_size
 
-    # dropout layer
-    #self.dropout_layer1 = nn.Dropout(p=0.5)
+    # create deconv layers
+    self.deconv_layer0 = nn.ConvTranspose2d(self.feature_maps[1][1], self.feature_maps[1][0], kernel_size=self.kernel_sizes[1], stride=self.strides[1], bias=False)
+    self.deconv_layer1 = nn.ConvTranspose2d(self.feature_maps[0][1], self.feature_maps[0][0], kernel_size=self.kernel_sizes[0], stride=self.strides[0], bias=False)
 
-    # last activation function
-    if self.out_dim == 1: self.last_activation = nn.Sigmoid()
-    else: self.last_activation = nn.Softmax(dim=1)
+    # fully connected
+    self.fc1 = nn.Linear(self.n_latent, np.prod(self.conv_in_dim))
 
     # init weights
     self.apply(self.weights_init)
@@ -136,17 +202,78 @@ class D_experimental(nn.Module, AdvBasics):
     forward pass
     """
 
-    # encoder model
-    x = self.conv_encoder(x)
-
-    # flatten output from conv layer
-    x = x.view(-1, np.product(x.shape[1:]))
-
-    # fully connected layer
+    # fully connected layers
     x = self.fc1(x)
 
-    # last layer activation
-    x = self.last_activation(x)
+    # reshape for conv layer
+    x = torch.reshape(x, ((x.shape[0],) + self.conv_in_dim))
+
+    # conv decoder
+    x = torch.relu(self.deconv_layer0(x))
+    x = self.deconv_layer1(x)
+
+    # sigmoid
+    #x = torch.sigmoid(x)
+
+    return x
+
+
+
+class Adv_D_Jim(nn.Module, AdvBasics):
+  """
+  adv generator jim label network
+  """
+
+  def __init__(self, n_classes, data_size, n_feature_maps_l0=48):
+
+    # parent init
+    super().__init__()
+    AdvBasics.__init__(self, n_classes, data_size)
+
+    # arguments
+    self.n_classes = n_classes
+    self.data_size = data_size
+    self.n_feature_maps_l0 = n_feature_maps_l0
+
+    # conv params
+    self.feature_maps = [(self.n_channels, self.n_feature_maps_l0), (self.n_feature_maps_l0, 8)]
+    self.kernel_sizes = [(self.n_features, 20), (1, 5)]
+    self.strides = [(1, 1), (1, 1)]
+    self.padding = [(0, 0), (0, 0)]
+
+    # get conv layer dimensions
+    self.conv_layer_dim = self.get_conv_layer_dimensions((self.n_features, self.n_frames), self.kernel_sizes, self.strides, self.padding)
+    self.conv_in_dim = self.data_size
+    self.conv_out_dim = ((self.feature_maps[-1][1],) + self.conv_layer_dim[-1])
+
+    # conv layer
+    self.conv_layer0 = nn.Conv2d(self.feature_maps[0][0], self.feature_maps[0][1], kernel_size=self.kernel_sizes[0], stride=self.strides[0], bias=False)
+    self.conv_layer1 = nn.Conv2d(self.feature_maps[1][0], self.feature_maps[1][1], kernel_size=self.kernel_sizes[1], stride=self.strides[1], bias=False)
+
+    # fully connected
+    self.fc1 = nn.Linear(np.prod(self.conv_out_dim), 1)
+
+    # init weights
+    self.apply(self.weights_init)
+
+
+  def forward(self, x):
+    """
+    forward pass
+    """
+
+    # conv layers
+    x = torch.relu(self.conv_layer0(x))
+    x = torch.relu(self.conv_layer1(x))
+
+    # flatten
+    x = x.view(-1, np.product(x.shape[1:]))
+
+    # fully connected layers
+    x = self.fc1(x)
+
+    # sigmoid
+    x = torch.sigmoid(x)
 
     return x
 
@@ -167,12 +294,12 @@ if __name__ == '__main__':
   x = torch.randn((1, 1, 39, 32))
 
   # create net
-  G = G_experimental(n_classes=1, data_size=x.shape[1:], n_latent=n_latent)
-  D = D_experimental(n_classes=1, data_size=x.shape[1:])
+  G = Adv_G_Experimental(n_classes=1, data_size=x.shape[1:], n_latent=n_latent)
+  D = Adv_D_Experimental(n_classes=1, data_size=x.shape[1:])
 
   # print some infos
   print("Net: ", D)
-  print("Encoder: ", D.conv_encoder)
+  #print("Encoder: ", D.conv_encoder)
 
   # go through all modules
   for module in D.children():

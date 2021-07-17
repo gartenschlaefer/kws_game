@@ -174,12 +174,11 @@ if __name__ == '__main__':
   #net_handler.model(batch_archive.x_train[0])
 
 
-  train_params = cfg['ml']['train_params']
-  train_params['num_epochs'] = 100
-  train_params['lr'] = 0.0001
+  # set own train params
+  train_params = {'batch_size': 32, 'num_epochs': 10, 'lr': 0.0001, 'lr_d': 0.0001, 'lr_g': 0.0001, 'beta': 0.9, 'beta_d': 0.9, 'beta_g': 0.9}
 
   # training
-  net_handler.train_nn(cfg['ml']['train_params'], batch_archive=batch_archive)
+  net_handler.train_nn(train_params, batch_archive=batch_archive)
 
   # classify samples
   c_img = torch.unsqueeze(batch_archive.x_train[0, 0], 0)

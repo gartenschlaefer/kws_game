@@ -499,152 +499,12 @@ class SpeechCommandsBatchArchive(BatchArchive):
 
 
 
-
-  # #def create_batches(self, data, batch_size=1):
-  # def create_batches(self):
-  #   """
-  #   create batches for training 
-  #   mfcc: [n x c x m x f] -> [m x b x c x m x f]
-  #   raw: [n x c x m] -> [m x b x c x m]
-  #   """
-
-  #   for set_name in self.set_names
-
-  #   # extract data
-  #   x, y, z = data['x'], data['y'], data['z']
-
-  #   # target
-  #   t = data['t'] if not self.feature_params['use_mfcc_features'] else None
-
-  #   # randomize examples
-  #   if self.shuffle:
-
-  #     # random permutation
-  #     indices = np.random.permutation(x.shape[0])
-
-  #     # randomize
-  #     x, y, z = np.take(x, indices, axis=0), np.take(y, indices, axis=0), np.take(z, indices, axis=0)
-
-  #     # target
-  #     t = np.take(t, indices, axis=0) if not self.feature_params['use_mfcc_features'] else None
-
-  #   # number of windows
-  #   batch_nums = x.shape[0] // batch_size
-
-  #   # remaining samples
-  #   r = int(np.remainder(len(y), batch_size))
-
-  #   # there are remaining samples
-  #   if r:
-
-  #     # increase batch num
-  #     batch_nums += 1
-
-  #     # indizes for remaining samples
-  #     ss, se, random_samples = (batch_nums - 1) * batch_size, (batch_nums - 1) * batch_size + r, np.random.randint(0, high=len(y), size=batch_size-r)
-
-  #     # remaining and filling examples
-  #     r_x, r_y, r_z, f_x, f_y, f_z = x[ss:se, :], y[ss:se], z[ss:se], x[random_samples, :], y[random_samples], z[random_samples]
-
-  #     # target
-  #     r_t, f_t = (t[ss:se, :], t[random_samples, :]) if not self.feature_params['use_mfcc_features'] else (None, None)
-
-  #   # init batches
-  #   x_batches = np.empty((batch_nums, batch_size, self.channel_size, self.feature_size, self.frame_size), dtype=np.float32) if self.feature_params['use_mfcc_features'] else np.empty((batch_nums, batch_size, self.channel_size, self.raw_frame_size), dtype=np.float32)
-  #   y_batches = np.empty((batch_nums, batch_size), dtype=np.int)
-  #   t_batches = np.empty((batch_nums, batch_size, self.raw_frame_size), dtype=np.int) if not self.feature_params['use_mfcc_features'] else None
-  #   z_batches = np.empty((batch_nums, batch_size), dtype=z.dtype)
-
-  #   # batching
-  #   for i in range(batch_nums - 1):
-  #     x_batches[i, :] = x[i*batch_size:i*batch_size+batch_size, :]
-  #     y_batches[i, :] = self.get_index_of_class(y[i*batch_size:i*batch_size+batch_size])
-  #     z_batches[i, :] = z[i*batch_size:i*batch_size+batch_size]
-
-  #     # target
-  #     if not self.feature_params['use_mfcc_features']: t_batches[i, :] = t[i*batch_size:i*batch_size+batch_size, :]
-    
-  #   # last batch index
-  #   i += 1
-
-  #   # last batch
-  #   x_batches[i, :] = x[i*batch_size:i*batch_size+batch_size, :] if not r else np.concatenate((r_x, f_x))
-  #   y_batches[i, :] = self.get_index_of_class(y[i*batch_size:i*batch_size+batch_size]) if not r else self.get_index_of_class(np.concatenate((r_y, f_y)))
-  #   z_batches[i, :] = z[i*batch_size:i*batch_size+batch_size] if not r else np.concatenate((r_z, f_z))
-
-  #   # target
-  #   if not self.feature_params['use_mfcc_features']: t_batches[i, :] = t[i*batch_size:i*batch_size+batch_size, :] if not r else np.concatenate((r_t, f_t))
-    
-  #   # to torch
-  #   if self.to_torch: 
-
-  #     x_batches, y_batches = torch.from_numpy(x_batches), torch.from_numpy(y_batches)
-  #     t_batches = torch.from_numpy(t_batches) if not self.feature_params['use_mfcc_features'] else None
-
-  #   return x_batches, y_batches, t_batches, z_batches
-
-
-
-
-# --
-# other functions
-
-
-def plot_grid_examples(cfg, batch_archive):
-  """
-  plot examples from each label
-  """
-
-  # for all labels
-  for l in cfg['datasets']['speech_commands']['sel_labels']:
-
-    print("l: ", l)
-
-    # create batches
-    batch_archive.create_batches(selected_labels=[l])
-
-    # plot
-    #plot_grid_images(batch_archive.x_train[0, :30], context='mfcc', padding=1, num_cols=5, plot_path=cfg['datasets']['speech_commands']['plot_paths']['examples_grid'], title=l, name='grid_' + l, show_plot=False)
-    plot_grid_images(batch_archive.x_batch_dict['train'][0, :30], context='mfcc', padding=1, num_cols=5, title=l, name='grid_' + l, show_plot=False)
-
-  # create batches for my data
-  batch_archive.create_batches()
-  batch_archive.print_batch_infos()
-  
-  # plot my data
-  #plot_grid_images(np.squeeze(batch_archive.x_my, axis=1), context='mfcc', padding=1, num_cols=5, title='grid', name='grid', show_plot=True)
-  plot_grid_images(np.squeeze(batch_archive.x_batch_dict['my'], axis=1), context='mfcc', padding=1, num_cols=5, title='grid', name='grid', show_plot=True)
-
-
-def similarity_measures(x1, x2):
-  """
-  similarities
-  """
-
-  # noise
-  n1, n2 = torch.randn(x1.shape), torch.randn(x2.shape)
-
-  # similarity
-  cos_sim = torch.nn.CosineSimilarity(dim=1, eps=1e-08)
-
-  # similarity measure
-  o1, o2, o3, o4, o5 = cos_sim(x1, x1), cos_sim(x1, x2), cos_sim(n1, n2), cos_sim(x1, n1), cos_sim(x2, n2)
-
-  # cosine sim definition
-  #o = x1[0] @ x2[0].T / np.max(np.linalg.norm(x1[0]) * np.linalg.norm(x2[0]))
-
-  print("o1: ", o1), print("o2: ", o2), print("o3: ", o3), print("o4: ", o4), print("o5: ", o4)
-
-
-
 if __name__ == '__main__':
   """
   batching test
   """
 
   import yaml
-  import matplotlib.pyplot as plt
-  from plots import plot_mfcc_only, plot_grid_images, plot_other_grid, plot_mfcc_profile, plot_mfcc_equal_aspect
   from audio_dataset import AudioDataset
 
   # yaml config file
@@ -655,7 +515,7 @@ if __name__ == '__main__':
   audio_set2 = AudioDataset(cfg['datasets']['my_recordings'], cfg['feature_params'])
 
   # create batches
-  batch_archive = SpeechCommandsBatchArchive(feature_file_dict={**audio_set1.feature_file_dict, **audio_set2.feature_file_dict}, batch_size_dict={'train': cfg['ml']['train_params']['batch_size'], 'test': 5, 'validation': 5, 'my': 1}, shuffle=False)
+  batch_archive = SpeechCommandsBatchArchive(feature_file_dict={**audio_set1.feature_file_dict, **audio_set2.feature_file_dict}, batch_size_dict={'train': 32, 'test': 5, 'validation': 5, 'my': 1}, shuffle=False)
 
   # create batches of selected label
   batch_archive.create_batches(selected_labels=['_mixed'])
@@ -666,33 +526,3 @@ if __name__ == '__main__':
   # all labels again
   batch_archive.create_batches()
   batch_archive.print_batch_infos()
-
-
-  # plot some examples
-  plot_grid_examples(cfg, batch_archive)
-  
-  #plot_other_grid(batch_archive.x_train[0, :32], grid_size=(8, 8), show_plot=True)
-  #plot_other_grid(batch_archive.x_train[-5, :32], grid_size=(8, 8), show_plot=False)
-  #plot_other_grid(batch_archive.x_train[-1, :32], grid_size=(8, 8), show_plot=True)
-
-  # x1 = batch_archive.x_train[0, 0, 0]
-  # x2 = batch_archive.x_train[0, 1, 0]
-  # x3 = batch_archive.x_my[0, 0, 0]
-
-  # print("x1: ", x1.shape)
-  # print("x2: ", x2.shape)
-  # print("x1: ", batch_archive.z_train[0, 0])
-  # print("x2: ", batch_archive.z_train[0, 1])
-
-  # similarity measure
-  #similarity_measures(x1, x2)
-
-  #plot_mfcc_profile(x=np.ones(16000), fs=16000, N=400, hop=160, mfcc=x1)
-  #plot_mfcc_only(x1, fs=16000, hop=160, plot_path=None, name=batch_archive.z_train[0, 0], show_plot=False)
-  #plot_mfcc_only(x2, fs=16000, hop=160, plot_path=None, name=batch_archive.z_train[0, 1], show_plot=True)
-
-  #plot_mfcc_equal_aspect(x2, fs=16000, hop=160, cmap=None, context='mfcc', plot_path=None, name=batch_archive.z_train[0, 1], show_plot=True)
-  #plot_mfcc_equal_aspect(x3, fs=16000, hop=160, cmap=None, context='mfcc', plot_path=None, name=batch_archive.z_my[0, 0], gizmos_off=True, show_plot=True)
-  #plot_mfcc_equal_aspect(x3, fs=16000, hop=160, cmap=None, context='mfcc', plot_path=None, name=batch_archive.z_my[0, 0], gizmos_off=False, show_plot=True)
-
-  
