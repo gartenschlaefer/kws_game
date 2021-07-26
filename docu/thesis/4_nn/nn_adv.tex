@@ -5,19 +5,20 @@
 \thesisStateNotReady
 In adversarial pre-training, two separate neural networks are competing against each other in an adversary task.
 This competition of the two networks motivates themselves to improve their performance and beat the other network.
-The paper from Goodfellow et. al. \cite{Goodfellow2014} describes a game between two neural networks, where one network has the role of creating fake samples and the other the role of investigation if a given sample is either real or fake.
-The network which creates fake samples is called Generator (G) and the network which has to investigate given samples is called Discriminator (D).
-G's goal is to generate fakes that look convincingly as real samples, so that D makes mistakes and classifies fake sample as a real ones.
+The paper from Goodfellow et. al. \cite{Goodfellow2014} introduces Generative Adversarial Neural Networks (GANs), that describe a game between two neural networks, where one network has the role of creating fake samples and the other the role of investigation if a given sample is either real or fake.
+The network which creates fake samples is called Generator (G) and the network which has to investigate samples is called Discriminator (D).
+G's goal is to generate fakes that look convincingly similar to real samples, so that D makes mistakes and classifies fake sample as a real ones.
 On the other hand D must constantly improve itself in investigation, so that fakes from G are detected and sorted out from the reals.
 
 This approach works remarkably well in creating a generative model that is able to produce samples that are astonishing similar to real ones.
-In \cite{Goodfellow2014}, this was applied to images and not for audio data, but if the audio waveform is feature extracted to MFCCs in a two dimensional image, it is the same process.
+In \cite{Goodfellow2014}, this was applied to images and not for audio data, but if the audio waveform is feature extracted to Mel Frequency Cepstral Coefficients (MFCCs) in a two dimensional image, it is the same process.
 
-The output of a G is a fake sample that has the same input dimension as samples drawn from the dataset and D's output is a probability value $y \in [0, 1]$, where $y = 0$ correspond to a pure fake sample and $y = 1$ to pure a real sample.
-The decision line of D between fake and real is therefore at $y = 0.5$.
+The output of a G is a fake sample that has the same input dimension as samples drawn from the dataset and D's output is a probability value $y \in [0, 1]$, where $y = 0$ may correspond to a pure fake sample and $y = 1$ to pure a real sample.
+The decision line for D is therefore placed between fake and real at $y = 0.5$.
 
-The idea now is not to use either of these networks, but to use transfer learning in the sense to reuse the convolutional layers both networks achieved during their game (training).
-The weights of those convolutional layers are then transfered to another network with classification purpose on multiple labels.
+The idea of pre-training weights is not to use either one of these networks, but apply transfer learning in the sense of reusing the convolutional layers both networks obtained during their game (training).
+The weights of those convolutional layers are transfered to another network for classification purpose on multiple labels.
+The convolutional layers of the classification network and D or G, must have of course the same structure, otherwise the transfer of weights makes no sense.
 
 \subsection{Questions that arise}
 There are several questions that arise regarding Adversarial Training:

@@ -3,18 +3,30 @@
 
 \section{Theory}\label{sec:nn_theory}
 \thesisStateNotReady
-This section provides the preliminaries of theory to understand the used neural network architectures in their structure. 
-Further the general training procedure of neural networks is explained.
+The theory provided in this sections merely focuses on the used neural network architectures and some basic theory elements in neural networks.
+The most basic element in neural networks is described here as node, an abstract element, usually illustrated as circle, that defines input and output connections from and to other nodes within the network.
+The connections from and to a node are multiplications with scalar values, denoted as weight.
+Each node usually incorporates an additive term, denoted as bias term.
+All weights and bias terms are forming the parameters of a network and can be trained through back-propagation.
+The output of a node is a scalar computed from all inputs and mapped with a non-linear function denoted as activation function.
+A neural network can consist of thousand of nodes in each possible constellation of connections.
+In this thesis, the focus is only on single directional connections (no bidirectional connections).
+The structure of a neural network is defined by its layers, where a layer is a set of nodes with specific connection properties that receive inputs from the previous layer and output connections to the next layer.
+For example, a neural network consists one convolutional layer followed by three fully connected layers.
+The last layer of a neural network represents for instance the class labels of a classification tasks.
+A loss function computes the difference between the predicted and the actual class label during training and is essential for the backpropagation algorithm that updates each parameter in the network through the gradients of the obtained error.
+
 
 % --
 % activation functions
 
 \subsection{Activation Functions}\label{sec:nn_theory_acti}
-Activation functions for neural networks are non-linear functions that usually maps the sum of the weighted inputs of a node to a single output value $z$ as following:
+Activation functions for neural networks of a node in a current layer are non-linear functions that usually maps the sum of the weighted inputs from nodes in a previous layer to a single output value $z$ as following:
 \begin{equation}\label{eq:nn_theory_acti}
   z = h(w \, x^T)
 \end{equation}
 where $h$ is the activation function, $w \in \R^n$ is an weight vector and $x \in \R^n$ an input vector for one specific node.
+The output of each node in a current layer is further connected to other nodes in the next layer and builds up the neural network.
 The constraint of an activation function is, that an easy computable derivative of this function exist, in order to backpropagate gradients.
 
 The most famous activation function nowadays is the RELU function:
@@ -33,12 +45,11 @@ and the tanh functions:
 \end{equation}
 
 
-
 % --
 % fully connected
 
 \subsection{Fully Connected Layer}
-A fully connected (FC) layer is the simplest and most basic forms in neural networks.
+A fully connected (FC) layer is the simplest layer type in neural networks.
 Each node from the previous layer is connected in forward direction to all nodes in the FC layer and each node in the FC layer is further connected to all nodes in the next layer.
 Further each connection has one trainable weight and each node has a bias term.
 A simple FC layer is illustrated in \rfig{nn_theory_fc}.
@@ -105,9 +116,10 @@ A gaphical example of this procedure is shown in \rfig{nn_theory_cnn_basics}.
 
 % --
 % loss functions
+
 \subsection{Loss Functions and Softmax}
 Loss functions or also called cost functions are used to calculate the difference between the predicted labels $\hat{y}$ compared to the actual or ground truth labels $y$.
-In neural networks the predicted labels are usually equal to an output node each.
+The predicted labels are usually presented by the output nodes in the last layer of a neural network.
 Therefore $\hat{y} = [\hat{y_1}, \, \hat{y_2}, \dots, \hat{y_c}]^T$ has the dimension of the number of labels or classes $c$.
 Often it is preferred that $\hat{y} \in R^c$ provides a probability distribution such that:
 \begin{equation}
@@ -119,3 +131,21 @@ which can be achieved with the softmax function:
 \end{equation}
 where $c$ is the amount of nodes in this layer, if it is the last layer as usual for the softmax, $c$ is the amount of classes and $\hat{y}_i$ the probability value of the corresponding class $i$.
 
+
+% --
+% dropout
+
+\subsection{Dropout}
+Dropout is a method to improve generalization and training of neural network.
+The idea is to set the output of randomly selected nodes within a layer and for one training step to zero, so that only the other nodes are updated.
+This can be simply done by multiplying all outputs of a current layer with a vector containing a number of zeros and ones places at random positions within the vector.
+The amount of zeros compared to ones can be determined by a probability value, for instance $p=0.2$ means that there are 20\% zeros and 80\% ones within the vector.
+
+
+% --
+% training
+
+\subsection{Training of a Neural Network}
+The training process of a neural network is usually done with backpropagation of gradients from a loss function at the output nodes.
+The backpropagation algorithm is not described here, because there exists many books and papers such as ... with good formulations, further it does not add any value to this thesis as the algorithm is run in the background of all neural network frameworks.
+The interesting elements are therefore only the neural network architecture and the loss functions.
