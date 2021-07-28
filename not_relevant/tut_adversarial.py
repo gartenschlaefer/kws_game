@@ -20,6 +20,10 @@ import matplotlib.animation as animation
 
 
 class Generator(nn.Module):
+  """
+  generator network
+  """
+
   def __init__(self, ngpu):
 
     super(Generator, self).__init__()
@@ -212,11 +216,8 @@ if __name__ == '__main__':
   # save parameter path
   param_path = './ignore/cifar10/cifar_net.pth'
 
-
   # show some images
   #show_some_images(trainloader)
-
-
 
   # Create the generator
   netG = Generator(ngpu).to(device)
@@ -311,14 +312,12 @@ if __name__ == '__main__':
       D_x = output.mean().item()
 
 
-
       # --
       # Train with all-fake batch
 
       # Generate batch of latent vectors
       noise = torch.randn(b_size, nz, 1, 1, device=device)
       #print("noise: ", noise.shape)
-
 
       # Generate fake image batch with G
       fake = netG(noise)
@@ -331,7 +330,7 @@ if __name__ == '__main__':
       #print("output: ", output.shape)
 
       # Calculate D's loss on the all-fake batch
-      errD_fake = criterion(output, label)
+      errD_fake = criterion(outputbackward, label)
 
       # Calculate the gradients for this batch
       errD_fake.backward()
@@ -339,6 +338,7 @@ if __name__ == '__main__':
 
       # Add the gradients from the all-real and all-fake batches
       errD = errD_real + errD_fake
+      
       # Update D
       optimizerD.step()
 
@@ -382,12 +382,10 @@ if __name__ == '__main__':
       iters += 1
 
 
-
   # --
   # prints
 
   print_loss(G_losses, D_losses)
-
 
   fig = plt.figure(figsize=(8,8))
   plt.axis("off")

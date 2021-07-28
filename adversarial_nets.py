@@ -42,7 +42,7 @@ class Adv_G_Experimental(nn.Module, AdvBasics):
   adv generator jim label network
   """
 
-  def __init__(self, n_classes, data_size, n_latent=100):
+  def __init__(self, n_classes, data_size, n_latent=100, is_last_activation_sigmoid=True):
 
     # parent init
     super().__init__()
@@ -71,6 +71,9 @@ class Adv_G_Experimental(nn.Module, AdvBasics):
     self.deconv_layer0 = nn.ConvTranspose2d(self.feature_maps[1][1], self.feature_maps[1][0], kernel_size=self.kernel_sizes[1], stride=self.strides[1], bias=False)
     self.deconv_layer1 = nn.ConvTranspose2d(self.feature_maps[0][1], self.feature_maps[0][0], kernel_size=self.kernel_sizes[0], stride=self.strides[0], bias=False)
 
+    # last activation
+    self.last_activation = nn.Sigmoid() if is_last_activation_sigmoid else nn.Identity()
+
     # init weights
     self.apply(self.weights_init)
 
@@ -89,10 +92,9 @@ class Adv_G_Experimental(nn.Module, AdvBasics):
     # conv decoder
     x = torch.relu(self.deconv_layer0(x))
     x = self.deconv_layer1(x)
-    #x = self.deconv_layer1(x)
 
-    # last layer activation
-    #x = torch.sigmoid(x)
+    # last activation
+    x = self.last_activation(x)
 
     return x
 
@@ -103,7 +105,7 @@ class Adv_D_Experimental(nn.Module, AdvBasics):
   adv generator jim label network
   """
 
-  def __init__(self, n_classes, data_size, n_latent=100):
+  def __init__(self, n_classes, data_size):
 
     # parent init
     super().__init__()
@@ -112,7 +114,6 @@ class Adv_D_Experimental(nn.Module, AdvBasics):
     # arguments
     self.n_classes = n_classes
     self.data_size = data_size
-    self.n_latent = n_latent
 
     # conv params
     self.feature_maps = [(self.n_channels, 8), (8, 8)]
@@ -163,7 +164,7 @@ class Adv_G_Jim(nn.Module, AdvBasics):
   adv generator jim label network
   """
 
-  def __init__(self, n_classes, data_size, n_latent=100, n_feature_maps_l0=48):
+  def __init__(self, n_classes, data_size, n_latent=100, n_feature_maps_l0=48, is_last_activation_sigmoid=True):
 
     # parent init
     super().__init__()
@@ -193,6 +194,9 @@ class Adv_G_Jim(nn.Module, AdvBasics):
     # fully connected
     self.fc1 = nn.Linear(self.n_latent, np.prod(self.conv_in_dim))
 
+    # last activation
+    self.last_activation = nn.Sigmoid() if is_last_activation_sigmoid else nn.Identity()
+
     # init weights
     self.apply(self.weights_init)
 
@@ -212,8 +216,8 @@ class Adv_G_Jim(nn.Module, AdvBasics):
     x = torch.relu(self.deconv_layer0(x))
     x = self.deconv_layer1(x)
 
-    # sigmoid
-    #x = torch.sigmoid(x)
+    # last activation
+    x = self.last_activation(x)
 
     return x
 
@@ -284,11 +288,8 @@ if __name__ == '__main__':
   main function
   """
 
-  # latent variable
+  # latent var
   n_latent = 100
-
-  # noise
-  noise = torch.randn(2, n_latent)
 
   # generate random sample
   x = torch.randn((1, 1, 39, 32))
@@ -298,8 +299,8 @@ if __name__ == '__main__':
   D = Adv_D_Experimental(n_classes=1, data_size=x.shape[1:])
 
   # print some infos
-  print("Net: ", D)
-  #print("Encoder: ", D.conv_encoder)
+  print("G Net: ", G)
+  print("D Net: ", D)
 
   # go through all modules
   for module in D.children():
@@ -308,7 +309,7 @@ if __name__ == '__main__':
 
   # test nets
   o_d = D(x)
-  o_g = G(noise)
+  o_g = G(torch.randn(2, n_latent))
 
   # output
   print("d: ", o_d.shape)

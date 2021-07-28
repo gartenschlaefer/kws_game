@@ -11,23 +11,28 @@ from plots import plot_train_score
 from score import TrainScore
 
 if __name__ == '__main__':
-	"""
-	main
-	"""
+  """
+  main
+  """
 
-	metric_path = '../ignore/models/conv-encoder-fc3/v5_c-5_n-500_f-1x12x50_norm1_c1d0d0e0_nl1/bs-32_it-1000_lr-0p0001/'
+  import yaml
 
-	metrics = np.load(metric_path + 'metrics.npz', allow_pickle=True)
+  # yaml config file
+  cfg = yaml.safe_load(open("../config.yaml"))
 
-	print("metrics: ", metrics)
+  # metric path
+  metric_path = '../ignore/models/hyb-jim/v5_c7n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm1_f-1x12x50/bs-32_it-1000_lr-d-0p0001_lr-g-0p0001/'
 
-	# see whats in data
-	print(metrics.files)
+  # load metrics
+  metrics = np.load(metric_path + cfg['ml']['metrics_file_name'], allow_pickle=True)
 
-	# train_score = metrics['train_score']
+  # see whats in data
+  print(metrics.files)
 
-	# print("train_score: ", train_score)
+  train_score_dict = metrics['train_score_dict'][()]
 
-	# # plot train score
-	# plot_train_score(train_score, plot_path=metric_path, name_ext='revisit')
+  print("train_score_dict: ", train_score_dict.keys())
+
+  # plot train score
+  plot_train_score(train_score_dict, plot_path=metric_path, name_ext='_revisit')
 

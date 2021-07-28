@@ -3,7 +3,10 @@ machine learning
 """
 
 import numpy as np
+import os
 import logging
+
+from glob import glob
 
 # my stuff
 from common import s_to_hms_str, create_folder, check_files_existance
@@ -31,7 +34,7 @@ class ML():
     # get architecture for net handler
     self.nn_arch = self.get_net_handler_arch()
 
-    # train params
+    # train parameters
     self.train_params = self.get_training_params()
 
     # create batch archive
@@ -51,15 +54,21 @@ class ML():
     self.param_path_ml = self.cfg_ml['adv_pre_folder'] if self.nn_arch_context in ['adv_dual', 'adv_label', 'adv_label_all'] else ''
 
     # parameter path ml
-    self.param_path_ml += 'bs-{}_it-{}_lr-{}'.format(self.train_params['batch_size'], self.train_params['num_epochs'], str(self.train_params['lr']).replace('.', 'p')) if not self.nn_arch.startswith('adv') else 'bs-{}_it-{}_lr-d-{}_lr-g-{}'.format(self.train_params['batch_size'], self.train_params['num_epochs'], str(self.train_params['lr_d']).replace('.', 'p'), str(self.train_params['lr_g']).replace('.', 'p'))
+    self.param_path_ml += 'bs-{}_it-{}_lr-{}'.format(self.train_params['batch_size'], self.train_params['num_epochs'], str(self.train_params['lr']).replace('.', 'p')) if not (self.nn_arch.startswith('adv') or self.nn_arch.startswith('hyb')) else 'bs-{}_it-{}_lr-d-{}_lr-g-{}'.format(self.train_params['batch_size'], self.train_params['num_epochs'], str(self.train_params['lr_d']).replace('.', 'p'), str(self.train_params['lr_g']).replace('.', 'p'))
     self.param_path_ml += '_dual' if self.cfg_ml['adv_params']['dual_train'] and self.nn_arch_context in ['adv_dual'] else ''
     self.param_path_ml += '_label' if self.cfg_ml['adv_params']['label_train'] and self.nn_arch_context in ['adv_label', 'adv_label_all'] else ''
-    self.param_path_ml += '_pre-adv/' if (self.cfg_ml['adv_params']['label_train'] or self.cfg_ml['adv_params']['dual_train']) and not self.nn_arch_context in ['adv_dual', 'adv_label', 'adv_label_all'] else '/'
+    self.param_path_ml += '_pre-adv' if (self.cfg_ml['adv_params']['label_train'] or self.cfg_ml['adv_params']['dual_train']) and not self.nn_arch_context in ['adv_dual', 'adv_label', 'adv_label_all'] else '/'
 
     # model path
     self.model_path = self.paths['model'] + self.cfg_ml['nn_arch'] + '/' + self.audio_dataset.param_path + self.param_path_ml
 
-    # new sub dir for encoder label
+    # model instance
+    self.model_instance = '_i{}'.format(len(glob(self.model_path[:-1] + '*')))
+
+    # create new instance
+    self.model_path = self.model_path[:-1] + self.model_instance + '/' if os.path.isdir(self.model_path) and self.cfg_ml['new_instance'] and self.nn_arch_context not in ['adv_dual', 'adv_label', 'adv_label_all'] else self.model_path
+
+    # new sub directory for encoder label
     self.model_path += self.encoder_label + '/' if len(self.encoder_label) else ''
 
     # create model path
@@ -110,6 +119,9 @@ class ML():
       elif self.nn_arch_context in ['adv_label', 'adv_label_all']: return self.cfg_ml['train_params']['adv_label']
       return self.cfg_ml['train_params']['adv']
 
+    # hybrid nets
+    elif self.nn_arch.startswith('hyb'): return self.cfg_ml['train_params']['hyb']
+
     # wavenet
     elif self.nn_arch.startswith('wave'): return self.cfg_ml['train_params']['wave']
 
@@ -146,7 +158,7 @@ class ML():
     return 'adv-jim'
 
 
-  def train(self, new_train_params=None, log_on=True, name_ext='', save_models=True):
+  def train(self, new_train_params=None, log_on=True, name_ext='', do_save_models=True):
     """
     training
     """
@@ -155,9 +167,9 @@ class ML():
     if check_files_existance(self.model_files) and not self.cfg_ml['retrain']:
 
       # load model and check if it was possible
-      if self.net_handler.load_models(model_files=self.model_files): return
+      self.net_handler.load_models(model_files=self.model_files)
 
-    # if train params need to be changed
+    # change training parameters if requested
     train_params = self.train_params if new_train_params is None else new_train_params
 
     # train
@@ -166,8 +178,8 @@ class ML():
     # training info
     if log_on: logging.info('Training on arch: [{}], audio set param string: [{}], train_params: {}, device: [{}], time: {}'.format(self.cfg_ml['nn_arch'], self.audio_dataset.param_path, train_params, self.net_handler.device, s_to_hms_str(train_score.score_dict['time_usage'])))
     
-    # save models and params
-    if save_models:
+    # save models and parameters
+    if do_save_models:
       self.net_handler.save_models(model_files=self.model_files)
       self.save_params()
       self.save_metrics(train_score=train_score)
@@ -179,7 +191,7 @@ class ML():
     if self.cfg_ml['save_as_pre_model']: self.net_handler.save_models(model_files=self.model_pre_files)
 
     # plot score
-    plot_train_score(train_score, plot_path=self.model_path, name_ext=name_ext)
+    plot_train_score(train_score.score_dict, plot_path=self.model_path, name_ext=name_ext)
 
 
   def save_params(self):
@@ -408,7 +420,7 @@ def pre_train_adv_label(cfg, audio_set1, encoder_model=None, decoder_model=None)
 
     # training
     ml.analyze(name_ext='_1-0_pre-adv')
-    ml.train(log_on=False, name_ext='_adv-post_train', save_models=True)
+    ml.train(log_on=False, name_ext='_adv-post_train', do_save_models=True)
     ml.analyze(name_ext='_1-1_post-adv')
 
     # add encoder and decoder
@@ -453,7 +465,7 @@ def pre_train_adv_dual(cfg, audio_set1, encoder_model=None, decoder_model=None):
 
   # training
   ml.analyze(name_ext='_1-0_pre-adv')
-  ml.train(log_on=False, name_ext='_adv-post_train', save_models=True)
+  ml.train(log_on=False, name_ext='_adv-post_train', do_save_models=True)
   ml.analyze(name_ext='_1-1_post-adv')
 
   # return either encoder or decoder model
@@ -553,30 +565,32 @@ if __name__ == '__main__':
     (encoder_model, decoder_model) = pre_train_adv_dual(cfg, audio_set1, encoder_model=None, decoder_model=None) if cfg['ml']['adv_params']['dual_train'] else (None, None)
     
     # adversarial pre training with label networks
-    (encoder_model, decoder_model) = pre_train_adv_label(cfg, audio_set1, encoder_model=None, decoder_model=None) if cfg['ml']['adv_params']['label_train'] else (None, None)
+    (encoder_model, decoder_model) = pre_train_adv_label(cfg, audio_set1, encoder_model=None, decoder_model=None) if cfg['ml']['adv_params']['label_train'] else (encoder_model, decoder_model)
 
 
     # --
     # machine learning and evaluation
 
-    # instance
-    ml = ML(cfg_ml=cfg['ml'], audio_dataset=audio_set1, audio_dataset_my=audio_set2, encoder_model=encoder_model, decoder_model=decoder_model)
+    for i in range(cfg['ml']['num_instances']):
 
-    # analyze and train eval analyze
-    ml.analyze(name_ext='_init')
-    ml.train()
-    ml.eval()
-    ml.analyze()
+      # instance
+      ml = ML(cfg_ml=cfg['ml'], audio_dataset=audio_set1, audio_dataset_my=audio_set2, encoder_model=encoder_model, decoder_model=decoder_model)
+
+      # analyze and train eval analyze
+      ml.analyze(name_ext='_init')
+      ml.train()
+      ml.eval()
+      ml.analyze()
 
 
-    # --
-    # test bench
+      # --
+      # test bench
 
-    # only for non adversarials
-    if not cfg['ml']['nn_arch'].startswith('adv-'):
+      # only for non adversarials
+      if not cfg['ml']['nn_arch'].startswith('adv-'):
 
-      # create test bench
-      test_bench = TestBench(cfg['test_bench'], test_model_path=ml.model_path)
+        # create test bench
+        test_bench = TestBench(cfg['test_bench'], test_model_path=ml.model_path)
 
-      # shift invariance test
-      test_bench.test_invariances()
+        # shift invariance test
+        test_bench.test_invariances()

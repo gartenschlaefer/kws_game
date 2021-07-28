@@ -6,14 +6,16 @@ import numpy as np
 import torch
 import time
 import sys
+import re
 
 # nets
 from conv_nets import ConvNetTrad, ConvNetFstride4, ConvNetExperimental, ConvJim
 from adversarial_nets import Adv_G_Experimental, Adv_D_Experimental, Adv_G_Jim, Adv_D_Jim
+from hybrid_nets import HybJim
 from wavenet import Wavenet
 
 # other
-from score import TrainScore, AdversarialTrainScore, WavenetTrainScore, EvalScore
+from score import TrainScore, AdversarialTrainScore, HybridTrainScore, WavenetTrainScore, EvalScore
 
 
 class NetHandler():
@@ -29,7 +31,7 @@ class NetHandler():
         if child_cls.__name__ == 'AdversarialNetHandler':
           return super().__new__(AdversarialNetHandler)
 
-    # experimental2
+    # adversarial sim handler
     if nn_arch in ['adv-jim', 'adv-jim-label']:
       for child_cls in cls.__subclasses__():
         for child_child_cls in child_cls.__subclasses__():
@@ -41,6 +43,12 @@ class NetHandler():
       for child_cls in cls.__subclasses__():
         if child_cls.__name__ == 'CnnHandler':
           return super().__new__(CnnHandler)
+
+    # hybrid handler
+    elif nn_arch in ['hyb-jim']:
+      for child_cls in cls.__subclasses__():
+        if child_cls.__name__ == 'HybridNetHandler':
+          return super().__new__(HybridNetHandler)
 
     # wavenet handler
     elif nn_arch in ['wavenet']:
@@ -83,18 +91,21 @@ class NetHandler():
     """
 
     # cnns
-    if self.nn_arch == 'conv-trad': self.models = {'cnn':ConvNetTrad(self.n_classes, self.data_size)}
-    elif self.nn_arch == 'conv-fstride': self.models = {'cnn':ConvNetFstride4(self.n_classes, self.data_size)}
-    elif self.nn_arch == 'conv-experimental': self.models = {'cnn':ConvNetExperimental(self.n_classes, self.data_size)}
-    elif self.nn_arch == 'conv-jim': self.models = {'cnn':ConvJim(self.n_classes, self.data_size)}
+    if self.nn_arch == 'conv-trad': self.models = {'cnn': ConvNetTrad(self.n_classes, self.data_size)}
+    elif self.nn_arch == 'conv-fstride': self.models = {'cnn': ConvNetFstride4(self.n_classes, self.data_size)}
+    elif self.nn_arch == 'conv-experimental': self.models = {'cnn': ConvNetExperimental(self.n_classes, self.data_size)}
+    elif self.nn_arch == 'conv-jim': self.models = {'cnn': ConvJim(self.n_classes, self.data_size)}
 
     # adversarials
-    elif self.nn_arch == 'adv-experimental': self.models = {'g':Adv_G_Experimental(self.n_classes, self.data_size), 'd':Adv_D_Experimental(self.n_classes, self.data_size)}
-    elif self.nn_arch == 'adv-jim': self.models = {'g':Adv_G_Jim(self.n_classes, self.data_size), 'd':Adv_D_Jim(self.n_classes, self.data_size)}
-    elif self.nn_arch == 'adv-jim-label': self.models = {'g':Adv_G_Jim(self.n_classes, self.data_size, n_feature_maps_l0=8), 'd':Adv_D_Jim(self.n_classes, self.data_size, n_feature_maps_l0=8)}
+    elif self.nn_arch == 'adv-experimental': self.models = {'g': Adv_G_Experimental(self.n_classes, self.data_size, is_last_activation_sigmoid=True), 'd': Adv_D_Experimental(self.n_classes, self.data_size)}
+    elif self.nn_arch == 'adv-jim': self.models = {'g': Adv_G_Jim(self.n_classes, self.data_size, is_last_activation_sigmoid=True), 'd': Adv_D_Jim(self.n_classes, self.data_size)}
+    elif self.nn_arch == 'adv-jim-label': self.models = {'g': Adv_G_Jim(self.n_classes, self.data_size, n_feature_maps_l0=8, is_last_activation_sigmoid=True), 'd': Adv_D_Jim(self.n_classes, self.data_size, n_feature_maps_l0=8)}
   
+    # hybrid
+    elif self.nn_arch == 'hyb-jim': self.models = {'hyb': HybJim(self.n_classes, self.data_size), 'g': Adv_G_Jim(self.n_classes, self.data_size, is_last_activation_sigmoid=True)}
+
     # wavenet
-    elif self.nn_arch == 'wavenet': self.models = {'wav':Wavenet(self.n_classes)}
+    elif self.nn_arch == 'wavenet': self.models = {'wav': Wavenet(self.n_classes)}
 
     # not found
     else: print("***Network Architecture not found!")
@@ -119,59 +130,32 @@ class NetHandler():
 
   def load_models(self, model_files):
     """
-    loads model from array of model file names
-    watch order if more than one model file
+    loads models
     """
 
     # safety check
-    if len(model_files) != len(self.models):
-      print("***len of model file names is not equal length of models")
-      return False
+    if len(model_files) != len(self.models): print("***load models failed: len of model file names is not equal length of models"), sys.exit()
+
+    # model names from files
+    f_model_name_dict = {re.sub(r'_model\.pth', '', re.findall(r'[\w]+_model\.pth', mf)[0]): mf for mf in model_files}
 
     # load models
-    for model_file, (k, model) in zip(model_files, self.models.items()):
-      print("load model: {}, net handler model: {}".format(model_file, k))
-      model.load_state_dict(torch.load(model_file))
-
-    return True
+    [[(print("\nload model: {}\nnet handler model: {}".format(f_model, model_name)), model.load_state_dict(torch.load(f_model))) for f_model_name, f_model in f_model_name_dict.items() if f_model_name == model_name] for model_name, model in self.models.items()]
 
 
-  def save_models(self, model_files, encoder_model_file=None, decoder_model_file=None, encoder_class_name='ConvEncoder', decoder_class_name='ConvDecoder'):
+  def save_models(self, model_files):
     """
-    saves model
+    saves models
     """
 
     # safety check
-    if len(model_files) != len(self.models):
-      print("***len of model file names is not equal length of models")
-      return
+    if len(model_files) != len(self.models): print("***save models failed: len of model file names is not equal length of models"), sys.exit()
 
-    # load models
-    for model_file, (k, model) in zip(model_files, self.models.items()):
+    # model names from files
+    f_model_name_dict = {re.sub(r'_model\.pth', '', re.findall(r'[\w]+_model\.pth', mf)[0]): mf for mf in model_files}
 
-      # save model
-      torch.save(model.state_dict(), model_file)
-      print("save model: {}, net handler model: {}".format(model_file, k))
-
-      # skip if encoder model file is None
-      if encoder_model_file is None and decoder_model_file is None: continue
-
-      # go through all modules
-      for module in model.children():
-
-        # if module is encoder class
-        if module.__class__.__name__ == encoder_class_name:
-
-          # save and print info
-          torch.save(module.state_dict(), encoder_model_file)
-          print("save {} to file: {}".format(encoder_class_name, encoder_model_file))
-
-        # if module is encoder class
-        elif module.__class__.__name__ == decoder_class_name:
-
-          # save and print info
-          torch.save(module.state_dict(), decoder_model_file)
-          print("save {} to file: {}".format(decoder_class_name, decoder_model_file))   
+    # save models
+    [[(print("\nsave model: {}\nnet handler model: {}".format(f_model, model_name)), torch.save(model.state_dict(), f_model)) for f_model_name, f_model in f_model_name_dict.items() if f_model_name == model_name] for model_name, model in self.models.items()]
 
 
   def set_up_training(self, train_params):
@@ -435,6 +419,7 @@ class AdversarialNetHandler(NetHandler):
     self.actual_g_epoch = 0
     self.actual_update_epoch = 0
 
+
   def set_up_training(self, train_params):
     """
     set optimizer in training
@@ -489,22 +474,17 @@ class AdversarialNetHandler(NetHandler):
     # update for each epoch
     if self.actual_update_epoch != epoch:
 
-      #print("self.actual_update_epoch: ", self.actual_update_epoch)
-
       # update actuals
       self.actual_update_epoch = epoch
 
-      #print("actual_d_epoch: ", self.actual_d_epoch)
       # discriminator update rule
       if self.actual_d_epoch: 
 
         self.actual_d_epoch -= 1
         if not self.actual_d_epoch: self.actual_g_epoch = self.g_update_epochs
 
-      #print("actual_d_epoch: ", self.actual_d_epoch)
-
       # generator update rule
-      if self.actual_g_epoch: 
+      elif self.actual_g_epoch: 
 
         self.actual_g_epoch -= 1
         if not self.actual_g_epoch: self.actual_d_epoch = self.d_update_epochs
@@ -625,16 +605,14 @@ class AdversarialNetHandler(NetHandler):
     """
 
     # generate noise if not given
-    if noise is None:
-      noise = torch.randn(num_samples, self.models['g'].n_latent, device=self.device)
+    if noise is None: noise = torch.randn(num_samples, self.models['g'].n_latent, device=self.device)
 
     # create fakes through Generator
     with torch.no_grad():
       fakes = self.models['g'](noise).detach().cpu()
 
     # to numpy if necessary
-    if to_np:
-      fakes = fakes.numpy()
+    if to_np: fakes = fakes.numpy()
 
     return fakes
 
@@ -688,6 +666,280 @@ class AdversarialSimNetHandler(AdversarialNetHandler):
       self.optimizer_g.step()
 
     return g_loss_fake.item(), g_loss_sim.item() * lam
+
+
+
+class HybridNetHandler(NetHandler):
+  """
+  Hybrid Neural Network Handler
+  """
+
+  def __init__(self, nn_arch, class_dict, data_size, encoder_model=None, decoder_model=None, use_cpu=False):
+
+    # parent class init
+    super().__init__(nn_arch, class_dict, data_size, encoder_model=encoder_model, decoder_model=decoder_model, use_cpu=use_cpu)
+
+    # loss criterion
+    self.criterion_adv = torch.nn.BCELoss()
+    self.criterion_class = torch.nn.CrossEntropyLoss()
+
+    # neural network models init
+    self.init_models()
+
+    # labels
+    self.real_label = 1.
+    self.fake_label = 0.
+
+    # transfer conv weights from encoder models
+    if self.encoder_model is not None: self.models['hyb'].transfer_params(encoder_model)
+    if self.decoder_model is not None: self.models['g'].transfer_params(decoder_model)
+
+    # update rules
+    self.d_update_epochs = 5
+    self.g_update_epochs = 5
+
+    # actual counter
+    self.actual_d_epoch = self.d_update_epochs
+    self.actual_g_epoch = 0
+    self.actual_update_epoch = 0
+
+    # cosine similarity
+    self.cos_sim = torch.nn.CosineSimilarity(dim=2, eps=1e-08)
+
+
+  def set_up_training(self, train_params):
+    """
+    set optimizer in training
+    """
+
+    # Setup Adam optimizers for both G and D
+    self.optimizer_hyb = torch.optim.Adam(self.models['hyb'].parameters(), lr=train_params['lr_d'], betas=(train_params['beta_d'], 0.999))
+    self.optimizer_g = torch.optim.Adam(self.models['g'].parameters(), lr=train_params['lr_g'], betas=(train_params['beta_g'], 0.999))
+
+
+  def train_nn(self, train_params, batch_archive, callback_f=None, callback_act_epochs=10):
+    """
+    train adversarial nets
+    """
+
+    # setup training
+    self.set_up_training(train_params)
+
+    # Create batch of latent vectors that we will use to visualize the progression of the generator
+    fixed_noise = torch.randn(32, self.models['g'].n_latent, device=self.device)
+
+    # score collector
+    train_score = HybridTrainScore(train_params['num_epochs'], invoker_class_name=self.__class__.__name__, k_print=batch_archive.y_batch_dict['train'].shape[0] // self.num_print_per_epoch)
+
+    # epochs
+    for epoch in range(train_params['num_epochs']):
+
+      # fetch data samples
+      for mini_batch, (x, y) in enumerate(zip(batch_archive.x_batch_dict['train'].to(self.device), batch_archive.y_batch_dict['train'].to(self.device))):
+
+        # update models
+        train_score = self.update_models(x, y, batch_archive.class_dict, epoch, mini_batch, train_score)
+
+      # valdiation
+      eval_score = self.eval_nn('validation', batch_archive)
+
+      # update score collector
+      train_score.score_dict['val_loss'][epoch], train_score.score_dict['val_acc'][epoch] = eval_score.loss, eval_score.acc
+
+      # check progess after epoch with callback function
+      if callback_f is not None and not epoch % callback_act_epochs: callback_f(self.generate_samples(noise=fixed_noise, to_np=True), epoch)
+
+    # finish train score
+    train_score.finish()
+
+    return train_score
+
+
+  def update_models(self, x, y, class_dict, epoch, mini_batch, train_score):
+    """
+    model updates
+    """
+
+    # create fakes through Generator with noise as input
+    fakes = self.models['g'](torch.randn(x.shape[0], self.models['g'].n_latent, device=self.device))
+
+
+    # update for each epoch
+    if self.actual_update_epoch != epoch:
+
+      # update actuals
+      self.actual_update_epoch = epoch
+
+      # discriminator update rule
+      if self.actual_d_epoch: 
+
+        self.actual_d_epoch -= 1
+        if not self.actual_d_epoch: self.actual_g_epoch = self.g_update_epochs
+
+      # generator update rule
+      elif self.actual_g_epoch: 
+
+        self.actual_g_epoch -= 1
+        if not self.actual_g_epoch: self.actual_d_epoch = self.d_update_epochs
+
+
+    # update discriminator
+    loss_class, loss_adv = self.update_hyb(x, y, class_dict, fakes, backward=self.actual_d_epoch > 0)
+
+    # update generator
+    g_loss_fake, g_loss_sim = self.update_g(x, fakes, class_dict, backward=self.actual_g_epoch > 0)
+
+    # update batch loss collection
+    train_score.update_batch_losses(epoch, mini_batch, loss_class=loss_class, loss_adv=loss_adv, g_loss_fake=g_loss_fake, g_loss_sim=g_loss_sim)
+
+    return train_score
+
+
+  def update_hyb(self, x, y, class_dict, fakes, lam=0.25, backward=True):
+    """
+    update discriminator D with real and fake data
+    """
+
+    # zero gradients
+    self.models['hyb'].zero_grad()
+    self.optimizer_hyb.zero_grad()
+
+    # create real labels
+    y_real = torch.full((x.shape[0],), self.real_label, dtype=torch.float, device=self.device)
+
+    # forward pass
+    o_class, o_adv_real = self.models['hyb'](x)
+
+    # loss of D with reals
+    loss_adv_real = self.criterion_adv(o_adv_real.view(-1), y_real)
+
+    # loss of class label
+    loss_class = self.criterion_class(o_class, y)
+
+
+    # create fake labels
+    y_fake = torch.full((x.shape[0],), self.fake_label, dtype=torch.float, device=self.device)
+
+    # fakes to D (without gradient backprop)
+    o_class, o_adv_fake = self.models['hyb'](fakes.detach())
+
+    # loss of D with fakes
+    loss_adv_fake = self.criterion_adv(o_adv_fake.view(-1), y_fake)
+
+
+    # adv loss
+    loss_adv = loss_adv_real + loss_adv_fake
+
+    # calculate whole loss
+    loss = loss_class + lam * float(backward) * loss_adv
+
+    # gradients for class prediction
+    loss.backward()
+
+    # optimizer step
+    self.optimizer_hyb.step()
+
+    return loss_class.item(), lam * loss_adv.item()
+
+
+  def update_g(self, reals, fakes, class_dict, lam=2.0, backward=True):
+    """
+    update generator G
+    """
+
+    # zero gradients
+    self.models['g'].zero_grad()
+    self.optimizer_g.zero_grad()
+
+    # fakes should be real labels for G
+    y = torch.full((fakes.shape[0],), self.real_label, dtype=torch.float, device=self.device)
+
+    # fakes to D
+    o_class, o_adv_fake = self.models['hyb'](fakes)
+
+    # loss of G of D with fakes
+    g_loss_fake = self.criterion_adv(o_adv_fake.view(-1), y)
+
+    # similarity measure
+    g_loss_sim = (1 - torch.mean(self.cos_sim(reals, fakes)))
+
+    # loss
+    g_loss = g_loss_fake + g_loss_sim * lam
+
+    # backward and optimization
+    if backward:
+
+      # backward
+      g_loss.backward()
+
+      # optimizer step
+      self.optimizer_g.step()
+
+    return g_loss_fake.item(), g_loss_sim.item() * lam
+
+
+  def eval_forward(self, mini_batch, x, y, z, eval_score, verbose=False):
+    """
+    eval forward pass
+    """
+
+    # classify
+    o_class, o_adv = self.models['hyb'](x)
+
+    # loss
+    loss = self.criterion_class(o_class, y)
+
+    # prediction
+    _, y_hat = torch.max(o_class.data, 1)
+
+    # update eval score
+    eval_score.update(loss, y.cpu(), y_hat.cpu(), z, o_class.data)
+
+    return eval_score
+
+
+  def classify_sample(self, x):
+    """
+    classification of a single sample with feature size dimension
+    """
+
+    # input to tensor [n, c, m, f]
+    x = torch.unsqueeze(torch.from_numpy(x.astype(np.float32)), 0).to(self.device)
+
+    # no gradients for eval
+    with torch.no_grad():
+
+      # classify
+      o_class, o_adv = self.models['hyb'](x)
+
+      # prediction
+      _, y_hat = torch.max(o_class.data, 1)
+
+    # int conversion
+    y_hat = int(y_hat)
+
+    # get label
+    label = list(self.class_dict.keys())[list(self.class_dict.values()).index(y_hat)]
+
+    return y_hat, o_class, label
+
+
+  def generate_samples(self, noise=None, num_samples=10, to_np=False):
+    """
+    generator samples from G
+    """
+
+    # generate noise if not given
+    if noise is None: noise = torch.randn(num_samples, self.models['g'].n_latent, device=self.device)
+
+    # create fakes through Generator
+    with torch.no_grad():
+      fakes = self.models['g'](noise).detach().cpu()
+
+    # to numpy if necessary
+    if to_np: fakes = fakes.numpy()
+
+    return fakes
 
 
 

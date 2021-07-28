@@ -366,7 +366,7 @@ class ConvJim(nn.Module, ConvBasics):
     ConvBasics.__init__(self, n_classes, data_size)
 
     # conv params
-    self.n_feature_maps = [(self.n_channels, 8 * 6), (8 * 6, 8)]
+    self.n_feature_maps = [(self.n_channels, 48), (48, 8)]
     self.kernel_sizes = [(self.n_features, 20), (1, 5)]
     self.strides = [(1, 1), (1, 1)]
     self.padding = [(0, 0), (0, 0)]

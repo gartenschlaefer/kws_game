@@ -653,27 +653,32 @@ def plot_confusion_matrix(cm, classes, cmap=None, plot_path=None, name='None'):
     plt.close()
 
 
-def plot_train_score(train_score, plot_path, name_ext=''):
+def plot_train_score(train_score_dict, plot_path, name_ext=''):
   """
   plot train scores
   """
 
   # adversarial nets
-  if train_score.__class__.__name__ == 'AdversarialTrainScore':
-    plot_adv_train_loss(train_score, plot_path=plot_path, name='score_loss' + name_ext)
+  if train_score_dict['score_class'] == 'AdversarialTrainScore': 
+    plot_adv_train_loss(train_score_dict, plot_path=plot_path, name='score_loss' + name_ext)
+
+  # hybrid nets
+  elif train_score_dict['score_class'] == 'HybridTrainScore':
+    plot_hyb_train_loss(train_score_dict, plot_path=plot_path, name='score_loss' + name_ext)
+    plot_val_acc(train_score_dict['val_acc'], plot_path=plot_path, name='score_val_acc' + name_ext)
 
   # wave nets
-  elif train_score.__class__.__name__ == 'WavenetTrainScore':
-    plot_wavenet_train_loss(train_score, plot_path=plot_path, name='score_loss' + name_ext)
-    plot_val_acc(train_score.score_dict['val_acc'], plot_path=plot_path, name='score_val_acc' + name_ext)
+  elif train_score_dict['score_class'] == 'WavenetTrainScore':
+    plot_wavenet_train_loss(train_score_dict, plot_path=plot_path, name='score_loss' + name_ext)
+    plot_val_acc(train_score_dict['val_acc'], plot_path=plot_path, name='score_val_acc' + name_ext)
 
-  # other nets
+  # other nets, such as cnn
   else:
-    plot_train_loss(train_score.score_dict['train_loss'], train_score.score_dict['val_loss'], plot_path=plot_path, name='train_loss' + name_ext)
-    plot_val_acc(train_score.score_dict['val_acc'], plot_path=plot_path, name='score_val_acc' + name_ext)
+    plot_train_loss(train_score_dict['train_loss'], train_score_dict['val_loss'], plot_path=plot_path, name='train_loss' + name_ext)
+    plot_val_acc(train_score_dict['val_acc'], plot_path=plot_path, name='score_val_acc' + name_ext)
     
 
-def plot_wavenet_train_loss(train_score, cmap=None, plot_path=None, name='score_loss', show_plot=False):
+def plot_wavenet_train_loss(train_score_dict, cmap=None, plot_path=None, name='score_loss', show_plot=False):
   """
   wavenet train loss
   """
@@ -689,8 +694,8 @@ def plot_wavenet_train_loss(train_score, cmap=None, plot_path=None, name='score_
   if cmap is not None: ax.set_prop_cycle('color', cmap)
 
   # plot scores
-  ax.plot(train_score.score_dict['loss_t'], label='wave loss')
-  ax.plot(train_score.score_dict['loss_y'], label='class loss')
+  ax.plot(train_score_dict['loss_t'], label='wave loss')
+  ax.plot(train_score_dict['loss_y'], label='class loss')
 
   # layout
   plt.ylabel("loss"), plt.xlabel("iterations"), plt.legend(), plt.grid()
@@ -708,7 +713,7 @@ def plot_wavenet_train_loss(train_score, cmap=None, plot_path=None, name='score_
   return fig
 
 
-def plot_adv_train_loss(train_score, cmap=None, plot_path=None, name='score_loss', show_plot=False):
+def plot_adv_train_loss(train_score_dict, cmap=None, plot_path=None, name='score_loss', show_plot=False):
   """
   adversarial train loss
   """
@@ -724,10 +729,47 @@ def plot_adv_train_loss(train_score, cmap=None, plot_path=None, name='score_loss
   if cmap is not None: ax.set_prop_cycle('color', cmap)
 
   # plots
-  ax.plot(train_score.score_dict['g_loss_fake'], label='g_loss_fake')
-  ax.plot(train_score.score_dict['g_loss_sim'], label='g_loss_sim')
-  ax.plot(train_score.score_dict['d_loss_fake'], label='d_loss_fake')
-  ax.plot(train_score.score_dict['d_loss_real'], label='d_loss_real')
+  ax.plot(train_score_dict['g_loss_fake'], label='g_loss_fake')
+  ax.plot(train_score_dict['g_loss_sim'], label='g_loss_sim')
+  ax.plot(train_score_dict['d_loss_fake'], label='d_loss_fake')
+  ax.plot(train_score_dict['d_loss_real'], label='d_loss_real')
+
+  # layout
+  plt.ylabel("loss"), plt.xlabel("iterations"), plt.legend(), plt.grid()
+
+  # tight plot
+  plt.tight_layout()
+
+  # plot the fig
+  if plot_path is not None:
+    plt.savefig(plot_path + name + '.png', dpi=150)
+    plt.close()
+
+  # show plot
+  if show_plot: plt.show()
+  return fig
+
+
+def plot_hyb_train_loss(train_score_dict, cmap=None, plot_path=None, name='score_loss', show_plot=False):
+  """
+  adversarial train loss
+  """
+
+  # get cmap
+  if cmap is None: cmap = get_colormap_from_context(context='adv-loss')
+
+  # setup figure
+  fig = plt.figure(figsize=get_figsize(context='score'))
+
+  # create axis
+  ax = plt.axes()
+  if cmap is not None: ax.set_prop_cycle('color', cmap)
+
+  # plots
+  ax.plot(train_score_dict['loss_class'], label='loss_class')
+  ax.plot(train_score_dict['loss_adv'], label='loss_adv')
+  ax.plot(train_score_dict['g_loss_fake'], label='g_loss_fake')
+  ax.plot(train_score_dict['g_loss_sim'], label='g_loss_sim')
 
   # layout
   plt.ylabel("loss"), plt.xlabel("iterations"), plt.legend(), plt.grid()

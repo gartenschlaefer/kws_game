@@ -43,9 +43,6 @@ class TestBench():
     # model file
     self.model_files = [self.test_model_path + f for f in model_files_av if f in self.cfg_tb['model_file_names']]
 
-    # pick just the first one (errors should not occur)
-    self.model_file = self.model_files[0]
-
     # param file
     self.params_file = self.test_model_path + self.cfg_tb['params_file_name']
 
@@ -71,7 +68,7 @@ class TestBench():
     self.net_handler = NetHandler(nn_arch=self.nn_arch, class_dict=self.class_dict, data_size=self.data_size, use_cpu=True)
 
     # load model
-    self.net_handler.load_models(model_files=[self.model_file])
+    self.net_handler.load_models(model_files=self.model_files)
 
     # set evaluation mode
     self.net_handler.set_eval_mode()
@@ -86,7 +83,7 @@ class TestBench():
     all_labels, all_corrects_shift, all_corrects_noise, all_probs_shift, all_probs_noise = [], [], [], [], []
 
     # test model
-    print("\n--Test Bench\ntest model: [{}]".format(self.test_model_name))
+    print("\n--Test Bench\ntest model: [{}] params: [{}]".format(self.nn_arch, self.test_model_name))
 
     # go through each test wav
     for wav in self.test_wavs:

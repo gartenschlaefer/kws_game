@@ -1,24 +1,46 @@
 % --
 % feature selection
 
-\section{Feature Selection}\label{sec:exp_fs}
+\section{MFCC Feature Selection}\label{sec:exp_fs}
 \thesisStateNotReady
-The first important Question, when using neural networks, is what features are used as inputs.
-In the feature extraction section about MFCCs \rsec{signal_mfcc}, it was shown how raw audio files can be extracted to MFCCs and what enhancements can be done.
-These enhancements (deltas and energy features) are formed in groups for evaluation to see the impact on the choice and hopefully to reduce the input feature size to a minimum.
-%Now that the neural network architectures are described in \rsec{nn_arch} and basic knowledge about MFCCs is given in \rsec{features} it is important to evaluate the impact of the selection of certain MFCC feature constellations to the accuracy of the Test sets.
-Beside it is good to get a general overview on what accuracies can be expected from different neural network architectures.
-The evaluation is done on 5 classes and 30 classes with different training parameters to observe the impact on a easy and a very hard classification task.
-In detail it is shown how models are trained with features consisting of following MFCC groups:
+Feature selection is a very important step prior to neural network training.
+Unfortunately it is not always clear, which feature are contributing to good classification scores and which not.
+To reduce features always means to reduce computations and is therefore a crucial point to evaulate.
+As already described in \rsec{signal_mfcc}, Mel Frequency Cepstral Coefficients (MFCC) are extracted with a certain amount of filter bands and cepstral coefficients.
+Further MFCC features can be enhanced with energy features and deltas.
+A frame based normalization can be applied to improve the visualization of MFCCs and makes it more easy and faster to train Generative Adversarial Neural Networks (GANs).
+However frame based normalization might be critical, because it focuses on the time scale and not the frequency. 
+
+Two experiments are done to shade some light into MFCC feature selection:
 \begin{enumerate}
-    \item Cepstral Coefficients (usual MFCCs)
-    \item Deltas (frame difference of MFCCs)
-    \item Double Deltas (frame difference of Deltas)
-    \item Energy Vector (added to each of the upper features)
+    \item Impact on the amount of cepstral coefficients
+    \item Impact on the enhancements of MFCCs
 \end{enumerate}
-Another crucial point is to evaluate whether a frame based normalization of these features hurt the training and the accuracy of the models.
-Therefore additional columns are presented in the following tables marked with \enquote{norm}.
-Note that all these experiments have been done with n-500 a number of 500 examples per class, so that computations are minimized but still enough data is drawn.
+
+
+\subsection{Impact on the Amount of Cepstral Coefficients}
+The filter bands of the MFCCs are fixed with a total number of 32 and the cepstral coefficients are selected to either 12 or 32, where 12 is the common selection of coefficients in many papers.
+Also the experiment is done once with and once without frame based normalization.
+...
+
+The experiment is shown in \rtab{exp_fs_cepstral}.
+\input{./5_exp/tables/tab_exp_fs_cepstral.tex}
+
+
+% These enhancements (deltas and energy features) are formed in groups for evaluation to see the impact on the choice and hopefully to reduce the input feature size to a minimum.
+% %Now that the neural network architectures are described in \rsec{nn_arch} and basic knowledge about MFCCs is given in \rsec{features} it is important to evaluate the impact of the selection of certain MFCC feature constellations to the accuracy of the Test sets.
+% Beside it is good to get a general overview on what accuracies can be expected from different neural network architectures.
+% The evaluation is done on 5 classes and 30 classes with different training parameters to observe the impact on a easy and a very hard classification task.
+% In detail it is shown how models are trained with features consisting of following MFCC groups:
+% \begin{enumerate}
+%     \item Cepstral Coefficients (usual MFCCs)
+%     \item Deltas (frame difference of MFCCs)
+%     \item Double Deltas (frame difference of Deltas)
+%     \item Energy Vector (added to each of the upper features)
+% \end{enumerate}
+% Another crucial point is to evaluate whether a frame based normalization of these features hurt the training and the accuracy of the models.
+% Therefore additional columns are presented in the following tables marked with \enquote{norm}.
+% Note that all these experiments have been done with n-500 a number of 500 examples per class, so that computations are minimized but still enough data is drawn.
 
 \subsection{Feature Selection on Conv Encoder}
 The feature selection evaluation on the conv-encoder-fc1 architecture with 5 labels is listed in \rtab{exp_fs_fc1_it500_c5}.

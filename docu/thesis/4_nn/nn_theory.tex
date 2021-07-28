@@ -136,10 +136,10 @@ where $c$ is the amount of nodes in this layer, if it is the last layer as usual
 % dropout
 
 \subsection{Dropout}
-Dropout is a method to improve generalization and training of neural network.
-The idea is to set the output of randomly selected nodes within a layer and for one training step to zero, so that only the other nodes are updated.
-This can be simply done by multiplying all outputs of a current layer with a vector containing a number of zeros and ones places at random positions within the vector.
-The amount of zeros compared to ones can be determined by a probability value, for instance $p=0.2$ means that there are 20\% zeros and 80\% ones within the vector.
+Dropout \cite{Hinton2012} is a method to improve generalization and training of neural networks.
+The idea is to set the output of randomly selected nodes within a layer for one training step to zero, so that only the other nodes are updated.
+This can be done by multiplying all outputs of a current layer with a vector containing a specified number of zeros and ones places at random positions within the vector.
+The amount of zeros compared to ones can be sampled from a Bernoulli distribution set by a probability value, for instance $p=0.2$ means that there are 20\% zeros and 80\% ones randomly placed within the vector.
 
 
 % --
@@ -147,5 +147,7 @@ The amount of zeros compared to ones can be determined by a probability value, f
 
 \subsection{Training of a Neural Network}
 The training process of a neural network is usually done with backpropagation of gradients from a loss function at the output nodes.
-The backpropagation algorithm is not described here, because there exists many books and papers such as ... with good formulations, further it does not add any value to this thesis as the algorithm is run in the background of all neural network frameworks.
-The interesting elements are therefore only the neural network architecture and the loss functions.
+Those gradients are used to update the parameters of the network according to an update rule, such as Stochastic Gradient Descend (SGD), Adam \cite{Kingma2015}, etc.
+The general training techniques for neural networks are not described here, because of many existing books and papers \cite{LeCun2006}, \cite{Goodfellow2016}, \cite{DeepLearning} that are already describing this topic very well. 
+Further it does not add any value to this thesis as the algorithms are well examined and run in the background of all neural network frameworks.
+The interesting elements are therefore only the neural network architecture and the loss functions used for training.

@@ -15,7 +15,7 @@ from audio_dataset import AudioDataset
 from feature_extraction import FeatureExtractor, custom_dct_matrix
 from batch_archive import SpeechCommandsBatchArchive
 from plots import plot_mel_band_weights, plot_mfcc_profile, plot_waveform, plot_dct, plot_wav_grid, plot_spec_profile, plot_mel_scale, plot_grid_images
-from latex_table_maker import LatexTableMaker, LatexTableMakerAudiosetLabels
+from latex_table_maker import LatexTableMaker, LatexTableMakerAudiosetLabels, LatexTableMakerCepstral
 
 
 def get_infos_from_log(in_file):
@@ -220,6 +220,18 @@ def batch_archive_grid_examples(cfg, show_plot=False):
   plot_grid_images(np.squeeze(batch_archive.x_batch_dict['my'], axis=1), context='mfcc', padding=1, num_cols=5, title='grid', name='grid', show_plot=show_plot)
 
 
+def training_logs(cfg):
+  """
+  audio set wavs
+  """
+
+  # plot path
+  plot_path_tab = '../docu/thesis/5_exp/tables/'
+  log_path = '../docu/logs/'
+
+  # cepstral table
+  LatexTableMakerCepstral(in_file=log_path + 'log_cepstral.log', out_file=plot_path_tab + 'tab_exp_fs_cepstral.tex', caption='Experiment on the impact of the amount of cepstral coefficient of MFCC features. Frame based normalization was evaluated additionally.', label='tab:exp_fs_cepstral')
+
 
 if __name__ == '__main__':
   """
@@ -244,6 +256,9 @@ if __name__ == '__main__':
   #audio_set_wavs(cfg, statistics_plot=True, wav_grid_plot=False, label_table_plot=False)
 
   # batch archive
-  batch_archive_grid_examples(cfg, show_plot=True)
+  #batch_archive_grid_examples(cfg, show_plot=True)
+
+  # logs
+  training_logs(cfg)
 
 

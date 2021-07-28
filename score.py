@@ -157,6 +157,54 @@ class AdversarialTrainScore(TrainScore):
 
 
 
+class HybridTrainScore(TrainScore):
+  """
+  collection of scores
+  """
+
+  def define_loss_types(self):
+    """
+    define loss types
+    """
+    return ['loss_class', 'loss_adv', 'g_loss_fake', 'g_loss_sim']
+
+
+  def update_batch_losses(self, epoch, mini_batch, loss_class, loss_adv, g_loss_fake, g_loss_sim):
+    """
+    update losses
+    """
+
+    # update losses
+    self.score_dict['loss_class'][epoch] += loss_class
+    self.batch_dict['loss_class_batch'] += loss_class
+
+    self.score_dict['loss_adv'][epoch] += loss_adv
+    self.batch_dict['loss_adv_batch'] += loss_adv
+
+    self.score_dict['g_loss_fake'][epoch] += g_loss_fake
+    self.batch_dict['g_loss_fake_batch'] += g_loss_fake
+
+    self.score_dict['g_loss_sim'][epoch] += g_loss_sim
+    self.batch_dict['g_loss_sim_batch'] += g_loss_sim
+
+    # print loss
+    if mini_batch % self.k_print == self.k_print-1 or self.do_print_anyway:
+
+      # do print
+      self.print_train_info(epoch, mini_batch)
+
+      # reset batch losses
+      self.reset_batch_losses()
+
+
+  def print_train_info(self, epoch, mini_batch):
+    """
+    print some training info
+    """
+    print('epoch: {}, mini-batch: {}, H[c[{:.2f}], a[{:.2f}]], G[f[{:.2f}], s[{:.2f}]]'.format(epoch + 1, mini_batch + 1, self.batch_dict['loss_class_batch'], self.batch_dict['loss_adv_batch'], self.batch_dict['g_loss_fake_batch'], self.batch_dict['g_loss_sim_batch']))
+
+
+
 class WavenetTrainScore(TrainScore):
   """
   collection of scores for wavenets

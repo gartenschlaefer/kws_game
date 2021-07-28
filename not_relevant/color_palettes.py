@@ -211,7 +211,7 @@ if __name__ == '__main__':
   batch_archive.create_batches()
 
   # net handler
-  net_handler = NetHandler(nn_arch='conv-encoder', class_dict=batch_archive.class_dict, data_size=batch_archive.data_size, use_cpu=cfg['ml']['use_cpu'])
+  net_handler = NetHandler(nn_arch='conv-jim', class_dict=batch_archive.class_dict, data_size=batch_archive.data_size, use_cpu=cfg['ml']['use_cpu'])
 
   # load model files
   #net_handler.load_models(model_files=['/world/cavern/git/kws_game/not_relevant/ignore/models/bs-32_it-1077_lr-0p0001/cnn_model.pth'])
