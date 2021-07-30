@@ -41,6 +41,7 @@ def get_figsize(context='none'):
 
   return (6, 6)
 
+
 def get_fontsize(context='none', add_size=0):
   """
   get font size
@@ -60,6 +61,7 @@ def get_fontsize(context='none', add_size=0):
   elif context == 'conf_normal': font_size = 10
   elif context == 'conf_small': font_size = 7
   elif context == 'anno': font_size = 12
+  #elif context == 'anno': font_size = 18
 
   # modification
   font_size += add_size
@@ -517,7 +519,7 @@ def plot_damaged_file_score(z, plot_path=None, name='z_score', show_plot=False):
   if show_plot: plt.show()
 
 
-def plot_waveform(x, fs, e=None, anno_file=None, bon_samples=None, hop=None, onset_frames=None, y_ax_balance=True, cmap=None, title='', xlim=None, ylim=None, plot_path=None, name='None', show_plot=False, close_plot=False):
+def plot_waveform(x, fs, e=None, anno_file=None, bon_samples=None, hop=None, onset_frames=None, fig_size=None, y_ax_balance=True, cmap=None, title='', xlim=None, ylim=None, axis_off=False, plot_path=None, name='None', show_plot=False, close_plot=False):
   """
   just a simple waveform
   """
@@ -526,7 +528,7 @@ def plot_waveform(x, fs, e=None, anno_file=None, bon_samples=None, hop=None, ons
   t = np.arange(0, len(x)/fs, 1/fs)
 
   # setup figure
-  fig = plt.figure(figsize=get_figsize('waveform'))
+  fig = plt.figure(figsize=get_figsize('waveform')) if fig_size is None else plt.figure(figsize=fig_size)
 
   # create axis
   ax = plt.axes()
@@ -570,6 +572,8 @@ def plot_waveform(x, fs, e=None, anno_file=None, bon_samples=None, hop=None, ons
 
   # layout
   plt.ylabel('magnitude', fontsize=get_fontsize('axis_label')), plt.xlabel('time [s]', fontsize=get_fontsize('axis_label')), plt.grid()
+
+  if axis_off: plt.axis('off'), ax.axis('off'),
 
   # tight plot
   plt.tight_layout()
@@ -665,6 +669,7 @@ def plot_train_score(train_score_dict, plot_path, name_ext=''):
   # hybrid nets
   elif train_score_dict['score_class'] == 'HybridTrainScore':
     plot_hyb_train_loss(train_score_dict, plot_path=plot_path, name='score_loss' + name_ext)
+    plot_adv_train_loss(train_score_dict, plot_path=plot_path, name='score_loss_adv' + name_ext)
     plot_val_acc(train_score_dict['val_acc'], plot_path=plot_path, name='score_val_acc' + name_ext)
 
   # wave nets
@@ -750,7 +755,7 @@ def plot_adv_train_loss(train_score_dict, cmap=None, plot_path=None, name='score
   return fig
 
 
-def plot_hyb_train_loss(train_score_dict, cmap=None, plot_path=None, name='score_loss', show_plot=False):
+def plot_hyb_train_loss(train_score_dict, cmap=None, plot_path=None, name='score_loss', close_plot=True, show_plot=False):
   """
   adversarial train loss
   """
@@ -766,10 +771,8 @@ def plot_hyb_train_loss(train_score_dict, cmap=None, plot_path=None, name='score
   if cmap is not None: ax.set_prop_cycle('color', cmap)
 
   # plots
-  ax.plot(train_score_dict['loss_class'], label='loss_class')
-  ax.plot(train_score_dict['loss_adv'], label='loss_adv')
-  ax.plot(train_score_dict['g_loss_fake'], label='g_loss_fake')
-  ax.plot(train_score_dict['g_loss_sim'], label='g_loss_sim')
+  ax.plot(train_score_dict['loss_class'] / np.linalg.norm(train_score_dict['loss_class'], ord=np.infty), label='class loss')
+  ax.plot(train_score_dict['val_loss'] / np.linalg.norm(train_score_dict['val_loss'], ord=np.infty), label='val loss')
 
   # layout
   plt.ylabel("loss"), plt.xlabel("iterations"), plt.legend(), plt.grid()
@@ -778,13 +781,13 @@ def plot_hyb_train_loss(train_score_dict, cmap=None, plot_path=None, name='score
   plt.tight_layout()
 
   # plot the fig
-  if plot_path is not None:
-    plt.savefig(plot_path + name + '.png', dpi=150)
-    plt.close()
-
+  if plot_path is not None: plt.savefig(plot_path + name + '_class.png', dpi=150)
+  
   # show plot
   if show_plot: plt.show()
-  return fig
+
+  # close plot
+  if close_plot: plt.close()
 
 
 def plot_train_loss(train_loss, val_loss, cmap=None, plot_path=None, name='score_loss', show_plot=False):
@@ -1019,10 +1022,9 @@ def plot_mfcc_profile(x, fs, N, hop, mfcc, sep_features=True, diff_plot=False, c
   if show_plot: plt.show()
 
 
-def plot_mfcc_only(mfcc, fs=16000, hop=160, cmap=None, context='mfcc', plot_path=None, name='mfcc_only', show_plot=False):
+def plot_mfcc_only(mfcc, fs=16000, hop=160, cmap=None, context='mfcc', plot_path=None, name='mfcc_only', show_plot=False, close_plot=True):
   """
   plot mfcc extracted features only (no time series)
-  mfcc: [m x l]
   """
 
   # get cmap
@@ -1076,12 +1078,38 @@ def plot_mfcc_only(mfcc, fs=16000, hop=160, cmap=None, context='mfcc', plot_path
     add_colorbar(fig, im, cax=ax)
 
   # plot the fig
-  if plot_path is not None:
-    plt.savefig(plot_path + name + '.png', dpi=150)
-    plt.close()
+  if plot_path is not None: plt.savefig(plot_path + name + '.png', dpi=150)
+  if show_plot: plt.show()
+  if close_plot: plt.close()
 
-  elif show_plot:
-    plt.show()
+
+def plot_mfcc_plain(mfcc, cmap=None, plot_path=None, name='mfcc_plain', show_plot=False, close_plot=True):
+  """
+  plot mfcc extracted features only (no time series)
+  """
+
+  # get cmap
+  if cmap is None: cmap = get_colormap_from_context(context='mfcc')
+
+  # setup figure
+  fig = plt.figure(figsize=get_figsize(context='half'))
+
+  # create axis
+  ax = plt.axes()
+
+  # plot selected mfcc
+  im = ax.imshow(np.squeeze(mfcc), aspect='equal', cmap=cmap)
+
+  # axis off
+  plt.axis('off'), ax.axis('off')
+
+  # tight plot
+  plt.tight_layout()
+
+  # plot the fig
+  if plot_path is not None: plt.savefig(plot_path + name + '.png', dpi=150)
+  if show_plot: plt.show()
+  if close_plot: plt.close()
 
 
 def plot_mfcc_equal_aspect(mfcc, fs=16000, hop=160, cmap=None, context='mfcc', plot_path=None, name='mfcc_equal', gizmos_off=False, show_plot=False):

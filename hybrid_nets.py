@@ -6,7 +6,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 
-from conv_nets import ClassifierNetFc3
+from classifier_nets import ClassifierNetFc3, ClassifierNetFc1
 from adversarial_nets import AdvBasics
 
 
@@ -43,7 +43,8 @@ class HybJim(nn.Module, AdvBasics):
     self.conv_layer1 = nn.Conv2d(self.n_feature_maps[1][0], self.n_feature_maps[1][1], kernel_size=self.kernel_sizes[1], stride=self.strides[1], bias=False)
 
     # classifier net
-    self.classifier_net = ClassifierNetFc3(np.prod(self.conv_out_dim), n_classes)
+    #self.classifier_net = ClassifierNetFc3(np.prod(self.conv_out_dim), n_classes, dropout_enabled=False)
+    self.classifier_net = ClassifierNetFc1(np.prod(self.conv_out_dim), n_classes)
 
     # discriminator net
     self.discriminator_net = nn.Linear(np.prod(self.conv_out_dim), 1)

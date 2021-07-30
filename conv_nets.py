@@ -11,6 +11,8 @@ import numpy as np
 import torch
 import torch.nn as nn
 
+from classifier_nets import ClassifierNetFc1, ClassifierNetFc3
+
 
 class ConvBasics():
   """
@@ -307,51 +309,6 @@ class ConvNetExperimental(nn.Module, ConvBasics):
     x = self.softmax(x)
 
     return x
-
-
-
-class ClassifierNetFc1(nn.Module):
-  """
-  classifier network with one fully connected layer
-  """
-
-  def __init__(self, input_dim, output_dim):
-
-    # parent init
-    super().__init__()
-
-    # structure
-    self.fc1, self.softmax = nn.Linear(input_dim, output_dim), nn.Softmax(dim=1)
-
-
-  def forward(self, x):
-    """
-    forward pass
-    """
-    return self.softmax(self.fc1(x))
-
-
-
-class ClassifierNetFc3(nn.Module):
-  """
-  classifier network with three fully connected layers
-  """
-
-  def __init__(self, input_dim, output_dim):
-
-    # parent init
-    super().__init__()
-
-    # structure
-    self.fc1, self.fc2, self.fc3, self.dropout_layer, self.softmax = nn.Linear(input_dim, 64), nn.Linear(64, 32), nn.Linear(32, output_dim), nn.Dropout(p=0.5), nn.Softmax(dim=1)
-
-
-  def forward(self, x):
-    """
-    forward pass
-    """
-    return self.softmax(self.fc3(self.dropout_layer(torch.relu(self.fc2(torch.relu(self.fc1(x)))))))
-
 
 
 class ConvJim(nn.Module, ConvBasics):

@@ -44,7 +44,7 @@ class ML():
     self.batch_archive.create_batches() if not self.nn_arch.startswith('adv') else self.batch_archive.create_batches(selected_labels=['left'])
 
     # net handler
-    self.net_handler = NetHandler(nn_arch=self.nn_arch, class_dict=self.batch_archive.class_dict, data_size=self.batch_archive.data_size, encoder_model=self.encoder_model, decoder_model=self.decoder_model, use_cpu=self.cfg_ml['use_cpu'])
+    self.net_handler = NetHandler(nn_arch=self.nn_arch, class_dict=self.batch_archive.class_dict, data_size=self.batch_archive.data_size, feature_params=self.audio_dataset.feature_params, encoder_model=self.encoder_model, decoder_model=self.decoder_model, use_cpu=self.cfg_ml['use_cpu'])
 
 
     # paths
@@ -158,7 +158,7 @@ class ML():
     return 'adv-jim'
 
 
-  def train(self, new_train_params=None, log_on=True, name_ext='', do_save_models=True):
+  def train(self, new_train_params=None, log_on=True, name_ext='', save_models_enabled=True):
     """
     training
     """
@@ -179,7 +179,7 @@ class ML():
     if log_on: logging.info('Training on arch: [{}], audio set param string: [{}], train_params: {}, device: [{}], time: {}'.format(self.cfg_ml['nn_arch'], self.audio_dataset.param_path, train_params, self.net_handler.device, s_to_hms_str(train_score.score_dict['time_usage'])))
     
     # save models and parameters
-    if do_save_models:
+    if save_models_enabled:
       self.net_handler.save_models(model_files=self.model_files)
       self.save_params()
       self.save_metrics(train_score=train_score)
@@ -420,7 +420,7 @@ def pre_train_adv_label(cfg, audio_set1, encoder_model=None, decoder_model=None)
 
     # training
     ml.analyze(name_ext='_1-0_pre-adv')
-    ml.train(log_on=False, name_ext='_adv-post_train', do_save_models=True)
+    ml.train(log_on=False, name_ext='_adv-post_train', save_models_enabled=True)
     ml.analyze(name_ext='_1-1_post-adv')
 
     # add encoder and decoder
@@ -465,7 +465,7 @@ def pre_train_adv_dual(cfg, audio_set1, encoder_model=None, decoder_model=None):
 
   # training
   ml.analyze(name_ext='_1-0_pre-adv')
-  ml.train(log_on=False, name_ext='_adv-post_train', do_save_models=True)
+  ml.train(log_on=False, name_ext='_adv-post_train', save_models_enabled=True)
   ml.analyze(name_ext='_1-1_post-adv')
 
   # return either encoder or decoder model

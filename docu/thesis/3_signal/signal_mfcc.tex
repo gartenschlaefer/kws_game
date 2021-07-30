@@ -4,7 +4,7 @@
 \section{Mel Frequency Cepstral Coefficients}\label{sec:signal_mfcc}
 \thesisStateNotReady
 Very commonly Mel Frequency Cepstral Coefficients (MFCC) are used as input features for neural network classifications tasks in speech recognition.
-It is described why MFCCs are good features for speech signals, how they are calculated in detail and in which way they can be visualized to understand them better.
+It is described why MFCCs are good features for speech signals, how they are calculated in detail, how they can be enhanced and in which way they can be visualized to understand them better.
 
 
 % --
@@ -15,25 +15,27 @@ The processing scheme of MFCCs is as following:
 Raw audio samples are transformed into the frequency domain with the Short-Time Fourier Transform (STFT).
 Afterwards the power spectrum of the STFT is segmented in frequency bands (along the frequency dimension) done by a filter bank.
 The filter bands are spaced in equidistant Mel frequencies, where Mel frequencies represent the non-linear relationship between the Mel and frequency scale.
-The Mel scale was developed in psycho-acoustic experiments, where researchers found out, that high frequency sounds (above approximately \SI{500}{\hertz}) are perceived lower than they actual are in the musical description of pitch.
-In the musical sense of a pitch an octave is the doubling of the frequency, but human hearing is different and frequency doubling is not necessarily a doubling of the perceived pitch.
+The Mel scale was developed in psycho-acoustic experiments, where researchers found out, that high frequency sounds (above approximately \SI{500}{\hertz}) are perceived lower than they actual are in the musical sense of pitch.
+In the musical sense, a pitch interval of an octave is the doubling of the frequency of a fundamental frequency, but human hearing is different in the perception and frequency doubling does not necessarily double the perceived pitch.
 As conclusion the Mel scale is suited human hearing perception of pitch and taking equidistant Mel bands is a reasonable approach.
 
-Another important processing step is the logarithmic scaling of the power spectrum's value space.
-Humans perceive loudness in the logarithmic scale.
+Another important processing step is the logarithmic scaling of the power spectrum's value space, because humans perceive loudness in the logarithmic scale.
 The last step is not that straight forward, but is a technique widely used in image processing called the Discrete Cosine Transform (DCT).
 Note that the DCT is some kind of decorrelation process to mix filter bands in different constellations together.
 
 This processing steps seem rather complicated, but are in fact nothing else but consecutive steps of appropriate scaling and data compression.
-In fact neural networks are able to handle large amounts of input features, but it is always preferable to minimize the input size, such that the model size and training time are decreased and therefore computations saved.
+In fact neural networks are able to handle large amounts of input features, but it is always preferable to minimize the input size, hence the model size and training time are decreased and therefore computations saved.
 
 
 % --
 % processing pipeline
 
-\subsection{Processing Pipeline in detail}
-The frequency spectrum is separated into filter bands through triangular window functions on the frequency axis with fixed length on the Mel scale (equidistant Mel bands).
-The Mel - Frequency relation is approximated with:
+\subsection{Processing Pipeline in detail}\label{sec:signal_mfcc_pipeline}
+The frequency spectrum is separated into filter bands through triangular window functions.
+Those window functions are equidistantly placed onto the Mel scale and therefore give a varying number of frequency bins in the frequency scale of each window.
+The lower frequency bands receive less frequency bins than the high frequency bands.
+Sometimes the height of the triangular windows are scaled down so that the effect of unequal amounts frequency bin numbers is equalized, however high frequencies carry less energy and therefore this scaling is in most cases not needed, therefore all the triangular windows have their peak at the value $1$.
+The Mel - Frequency relation can be approximated with:
 % mel
 \begin{equation}\label{eq:signal_mfcc_mel}
   m(f) = 2595 \cdot \log_{10} \left(1 + \frac{f}{700} \right) 
@@ -49,7 +51,7 @@ The Mel scale plotted against the frequency scale is illustrated in \rfig{signal
 \end{figure}
 \FloatBarrier
 \noindent
-The Mel and frequency window functions or equidistant mel filter bands are shown in \rfig{filter_bands}.
+The Mel and frequency window functions or equidistant Mel filter bands are shown in \rfig{filter_bands}.
 \begin{figure}[!ht]
   \centering
   \subfigure[mel space]{\includegraphics[width=0.40\textwidth]{./3_signal/figs/signal_mfcc_weights_mel}}
@@ -60,11 +62,12 @@ The Mel and frequency window functions or equidistant mel filter bands are shown
 \end{figure}
 \FloatBarrier
 \noindent
-The creation of those filter bands is not described mathematically, because the graphical showcase is much more intuitive and easier to understand, but for further calculations those filter bands are notated in a weight matrix called $W_m \in \R^{B \times N}$, where $B$ are the amount of used filter bands as rows and $N$ the amount of frequency / mel bins of the DFT transformed and windowed input signal as columns in the matrix.
+The creation of those filter bands is not described mathematically, because the graphical showcase is much more intuitive and easier to understand.
+For further calculations, those filter bands are notated in a weight matrix called $W_m \in \R^{B \times N}$, where $B$ are the amount of used filter bands as rows in the matrix and $N$ the amount of frequency bins of the DFT transformed input signal as columns.
 
 % dct
-The DCT is very similar to the Fourier transform and projects the input signal to a set of orthogonal basis functions, but outpus only real valued signals instead of complex ones.
-Different types of DCTs formulations exists, but most commonly the \enquote{type 2} DCT is used and calculated as:
+The DCT is very similar to the Fourier transform and projects the input signal to a set of orthogonal basis functions, however the transformed signal is real valued only instead of complex valued.
+Different types of DCTs formulations exists, but most commonly the \enquote{type 2} DCT is used and can be calculated as:
 % dct
 \begin{equation}\label{eq:signal_mfcc_dct}
   X[c] = \sum_{n=0}^{N-1} x[n] \, \cos{\left[ \frac{\pi}{N} \left( n + \frac{1}{2} \right) c \right]}
@@ -89,7 +92,7 @@ The DCT basis functions illustrated in a matrix in two different color schemes a
 \FloatBarrier
 \noindent
 The MFCCs $U \in R^{M \times C}$ are calculated from the log scaled power spectrum of the STFT $\tilde{X} \in \C^{M \times N}$ computed in \req{signal_spec_stft_matrix}, the filter band weights collected in the matrix $W_m \in \R^{B \times N}$ and transformed with the DCT matrix $\mathcal{D} \in R^{B \times C}$ as following:
-\begin{equation}
+\begin{equation}\label{eq:signal_mfcc_mfcc}
     U = \log{ \left[ \, \abs{\tilde{X}}^2 \, W_m^T \, \right] } \, \mathcal{D}.
 \end{equation}
 Note that the rows represent all shifts with the hop size and the columns are the individual cepstral coefficients of $U$.
@@ -138,7 +141,7 @@ The deltas are simply computed as frame $m$ difference of the MFCCs with:
   \Delta u_i[m] = \frac{u_i[m - 1] + u_i[m + 1]}{2}
 \end{equation}
 where $u_i \R^M$ is the i-th MFCC coefficient vector and $m$ the frame index.
-Note that the edges of the delta computations at $m=0$ and $m=M$ are not computed and the same value is obtained from the neighbour.
+Note that the edges of the delta computations at $m=0$ and $m=M$ are not computed and the same value is obtained from the neighbor.
 The second derivative of MFCC features, known as double deltas, are then the frame differences of the deltas, similar to \req{signal_mfcc_delta}
 An energy feature vector can be computed from each of the MFCCs, deltas and double deltas by its own, with for instance simply:
 \begin{equation}
@@ -176,9 +179,32 @@ The computation of 39 MFCCs are shown in \rfig{signal_mfcc_showcase_mfcc39}
 % energy consumption
 
 \subsection{Energy consumption}
-The energy consumption is evaluated on the operations needed to process a \SI{500}{\milli\second} time signal sampled with $f_s = \SI{16}{\kilo\hertz}$ to MFCCs.
-The computation of a DFT with $N$ Fourier coefficients is...
+The energy consumption is evaluated on the amount of operations needed to process a \SI{500}{\milli\second} time signal sampled with $f_s = \SI{16}{\kilo\hertz}$ to MFCC features.
+The amount of operations are the total number of additions and multiplications necessary to fulfill the process.
+The major components of the MFCC are, as described in \rsec{signal_mfcc_pipeline} and summarized in \req{signal_mfcc_mfcc}, the transformation to the STFT, the weighting with the filter bands and the DCT transform.
+The most costly component is of course the STFT, which again is composed of DFTs.
+Note that the DFT uses complex multiplications and additions.
+One complex multiplication equals to 4 real multiplication and 2 additions, so one complex multiplication is equal to 6 operations.
+For one complex addition, two real additions are necessary and equals therefore to 2 operations.
+A general matrix multiplication with a vector $y = Ax$ where $A \in \R^{m \times n}$ and $x \in \R^n$ is composed of $m \cdot n$ multiplications and $m \cdot (n - 1)$ additions, where for simplicity the amount of additions is also assumed to be $m \cdot n$.
 
+The amount of operations, denoted as $\mathcal{T(.)}$, for a trivial DFT transform with operator $\mathcal{F} \in \C^{N \times K}$ with $K$ Fourier coefficients on a windowed signal $x \in \R^N$ with sample length $N$ is:
+% \begin{equation}
+%   \mathcal{O}(x\mathcal{F}) = N \times K
+% \end{equation}
+\begin{equation}
+  \mathcal{T}(x\mathcal{F}) = 6 (N K) + 2 (N K)
+\end{equation}
+and give for $N = K = 400$ the amount of operations $\mathcal{T}(x\mathcal{F}) = \SI{1.28}{\mega\ops}$ for a single DFT.
+This of course are a lot of operations, luckily a more sophisticated Fourier transform is done by the Fast Fourier Transform (FFT) method, which gives a linear complexity of
+\begin{equation}
+  \mathcal{T}(x\mathcal{F}) = 6 (\mathcal{O}(N \cdot \log N)) + 2 (\mathcal{O}(N \cdot \log N))
+\end{equation}
+with $N = K = 400$.
+The FFT has therefore roughly $\mathcal{T}(x\mathcal{F}) = \SI{20}{\kilo\ops}$ and is a huge improvement to the trivial method.
+
+% delete me
+%U = \log{ \left[ \, \abs{\tilde{X}}^2 \, W_m^T \, \right] } \, \mathcal{D}.
 
 
 % --

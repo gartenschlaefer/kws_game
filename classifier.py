@@ -37,7 +37,7 @@ class Classifier():
     if self.cfg_classifier['verbose']: print("\nExtract model with architecture: [{}]\nparams: [{}]\nand class dict: [{}]".format(self.nn_arch, self.train_params, self.class_dict))
     
     # init net handler
-    self.net_handler = NetHandler(nn_arch=self.nn_arch, class_dict=self.class_dict, data_size=self.data_size, use_cpu=True)
+    self.net_handler = NetHandler(nn_arch=self.nn_arch, class_dict=self.class_dict, data_size=self.data_size, feature_params=self.feature_params, use_cpu=True)
 
     # load model
     self.net_handler.load_models(model_files=[self.classifier_model_file])

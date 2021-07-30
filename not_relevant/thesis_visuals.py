@@ -14,7 +14,7 @@ sys.path.append("../")
 from audio_dataset import AudioDataset
 from feature_extraction import FeatureExtractor, custom_dct_matrix
 from batch_archive import SpeechCommandsBatchArchive
-from plots import plot_mel_band_weights, plot_mfcc_profile, plot_waveform, plot_dct, plot_wav_grid, plot_spec_profile, plot_mel_scale, plot_grid_images
+from plots import plot_mel_band_weights, plot_mfcc_profile, plot_waveform, plot_dct, plot_wav_grid, plot_spec_profile, plot_mel_scale, plot_grid_images, plot_mfcc_plain
 from latex_table_maker import LatexTableMaker, LatexTableMakerAudiosetLabels, LatexTableMakerCepstral
 
 
@@ -120,7 +120,9 @@ def showcase_wavs(cfg, raw_plot=True, spec_plot=True, mfcc_plot=True, use_mfcc_3
     x, _ = librosa.load(wav, sr=feature_params['fs'])
 
     # raw waveform
-    if raw_plot: plot_waveform(x, feature_params['fs'], anno_file=anno, hop=feature_extractor.hop, plot_path=plot_path, name='signal_raw_showcase_' + wav.split('/')[-1].split('.')[0], show_plot=show_plot)
+    if raw_plot: 
+      plot_waveform(x, feature_params['fs'], fig_size=(4, 1), anno_file=anno, hop=feature_extractor.hop, plot_path='../docu/showcase_wavs/ignore/', name='signal_raw_showcase_' + wav.split('/')[-1].split('.')[0], axis_off=True, show_plot=show_plot)
+      plot_waveform(x, feature_params['fs'], anno_file=anno, hop=feature_extractor.hop, plot_path=plot_path, name='signal_raw_showcase_' + wav.split('/')[-1].split('.')[0], show_plot=show_plot)
     
     # spectogram
     if spec_plot:
@@ -131,6 +133,7 @@ def showcase_wavs(cfg, raw_plot=True, spec_plot=True, mfcc_plot=True, use_mfcc_3
     if mfcc_plot:
       mfcc, bon_pos = feature_extractor.extract_mfcc(x, reduce_to_best_onset=False)
       name = 'signal_mfcc_showcase_mfcc32_' + wav.split('/')[-1].split('.')[0] if not use_mfcc_39 else 'signal_mfcc_showcase_mfcc39_' + wav.split('/')[-1].split('.')[0]
+      plot_mfcc_plain(mfcc, plot_path='../docu/showcase_wavs/ignore/', name=name + '_plain', show_plot=show_plot)
       plot_mfcc_profile(x, cfg['feature_params']['fs'], feature_extractor.N, feature_extractor.hop, mfcc, anno_file=anno, sep_features=False, bon_pos=bon_pos, frame_size=cfg['feature_params']['frame_size'], plot_path=plot_path, name=name, close_plot=False, show_plot=show_plot)
 
 
@@ -247,7 +250,7 @@ if __name__ == '__main__':
   #mfcc_stuff(cfg, dct_plot=True, show_plot=True)
 
   # showcase wavs
-  #showcase_wavs(cfg, raw_plot=False, spec_plot=False, mfcc_plot=True, use_mfcc_39=True, show_plot=True)
+  showcase_wavs(cfg, raw_plot=True, spec_plot=False, mfcc_plot=False, use_mfcc_39=False, show_plot=True)
 
   # feature selection tables
   #feature_selection_tables(overwrite=True)
@@ -259,6 +262,6 @@ if __name__ == '__main__':
   #batch_archive_grid_examples(cfg, show_plot=True)
 
   # logs
-  training_logs(cfg)
+  #training_logs(cfg)
 
 

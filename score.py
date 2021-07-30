@@ -166,10 +166,10 @@ class HybridTrainScore(TrainScore):
     """
     define loss types
     """
-    return ['loss_class', 'loss_adv', 'g_loss_fake', 'g_loss_sim']
+    return ['loss_class', 'd_loss_real', 'd_loss_fake', 'g_loss_fake', 'g_loss_sim']
 
 
-  def update_batch_losses(self, epoch, mini_batch, loss_class, loss_adv, g_loss_fake, g_loss_sim):
+  def update_batch_losses(self, epoch, mini_batch, loss_class, d_loss_real, d_loss_fake, g_loss_fake, g_loss_sim):
     """
     update losses
     """
@@ -178,8 +178,11 @@ class HybridTrainScore(TrainScore):
     self.score_dict['loss_class'][epoch] += loss_class
     self.batch_dict['loss_class_batch'] += loss_class
 
-    self.score_dict['loss_adv'][epoch] += loss_adv
-    self.batch_dict['loss_adv_batch'] += loss_adv
+    self.score_dict['d_loss_real'][epoch] += d_loss_real
+    self.batch_dict['d_loss_real_batch'] += d_loss_real
+
+    self.score_dict['d_loss_fake'][epoch] += d_loss_fake
+    self.batch_dict['d_loss_fake_batch'] += d_loss_fake
 
     self.score_dict['g_loss_fake'][epoch] += g_loss_fake
     self.batch_dict['g_loss_fake_batch'] += g_loss_fake
@@ -201,7 +204,7 @@ class HybridTrainScore(TrainScore):
     """
     print some training info
     """
-    print('epoch: {}, mini-batch: {}, H[c[{:.2f}], a[{:.2f}]], G[f[{:.2f}], s[{:.2f}]]'.format(epoch + 1, mini_batch + 1, self.batch_dict['loss_class_batch'], self.batch_dict['loss_adv_batch'], self.batch_dict['g_loss_fake_batch'], self.batch_dict['g_loss_sim_batch']))
+    print('epoch: {}, mini-batch: {}, H[c[{:.2f}], d[{:.2f}]], G[f[{:.2f}], s[{:.2f}]]'.format(epoch + 1, mini_batch + 1, self.batch_dict['loss_class_batch'], self.batch_dict['d_loss_real_batch'] + self.batch_dict['d_loss_fake_batch'], self.batch_dict['g_loss_fake_batch'], self.batch_dict['g_loss_sim_batch']))
 
 
 

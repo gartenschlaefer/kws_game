@@ -23,7 +23,7 @@ class NetHandler():
   Neural Network Handler with general functionalities and interfaces
   """
 
-  def __new__(cls, nn_arch, class_dict, data_size, encoder_model=None, decoder_model=None, use_cpu=False):
+  def __new__(cls, nn_arch, class_dict, data_size, feature_params, encoder_model=None, decoder_model=None, use_cpu=False):
 
     # adversarial handler
     if nn_arch in ['adv-experimental']:
@@ -60,12 +60,13 @@ class NetHandler():
     return super().__new__(cls)
 
 
-  def __init__(self, nn_arch, class_dict, data_size, encoder_model=None, decoder_model=None, use_cpu=False):
+  def __init__(self, nn_arch, class_dict, data_size, feature_params, encoder_model=None, decoder_model=None, use_cpu=False):
 
     # arguments
     self.nn_arch = nn_arch
     self.class_dict = class_dict
     self.data_size = data_size
+    self.feature_params = feature_params
     self.encoder_model = encoder_model
     self.decoder_model = decoder_model
     self.use_cpu = use_cpu
@@ -77,9 +78,8 @@ class NetHandler():
     # set device
     self.device = torch.device("cuda:0" if (torch.cuda.is_available() and not self.use_cpu) else "cpu")
 
-    # print msg
-    #print("device: ", self.device)
-    #if torch.cuda.is_available() and not self.use_cpu: print("use gpu: ", torch.cuda.get_device_name(self.device))
+    # print device
+    print("net handler device: {}\ngpu: {}".format(self.device, torch.cuda.get_device_name(self.device))) if torch.cuda.is_available() else print("net handler device: {}".format(self.device))
 
     # models dictionary key: name, value: model
     self.models = {}
@@ -97,12 +97,12 @@ class NetHandler():
     elif self.nn_arch == 'conv-jim': self.models = {'cnn': ConvJim(self.n_classes, self.data_size)}
 
     # adversarials
-    elif self.nn_arch == 'adv-experimental': self.models = {'g': Adv_G_Experimental(self.n_classes, self.data_size, is_last_activation_sigmoid=True), 'd': Adv_D_Experimental(self.n_classes, self.data_size)}
-    elif self.nn_arch == 'adv-jim': self.models = {'g': Adv_G_Jim(self.n_classes, self.data_size, is_last_activation_sigmoid=True), 'd': Adv_D_Jim(self.n_classes, self.data_size)}
-    elif self.nn_arch == 'adv-jim-label': self.models = {'g': Adv_G_Jim(self.n_classes, self.data_size, n_feature_maps_l0=8, is_last_activation_sigmoid=True), 'd': Adv_D_Jim(self.n_classes, self.data_size, n_feature_maps_l0=8)}
+    elif self.nn_arch == 'adv-experimental': self.models = {'g': Adv_G_Experimental(self.n_classes, self.data_size, is_last_activation_sigmoid=self.feature_params['norm_features']), 'd': Adv_D_Experimental(self.n_classes, self.data_size)}
+    elif self.nn_arch == 'adv-jim': self.models = {'g': Adv_G_Jim(self.n_classes, self.data_size, is_last_activation_sigmoid=self.feature_params['norm_features']), 'd': Adv_D_Jim(self.n_classes, self.data_size)}
+    elif self.nn_arch == 'adv-jim-label': self.models = {'g': Adv_G_Jim(self.n_classes, self.data_size, n_feature_maps_l0=8, is_last_activation_sigmoid=self.feature_params['norm_features']), 'd': Adv_D_Jim(self.n_classes, self.data_size, n_feature_maps_l0=8)}
   
     # hybrid
-    elif self.nn_arch == 'hyb-jim': self.models = {'hyb': HybJim(self.n_classes, self.data_size), 'g': Adv_G_Jim(self.n_classes, self.data_size, is_last_activation_sigmoid=True)}
+    elif self.nn_arch == 'hyb-jim': self.models = {'hyb': HybJim(self.n_classes, self.data_size), 'g': Adv_G_Jim(self.n_classes, self.data_size, is_last_activation_sigmoid=self.feature_params['norm_features'])}
 
     # wavenet
     elif self.nn_arch == 'wavenet': self.models = {'wav': Wavenet(self.n_classes)}
@@ -195,10 +195,10 @@ class NetHandler():
     # if set does not exist
     if batch_archive.x_batch_dict[eval_set_name] is None or batch_archive.y_batch_dict[eval_set_name] is None:
       print("no eval set found")
-      return EvalScore(eval_set_name=eval_set_name, class_dict=batch_archive.class_dict, collect_things=collect_things)
+      return EvalScore(eval_set_name=eval_set_name, class_dict=self.class_dict, collect_things=collect_things)
 
     # init score
-    eval_score = EvalScore(eval_set_name=eval_set_name, class_dict=batch_archive.class_dict, collect_things=collect_things)
+    eval_score = EvalScore(eval_set_name=eval_set_name, class_dict=self.class_dict, collect_things=collect_things)
 
     # no gradients for eval
     with torch.no_grad():
@@ -260,10 +260,10 @@ class CnnHandler(NetHandler):
   Neural Network Handler for CNNs
   """
 
-  def __init__(self, nn_arch, class_dict, data_size, encoder_model=None, decoder_model=None, use_cpu=False):
+  def __init__(self, nn_arch, class_dict, data_size, feature_params, encoder_model=None, decoder_model=None, use_cpu=False):
 
     # parent class init
-    super().__init__(nn_arch, class_dict, data_size, encoder_model=encoder_model, decoder_model=decoder_model, use_cpu=use_cpu)
+    super().__init__(nn_arch, class_dict, data_size, feature_params, encoder_model=encoder_model, decoder_model=decoder_model, use_cpu=use_cpu)
 
     # loss criterion
     self.criterion = torch.nn.CrossEntropyLoss()
@@ -391,10 +391,10 @@ class AdversarialNetHandler(NetHandler):
   adapted form: https://pytorch.org/tutorials/beginner/dcgan_faces_tutorial.html
   """
 
-  def __init__(self, nn_arch, class_dict, data_size, encoder_model=None, decoder_model=None, use_cpu=False):
+  def __init__(self, nn_arch, class_dict, data_size, feature_params, encoder_model=None, decoder_model=None, use_cpu=False):
 
     # parent class init
-    super().__init__(nn_arch, class_dict, data_size, encoder_model=encoder_model, decoder_model=decoder_model, use_cpu=use_cpu)
+    super().__init__(nn_arch, class_dict, data_size, feature_params, encoder_model=encoder_model, decoder_model=decoder_model, use_cpu=use_cpu)
 
     # loss criterion
     self.criterion = torch.nn.BCELoss()
@@ -451,7 +451,7 @@ class AdversarialNetHandler(NetHandler):
       for mini_batch, (x, y) in enumerate(zip(batch_archive.x_batch_dict['train'].to(self.device), batch_archive.y_batch_dict['train'].to(self.device))):
 
         # update models
-        train_score = self.update_models(x, y, batch_archive.class_dict, epoch, mini_batch, train_score)
+        train_score = self.update_models(x, y, epoch, mini_batch, train_score)
 
       # check progess after epoch with callback function
       if callback_f is not None and not epoch % callback_act_epochs: callback_f(self.generate_samples(noise=fixed_noise, to_np=True), epoch)
@@ -462,7 +462,7 @@ class AdversarialNetHandler(NetHandler):
     return train_score
 
 
-  def update_models(self, x, y, class_dict, epoch, mini_batch, train_score):
+  def update_models(self, x, y, epoch, mini_batch, train_score):
     """
     model updates
     """
@@ -491,10 +491,10 @@ class AdversarialNetHandler(NetHandler):
 
 
     # update discriminator
-    d_loss_real, d_loss_fake = self.update_d(x, y, class_dict, fakes, backward=self.actual_d_epoch > 0)
+    d_loss_real, d_loss_fake = self.update_d(x, y, fakes, backward=self.actual_d_epoch > 0)
 
     # update generator
-    g_loss_fake, g_loss_sim = self.update_g(x, fakes, class_dict, backward=self.actual_g_epoch > 0)
+    g_loss_fake, g_loss_sim = self.update_g(x, fakes, backward=self.actual_g_epoch > 0)
 
     # update batch loss collection
     train_score.update_batch_losses(epoch, mini_batch, g_loss_fake=g_loss_fake, g_loss_sim=g_loss_sim, d_loss_real=d_loss_real, d_loss_fake=d_loss_fake)
@@ -502,7 +502,7 @@ class AdversarialNetHandler(NetHandler):
     return train_score
 
 
-  def update_d(self, x, y, class_dict, fakes, backward=True):
+  def update_d(self, x, y, fakes, backward=True):
     """
     update discriminator D with real and fake data
     """
@@ -546,7 +546,7 @@ class AdversarialNetHandler(NetHandler):
     return d_loss_real.item(), d_loss_fake.item()
 
 
-  def update_g(self, x, fakes, class_dict, backward=True):
+  def update_g(self, x, fakes, backward=True):
     """
     update generator G
     """
@@ -623,16 +623,16 @@ class AdversarialSimNetHandler(AdversarialNetHandler):
   Adversarial Net Handler with similarity measure
   """
 
-  def __init__(self, nn_arch, class_dict, data_size, encoder_model=None, decoder_model=None, use_cpu=False):
+  def __init__(self, nn_arch, class_dict, data_size, feature_params, encoder_model=None, decoder_model=None, use_cpu=False):
 
     # parent class init
-    super().__init__(nn_arch, class_dict, data_size, encoder_model=encoder_model, decoder_model=decoder_model, use_cpu=use_cpu)
+    super().__init__(nn_arch, class_dict, data_size, feature_params, encoder_model=encoder_model, decoder_model=decoder_model, use_cpu=use_cpu)
 
     # cosine similarity
     self.cos_sim = torch.nn.CosineSimilarity(dim=2, eps=1e-08)
 
 
-  def update_g(self, reals, fakes, class_dict, lam=5, backward=True):
+  def update_g(self, reals, fakes, lam=5, backward=True):
     """
     update generator G
     """
@@ -674,10 +674,10 @@ class HybridNetHandler(NetHandler):
   Hybrid Neural Network Handler
   """
 
-  def __init__(self, nn_arch, class_dict, data_size, encoder_model=None, decoder_model=None, use_cpu=False):
+  def __init__(self, nn_arch, class_dict, data_size, feature_params, encoder_model=None, decoder_model=None, use_cpu=False):
 
     # parent class init
-    super().__init__(nn_arch, class_dict, data_size, encoder_model=encoder_model, decoder_model=decoder_model, use_cpu=use_cpu)
+    super().__init__(nn_arch, class_dict, data_size, feature_params, encoder_model=encoder_model, decoder_model=decoder_model, use_cpu=use_cpu)
 
     # loss criterion
     self.criterion_adv = torch.nn.BCELoss()
@@ -700,7 +700,7 @@ class HybridNetHandler(NetHandler):
 
     # actual counter
     self.actual_d_epoch = self.d_update_epochs
-    self.actual_g_epoch = 0
+    self.actual_g_epoch = self.g_update_epochs if self.g_update_epochs < 0 else 0
     self.actual_update_epoch = 0
 
     # cosine similarity
@@ -738,7 +738,7 @@ class HybridNetHandler(NetHandler):
       for mini_batch, (x, y) in enumerate(zip(batch_archive.x_batch_dict['train'].to(self.device), batch_archive.y_batch_dict['train'].to(self.device))):
 
         # update models
-        train_score = self.update_models(x, y, batch_archive.class_dict, epoch, mini_batch, train_score)
+        train_score = self.update_models(x, y, epoch, mini_batch, train_score)
 
       # valdiation
       eval_score = self.eval_nn('validation', batch_archive)
@@ -755,7 +755,7 @@ class HybridNetHandler(NetHandler):
     return train_score
 
 
-  def update_models(self, x, y, class_dict, epoch, mini_batch, train_score):
+  def update_models(self, x, y, epoch, mini_batch, train_score):
     """
     model updates
     """
@@ -771,31 +771,31 @@ class HybridNetHandler(NetHandler):
       self.actual_update_epoch = epoch
 
       # discriminator update rule
-      if self.actual_d_epoch: 
+      if self.actual_d_epoch > 0: 
 
         self.actual_d_epoch -= 1
         if not self.actual_d_epoch: self.actual_g_epoch = self.g_update_epochs
 
       # generator update rule
-      elif self.actual_g_epoch: 
+      elif self.actual_g_epoch > 0: 
 
         self.actual_g_epoch -= 1
         if not self.actual_g_epoch: self.actual_d_epoch = self.d_update_epochs
 
 
     # update discriminator
-    loss_class, loss_adv = self.update_hyb(x, y, class_dict, fakes, backward=self.actual_d_epoch > 0)
+    loss_class, d_loss_real, d_loss_fake = self.update_hyb(x, y, fakes, backward=self.actual_d_epoch != 0)
 
     # update generator
-    g_loss_fake, g_loss_sim = self.update_g(x, fakes, class_dict, backward=self.actual_g_epoch > 0)
+    g_loss_fake, g_loss_sim = self.update_g(x, fakes, backward=self.actual_g_epoch != 0)
 
     # update batch loss collection
-    train_score.update_batch_losses(epoch, mini_batch, loss_class=loss_class, loss_adv=loss_adv, g_loss_fake=g_loss_fake, g_loss_sim=g_loss_sim)
+    train_score.update_batch_losses(epoch, mini_batch, loss_class=loss_class, d_loss_real=d_loss_real, d_loss_fake=d_loss_fake, g_loss_fake=g_loss_fake, g_loss_sim=g_loss_sim)
 
     return train_score
 
 
-  def update_hyb(self, x, y, class_dict, fakes, lam=0.25, backward=True):
+  def update_hyb(self, x, y, fakes, lam=0.5, backward=True):
     """
     update discriminator D with real and fake data
     """
@@ -811,7 +811,7 @@ class HybridNetHandler(NetHandler):
     o_class, o_adv_real = self.models['hyb'](x)
 
     # loss of D with reals
-    loss_adv_real = self.criterion_adv(o_adv_real.view(-1), y_real)
+    d_loss_real = self.criterion_adv(o_adv_real.view(-1), y_real)
 
     # loss of class label
     loss_class = self.criterion_class(o_class, y)
@@ -820,18 +820,24 @@ class HybridNetHandler(NetHandler):
     # create fake labels
     y_fake = torch.full((x.shape[0],), self.fake_label, dtype=torch.float, device=self.device)
 
+    # mixed
+    y_mixed = torch.full((x.shape[0],), self.class_dict['_mixed'], dtype=torch.long, device=self.device)
+
     # fakes to D (without gradient backprop)
-    o_class, o_adv_fake = self.models['hyb'](fakes.detach())
+    o_mixed, o_adv_fake = self.models['hyb'](fakes.detach())
 
     # loss of D with fakes
-    loss_adv_fake = self.criterion_adv(o_adv_fake.view(-1), y_fake)
+    d_loss_fake = self.criterion_adv(o_adv_fake.view(-1), y_fake)
 
+    # loss of D with fakes
+    loss_mixed = self.criterion_class(o_mixed, y_mixed)
 
     # adv loss
-    loss_adv = loss_adv_real + loss_adv_fake
+    loss_adv = d_loss_real + d_loss_fake
 
     # calculate whole loss
-    loss = loss_class + lam * float(backward) * loss_adv
+    #loss = loss_class + lam * float(backward) * loss_adv
+    loss = loss_class + lam * loss_mixed + lam * float(backward) * loss_adv
 
     # gradients for class prediction
     loss.backward()
@@ -839,10 +845,10 @@ class HybridNetHandler(NetHandler):
     # optimizer step
     self.optimizer_hyb.step()
 
-    return loss_class.item(), lam * loss_adv.item()
+    return loss_class.item(), lam * d_loss_real.item(), lam * d_loss_fake.item()
 
 
-  def update_g(self, reals, fakes, class_dict, lam=2.0, backward=True):
+  def update_g(self, reals, fakes, lam=4.0, backward=True):
     """
     update generator G
     """
@@ -948,10 +954,10 @@ class WavenetHandler(NetHandler):
   wavenet handler
   """
 
-  def __init__(self, nn_arch, class_dict, data_size, encoder_model=None, decoder_model=None, use_cpu=False):
+  def __init__(self, nn_arch, class_dict, data_size, feature_params, encoder_model=None, decoder_model=None, use_cpu=False):
 
       # parent class init
-      super().__init__(nn_arch, class_dict, data_size, encoder_model=encoder_model, decoder_model=decoder_model, use_cpu=use_cpu)
+      super().__init__(nn_arch, class_dict, data_size, feature_params, encoder_model=encoder_model, decoder_model=decoder_model, use_cpu=use_cpu)
 
       # loss criterion
       self.criterion = torch.nn.CrossEntropyLoss()
@@ -1102,7 +1108,7 @@ if __name__ == '__main__':
   batch_archive.print_batch_infos()
 
   # create net handler
-  net_handler = NetHandler(nn_arch=cfg['ml']['nn_arch'], class_dict=batch_archive.class_dict, data_size=batch_archive.data_size, use_cpu=cfg['ml']['use_cpu'])
+  net_handler = NetHandler(nn_arch=cfg['ml']['nn_arch'], class_dict=batch_archive.class_dict, data_size=batch_archive.data_size, feature_params=audio_set1.feature_params, use_cpu=cfg['ml']['use_cpu'])
   print(net_handler.models)
 
   # training
