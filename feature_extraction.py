@@ -647,8 +647,7 @@ def custom_stft(x, N=1024, hop=512, norm=True):
   H = np.exp(1j * 2 * np.pi / N * np.outer(np.arange(N), np.arange(N)))
 
   # normalize if asked
-  if norm:
-    return 2 / N * np.dot(x_buff, H)
+  if norm: return 2 / N * np.dot(x_buff, H)
 
   # transformed signal
   return np.dot(x_buff, H)

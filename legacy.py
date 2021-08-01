@@ -3,6 +3,13 @@ oh no this project need legacy adjustments
 """
 
 
+def legacy_model_file_naming(f_model_name_dict):
+  """
+  changes the model file naming (key is changed) to actual standard, e.g. model was named merely as 'model.pth' instead of 'cnn_model.pth'
+  """
+  return dict((k, v) if k != '' else ('cnn', v) for k, v in f_model_name_dict.items()) if '' in f_model_name_dict.keys() else f_model_name_dict
+
+
 def legacy_adjustments_feature_params(feature_params):
   """
   feature params legacy

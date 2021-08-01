@@ -2,6 +2,7 @@
 canvas, space for creativity
 """
 
+import numpy as np
 import pygame
 
 from interactable import Interactable
@@ -205,6 +206,9 @@ class CanvasThresh(Canvas):
 
     # info text
     self.interactable_dict.update({'text_info': Text(self.canvas_surf, message='energy threshold: ', position=(0, 0), font_size='small', color=self.color_bag.text_menu)})
+    
+    # energy text
+    self.interactable_dict.update({'text_energy': Text(self.canvas_surf, message='e: {:.1f}dB'.format(10 * np.log10(self.mic.mic_params['energy_thresh'])), position=(20, 40), font_size='tiny', color=self.color_bag.text_menu)})
 
 
 

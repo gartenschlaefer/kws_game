@@ -1,0 +1,25 @@
+% --
+% mfcc extraction parameters
+\begin{table}[ht!]
+\begin{center}
+\caption{Parameters for the MFCC feature extraction used for the determination of the energy consumption, listed with sample length regarding a sampling frequency of $f_s =\SI{16}{\kilo\hertz}$.}
+\begin{tabular}{ M{4.5cm}  M{3cm} M{3cm}}
+\toprule
+\textbf{Parameter} & \textbf{Value} & \textbf{Sample Length} \\
+\midrule
+%Sampling Frequency & \SI{16}{\kilo\hertz} & -\\
+Length of a signal $n$ & \SI{1}{\second} & 16000 \\
+Analytic window size $N$ & \SI{25}{\milli\second} & 400 \\
+Hop size $h$ & \SI{10}{\milli\second} & 160\\
+\midrule
+Fourier coefficients $K$ & 400  & - \\
+Fourier coefficients $K$ (half band: 0 - \SI{8}{\kilo\hertz}) & 201  & - \\
+Number of filter bands $B$ & 32 & -\\
+Number of cepstral coefficients $C$ & 12 & -\\
+\bottomrule
+\label{tab:signal_mfcc_extraction_params}
+\end{tabular}
+\end{center}
+\end{table}
+\FloatBarrier
+\noindent

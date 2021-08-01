@@ -373,7 +373,7 @@ class OptionMenu(Menu):
       # toggle canvas
       self.canvas.interactable_dict['thresh_canvas'].enabled = not self.canvas.interactable_dict['thresh_canvas'].enabled
 
-    # thresh button
+    # cmd button
     elif self.button_state == self.button_state_dict['cmd_button']:
 
       # toggle canvas

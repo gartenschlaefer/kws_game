@@ -46,21 +46,21 @@ With the hop size $h$ in samples and $N$ the length of the analytical window, th
 % --
 % stft
 \begin{equation}\label{eq:signal_spec_stft}
-    \tilde{X}[m, k] = \sum_{n=0}^{N-1} x[n + m] \, w[n] \, e^{-j\frac{2 \pi n}{N}k}, \qquad m = 0 \cdot h, \, 1 \cdot h, \, \dots, \, M \cdot h 
+    \tilde{X}[m, k] = \sum_{n=0}^{N-1} x[n + m] \, w[n] \, e^{-j\frac{2 \pi n}{N}k}, \qquad m = 0 h, \, 1 h, \, \dots, \, M h 
 \end{equation}
-note that $n$ is here the summation index, $w$ is a window function, such as the \emph{Hanning} window, $m$ indicates the hop index and $M$ is the maximum number of hops.
-The maximum number of hops $M$ are all shifts of the analytic window by the hop size on the discrete time axis and can be computed as:
+so that $\tilde{X}[m, k] \in \C$ is the STFT coefficient of frame $m$ and DFT coefficient $k$, where $n$ is here denoted as summation index, $w$ as a window function, such as the \emph{Hanning} window, $m$ indicates the frame index shifted by the hop size $h$ and $M$ is the maximum number of possible hops until the end of the signal is reached by shifting the analytical window of size $N$ by the hop size on the discrete time axis.
+The maximum number of hops $M$ can therfore be computed as:
 % --
 % hop
 \begin{equation}\label{eq:signal_spec_hop}
-  M = \frac{n-N}{h}
+  M = \ceil*{\frac{n-N}{h}}
 \end{equation}
 where $n$ is here the length of the discrete time signal $x$.
 The calculation of the STFT can be written in matrix notation if the input chunks from the shifting of the analytic window is denoted as vector:
 \begin{equation}
-  \bar{x}_i = [\, x_{ih}, \dots, x_{ih+N}]^T
+  \bar{x}_i = [\, x_{i \cdot h}, \dots, x_{i \cdot h+N}]^T
 \end{equation}
-which can be concatenated in a matrix:
+where each individual $\bar{x}_i \in \R^N$ can be concatenated in a matrix $X \in \R^{M \times N}$ denoted as:
 \begin{equation}
   X = 
   \begin{bmatrix}
@@ -69,24 +69,25 @@ which can be concatenated in a matrix:
     \bar{x}_M^T \\
   \end{bmatrix}
 \end{equation}
-so that the STFT can be defined with:
+so that the STFT $\tilde{X} \in \C^{M \times K}$ can be conveniently written as:
 % --
 % stft matrix
 \begin{equation}\label{eq:signal_spec_stft_matrix}
   \tilde{X} = X \, \diag{\bar{w}} \, \mathcal{F}
 \end{equation}
-where $\diag{w}$ is a diagonal matrix of weight vectors with the window function written as vector $\bar{w} \in \R^N$.
-The matrix $\tilde{X} \in \C^{M \times N}$ represents the whole STFT where the rows are the shifts on the time axis of the windowed signals and the columns the Fourier coefficients.
+where $\diag{\bar{w}}$ is a diagonal matrix of weight vectors with the window function written as vector $\bar{w} \in \R^N$.
+The matrix $\tilde{X} \in \C^{M \times K}$ represents the whole STFT where the rows are the shifts of the analytical window on the time axis and the columns are the Fourier coefficients of each DFT.
 The used STFT parameters for this thesis are shown in \rtab{signal_spec_stft}.
 % --
 % stft params
 \input{./3_signal/tables/tab_signal_spec_stft.tex}
-A spectrogram $P \in \R^{m \times k}$ is simply the power spectrum of the STFT signal and is computed with:
+A spectrogram $P \in \R^{M \times K}$ is simply the power spectrum of the STFT $\tilde{X} \in \C^{M \times K}$ computed with:
 % --
 % spec
 \begin{equation}\label{eq:signal_spec_spec}
-  P[m, k] = \abs{X[m, k]}^2.
+  P = \abs{\tilde{X}}^2.
 \end{equation}
+Note that $P$ has now real values instead of complex values.
 The recorded examples transformed to a spectrogram with linear representation is shown in \rfig{signal_spec_lin_showcase}.
 \begin{figure}[!ht]
   \centering
@@ -100,15 +101,15 @@ The recorded examples transformed to a spectrogram with linear representation is
 \end{figure}
 \FloatBarrier
 \noindent
-One can see here, that most of the energy of the signal is in the lower frequency regions of under \SI{1}{\kilo\hertz}.
-It is more interesting to transform the signal into the log scale with:
+It can be observed, that most of the signals energy is in the lower frequency regions of under approximately \SI{1}{\kilo\hertz}.
+Therefore it is more interesting to transform the spectrogram into the log scale of its value space, done by:
 % --
 % log
 \begin{equation}\label{eq:signal_spec_log}
-  P_{DB}[m, k] = 10 \cdot \log{P[m, k]}
+  P_{DB} = 10 \cdot \log{P}
 \end{equation}
-so that small energies are visualized much better. 
-The same examples with log scaling in the value and frequency space are shown in \rfig{signal_spec_log_showcase}.
+so that small energies are more emphasized with $P_{DB} \in \R^{M \times K}$. 
+The same examples with log scaling in the value space and visualized with log scaling of the frequency space are shown in \rfig{signal_spec_log_showcase}.
 \begin{figure}[!ht]
   \centering
     \subfigure[left]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_spec-log_showcase_left0}}
@@ -121,5 +122,5 @@ The same examples with log scaling in the value and frequency space are shown in
 \end{figure}
 \FloatBarrier
 \noindent
-It is now possible to observe some interesting structures and movements in certain frequency bands of the spectrograms.
-A compression scheme, such as the Mel Frequency Cepstral Coefficients (MFCC) explained in the next section, reduces the high dimensional frequency feature vectors to a more compact feature vectors and further improves the visualization of the spoken command words.
+It is now possible to observe some interesting structures and movements in certain frequency bands over time.
+A compression scheme, such as the Mel Frequency Cepstral Coefficients (MFCC) explained in the next section, reduces the high dimensional frequency feature vectors of the STFT to more compact feature vectors and further improves the visualization of the spoken command words.

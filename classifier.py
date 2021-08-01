@@ -7,6 +7,7 @@ import numpy as np
 # my stuff
 from net_handler import NetHandler
 from legacy import legacy_adjustments_net_params
+from glob import glob
 
 
 class Classifier():
@@ -22,7 +23,9 @@ class Classifier():
 
     # classifier parameter file
     self.classifier_params_file = self.root_path + self.cfg_classifier['model_path'] + self.cfg_classifier['params_file_name']
-    self.classifier_model_file = self.root_path + self.cfg_classifier['model_path'] + self.cfg_classifier['model_file_name']
+
+    # model file
+    self.classifier_model_files = [self.root_path + self.cfg_classifier['model_path'] + f for f in [p.split('/')[-1] for p in glob(self.root_path + self.cfg_classifier['model_path'] + '*.pth')] if f in self.cfg_classifier['model_file_names']]
 
     # data loading
     net_params = np.load(self.classifier_params_file, allow_pickle=True)
@@ -40,7 +43,7 @@ class Classifier():
     self.net_handler = NetHandler(nn_arch=self.nn_arch, class_dict=self.class_dict, data_size=self.data_size, feature_params=self.feature_params, use_cpu=True)
 
     # load model
-    self.net_handler.load_models(model_files=[self.classifier_model_file])
+    self.net_handler.load_models(model_files=self.classifier_model_files)
 
     # set evaluation mode
     self.net_handler.set_eval_mode()

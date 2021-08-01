@@ -13,6 +13,7 @@ from conv_nets import ConvNetTrad, ConvNetFstride4, ConvNetExperimental, ConvJim
 from adversarial_nets import Adv_G_Experimental, Adv_D_Experimental, Adv_G_Jim, Adv_D_Jim
 from hybrid_nets import HybJim
 from wavenet import Wavenet
+from legacy import legacy_model_file_naming
 
 # other
 from score import TrainScore, AdversarialTrainScore, HybridTrainScore, WavenetTrainScore, EvalScore
@@ -137,7 +138,10 @@ class NetHandler():
     if len(model_files) != len(self.models): print("***load models failed: len of model file names is not equal length of models"), sys.exit()
 
     # model names from files
-    f_model_name_dict = {re.sub(r'_model\.pth', '', re.findall(r'[\w]+_model\.pth', mf)[0]): mf for mf in model_files}
+    f_model_name_dict = {re.sub(r'(model\.pth)|(_)', '', re.findall(r'[\w _]*model\.pth', mf)[0]): mf for mf in model_files}
+
+    # legacy
+    f_model_name_dict = legacy_model_file_naming(f_model_name_dict)
 
     # load models
     [[(print("\nload model: {}\nnet handler model: {}".format(f_model, model_name)), model.load_state_dict(torch.load(f_model))) for f_model_name, f_model in f_model_name_dict.items() if f_model_name == model_name] for model_name, model in self.models.items()]
@@ -152,7 +156,10 @@ class NetHandler():
     if len(model_files) != len(self.models): print("***save models failed: len of model file names is not equal length of models"), sys.exit()
 
     # model names from files
-    f_model_name_dict = {re.sub(r'_model\.pth', '', re.findall(r'[\w]+_model\.pth', mf)[0]): mf for mf in model_files}
+    f_model_name_dict = {re.sub(r'(model\.pth)|(_)', '', re.findall(r'[\w _]*model\.pth', mf)[0]): mf for mf in model_files}
+
+    # legacy
+    f_model_name_dict = legacy_model_file_naming(f_model_name_dict)
 
     # save models
     [[(print("\nsave model: {}\nnet handler model: {}".format(f_model, model_name)), torch.save(model.state_dict(), f_model)) for f_model_name, f_model in f_model_name_dict.items() if f_model_name == model_name] for model_name, model in self.models.items()]

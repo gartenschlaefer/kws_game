@@ -271,10 +271,10 @@ ml:
   #nn_arch: conv-trad
   #nn_arch: conv-jim
   #nn_arch: adv-experimental
-  nn_arch: adv-jim
+  #nn_arch: adv-jim
   #nn_arch: adv-jim-label
   #nn_arch: hyb-jim
-  #nn_arch: wavenet
+  nn_arch: wavenet
 
   # params
   train_params:
@@ -292,7 +292,7 @@ ml:
     adv_label: {'batch_size': 32, 'num_epochs': 100, 'lr_d': 0.0001, 'lr_g': 0.0001, 'beta_d': 0.9, 'beta_g': 0.9}
 
     # hybrid net
-    hyb: {'batch_size': 32, 'num_epochs': 100, 'lr_d': 0.0001, 'lr_g': 0.0001, 'beta_d': 0.9, 'beta_g': 0.9}
+    hyb: {'batch_size': 32, 'num_epochs': 5000, 'lr_d': 0.0001, 'lr_g': 0.0001, 'beta_d': 0.9, 'beta_g': 0.9}
 
     # wavenet
     wave: {'batch_size': 32, 'num_epochs': 100, 'lr': 0.001, 'beta': 0.9}
@@ -321,7 +321,7 @@ ml:
   retrain: False
 
   # create new instance
-  new_instance: False
+  new_instance: True
 
   # number of instances
   num_instances: 1
@@ -409,7 +409,7 @@ classifier:
   #model_path: 'models/conv-encoder/v4_c-5_n-500_f-13x50/bs-32_it-1024_lr-0p0001/'
 
   # file names
-  model_file_name: 'model.pth'
+  model_file_names: ['cnn_model.pth', 'g_model.pth', 'hyb_model.pth', 'wav_model.pth', 'model.pth']
   params_file_name: 'params.npz'
 
   # verbose
