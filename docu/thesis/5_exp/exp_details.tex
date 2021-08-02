@@ -3,7 +3,7 @@
 
 \section{Implementation and Training Details}\label{sec:exp_details}
 \thesisStateNotReady
-In this sections, the implementation und parameters for training are is described in more detail.
+In this sections, the implementation und parameters for training are described in more detail.
 
 % --
 % implementation notes
@@ -11,11 +11,11 @@ In this sections, the implementation und parameters for training are is describe
 \subsection{Implementation notes}\label{sec:exp_details_implementation}
 The programming code for this thesis was entirely done in \texttt{Python} with version $>3.8$ evaluated on a linux system.
 This might be important if one tries to run the python code on a windows machine, it was not tested for it and could yield in errors (especially regarding paths variables).
-For the neural networks implementation and training, the framework \texttt{Pytorch} with version $1.7.0$ was used. 
-Usually it should not be a problem if a newer version of \texttt{Pytorch} is applied.
-The feature extraction with Mel Frequency Cepstral Coefficients (MFCC) was done with an own implementation, but using efficients functions for transforms functions, such as the short time fourier transform, with packages from \texttt{scipy}.
-Matrix computations usually are done with the package \texttt{numpy}.
-Several other \texttt{Python} packages were used within the project, but are not named explicitly.
+The training and implementation of all used neural networks are done with the \texttt{Pytorch} \cite{Pytorch} framework with version $1.7.0$. 
+Usually it should not be a problem if a newer version of \texttt{Pytorch} are applied, during the work on the thesis the version changed to $1.9.0$ with no problems.
+The feature extraction of Mel Frequency Cepstral Coefficients (MFCC) self implemented, but using efficients functions for transforms, such as the Short Time Fourier Transform (STFT) or Discrete Cosine Transform (DCT), with packages from \texttt{scipy}.
+Matrix computations were usually done with the well known package \texttt{numpy}.
+Several other \texttt{Python} packages were used within the project, but are not named explicitly, they can be looked up in the open source repository of the project.
 
 
 % --
