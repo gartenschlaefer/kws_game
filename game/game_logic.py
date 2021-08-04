@@ -72,7 +72,6 @@ class ThingsGameLogic(GameLogic):
   Game Logic for things.py
   """
 
-  #def __init__(self, level, levels, text):
   def __init__(self, level, levels):
 
     # parent init
@@ -92,7 +91,7 @@ class ThingsGameLogic(GameLogic):
     """
 
     # henry found the things
-    if self.level.henry.things_collected:
+    if self.level.interactable_dict['henry'].things_collected if 'henry' in self.level.interactable_dict.keys() else False:
 
       # win the level
       self.level.win()
@@ -124,8 +123,7 @@ class ThingsGameLogic(GameLogic):
       self.level_id += 1
 
       # clamp level id
-      if self.level_id >= len(self.levels):
-        self.level_id = 0
+      if self.level_id >= len(self.levels): self.level_id = 0
 
       # restart
       self.restart_game()

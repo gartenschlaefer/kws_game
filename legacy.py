@@ -47,7 +47,7 @@ def legacy_adjustments_net_params(net_params):
   try:
     feature_params = net_params['feature_params'][()]
   except:
-    feature_params = {'use_mfcc_features': False, 'fs': 16000, 'N_s': 0.025, 'hop_s': 0.010, 'frame_size_s': 0.5, 'n_filter_bands': 32, 'n_ceps_coeff': 12, 'frame_size': 32, 'norm_features': False, 'use_channels': False, 'use_cepstral_features': True, 'use_delta_features': True, 'use_double_delta_features': True, 'use_energy_features': True}
+    feature_params = {'use_mfcc_features': True, 'fs': 16000, 'N_s': 0.025, 'hop_s': 0.010, 'frame_size_s': 0.32, 'n_filter_bands': 32, 'n_ceps_coeff': 12, 'frame_size': 32, 'norm_features': False, 'use_channels': False, 'use_cepstral_features': True, 'use_delta_features': True, 'use_double_delta_features': True, 'use_energy_features': True}
     print("old classifier model use fixed feature parameters: {}".format(feature_params))
 
   # feature params adjustment for old saves
@@ -62,3 +62,4 @@ def legacy_adjustments_net_params(net_params):
 #
 # renames:
 # energy_thres: 0.0001 -> energy_thresh: 0.0001
+# changed energy_thresh to energy_thresh_db

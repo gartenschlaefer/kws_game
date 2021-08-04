@@ -10,6 +10,7 @@ import os
 # sound stuff
 import sounddevice as sd
 import soundfile
+import contextlib
 
 # my stuff
 from feature_extraction import FeatureExtractor
@@ -66,11 +67,17 @@ class Mic():
     print("\ndevice list: \n", sd.query_devices())
     print("\ninput devs: ", self.input_dev_dict.keys())
 
+    # energy threshold in lin scale
+    self.energy_thresh = 10**(self.mic_params['energy_thresh_db'] / 10)
+
     # stream
-    self.stream = None
+    self.stream = contextlib.nullcontext()
 
     # change device flag
     self.change_device_flag = False
+
+    # steam active
+    self.stream_active = False
 
 
   def load_user_settings(self, user_setting_file):
@@ -87,13 +94,17 @@ class Mic():
     # device
     self.device = sd.default.device[0] if not self.mic_params['select_device'] else self.mic_params['device']
 
+    # energy threshold in lin scale
+    self.energy_thresh = 10**(self.mic_params['energy_thresh_db'] / 10)
 
-  def init_stream(self):
+
+  def init_stream(self, enable_stream=True):
     """
     init stream
     """
-    self.stream = sd.InputStream(device=self.device, samplerate=self.mic_params['fs_device'], blocksize=int(self.hop * self.downsample), channels=self.mic_params['channels'], callback=self.callback_mic)
+    self.stream = sd.InputStream(device=self.device, samplerate=self.mic_params['fs_device'], blocksize=int(self.hop * self.downsample), channels=self.mic_params['channels'], callback=self.callback_mic) if enable_stream else contextlib.nullcontext()
     self.change_device_flag = False
+    self.stream_active = True if enable_stream else False
 
 
   def change_device(self, device):
@@ -102,6 +113,16 @@ class Mic():
     """
     self.change_device_flag = True
     self.device = device
+    print("changed device: ", device)
+
+
+  def change_energy_thresh_db(self, e):
+    """
+    change energy threshold
+    """
+    self.mic_params['energy_thresh_db'] = e
+    self.energy_thresh = 10**(e / 10)
+    print("changed energy thresh: ", e)
 
 
   def extract_devices(self):
@@ -137,7 +158,7 @@ class Mic():
       x = self.q.get()
 
       # onset and energy archiv
-      e, _ = self.onset_energy_level(x, alpha=self.mic_params['energy_thresh'])
+      e, _ = self.onset_energy_level(x, alpha=self.energy_thresh)
 
       # update collector
       self.collector.x_all = np.append(self.collector.x_all, x)
@@ -171,7 +192,7 @@ class Mic():
         e_collect = np.append(e_collect, 1)
 
       # detect onset
-      e_onset, is_onset = self.onset_energy_level(x_collect, alpha=self.mic_params['energy_thresh'])
+      e_onset, is_onset = self.onset_energy_level(x_collect, alpha=self.energy_thresh)
 
       # collection update
       self.collector.update_collect(x_collect.copy(), e=e_collect.copy()*e_onset, on=is_onset)
@@ -181,12 +202,10 @@ class Mic():
 
   def onset_energy_level(self, x, alpha=0.01):
     """
-    onset detection with energy level
-    x: [n x c]
-    n: samples
-    c: channels
+    onset detection with energy level, x: [n]
     """
 
+    # energy calculation
     e = x.T @ x / len(x)
 
     return e, e > alpha
@@ -219,7 +238,7 @@ class Mic():
       y_hat, label = self.classifier.classify(x_feature_bon)
 
       # plot
-      plot_mfcc_profile(x_onset[bon_pos*self.hop:(bon_pos+self.feature_params['frame_size'])*self.hop], self.feature_params['fs'], self.N, self.hop, mfcc_bon, frame_size=self.feature_params['frame_size'], plot_path=self.plot_path, name='collect-{}_label-{}'.format(self.collector.collection_counter, label), enable_plot=self.mic_params['enable_plot'])
+      if self.mic_params['enable_plot']: plot_mfcc_profile(x_onset[bon_pos*self.hop:(bon_pos+self.feature_params['frame_size'])*self.hop], self.feature_params['fs'], self.N, self.hop, x_feature_bon, frame_size=self.feature_params['frame_size'], plot_path=self.plot_path, name='collect-{}_label-{}'.format(self.collector.collection_counter, label))
 
       # clear read queue
       self.clear_mic_queue()

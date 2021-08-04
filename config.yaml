@@ -434,7 +434,7 @@ mic_params:
   channels: 1
 
   # energy threshold for onsets
-  energy_thresh: 0.0001
+  energy_thresh_db: -40.0
 
   # collector update size (pre frames)
   update_size: 32

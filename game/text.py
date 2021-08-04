@@ -12,7 +12,7 @@ class Text(Interactable):
   character class
   """
 
-  def __init__(self, surf, message, position, font_size='small', color=(0, 0, 0)):
+  def __init__(self, surf, message, position, font_size='small', color=(0, 0, 0), enabled=True):
 
     # arguments
     self.surf = surf
@@ -20,6 +20,7 @@ class Text(Interactable):
     self.position = position
     self.font_size = font_size
     self.color = color
+    self.enabled = enabled
 
     # init font
     pygame.font.init()
@@ -37,7 +38,9 @@ class Text(Interactable):
     """
 
     if font_size == 'big': return 40
+    if font_size == 'normal': return 30
     elif font_size == 'small': return 20
+    elif font_size == 'tiny_small': return 16
     elif font_size == 'tiny': return 11
     elif font_size == 'micro': return 9
 
@@ -55,6 +58,7 @@ class Text(Interactable):
     """
     draw text
     """
+    if not self.enabled: return
     self.surf.blit(self.rendered_message, self.position)
 
 

@@ -1,5 +1,5 @@
 """
-canvas, space for creativity
+canvas, a space for creativity
 """
 
 import numpy as np
@@ -181,7 +181,49 @@ class CanvasCommand(Canvas):
     self.enabled = False
 
     # info text
-    self.interactable_dict.update({'text_info': Text(self.canvas_surf, message='speech command: ', position=(0, 0), font_size='small', color=self.color_bag.text_menu)})
+    self.interactable_dict.update({'text_info': Text(self.canvas_surf, message='speech commands: ', position=(0, 0), font_size='small', color=self.color_bag.text_menu)})
+    
+    # class dict text
+    self.interactable_dict.update({'text_class_dict': Text(self.canvas_surf, message='key words:', position=(20, 40), font_size='tiny', color=self.color_bag.text_menu)})
+
+    # class text
+    self.interactable_dict.update({'text_class{}'.format(v): Text(self.canvas_surf, message='{}'.format(k), position=(30 + 90 * int(v > 4), 60 + 15 * v - 75 * int(v > 4)), font_size='tiny', color=self.color_bag.text_menu) for (k, v) in self.mic.classifier.class_dict.items()})
+
+    # kws text
+    self.interactable_dict.update({'text_kws': Text(self.canvas_surf, message='key word spotting:', position=(20, 200), font_size='tiny_small', color=self.color_bag.text_menu_active, enabled=False)})
+    self.interactable_dict.update({'text_cmd': Text(self.canvas_surf, message='_', position=(50, 230), font_size='tiny_small', color=self.color_bag.text_menu_active, enabled=False)})
+
+
+  def select(self, active):
+    """
+    select by clicking enter -> change color and make it editable
+    """
+
+    # set color and render
+    self.interactable_dict['text_kws'].enabled = True if active else False
+    self.interactable_dict['text_cmd'].enabled = True if active else False
+
+
+  def update(self):
+    """
+    update
+    """
+    
+    if not self.enabled: return
+
+    # update all interactables
+    for interactable in self.interactable_dict.values(): interactable.update()
+
+    # get command
+    command = self.mic.update_read_command()
+
+    # interpret command
+    if command is not None:
+      print("yeah: ", command)
+
+      # update render message
+      self.interactable_dict['text_cmd'].message = command
+      self.interactable_dict['text_cmd'].render()
 
 
 
@@ -204,11 +246,50 @@ class CanvasThresh(Canvas):
     # enable view
     self.enabled = False
 
+    # energy thresh
+    self.energy_thresh_db = self.mic.mic_params['energy_thresh_db']
+
     # info text
     self.interactable_dict.update({'text_info': Text(self.canvas_surf, message='energy threshold: ', position=(0, 0), font_size='small', color=self.color_bag.text_menu)})
     
     # energy text
-    self.interactable_dict.update({'text_energy': Text(self.canvas_surf, message='e: {:.1f}dB'.format(10 * np.log10(self.mic.mic_params['energy_thresh'])), position=(20, 40), font_size='tiny', color=self.color_bag.text_menu)})
+    self.interactable_dict.update({'text_energy': Text(self.canvas_surf, message='e: {:.1f}dB'.format(self.energy_thresh_db), position=(20, 40), font_size='tiny', color=self.color_bag.text_menu)})
+
+
+  def reload_thresh(self):
+    """
+    reload thresh from mic
+    """
+
+    # load thresh from mic
+    self.energy_thresh_db = self.mic.mic_params['energy_thresh_db']
+
+    # update render message
+    self.interactable_dict['text_energy'].message = 'e: {:.1f}dB'.format(self.energy_thresh_db)
+    self.interactable_dict['text_energy'].render()
+
+
+  def select(self, active):
+    """
+    select by clicking enter -> change color and make it editable
+    """
+
+    # set color and render
+    self.interactable_dict['text_energy'].color = self.color_bag.text_menu_active if active else self.color_bag.text_menu
+    self.interactable_dict['text_energy'].render()
+
+
+  def change_energy_thresh_key(self, ud=0):
+    """
+    change energy thresh upon dir
+    """
+
+    # change thresh in db
+    self.energy_thresh_db -= ud * 0.5
+
+    # update render message
+    self.interactable_dict['text_energy'].message = 'e: {:.1f}dB'.format(self.energy_thresh_db)
+    self.interactable_dict['text_energy'].render()
 
 
 

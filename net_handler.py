@@ -80,7 +80,7 @@ class NetHandler():
     self.device = torch.device("cuda:0" if (torch.cuda.is_available() and not self.use_cpu) else "cpu")
 
     # print device
-    print("net handler device: {}\ngpu: {}".format(self.device, torch.cuda.get_device_name(self.device))) if torch.cuda.is_available() else print("net handler device: {}".format(self.device))
+    print("\nnet handler device: {}\ngpu: {}".format(self.device, torch.cuda.get_device_name(self.device))) if torch.cuda.is_available() and not self.use_cpu else print("\nnet handler device: {}".format(self.device))
 
     # models dictionary key: name, value: model
     self.models = {}

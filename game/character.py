@@ -72,14 +72,9 @@ class Character(Interactable, Moveable):
     """
 
     # update sprite view
-    if self.move_dir[0] < 0:
-      self.character_sprite.change_view_sprites("side-l")
-
-    elif self.move_dir[0] > 0:
-      self.character_sprite.change_view_sprites("side-r")
-
-    else:
-      self.character_sprite.change_view_sprites("front")
+    if self.move_dir[0] < 0: self.character_sprite.change_view_sprites("side-l")
+    elif self.move_dir[0] > 0: self.character_sprite.change_view_sprites("side-r")
+    else: self.character_sprite.change_view_sprites("front")
 
 
   def action_key(self):
@@ -96,6 +91,7 @@ class Character(Interactable, Moveable):
     reset stuff
     """
 
+    # reset
     self.is_active = True
     self.is_grounded = False
     self.things = None
@@ -120,8 +116,7 @@ class Character(Interactable, Moveable):
     """
 
     # not active
-    if not self.is_active:
-      return
+    if not self.is_active: return
 
     # move player with movement class
     self.move_update()
@@ -130,8 +125,7 @@ class Character(Interactable, Moveable):
     self.view_update()
 
     # interaction with things
-    for thing in pygame.sprite.spritecollide(self.character_sprite, self.thing_sprites, True):
-      self.things_collected += 1
+    for thing in pygame.sprite.spritecollide(self.character_sprite, self.thing_sprites, True): self.things_collected += 1
 
 
 

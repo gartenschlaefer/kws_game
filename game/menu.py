@@ -290,15 +290,16 @@ class OptionMenu(Menu):
       self.mic.load_user_settings(self.user_setting_file)
 
       # init stream
-      self.mic.init_stream()
+      self.mic.init_stream(enable_stream=self.mic.change_device_flag)
 
       # mic stream and update
       with self.mic.stream:
-        while self.game_logic.run_loop:
-          for event in pygame.event.get():
 
-            # input handling
-            self.event_update(event)
+        # run for current mic device
+        while self.game_logic.run_loop:
+
+          # events
+          for event in pygame.event.get(): self.event_update(event)
 
           # update menu
           self.update()
@@ -333,7 +334,7 @@ class OptionMenu(Menu):
     if self.button_state == self.button_state_dict['end_button']: self.game_logic.run_loop = False
 
     # device menu
-    elif self.button_state == self.button_state_dict['device_button']: 
+    elif self.button_state == self.button_state_dict['device_button']:
 
       # set device canvas active for selection
       self.canvas.interactable_dict['device_canvas'].device_select(not self.menu_button_sel_enable)
@@ -346,6 +347,35 @@ class OptionMenu(Menu):
 
         # save device
         self.save_user_settings_select_device(self.canvas.interactable_dict['device_canvas'].active_device_num)
+
+    # thresh menu
+    elif self.button_state == self.button_state_dict['thresh_button']: 
+
+      # select energy to change
+      self.canvas.interactable_dict['thresh_canvas'].select(not self.menu_button_sel_enable)
+
+      # enter in device select
+      if self.menu_button_sel_enable:
+
+        # update mic device
+        self.mic.change_energy_thresh_db(self.canvas.interactable_dict['thresh_canvas'].energy_thresh_db)
+
+        # save device
+        self.save_user_settings_thresh(self.canvas.interactable_dict['thresh_canvas'].energy_thresh_db)
+
+      # activate mic device
+      else: self.mic.change_device_flag = True
+
+
+    # cmd menu
+    elif self.button_state == self.button_state_dict['cmd_button']: 
+
+      # select energy to change
+      self.canvas.interactable_dict['cmd_canvas'].select(not self.menu_button_sel_enable)
+
+      # activate mic device
+      if not self.menu_button_sel_enable: self.mic.change_device_flag = True
+
 
 
   def button_select(self):
@@ -363,15 +393,16 @@ class OptionMenu(Menu):
       self.canvas.interactable_dict['device_canvas'].enabled = not self.canvas.interactable_dict['device_canvas'].enabled
 
       # update devices
-      if self.canvas.interactable_dict['device_canvas'].enabled: self.canvas.interactable_dict['device_canvas'].devices_to_text()
-
-      #self.toggle_device_canvas()
+      if self.canvas.interactable_dict['device_canvas'].enabled: self.canvas.interactable_dict['device_canvas'].devices_to_text(), self.canvas.interactable_dict['mic_bar'].reload_thresh()
 
     # thresh button
     elif self.button_state == self.button_state_dict['thresh_button']:
 
       # toggle canvas
       self.canvas.interactable_dict['thresh_canvas'].enabled = not self.canvas.interactable_dict['thresh_canvas'].enabled
+
+      # update energy thresh
+      if self.canvas.interactable_dict['thresh_canvas'].enabled: self.canvas.interactable_dict['thresh_canvas'].reload_thresh(), self.canvas.interactable_dict['mic_bar'].reload_thresh()
 
     # cmd button
     elif self.button_state == self.button_state_dict['cmd_button']:
@@ -402,6 +433,26 @@ class OptionMenu(Menu):
     # options
     else: 
       if self.button_state == self.button_state_dict['device_button']: self.device_menu_update()
+      elif self.button_state == self.button_state_dict['thresh_button']: self.thresh_menu_update()
+
+
+  def thresh_menu_update(self):
+    """
+    thresh menu
+    """
+
+    # check if clicked
+    if not self.click and self.ud_click:
+
+      # change thresh
+      self.canvas.interactable_dict['thresh_canvas'].change_energy_thresh_key(self.ud_click)
+      self.canvas.interactable_dict['mic_bar'].change_energy_thresh_db_pos(self.canvas.interactable_dict['thresh_canvas'].energy_thresh_db)
+
+      # set click
+      self.click = True
+
+    # reset click
+    if self.ud_click == 0: self.click = False
 
 
   def device_menu_update(self):
@@ -412,7 +463,7 @@ class OptionMenu(Menu):
     # check if clicked
     if not self.click and self.ud_click:
 
-      # deselect buttons
+      # up
       if self.ud_click < 0 and self.canvas.interactable_dict['device_canvas'].active_device_id: 
         self.canvas.interactable_dict['device_canvas'].device_select(False)
         self.canvas.interactable_dict['device_canvas'].active_device_id -= 1
@@ -445,10 +496,8 @@ class OptionMenu(Menu):
     # load user settings
     user_settings = yaml.safe_load(open(self.user_setting_file)) if os.path.isfile(self.user_setting_file) else {}
 
-    print("user: ", user_settings)
-
     # update energy thres
-    user_settings.update({'energy_thresh': 0.6})
+    user_settings.update({'energy_thresh_db': e})
 
     # write file
     with open(cfg['game']['user_setting_file'], 'w') as f:
@@ -464,8 +513,6 @@ class OptionMenu(Menu):
 
     # load user settings
     user_settings = yaml.safe_load(open(self.user_setting_file)) if os.path.isfile(self.user_setting_file) else {}
-
-    print("user: ", user_settings)
 
     # update energy thres
     user_settings.update({'select_device': True, 'device': device})

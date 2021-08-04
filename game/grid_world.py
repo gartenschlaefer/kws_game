@@ -27,10 +27,7 @@ class GridWorld(Interactable):
     self.mic = mic
 
     # mic control
-    if self.mic is None:
-      self.mic_control = False
-    else:
-      self.mic_control = True
+    self.mic_control = True if self.mic is not None else False
     
     # pixel spacing
     self.grid_size = self.screen_size // self.pixel_size

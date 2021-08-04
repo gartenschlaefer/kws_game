@@ -58,18 +58,14 @@ class MovableWall(Wall, Interactable, Moveable):
     self.mic_control = mic_control
     self.mic = mic
 
-    # MRO check
+    # parent init
     super().__init__(np.array(grid_pos)*size, color, size)
-
-    # input handler
-    if self.mic_control:
-      self.input_handler = InputMicHandler(self, mic=self.mic, grid_move=self.grid_move)
-
-    else:
-      self.input_handler = InputKeyHandler(self, grid_move=self.grid_move)
 
     # moveable init
     Moveable.__init__(self, move_sprite=self, move_rect=self.rect, move_speed=[3, 3], has_gravity=False, grid_move=self.grid_move)
+    
+    # input handler
+    self.input_handler = InputMicHandler(self, mic=self.mic, grid_move=self.grid_move) if self.mic_control and mic is not None else InputKeyHandler(self, grid_move=self.grid_move)
 
     # interactions
     self.obstacle_sprites = pygame.sprite.Group()

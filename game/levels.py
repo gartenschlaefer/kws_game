@@ -220,7 +220,6 @@ class LevelCharacter(LevelGrid):
     self.henry.obstacle_sprites.add(self.grid_world.wall_sprites, self.grid_world.move_wall_sprites)
 
     # add interactable
-    #self.interactables.append(self.henry)
     self.interactable_dict.update({'henry': self.henry})
 
     # add to sprites
