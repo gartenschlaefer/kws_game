@@ -515,22 +515,42 @@ def cfg_changer(cfg_file):
   cfg['feature_params']['use_mfcc_features'] = False if cfg['ml']['nn_arch'] == 'wavenet' else True
 
   # no config changes allowed
-  if not cfg['config_changer_allowed']: return [cfg]
+  if not cfg['config_changer']['enabled']: return [cfg]
 
   # cfg list and selection
-  cfg_list, binary4 = [], [[bool(int(b)) for b in np.binary_repr(i, width=4)] for i in np.arange(16)]
+  cfg_list = []
 
-  # all permutations
-  for binary in binary4:
+  # change archs
+  if cfg['config_changer']['change_archs']:
 
-    # load cofig
-    cfg = yaml.safe_load(open(cfg_file))
+    # archs
+    for arch in cfg['config_changer']['archs']:
 
-    # change config
-    cfg['feature_params']['use_cepstral_features'], cfg['feature_params']['use_delta_features'], cfg['feature_params']['use_double_delta_features'], cfg['feature_params']['use_energy_features'] = binary
-    
-    # append to list
-    cfg_list.append(cfg)
+      # load cofig
+      cfg = yaml.safe_load(open(cfg_file))
+
+      # change config
+      cfg['ml']['nn_arch'] = arch
+      
+      # append to list
+      cfg_list.append(cfg)
+
+    return cfg_list
+
+  # change mfcc constellations
+  if cfg['config_changer']['change_mfcc_mix']:
+
+    # all permutations
+    for binary in [[bool(int(b)) for b in np.binary_repr(i, width=4)] for i in np.arange(16)]:
+
+      # load cofig
+      cfg = yaml.safe_load(open(cfg_file))
+
+      # change config
+      cfg['feature_params']['use_cepstral_features'], cfg['feature_params']['use_delta_features'], cfg['feature_params']['use_double_delta_features'], cfg['feature_params']['use_energy_features'] = binary
+      
+      # append to list
+      cfg_list.append(cfg)
 
   return cfg_list
 

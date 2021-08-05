@@ -25,10 +25,10 @@
      inkscape:document-units="mm"
      showgrid="true"
      inkscape:zoom="1.1848345"
-     inkscape:cx="344.35189"
-     inkscape:cy="382.75388"
-     inkscape:window-width="1680"
-     inkscape:window-height="985"
+     inkscape:cx="148.96595"
+     inkscape:cy="96.215969"
+     inkscape:window-width="1920"
+     inkscape:window-height="1015"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
@@ -63,53 +63,96 @@
          x="21.148737"
          y="117.72166" />
     </clipPath>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath1481">
+      <rect
+         style="opacity:0.5;fill:#b9537e;stroke-width:0.25"
+         id="rect1483"
+         width="23.8125"
+         height="9.260417"
+         x="29.104166"
+         y="70.114586"
+         rx="1.3229166"
+         ry="1.2715664e-06" />
+    </clipPath>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath1669">
+      <rect
+         style="opacity:0.5;fill:#b9537e;stroke-width:0.25"
+         id="rect1671"
+         width="17.197924"
+         height="9.2604151"
+         x="32.808331"
+         y="70.908333"
+         rx="1.3229166"
+         ry="1.2715665e-06" />
+    </clipPath>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath1876">
+      <rect
+         style="opacity:0.5;fill:#b9537e;stroke-width:0.25"
+         id="rect1878"
+         width="16.668749"
+         height="8.7312498"
+         x="33.07291"
+         y="71.172913"
+         rx="1.3229166"
+         ry="1.2715664e-06" />
+    </clipPath>
   </defs>
   <g
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1">
-    <rect
-       style="fill:#855c75;stroke-width:0.301719;stroke-opacity:0.5"
-       id="rect6013"
-       width="47.625004"
-       height="29.104162"
-       x="21.166666"
-       y="88.635414" />
-    <rect
-       style="fill:#ffffff;stroke-width:0.295975;stroke-opacity:0.5"
-       id="rect6015"
-       width="44.979164"
-       height="26.458326"
-       x="22.489588"
-       y="89.958351" />
+    <g
+       id="g1962"
+       transform="translate(-7.9374946,-26.631067)">
+      <rect
+         style="fill:#855c75;stroke-width:0.301719;stroke-opacity:0.5"
+         id="rect6013"
+         width="47.625004"
+         height="29.104162"
+         x="47.624989"
+         y="58.381046" />
+      <rect
+         style="fill:#ffffff;stroke-width:0.295975;stroke-opacity:0.5"
+         id="rect6015"
+         width="44.979164"
+         height="26.458326"
+         x="48.94791"
+         y="59.703983" />
+    </g>
     <rect
        style="fill:#af6458;stroke-width:0.297499;stroke-opacity:0.5"
        id="rect6013-1"
        width="46.302097"
        height="29.104162"
-       x="76.729164"
-       y="88.635414" />
+       x="95.249985"
+       y="31.749979" />
     <rect
        style="fill:#ffffff;stroke-width:0.29159;stroke-opacity:0.5"
        id="rect6015-5"
        width="43.65625"
        height="26.458319"
-       x="78.052094"
-       y="89.958359" />
+       x="96.572914"
+       y="33.072922" />
     <rect
        style="fill:#d9af6b;stroke-width:0.297499;stroke-opacity:0.5"
        id="rect6013-1-7"
-       width="46.302097"
+       width="26.431593"
        height="29.104162"
-       x="130.96875"
-       y="88.635384" />
+       x="149.48958"
+       y="31.749949" />
     <rect
        style="fill:#ffffff;stroke-width:0.29159;stroke-opacity:0.5"
        id="rect6015-5-6"
-       width="43.65625"
+       width="23.785751"
        height="26.458319"
-       x="132.29167"
-       y="89.958336" />
+       x="150.8125"
+       y="33.072899" />
     <image
        width="42.333344"
        height="42.32811"
@@ -120,7 +163,7 @@
        x="35.718739"
        y="22.489584"
        clip-path="url(#clipPath9376)"
-       transform="matrix(0.75000011,0,0,0.75000011,121.3776,63.830724)" />
+       transform="matrix(0.75000011,0,0,0.75000011,127.97881,5.6243234)" />
     <image
        width="42.333344"
        height="42.32811"
@@ -132,7 +175,7 @@
        y="10.588557" />
     <g
        id="g7805"
-       transform="translate(0,-0.17272343)">
+       transform="translate(18.520829,-57.058158)">
       <image
          width="137.44008"
          height="68.720039"
@@ -156,7 +199,7 @@
     </g>
     <g
        id="g5902"
-       transform="matrix(0.71741982,0,0,0.71741982,36.7229,-42.022737)">
+       transform="matrix(0.71741982,0,0,0.71741982,55.243721,-98.908174)">
       <path
          style="fill:none;stroke:#000000;stroke-width:0.268598;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
          d="m 66.145833,197.11458 14.552084,5.29167"
@@ -558,14 +601,125 @@
        id="rect7295"
        width="7.9375024"
        height="1.3229166"
-       x="68.791664"
-       y="101.86459" />
+       x="87.312492"
+       y="44.979156" />
+    <rect
+       style="fill:#000000;stroke-width:0.370328;stroke-opacity:0.5"
+       id="rect7295-5"
+       width="7.9375024"
+       height="1.3229166"
+       x="31.75"
+       y="44.979164" />
     <rect
        style="fill:#000000;stroke-width:0.370328;stroke-opacity:0.5"
        id="rect7295-7"
        width="7.9375024"
        height="1.3229166"
-       x="123.03124"
-       y="101.8646" />
+       x="141.55206"
+       y="44.979164" />
+    <g
+       id="g2059"
+       transform="translate(-7.9375025,-26.458336)">
+      <rect
+         style="fill:#49205a;stroke-width:0.301719;stroke-opacity:0.5"
+         id="rect6013-6"
+         width="22.489582"
+         height="15.874999"
+         x="17.19792"
+         y="64.822922" />
+      <rect
+         style="fill:#ffffff;stroke-width:0.295975;stroke-opacity:0.5"
+         id="rect6015-7"
+         width="19.84375"
+         height="13.229165"
+         x="18.520836"
+         y="66.145836" />
+      <image
+         width="29.104166"
+         height="12.126736"
+         preserveAspectRatio="none"
+         style="stroke-width:0.314182;image-rendering:optimizeSpeed"
+         xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACQAAAAPCAYAAACMa21tAAABbmlDQ1BpY2MAACiRdZE7SwNBFIU/
+oyHiK4UWIoJbRLEwEBTEUmNhE0RiBF9NsnkJeSy7GyTYCjYWgoVo46vwH2gr2CoIgiKI2PgHfDUS
+1jtJIEGSWWbvx5k5l5kz4Apl9KzVFoBszjbDc0FteWVV87zjZogeAvRGdcuYWVgI0XT8PNKi6oNf
+9Wq+r+HojCcsHVrahSd1w7SFp4VDm7aheFe4T09H48InwmOmHFD4VumxCr8pTlX4S7EZCc+CS/XU
+UnUcq2M9bWaFR4V92UxBr55H3aQrkVtalDogcxCLMHME0YhRYIMMNn6pOcmssS9Q9s2TF48uf4Mi
+pjhSpMU7JmpBuiakJkVPyJehqHL/n6eVnBivdO8KgvvVcT6HwbMPpT3H+T11nNIZtL7Ada7mz0tO
+U9+i79U03zF4t+HypqbFDuBqB/qfjagZLUutMl3JJHxcQPcK9N5Dx1olq+o6508Q2ZInuoPDIxiR
+/d71PwjiaA7nPWkcAAAACXBIWXMAAA9hAAAPYQGoP6dpAAAAk0lEQVRIS82V0QrAIAhF19ij/f+H
+9gEbCg4RclrbsoeIIjzde6UCAOeWaBzM0lpbilVrpfo7TqthJAMBZRq3ZTNQLPcb9k8BSRBpO+6P
+xmAYqAfDebDOLTdCQLqIpYRWzNs8biBZHNcRWyL2uYHwhTq8M43Qu5uu7d1AWvaIDRElQ5Z9BSGB
+SaE/svGkEjOUbL/9BRQEOtfhfToGAAAAAElFTkSuQmCC
+"
+         id="image1373"
+         x="26.458334"
+         y="68.791664"
+         clip-path="url(#clipPath1876)"
+         transform="translate(-12.465172,-2.5422888)" />
+    </g>
+    <text
+       xml:space="preserve"
+       style="font-size:3.52778px;line-height:1.25;font-family:sans-serif;text-align:center;text-anchor:middle;stroke-width:0.264583"
+       x="20.535353"
+       y="31.279844"
+       id="text2680"><tspan
+         sodipodi:role="line"
+         id="tspan2678"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:monospace;-inkscape-font-specification:monospace;text-align:center;text-anchor:middle;stroke-width:0.264583"
+         x="20.535353"
+         y="31.279844">Microphone</tspan><tspan
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:monospace;-inkscape-font-specification:monospace;text-align:center;text-anchor:middle;stroke-width:0.264583"
+         x="20.535353"
+         y="35.689571"
+         id="tspan3298">Input</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:3.52778px;line-height:1.25;font-family:sans-serif;text-align:center;text-anchor:middle;stroke-width:0.264583"
+       x="63.352901"
+       y="24.656122"
+       id="text2680-3"><tspan
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:monospace;-inkscape-font-specification:monospace;text-align:center;text-anchor:middle;stroke-width:0.264583"
+         x="63.352901"
+         y="24.656122"
+         id="tspan3298-6">Signal Processing and</tspan><tspan
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:monospace;-inkscape-font-specification:monospace;text-align:center;text-anchor:middle;stroke-width:0.264583"
+         x="63.352901"
+         y="29.065847"
+         id="tspan6418">Feature Extraction</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:3.52778px;line-height:1.25;font-family:sans-serif;text-align:center;text-anchor:middle;stroke-width:0.264583"
+       x="118.11614"
+       y="24.656124"
+       id="text2680-3-2"><tspan
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:monospace;-inkscape-font-specification:monospace;text-align:center;text-anchor:middle;stroke-width:0.264583"
+         x="118.11614"
+         y="24.656124"
+         id="tspan6418-1">Neural Network</tspan><tspan
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:monospace;-inkscape-font-specification:monospace;text-align:center;text-anchor:middle;stroke-width:0.264583"
+         x="118.11614"
+         y="29.065849"
+         id="tspan16614">Inference</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:3.52778px;line-height:1.25;font-family:sans-serif;text-align:center;text-anchor:middle;stroke-width:0.264583"
+       x="162.56862"
+       y="24.646648"
+       id="text2680-3-2-2"><tspan
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:monospace;-inkscape-font-specification:monospace;text-align:center;text-anchor:middle;stroke-width:0.264583"
+         x="162.56862"
+         y="24.646648"
+         id="tspan16614-0">Video Game</tspan><tspan
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:monospace;-inkscape-font-specification:monospace;text-align:center;text-anchor:middle;stroke-width:0.264583"
+         x="162.56862"
+         y="29.056374"
+         id="tspan17324">Action</tspan></text>
   </g>
 </svg>

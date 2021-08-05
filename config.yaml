@@ -5,7 +5,19 @@
 # general stuff
 
 # change config in machine learning
-config_changer_allowed: False
+config_changer:
+
+  # enable
+  enabled: True
+
+  # mfcc mix
+  change_mfcc_mix: False
+
+  # change architectures
+  change_archs: True
+
+  # archs
+  archs: ['conv-trad', 'conv-fstride', 'conv-jim']
 
 
 # --
@@ -81,8 +93,8 @@ datasets:
     all_labels: ['backward', 'bed', 'bird', 'cat', 'dog', 'down', 'eight', 'five', 'follow', 'forward', 'four', 'go', 'happy', 'house', 'learn', 'left', 'marvin', 'nine', 'no', 'off', 'on', 'one', 'right', 'seven', 'sheila', 'six', 'stop', 'three', 'tree', 'two', 'up', 'visual', 'wow', 'yes', 'zero']
 
     # selected labels of the whole set
-    sel_labels: ['left', 'right', 'up', 'down', 'go']
-    #sel_labels: ['yes', 'no', 'left', 'go', 'down', 'off', 'right', 'stop', 'up', 'on']
+    #sel_labels: ['left', 'right', 'up', 'down', 'go']
+    sel_labels: ['yes', 'no', 'left', 'go', 'down', 'off', 'right', 'stop', 'up', 'on']
     #sel_labels: ['bed', 'bird', 'cat', 'dog', 'down', 'eight', 'five', 'four', 'go', 'happy', 'house', 'left', 'marvin', 'nine', 'no', 'off', 'on', 'one', 'right', 'seven', 'sheila', 'six', 'stop', 'three', 'tree', 'two', 'up', 'wow', 'yes', 'zero']
     #sel_labels: ['backward', 'bed', 'bird', 'cat', 'dog', 'down', 'eight', 'five', 'follow', 'forward', 'four', 'go', 'happy', 'house', 'learn', 'left', 'marvin', 'nine', 'no', 'off', 'on', 'one', 'right', 'seven', 'sheila', 'six', 'stop', 'three', 'tree', 'two', 'up', 'visual', 'wow', 'yes', 'zero']
 
@@ -243,7 +255,7 @@ feature_params:
   n_ceps_coeff: 12
 
   # normalized features -> [0, 1] over frames
-  norm_features: True
+  norm_features: False
 
   # old ones do not use anymore: #compute_deltas: True #compute_energy_features: True
 
@@ -280,7 +292,7 @@ ml:
   train_params:
 
     # training params for cnn architectures
-    cnn: {'batch_size': 32, 'num_epochs': 100, 'lr': 0.0001, 'beta': 0.9}
+    cnn: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}
 
     # adv
     adv: {'batch_size': 32, 'num_epochs': 100, 'lr_d': 0.0001, 'lr_g': 0.0001, 'beta_d': 0.9, 'beta_g': 0.9}
@@ -324,7 +336,7 @@ ml:
   new_instance: True
 
   # number of instances
-  num_instances: 1
+  num_instances: 5
 
   # logging enable
   logging_enabled: True

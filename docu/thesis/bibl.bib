@@ -33,18 +33,18 @@
 
 % backpropagation
 @InProceedings{LeCun1986,
-author="Le Cun, Yann",
-editor="Bienenstock, E.
-and Souli{\'e}, F. Fogelman
-and Weisbuch, G.",
-title="Learning Process in an Asymmetric Threshold Network",
-booktitle="Disordered Systems and Biological Organization",
-year="1986",
-publisher="Springer Berlin Heidelberg",
-address="Berlin, Heidelberg",
-pages="233--240",
-abstract="Threshold functions and related operators are widely used as basic elements of adaptive and associative networks [Nakano 72, Amari 72, Hopfield 82]. There exist numerous learning rules for finding a set of weights to achieve a particular correspondence between input-output pairs. But early works in the field have shown that the number of threshold functions (or linearly separable functions) in N binary variables is small compared to the number of all possible boolean mappings in N variables, especially if N is large. This problem is one of the main limitations of most neural networks models where the state is fully specified by the environment during learning: they can only learn linearly separable functions of their inputs. Moreover, a learning procedure which requires the outside world to specify the state of every neuron during the learning session can hardly be considered as a general learning rule because in real-world conditions, only a partial information on the ``ideal'' network state for each task is available from the environment. It is possible to use a set of so-called ``hidden units'' [Hinton,Sejnowski,Ackley. 84], without direct interaction with the environment, which can compute intermediate predicates. Unfortunately, the global response depends on the output of a particular hidden unit in a highly non-linear way, moreover the nature of this dependence is influenced by the states of the other cells.",
-isbn="978-3-642-82657-3"
+  author="Le Cun, Yann",
+  editor="Bienenstock, E.
+  and Souli{\'e}, F. Fogelman
+  and Weisbuch, G.",
+  title="Learning Process in an Asymmetric Threshold Network",
+  booktitle="Disordered Systems and Biological Organization",
+  year="1986",
+  publisher="Springer Berlin Heidelberg",
+  address="Berlin, Heidelberg",
+  pages="233--240",
+  abstract="Threshold functions and related operators are widely used as basic elements of adaptive and associative networks [Nakano 72, Amari 72, Hopfield 82]. There exist numerous learning rules for finding a set of weights to achieve a particular correspondence between input-output pairs. But early works in the field have shown that the number of threshold functions (or linearly separable functions) in N binary variables is small compared to the number of all possible boolean mappings in N variables, especially if N is large. This problem is one of the main limitations of most neural networks models where the state is fully specified by the environment during learning: they can only learn linearly separable functions of their inputs. Moreover, a learning procedure which requires the outside world to specify the state of every neuron during the learning session can hardly be considered as a general learning rule because in real-world conditions, only a partial information on the ``ideal'' network state for each task is available from the environment. It is possible to use a set of so-called ``hidden units'' [Hinton,Sejnowski,Ackley. 84], without direct interaction with the environment, which can compute intermediate predicates. Unfortunately, the global response depends on the output of a particular hidden unit in a highly non-linear way, moreover the nature of this dependence is influenced by the states of the other cells.",
+  isbn="978-3-642-82657-3"
 }
 
 % good intro to neural nets
@@ -214,12 +214,12 @@ isbn="978-3-642-82657-3"
   language = "English (US)",
   editor = "G. Bakir and T. Hofman and B. Scholkopt and A. Smola and B. Taskar",
   booktitle = "Predicting structured data",
-  publisher = "MIT Press",
+  publisher = "MIT Press"
 }
 
 % deep learning lecun
 @online{DeepLearning, 
-    author = {Yann LeCun, Alfredo Canziani, Mark Goldstein, Zeming Lin},
+    author = {Yann LeCun and Alfredo Canziani and Mark Goldstein and Zeming Lin},
     title = {Deep Learning},
     year = 2021,
     url = {https://atcold.github.io/pytorch-Deep-Learning/},
@@ -275,9 +275,6 @@ isbn="978-3-642-82657-3"
 % --
 % benchmark networks
 
-% list
-https://paperswithcode.com/sota/keyword-spotting-on-google-speech-commands
-
 % benchmark list
 @online{PaperswithcodeKWS, 
     author = {Papers with Code},
@@ -296,8 +293,6 @@ https://paperswithcode.com/sota/keyword-spotting-on-google-speech-commands
   archivePrefix={arXiv},
   primaryClass={eess.AS}
 }
-
-Wav2KWS: Transfer Learning from Speech Representationsfor Keyword Spotting
 
 
 % --
@@ -447,19 +442,11 @@ Wav2KWS: Transfer Learning from Speech Representationsfor Keyword Spotting
 % kws in games
 
 @inproceedings{Harshavardhan2015,
-  author    = {Sundar Harshavardhan and
-               Jill Fain Lehman and
-               Rita Singh},
-  title     = {Keyword spotting in multi-player voice driven games for children},
-  booktitle = {{INTERSPEECH} 2015, 16th Annual Conference of the International Speech
-               Communication Association, Dresden, Germany, September 6-10, 2015},
-  pages     = {1660--1664},
-  publisher = {{ISCA}},
-  year      = {2015},
-  url       = {http://www.isca-speech.org/archive/interspeech\_2015/i15\_1660.html},
-  timestamp = {Mon, 30 Jan 2017 20:24:42 +0100},
-  biburl    = {https://dblp.org/rec/conf/interspeech/SundarLS15.bib},
-  bibsource = {dblp computer science bibliography, https://dblp.org}
+  title={Keyword spotting in multi-player voice driven games for children},
+  author={S. Harshavardhan and J. Lehman and Rita Singh},
+  booktitle={INTERSPEECH},
+  year={2015},
+  url={https://www.isca-speech.org/archive/interspeech_2015/i15_1660.html}
 }
 
 
@@ -478,12 +465,13 @@ Wav2KWS: Transfer Learning from Speech Representationsfor Keyword Spotting
   url = {http://papers.neurips.cc/paper/9015-pytorch-an-imperative-style-high-performance-deep-learning-library.pdf}
 }
 
+% tensorflow
 @misc{Tensorflow,
   title={ {TensorFlow}: Large-Scale Machine Learning on Heterogeneous Systems},
   url={https://www.tensorflow.org/},
   note={Software available from tensorflow.org},
   author={
-    Mart\'{\i}n~Abadi and
+    Mart\'{i}n~Abadi and
     Ashish~Agarwal and
     Paul~Barham and
     Eugene~Brevdo and
@@ -523,5 +511,11 @@ Wav2KWS: Transfer Learning from Speech Representationsfor Keyword Spotting
     Martin~Wicke and
     Yuan~Yu and
     Xiaoqiang~Zheng},
-  year={2015},
+  year={2015}
 }
+
+
+% --
+% papers of remark
+
+% Wav2KWS: Transfer Learning from Speech Representations for Keyword Spotting
