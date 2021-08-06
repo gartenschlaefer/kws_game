@@ -1,20 +1,18 @@
 % title page
+\phantomsection
+\addcontentsline{toc}{chapter}{Title}
 \printthesistitle
 
 % affidavit
 \printaffidavit
 
-% abstract en
-\chapter*{Abstract}
+% abstract
+\phantomsection
+\addcontentsline{toc}{chapter}{Abstract}
 \input{0_shards/abstract.tex}
-
-% abstract de
-\chapter*{Kurzfassung}
-\input{0_shards/abstract_de.tex}
 \cleardoublepage
 
 % Acknowledgement
-\chapter*{\germanenglish{Danksagung}{Acknowledgements}}
 \input{0_shards/acknowledgement.tex}
 \cleardoublepage
 
@@ -24,5 +22,4 @@
 \listoftables
 
 % acronyms
-\chapter*{\germanenglish{Abk\"{u}rzungs- und Symbolverzeichnis}{List of Acronyms and Symbols}}
 \input{0_shards/acronyms}

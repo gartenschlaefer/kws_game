@@ -1,9 +1,9 @@
 % --
 % Master thesis main
 
-\documentclass[twoside,openright]{scrreprt}
-%\documentclass[report,mono,twoside,openright]{tugrazbooklet}
-%\documentclass[a4paper]{book}
+%\documentclass[twoside,openright]{scrreprt}
+%\documentclass[twoside,openright]{scrbook}
+\documentclass[11pt, a4paper, twoside, openright, draft]{scrbook}
 
 % added package prior to thesis
 \usepackage[table]{xcolor}
@@ -15,6 +15,7 @@
 % --
 % bib
 
+% biblatex with biber
 \usepackage[backend=biber,style=alphabetic]{biblatex}
 
 % add my bib
@@ -22,11 +23,28 @@
 
 
 % --
-% my packages, macros and colors
+% extensions
 
+% added packages
 \input{./0_shards/added_packages.tex}
+
+% macros
 \include{./0_shards/macros.tex}
+
+% colors
 \include{./0_shards/colors.tex}
+
+%\pagestyle{headings}
+
+%\usepackage{fancyhdr}
+
+%\pagestyle{fancy}
+%\fancyhf{}
+
+% \renewcommand{\headrulewidth}{0.5pt}
+% \renewcommand{\footrulewidth}{0pt
+
+
 
 
 % --
@@ -40,8 +58,10 @@
 % thesis title
 \thesistitle[Short Thesis Title]{Key Word Spotting for Video Games\\with Neural Networks}
 
+% ***
+% ToDo
 % Date of completion (optional argument sets a different \date{})
-\thesisdate[ ]{Month Year}
+\thesisdate[ ]{Month 2021}
 
 % Supervisor headline (select male/female/plural version)
 \supervisortitle{\germanenglish{Betreuerin/Betreuer}{Supervisor}}
@@ -74,6 +94,13 @@
 \input{./5_exp/exp.tex}
 \input{./6_game/game.tex}
 \input{./7_conclusion/conclusion.tex}
+
+
+% --
+% appendix
+
+\appendix
+\addpart*{Appendix}
 
 
 % --
