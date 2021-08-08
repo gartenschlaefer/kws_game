@@ -159,11 +159,14 @@ class LatexTableMakerCepstral(LatexTableFunctions, LogExtractor):
     # get training instances
     train_instances_dict = self.get_train_instance_infos(in_file)
 
-    # sep
-    separators = [('mfcc32-12', '0'), ('mfcc32-32', '0'), ('mfcc32-12', '1'), ('mfcc32-32', '1')]
+    # separators used to get training instances
+    sep_combi = {'arch': ['conv-trad', 'conv-fstride', 'conv-jim'], 'mfcc': ['mfcc32-12', 'mfcc32-32'], 'norm': ['0', '1']}
+
+    # all combinations
+    separators = [(a, m, n) for a in sep_combi['arch'] for m in sep_combi['mfcc'] for n in sep_combi['norm']]
 
     # separation
-    train_instances_sep = [[ti for ti in train_instances_dict if ti['mfcc'] == m and ti['norm'] == n] for m, n in separators]
+    train_instances_sep = [[ti for ti in train_instances_dict if ti['arch'] == a and ti['mfcc'] == m and ti['norm'] == n] for a, m, n in separators]
 
     # row entries
     row_entries = [[tis[0]['arch'], tis[0]['mfcc'], tis[0]['norm'], '${:.2f} \\pm {:.2f}$'.format(np.mean(np.array([ti['acc'][0] for ti in tis]).astype(float)), np.sqrt(np.var(np.array([ti['acc'][0] for ti in tis]).astype(float)))), '${:.2f} \\pm {:.2f}$'.format(np.mean(np.array([ti['acc'][1] for ti in tis]).astype(float)), np.sqrt(np.var(np.array([ti['acc'][1] for ti in tis]).astype(float))))] for tis in train_instances_sep]

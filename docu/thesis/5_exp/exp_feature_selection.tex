@@ -4,27 +4,43 @@
 \section{MFCC Feature Selection}\label{sec:exp_fs}
 \thesisStateNotReady
 Feature selection is a very important step prior to neural network training.
-Unfortunately it is not always clear, which feature are contributing to good classification scores and which not.
-To reduce features always means to reduce computations and is therefore a crucial point to evaulate.
-As already described in \rsec{signal_mfcc}, Mel Frequency Cepstral Coefficients (MFCC) are extracted with a certain amount of filter bands and cepstral coefficients.
-Further MFCC features can be enhanced with energy features and deltas.
-A frame based normalization can be applied to improve the visualization of MFCCs and makes it more easy and faster to train Generative Adversarial Neural Networks (GANs).
-However frame based normalization might be critical, because it focuses on the time scale and not the frequency. 
+The reduction of input features always means a reduction of computations and is therefore a crucial point to evaulate.
+Unfortunately it is not always clear, which feature are contributing to good classification scores and which do not or even worsen them.
+In this section only Mel Frequency Cepstral Coefficients (MFCC) and their enhancements, as described in \rsec{signal_mfcc}, are the focus of the experiments.
+The feature selection of Raw features, used for Wavenets, would not make much sense, since each sample is an own feature itself.
+Another important aspect in the feature selection experimnets is the evaluation of the proposed frame based normalization \req{signal_mfcc_norm} originally applied to improve the visualization of MFCCs and making Generative Adversarial Neural Networks (GANs) more easy and faster to train.
+However frame based normalization might be critical, because it is a normalization done only on the frame (time) scale and disregards the frequency dimension.
 
 Two experiments are done to shade some light into MFCC feature selection:
 \begin{enumerate}
     \item Impact on the amount of cepstral coefficients
     \item Impact on the enhancements of MFCCs
 \end{enumerate}
+For saving training time and computations, those experiments were done on a smaller subset of the whole speech commands dataset, described in \rsec{exp_dataset_speech_cmd}, using 500 samples of each one of the L12 labels.
+The training with one set of parameters was done with 5 consecutive iterations.
+The scores obtained from those iterations for each set prameters are presented with a mean value and the standard deviation (square root of the variance).
 
+
+% --
+% cepstral
 
 \subsection{Impact on the Amount of Cepstral Coefficients}
-The filter bands of the MFCCs are fixed with a total number of 32 and the cepstral coefficients are selected to either 12 or 32, where 12 is the common selection of coefficients in many papers.
-Also the experiment is done once with and once without frame based normalization.
+The filter bands of the MFCCs are fixed to a total number of 32 bands and the cepstral coefficients are selected to either 12 or 32, where 12 is the common selection of coefficients in many papers.
+Also the experiments are done once with and once without frame based normalization.
 ...
 
 The experiment is shown in \rtab{exp_fs_cepstral}.
 \input{./5_exp/tables/tab_exp_fs_cepstral.tex}
+
+\input{./5_exp/tables/tab_exp_fs_cepstral_l12.tex}
+
+
+% --
+% enhancements
+
+\subsection{Impact on the enhancements of MFCCs}
+
+
 
 
 % These enhancements (deltas and energy features) are formed in groups for evaluation to see the impact on the choice and hopefully to reduce the input feature size to a minimum.
@@ -42,20 +58,20 @@ The experiment is shown in \rtab{exp_fs_cepstral}.
 % Therefore additional columns are presented in the following tables marked with \enquote{norm}.
 % Note that all these experiments have been done with n-500 a number of 500 examples per class, so that computations are minimized but still enough data is drawn.
 
-\subsection{Feature Selection on Conv Encoder}
-The feature selection evaluation on the conv-encoder-fc1 architecture with 5 labels is listed in \rtab{exp_fs_fc1_it500_c5}.
-% \input{5_exp/tables/b1_feature_selection/ml_it500_c5_features_fc1}
-% \input{5_exp/tables/b1_feature_selection/ml_it1000_c30_features_fc1}
-% \input{5_exp/tables/b1_feature_selection/ml_it2000_c30_features_fc3}
-\input{./5_exp/tables/tab_exp_fs_fc1_it500_c5.tex}
-\input{./5_exp/tables/tab_exp_fs_fc1_it1000_c30.tex}
-\input{./5_exp/tables/tab_exp_fs_fc3_it2000_c30.tex}
+% \subsection{Feature Selection on Conv Encoder}
+% The feature selection evaluation on the conv-encoder-fc1 architecture with 5 labels is listed in \rtab{exp_fs_fc1_it500_c5}.
+% % \input{5_exp/tables/b1_feature_selection/ml_it500_c5_features_fc1}
+% % \input{5_exp/tables/b1_feature_selection/ml_it1000_c30_features_fc1}
+% % \input{5_exp/tables/b1_feature_selection/ml_it2000_c30_features_fc3}
+% \input{./5_exp/tables/tab_exp_fs_fc1_it500_c5.tex}
+% \input{./5_exp/tables/tab_exp_fs_fc1_it1000_c30.tex}
+% \input{./5_exp/tables/tab_exp_fs_fc3_it2000_c30.tex}
 
-\subsection{Feature Selection on fstride}
-fstride
-\input{./5_exp/tables/tab_exp_fs_fstride_it1000_c5.tex}
+% \subsection{Feature Selection on fstride}
+% fstride
+% \input{./5_exp/tables/tab_exp_fs_fstride_it1000_c5.tex}
 
-\subsection{Feature Selection on trad}
-trad
-\input{./5_exp/tables/tab_exp_fs_trad_it1000_c5.tex}
+% \subsection{Feature Selection on trad}
+% trad
+% \input{./5_exp/tables/tab_exp_fs_trad_it1000_c5.tex}
 

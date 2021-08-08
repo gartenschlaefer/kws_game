@@ -104,7 +104,7 @@ For example the first coefficient equals a summation of all filter bands of the 
 Further the most of the signal energy is located in the lower frequency bands, which impacts the value space of the coefficients with strongly weighted low frequency bands.
 The differences in the value space leads to a problem in the visualization with a linear color scheme, so that some coefficients changes cannot be shown appropriately.
 A solution to this problem is to normalize the feature vectors over each frame dimension with the infinity norm as:
-% frame normalisation
+% frame based normalization
 \begin{equation}\label{eq:signal_mfcc_norm}
   \hat{U}[m, c] = \frac{U[m, c]}{\norm{u_c[m]}_\infty} \quad \forall m, c = (1, \dots, M), (1, \dots, C)
 \end{equation}
@@ -125,7 +125,7 @@ A visualization of MFCC features with 32 filter bands and 32 cepstral coefficien
 \FloatBarrier
 \noindent
 The frame based normalization is an interesting aspect to improve the visualization of the MFCC features, however it can be critical. 
-A normalization changes important structures within the feature space and it cannot be answered yet if this is a problem for neural networks or degrades the classification performance.
+A normalization that operates only in one dimension changes important structures within the feature space and it cannot be answered yet if this is a problem for neural networks or degrades the classification performance.
 One more research question arises here: Is it possible to use frame based normalized MFCC features as inputs to neural networks and what are the results to the accuracy and training of the models.
 
 
@@ -134,22 +134,22 @@ One more research question arises here: Is it possible to use frame based normal
 
 \subsection{MFCC Feature Usage and Enhancement}\label{sec:signal_mfcc_enhancement}
 After the MFCCs are computed with the choice of filter bands $B$ and cepstral coefficients $C$, they can already be used as input features for neural networks.
-The question arises, whether a further feature enhancement can be done to improve the performance in classification.
-The best practice, used in many papers, is to apply $B=32$, $C=12$, compute derivatives of those 12 MFCC coefficients named as deltas and double deltas (second derivative) and add energy vectors of the 12 coefficients and the deltas.
+The question arises, whether feature enhancement can improve the performance in classification.
+The best practice, used in many papers, is to apply $B=32$, $C=12$, compute derivatives of those 12 MFCC coefficients named as deltas (first derivative regarding the frame dimension) and double deltas (second derivative) and add energy vectors of the 12 coefficients and each one of the deltas.
 The deltas are simply computed as frame $m$ difference of the MFCCs with:
 \begin{equation}\label{eq:signal_mfcc_delta}
   \Delta u_i[m] = \frac{u_i[m - 1] + u_i[m + 1]}{2}
 \end{equation}
 where $u_i \R^M$ is the i-th MFCC coefficient vector and $m$ the frame index.
-Note that the edges of the delta computations at $m=0$ and $m=M$ are not computed and the same value is obtained from the neighbor.
-The second derivative of MFCC features, known as double deltas, are then the frame differences of the deltas, similar to \req{signal_mfcc_delta}
-An energy feature vector can be computed from each of the MFCCs, deltas and double deltas by its own, with for instance simply:
+Note that the computation of the deltas at the edges $m=0$ and $m=M$ is not possible and the same value is obtained from the neighbor at this specific locations.
+The second derivative of MFCC features, known as double deltas, are the frame differences of the deltas and in the same way computed as in \req{signal_mfcc_delta}.
+Another enhancement is the computation of an energy feature vector of the MFCCs with:
 \begin{equation}
   e[m] = u[m] \, u[m]^T 
 \end{equation}
 where $u[m] \in \R^C$ is the MFCC feature vector of frame $m$.
-
-The MFCCs, their deltas and double deltas and energy vectors can then be simply stacked at top of each other and used as enhanced inputs to neural networks.
+The same energy computation may also be applied to the deltas and double deltas each.
+The MFCCs, their deltas, double deltas and energy vectors can simply be stacked at top of each other and used as enhanced feature inputs to neural networks.
 In this thesis the feature vectors are stacked as following:
 \begin{enumerate}
     \item 12 MFCCs
@@ -174,6 +174,7 @@ The computation of 39 MFCCs are shown in \rfig{signal_mfcc_showcase_mfcc39}
 \end{figure}
 \FloatBarrier
 \noindent
+
 
 % --
 % energy consumption

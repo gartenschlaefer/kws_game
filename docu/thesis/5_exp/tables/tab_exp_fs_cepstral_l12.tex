@@ -1,0 +1,28 @@
+\begin{table}[ht!]
+\begin{center}
+\caption{Experiment on the impact of the amount of cepstral coefficient of MFCC features with additional frame based normalization evaluation.}
+\begin{tabular}{ M{3cm}  M{2cm}  M{2cm}  M{2.5cm}  M{2.5cm} }
+\toprule
+\textbf{arch} & \textbf{mfcc} & \textbf{norm} & \textbf{acc test} & \textbf{acc my} \\
+\midrule
+conv-trad & mfcc32-12 & 0 & $81.73 \pm 1.58$ & $80.80 \pm 5.88$ \\
+conv-trad & mfcc32-12 & 1 & $75.97 \pm 1.15$ & $90.40 \pm 4.80$ \\
+conv-trad & mfcc32-32 & 0 & $80.90 \pm 0.81$ & $81.60 \pm 7.84$ \\
+conv-trad & mfcc32-32 & 1 & $74.93 \pm 1.09$ & $88.80 \pm 5.31$ \\
+\midrule
+conv-fstride & mfcc32-12 & 0 & $74.03 \pm 0.87$ & $73.60 \pm 8.62$ \\
+conv-fstride & mfcc32-12 & 1 & $66.33 \pm 1.29$ & $79.20 \pm 6.40$ \\
+conv-fstride & mfcc32-32 & 0 & $72.07 \pm 2.24$ & $72.80 \pm 8.54$ \\
+conv-fstride & mfcc32-32 & 1 & $63.63 \pm 1.15$ & $91.20 \pm 1.60$ \\
+\midrule
+conv-jim & mfcc32-12 & 0 & $78.73 \pm 1.55$ & $76.00 \pm 6.69$ \\
+conv-jim & mfcc32-12 & 1 & $71.77 \pm 1.77$ & $73.60 \pm 5.43$ \\
+conv-jim & mfcc32-32 & 0 & $76.43 \pm 1.52$ & $83.20 \pm 2.99$ \\
+conv-jim & mfcc32-32 & 1 & $65.73 \pm 1.94$ & $67.20 \pm 6.88$ \\
+\bottomrule
+\label{tab:exp_fs_cepstral_l12}
+\end{tabular}
+\end{center}
+\end{table}
+\FloatBarrier
+\noindent

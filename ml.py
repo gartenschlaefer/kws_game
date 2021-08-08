@@ -172,6 +172,9 @@ class ML():
     # change training parameters if requested
     train_params = self.train_params if new_train_params is None else new_train_params
 
+    # print train infos
+    print("\nTraining on nn_arch: {}\nparam string: {}".format(self.nn_arch, self.param_path_ml))
+
     # train
     train_score = self.net_handler.train_nn(train_params=train_params, batch_archive=self.batch_archive, callback_f=self.image_collect)
 

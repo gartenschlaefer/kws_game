@@ -233,7 +233,10 @@ def training_logs(cfg):
   log_path = '../docu/logs/'
 
   # cepstral table
-  LatexTableMakerCepstral(in_file=log_path + 'log_cepstral.log', out_file=plot_path_tab + 'tab_exp_fs_cepstral.tex', caption='Experiment on the impact of the amount of cepstral coefficient of MFCC features. Frame based normalization was evaluated additionally.', label='tab:exp_fs_cepstral')
+  #LatexTableMakerCepstral(in_file=log_path + 'log_cepstral.log', out_file=plot_path_tab + 'tab_exp_fs_cepstral.tex', caption='Experiment on the impact of the amount of cepstral coefficient of MFCC features. Frame based normalization was evaluated additionally.', label='tab:exp_fs_cepstral')
+  
+  # cepstral table l12
+  LatexTableMakerCepstral(in_file=log_path + 'log_exp_cepstral_l12.log', out_file=plot_path_tab + 'tab_exp_fs_cepstral_l12.tex', caption='Experiment on the impact of the amount of cepstral coefficient of MFCC features with additional frame based normalization evaluation.', label='tab:exp_fs_cepstral_l12')
 
 
 if __name__ == '__main__':
@@ -250,7 +253,7 @@ if __name__ == '__main__':
   #mfcc_stuff(cfg, dct_plot=True, show_plot=True)
 
   # showcase wavs
-  showcase_wavs(cfg, raw_plot=True, spec_plot=False, mfcc_plot=False, use_mfcc_39=False, show_plot=True)
+  #showcase_wavs(cfg, raw_plot=True, spec_plot=False, mfcc_plot=False, use_mfcc_39=False, show_plot=True)
 
   # feature selection tables
   #feature_selection_tables(overwrite=True)
@@ -262,6 +265,6 @@ if __name__ == '__main__':
   #batch_archive_grid_examples(cfg, show_plot=True)
 
   # logs
-  #training_logs(cfg)
+  training_logs(cfg)
 
 

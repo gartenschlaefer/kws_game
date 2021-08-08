@@ -3,7 +3,19 @@
 
 \chapter{Introduction}\label{sec:intro}
 \thesisStateReady
-Controlling video games with the voice of a player, to change game object states within the game, is an interdisciplinary challenge of speech signal processing, machine learning and game design.
+Controlling video games with the voice of a player, to render certain actions within the game, is an interdisciplinary challenge of speech signal processing, machine learning and game design.
+A microphone is necessary to capture the voice of a player providing a speech signal of a potential command for the video game.
+The speech signal should be extracted from raw audio samples to meaningful feature vectors that are the inputs to a Key Word Spotting (KWS) system with the task of identifying those features to the most probable command.
+This command should change states of specific game objects and therefore ideally enhance and extend the game play experience of the players.
+A simple schematic of the whole process is shown in \rfig{intro_kws}.
+\begin{figure}[!ht]
+  \centering
+    \includegraphics[width=0.9\textwidth]{./1_intro/figs/intro_kws}
+  \caption{Simplified process of Key Word Spotting for video games.}
+  \label{fig:intro_kws}
+\end{figure}
+\FloatBarrier
+\noindent
 In the semantic perspective, the controlling of game objects, should be short and clear and best done with single command words, referred as speech commands.
 Single words are easier to detect in comparison to long sentences, for instance it is easier to recognize a simple \enquote{left} than \enquote{missile target on position x, y}.
 The classification of those speech commands can be done with a Key Word Spotting (KWS) system composed of a neural network.
@@ -33,7 +45,7 @@ Unfortunately some consumer applications, that are incorporating speech recognit
 It is therefore important to distance speech recognition from data collection and waste of energy and enhance its value in society.
 A video game with KWS can contribute to better the image and bring more joy and fun into this subtle topic.
 %One possibility to better the image of KWS might be to create functionalities of speech input in video games, that bring more joy and fun into this subtle topic.
-Until now however, there exists very few video games with the special feature of using players voices to control some elements within the game.
+Until now however, there exists very few video games with the special feature of applying speech commands.
 Reasons for that might depends on the history of video games itself, where players find themselves in a fast paced arcade game and speech recognition is simply to slow.
 Also the complexity of KWS and lack of training data are often two valid reasons for not even considering the development of a KWS system.
 
