@@ -1,0 +1,301 @@
+2021-08-05 15:48:51,447 Training on arch: [conv-trad], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm1_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, device: [cuda:0], time: [00:30:17]
+2021-08-05 15:48:52,103 Eval test on arch: [conv-trad], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm1_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [458 / 600] acc: [76.3333] with loss: [222.9785]
+2021-08-05 15:48:52,929 Eval my on arch: [conv-trad], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm1_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [24 / 25] acc: [96.0000] with loss: [41.4670]
+2021-08-05 15:48:53,621 
+
+2021-08-05 16:19:07,847 Training on arch: [conv-trad], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm1_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, device: [cuda:0], time: [00:30:11]
+2021-08-05 16:19:08,546 Eval test on arch: [conv-trad], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm1_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [465 / 600] acc: [77.5000] with loss: [220.9669]
+2021-08-05 16:19:09,281 Eval my on arch: [conv-trad], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm1_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [24 / 25] acc: [96.0000] with loss: [42.1014]
+2021-08-05 16:19:09,968 
+
+2021-08-05 16:49:28,656 Training on arch: [conv-trad], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm1_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, device: [cuda:0], time: [00:30:16]
+2021-08-05 16:49:29,269 Eval test on arch: [conv-trad], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm1_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [446 / 600] acc: [74.3333] with loss: [224.8006]
+2021-08-05 16:49:30,004 Eval my on arch: [conv-trad], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm1_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [22 / 25] acc: [88.0000] with loss: [44.0740]
+2021-08-05 16:49:30,691 
+
+2021-08-05 17:19:49,302 Training on arch: [conv-trad], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm1_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, device: [cuda:0], time: [00:30:16]
+2021-08-05 17:19:49,915 Eval test on arch: [conv-trad], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm1_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [450 / 600] acc: [75.0000] with loss: [223.6181]
+2021-08-05 17:19:50,647 Eval my on arch: [conv-trad], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm1_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [21 / 25] acc: [84.0000] with loss: [44.4789]
+2021-08-05 17:19:51,421 
+
+2021-08-05 17:50:08,412 Training on arch: [conv-trad], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm1_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, device: [cuda:0], time: [00:30:14]
+2021-08-05 17:50:09,126 Eval test on arch: [conv-trad], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm1_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [460 / 600] acc: [76.6667] with loss: [221.7050]
+2021-08-05 17:50:09,871 Eval my on arch: [conv-trad], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm1_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [22 / 25] acc: [88.0000] with loss: [43.4679]
+2021-08-05 17:50:10,568 
+
+2021-08-05 18:10:10,325 Training on arch: [conv-fstride], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm1_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, device: [cuda:0], time: [00:19:57]
+2021-08-05 18:10:10,873 Eval test on arch: [conv-fstride], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm1_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [410 / 600] acc: [68.3333] with loss: [232.0690]
+2021-08-05 18:10:11,612 Eval my on arch: [conv-fstride], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm1_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [18 / 25] acc: [72.0000] with loss: [47.4039]
+2021-08-05 18:10:12,306 
+
+2021-08-05 18:30:10,095 Training on arch: [conv-fstride], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm1_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, device: [cuda:0], time: [00:19:55]
+2021-08-05 18:30:10,642 Eval test on arch: [conv-fstride], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm1_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [401 / 600] acc: [66.8333] with loss: [233.5659]
+2021-08-05 18:30:11,377 Eval my on arch: [conv-fstride], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm1_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [21 / 25] acc: [84.0000] with loss: [44.3395]
+2021-08-05 18:30:12,071 
+
+2021-08-05 18:50:09,313 Training on arch: [conv-fstride], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm1_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, device: [cuda:0], time: [00:19:55]
+2021-08-05 18:50:09,862 Eval test on arch: [conv-fstride], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm1_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [399 / 600] acc: [66.5000] with loss: [234.1758]
+2021-08-05 18:50:10,590 Eval my on arch: [conv-fstride], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm1_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [22 / 25] acc: [88.0000] with loss: [43.4397]
+2021-08-05 18:50:11,284 
+
+2021-08-05 19:10:08,424 Training on arch: [conv-fstride], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm1_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, device: [cuda:0], time: [00:19:55]
+2021-08-05 19:10:08,968 Eval test on arch: [conv-fstride], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm1_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [387 / 600] acc: [64.5000] with loss: [236.8878]
+2021-08-05 19:10:09,704 Eval my on arch: [conv-fstride], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm1_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [20 / 25] acc: [80.0000] with loss: [45.4596]
+2021-08-05 19:10:10,400 
+
+2021-08-05 19:30:09,349 Training on arch: [conv-fstride], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm1_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, device: [cuda:0], time: [00:19:56]
+2021-08-05 19:30:09,899 Eval test on arch: [conv-fstride], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm1_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [393 / 600] acc: [65.5000] with loss: [234.7994]
+2021-08-05 19:30:10,631 Eval my on arch: [conv-fstride], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm1_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [18 / 25] acc: [72.0000] with loss: [47.0965]
+2021-08-05 19:30:11,323 
+
+2021-08-05 19:58:27,509 Training on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm1_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, device: [cuda:0], time: [00:28:13]
+2021-08-05 19:58:28,122 Eval test on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm1_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [430 / 600] acc: [71.6667] with loss: [227.2849]
+2021-08-05 19:58:28,883 Eval my on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm1_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [21 / 25] acc: [84.0000] with loss: [44.5430]
+2021-08-05 19:58:29,671 
+
+2021-08-05 20:26:48,290 Training on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm1_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, device: [cuda:0], time: [00:28:15]
+2021-08-05 20:26:49,016 Eval test on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm1_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [419 / 600] acc: [69.8333] with loss: [230.0184]
+2021-08-05 20:26:49,767 Eval my on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm1_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [17 / 25] acc: [68.0000] with loss: [48.4183]
+2021-08-05 20:26:50,464 
+
+2021-08-05 20:55:00,147 Training on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm1_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, device: [cuda:0], time: [00:28:06]
+2021-08-05 20:55:00,772 Eval test on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm1_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [419 / 600] acc: [69.8333] with loss: [229.9778]
+2021-08-05 20:55:01,508 Eval my on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm1_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [18 / 25] acc: [72.0000] with loss: [47.1660]
+2021-08-05 20:55:02,194 
+
+2021-08-05 21:23:18,034 Training on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm1_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, device: [cuda:0], time: [00:28:13]
+2021-08-05 21:23:18,659 Eval test on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm1_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [445 / 600] acc: [74.1667] with loss: [225.1874]
+2021-08-05 21:23:19,401 Eval my on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm1_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [18 / 25] acc: [72.0000] with loss: [47.7112]
+2021-08-05 21:23:20,174 
+
+2021-08-05 21:49:23,375 Training on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm1_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, device: [cuda:0], time: [00:26:00]
+2021-08-05 21:49:24,141 Eval test on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm1_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [440 / 600] acc: [73.3333] with loss: [226.2434]
+2021-08-05 21:49:24,931 Eval my on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm1_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [18 / 25] acc: [72.0000] with loss: [47.2031]
+2021-08-05 21:49:25,672 
+
+2021-08-05 23:31:29,852 Training on arch: [conv-trad], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm0_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, device: [cuda:0], time: [00:27:32]
+2021-08-05 23:31:30,561 Eval test on arch: [conv-trad], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm0_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [502 / 600] acc: [83.6667] with loss: [213.6597]
+2021-08-05 23:31:31,479 Eval my on arch: [conv-trad], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm0_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [21 / 25] acc: [84.0000] with loss: [44.0436]
+2021-08-05 23:31:32,257 
+
+2021-08-06 00:00:17,022 Training on arch: [conv-trad], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm0_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, device: [cuda:0], time: [00:28:41]
+2021-08-06 00:00:17,723 Eval test on arch: [conv-trad], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm0_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [498 / 600] acc: [83.0000] with loss: [214.7604]
+2021-08-06 00:00:18,459 Eval my on arch: [conv-trad], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm0_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [18 / 25] acc: [72.0000] with loss: [47.6213]
+2021-08-06 00:00:19,149 
+
+2021-08-06 00:28:03,299 Training on arch: [conv-trad], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm0_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, device: [cuda:0], time: [00:27:41]
+2021-08-06 00:28:03,937 Eval test on arch: [conv-trad], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm0_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [477 / 600] acc: [79.5000] with loss: [218.9931]
+2021-08-06 00:28:04,693 Eval my on arch: [conv-trad], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm0_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [22 / 25] acc: [88.0000] with loss: [43.9407]
+2021-08-06 00:28:05,384 
+
+2021-08-06 00:57:19,059 Training on arch: [conv-trad], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm0_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, device: [cuda:0], time: [00:29:11]
+2021-08-06 00:57:19,687 Eval test on arch: [conv-trad], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm0_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [493 / 600] acc: [82.1667] with loss: [215.4958]
+2021-08-06 00:57:20,445 Eval my on arch: [conv-trad], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm0_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [19 / 25] acc: [76.0000] with loss: [46.4446]
+2021-08-06 00:57:21,241 
+
+2021-08-06 01:26:34,040 Training on arch: [conv-trad], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm0_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, device: [cuda:0], time: [00:29:10]
+2021-08-06 01:26:34,754 Eval test on arch: [conv-trad], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm0_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [482 / 600] acc: [80.3333] with loss: [217.6890]
+2021-08-06 01:26:35,488 Eval my on arch: [conv-trad], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm0_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [21 / 25] acc: [84.0000] with loss: [44.2942]
+2021-08-06 01:26:36,176 
+
+2021-08-06 01:46:37,154 Training on arch: [conv-fstride], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm0_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, device: [cuda:0], time: [00:19:58]
+2021-08-06 01:46:37,710 Eval test on arch: [conv-fstride], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm0_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [453 / 600] acc: [75.5000] with loss: [223.7320]
+2021-08-06 01:46:38,429 Eval my on arch: [conv-fstride], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm0_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [20 / 25] acc: [80.0000] with loss: [45.4682]
+2021-08-06 01:46:39,115 
+
+2021-08-06 02:06:34,734 Training on arch: [conv-fstride], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm0_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, device: [cuda:0], time: [00:19:53]
+2021-08-06 02:06:35,290 Eval test on arch: [conv-fstride], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm0_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [440 / 600] acc: [73.3333] with loss: [226.1044]
+2021-08-06 02:06:36,011 Eval my on arch: [conv-fstride], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm0_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [17 / 25] acc: [68.0000] with loss: [48.4275]
+2021-08-06 02:06:36,698 
+
+2021-08-06 02:26:37,032 Training on arch: [conv-fstride], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm0_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, device: [cuda:0], time: [00:19:58]
+2021-08-06 02:26:37,591 Eval test on arch: [conv-fstride], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm0_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [446 / 600] acc: [74.3333] with loss: [224.9738]
+2021-08-06 02:26:38,311 Eval my on arch: [conv-fstride], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm0_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [19 / 25] acc: [76.0000] with loss: [46.4512]
+2021-08-06 02:26:38,994 
+
+2021-08-06 02:46:36,003 Training on arch: [conv-fstride], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm0_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, device: [cuda:0], time: [00:19:55]
+2021-08-06 02:46:36,557 Eval test on arch: [conv-fstride], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm0_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [438 / 600] acc: [73.0000] with loss: [226.5490]
+2021-08-06 02:46:37,280 Eval my on arch: [conv-fstride], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm0_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [21 / 25] acc: [84.0000] with loss: [44.4593]
+2021-08-06 02:46:37,967 
+
+2021-08-06 03:06:35,537 Training on arch: [conv-fstride], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm0_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, device: [cuda:0], time: [00:19:55]
+2021-08-06 03:06:36,092 Eval test on arch: [conv-fstride], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm0_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [444 / 600] acc: [74.0000] with loss: [225.4959]
+2021-08-06 03:06:36,808 Eval my on arch: [conv-fstride], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm0_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [15 / 25] acc: [60.0000] with loss: [50.3614]
+2021-08-06 03:06:37,494 
+
+2021-08-06 03:34:48,552 Training on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm0_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, device: [cuda:0], time: [00:28:08]
+2021-08-06 03:34:49,188 Eval test on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm0_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [475 / 600] acc: [79.1667] with loss: [219.4857]
+2021-08-06 03:34:49,925 Eval my on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm0_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [21 / 25] acc: [84.0000] with loss: [44.4604]
+2021-08-06 03:34:50,699 
+
+2021-08-06 04:03:02,518 Training on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm0_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, device: [cuda:0], time: [00:28:09]
+2021-08-06 04:03:03,225 Eval test on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm0_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [472 / 600] acc: [78.6667] with loss: [219.6959]
+2021-08-06 04:03:03,957 Eval my on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm0_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [18 / 25] acc: [72.0000] with loss: [47.4175]
+2021-08-06 04:03:04,639 
+
+2021-08-06 04:31:11,270 Training on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm0_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, device: [cuda:0], time: [00:28:03]
+2021-08-06 04:31:11,898 Eval test on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm0_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [482 / 600] acc: [80.3333] with loss: [217.5716]
+2021-08-06 04:31:12,635 Eval my on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm0_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [21 / 25] acc: [84.0000] with loss: [44.6389]
+2021-08-06 04:31:13,321 
+
+2021-08-06 04:59:17,547 Training on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm0_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, device: [cuda:0], time: [00:28:01]
+2021-08-06 04:59:18,176 Eval test on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm0_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [478 / 600] acc: [79.6667] with loss: [218.8447]
+2021-08-06 04:59:18,913 Eval my on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm0_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [18 / 25] acc: [72.0000] with loss: [47.3292]
+2021-08-06 04:59:19,690 
+
+2021-08-06 05:27:30,328 Training on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm0_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, device: [cuda:0], time: [00:28:07]
+2021-08-06 05:27:31,049 Eval test on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm0_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [455 / 600] acc: [75.8333] with loss: [223.1240]
+2021-08-06 05:27:31,785 Eval my on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-12_c1d0d0e0_norm0_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [17 / 25] acc: [68.0000] with loss: [48.3606]
+2021-08-06 05:27:32,475 
+
+
+2021-08-06 19:46:10,524 Training on arch: [conv-trad], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm0_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, device: [cuda:0], time: [00:34:32]
+2021-08-06 19:46:11,168 Eval test on arch: [conv-trad], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm0_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [486 / 600] acc: [81.0000] with loss: [216.9241]
+2021-08-06 19:46:11,985 Eval my on arch: [conv-trad], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm0_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [17 / 25] acc: [68.0000] with loss: [48.4668]
+2021-08-06 19:46:12,671 
+
+2021-08-06 20:20:40,011 Training on arch: [conv-trad], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm0_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, device: [cuda:0], time: [00:34:24]
+2021-08-06 20:20:40,740 Eval test on arch: [conv-trad], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm0_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [477 / 600] acc: [79.5000] with loss: [218.6412]
+2021-08-06 20:20:41,476 Eval my on arch: [conv-trad], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm0_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [21 / 25] acc: [84.0000] with loss: [44.5946]
+2021-08-06 20:20:42,162 
+
+2021-08-06 20:55:20,839 Training on arch: [conv-trad], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm0_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, device: [cuda:0], time: [00:34:35]
+2021-08-06 20:55:21,530 Eval test on arch: [conv-trad], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm0_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [485 / 600] acc: [80.8333] with loss: [216.9843]
+2021-08-06 20:55:22,258 Eval my on arch: [conv-trad], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm0_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [23 / 25] acc: [92.0000] with loss: [42.5052]
+2021-08-06 20:55:22,939 
+
+2021-08-06 21:29:58,596 Training on arch: [conv-trad], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm0_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, device: [cuda:0], time: [00:34:32]
+2021-08-06 21:29:59,220 Eval test on arch: [conv-trad], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm0_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [492 / 600] acc: [82.0000] with loss: [215.8729]
+2021-08-06 21:29:59,954 Eval my on arch: [conv-trad], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm0_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [21 / 25] acc: [84.0000] with loss: [44.6234]
+2021-08-06 21:30:00,730 
+
+2021-08-06 22:04:33,546 Training on arch: [conv-trad], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm0_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, device: [cuda:0], time: [00:34:30]
+2021-08-06 22:04:34,265 Eval test on arch: [conv-trad], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm0_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [487 / 600] acc: [81.1667] with loss: [216.9980]
+2021-08-06 22:04:35,000 Eval my on arch: [conv-trad], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm0_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [20 / 25] acc: [80.0000] with loss: [45.4640]
+2021-08-06 22:04:35,684 
+
+2021-08-06 22:30:56,380 Training on arch: [conv-fstride], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm0_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, device: [cuda:0], time: [00:26:18]
+2021-08-06 22:30:56,986 Eval test on arch: [conv-fstride], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm0_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [436 / 600] acc: [72.6667] with loss: [226.8931]
+2021-08-06 22:30:57,702 Eval my on arch: [conv-fstride], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm0_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [17 / 25] acc: [68.0000] with loss: [48.3425]
+2021-08-06 22:30:58,384 
+
+2021-08-06 22:57:17,924 Training on arch: [conv-fstride], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm0_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, device: [cuda:0], time: [00:26:17]
+2021-08-06 22:57:18,538 Eval test on arch: [conv-fstride], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm0_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [434 / 600] acc: [72.3333] with loss: [227.2724]
+2021-08-06 22:57:19,254 Eval my on arch: [conv-fstride], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm0_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [15 / 25] acc: [60.0000] with loss: [50.0065]
+2021-08-06 22:57:19,935 
+
+2021-08-06 23:23:38,668 Training on arch: [conv-fstride], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm0_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, device: [cuda:0], time: [00:26:16]
+2021-08-06 23:23:39,228 Eval test on arch: [conv-fstride], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm0_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [438 / 600] acc: [73.0000] with loss: [226.7283]
+2021-08-06 23:23:39,942 Eval my on arch: [conv-fstride], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm0_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [18 / 25] acc: [72.0000] with loss: [47.4902]
+2021-08-06 23:23:40,625 
+
+2021-08-06 23:50:05,888 Training on arch: [conv-fstride], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm0_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, device: [cuda:0], time: [00:26:23]
+2021-08-06 23:50:06,471 Eval test on arch: [conv-fstride], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm0_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [407 / 600] acc: [67.8333] with loss: [232.7388]
+2021-08-06 23:50:07,189 Eval my on arch: [conv-fstride], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm0_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [21 / 25] acc: [84.0000] with loss: [44.4682]
+2021-08-06 23:50:07,869 
+
+2021-08-07 00:16:27,838 Training on arch: [conv-fstride], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm0_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, device: [cuda:0], time: [00:26:17]
+2021-08-07 00:16:28,409 Eval test on arch: [conv-fstride], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm0_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [447 / 600] acc: [74.5000] with loss: [224.9626]
+2021-08-07 00:16:29,148 Eval my on arch: [conv-fstride], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm0_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [20 / 25] acc: [80.0000] with loss: [45.4696]
+2021-08-07 00:16:29,832 
+
+2021-08-07 00:46:06,529 Training on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm0_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, device: [cuda:0], time: [00:29:34]
+2021-08-07 00:46:07,165 Eval test on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm0_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [454 / 600] acc: [75.6667] with loss: [223.5284]
+2021-08-07 00:46:07,894 Eval my on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm0_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [21 / 25] acc: [84.0000] with loss: [44.2791]
+2021-08-07 00:46:08,669 
+
+2021-08-07 12:56:35,723 Training on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm0_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, device: [cuda:0], time: [00:26:51]
+2021-08-07 12:56:36,575 Eval test on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm0_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [470 / 600] acc: [78.3333] with loss: [220.3624]
+2021-08-07 12:56:37,481 Eval my on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm0_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [20 / 25] acc: [80.0000] with loss: [45.4682]
+2021-08-07 12:56:38,242 
+
+2021-08-07 13:22:08,258 Training on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm0_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, device: [cuda:0], time: [00:25:25]
+2021-08-07 13:22:09,032 Eval test on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm0_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [469 / 600] acc: [78.1667] with loss: [220.2901]
+2021-08-07 13:22:09,874 Eval my on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm0_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [22 / 25] acc: [88.0000] with loss: [43.6305]
+2021-08-07 13:22:10,640 
+
+2021-08-07 13:47:07,656 Training on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm0_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, device: [cuda:0], time: [00:24:53]
+2021-08-07 13:47:08,294 Eval test on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm0_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [452 / 600] acc: [75.3333] with loss: [223.6040]
+2021-08-07 13:47:09,092 Eval my on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm0_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [21 / 25] acc: [84.0000] with loss: [44.4787]
+2021-08-07 13:47:09,859 
+
+2021-08-07 14:13:20,899 Training on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm0_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, device: [cuda:0], time: [00:26:07]
+2021-08-07 14:13:21,493 Eval test on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm0_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [448 / 600] acc: [74.6667] with loss: [224.4747]
+2021-08-07 14:13:22,435 Eval my on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm0_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [20 / 25] acc: [80.0000] with loss: [45.8303]
+2021-08-07 14:13:23,215 
+
+2021-08-07 14:52:46,013 Training on arch: [conv-trad], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm1_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, device: [cuda:0], time: [00:30:50]
+2021-08-07 14:52:46,656 Eval test on arch: [conv-trad], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm1_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [454 / 600] acc: [75.6667] with loss: [223.6541]
+2021-08-07 14:52:47,475 Eval my on arch: [conv-trad], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm1_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [22 / 25] acc: [88.0000] with loss: [43.2031]
+2021-08-07 14:52:48,168 
+
+2021-08-07 15:21:02,671 Training on arch: [conv-trad], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm1_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, device: [cuda:0], time: [00:28:11]
+2021-08-07 15:21:03,371 Eval test on arch: [conv-trad], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm1_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [447 / 600] acc: [74.5000] with loss: [224.7996]
+2021-08-07 15:21:04,107 Eval my on arch: [conv-trad], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm1_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [22 / 25] acc: [88.0000] with loss: [43.3582]
+2021-08-07 15:21:04,797 
+
+2021-08-07 15:51:28,093 Training on arch: [conv-trad], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm1_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, device: [cuda:0], time: [00:30:20]
+2021-08-07 15:51:28,788 Eval test on arch: [conv-trad], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm1_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [438 / 600] acc: [73.0000] with loss: [226.2058]
+2021-08-07 15:51:29,577 Eval my on arch: [conv-trad], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm1_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [24 / 25] acc: [96.0000] with loss: [41.4798]
+2021-08-07 15:51:30,269 
+
+2021-08-07 16:21:16,662 Training on arch: [conv-trad], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm1_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, device: [cuda:0], time: [00:29:43]
+2021-08-07 16:21:17,306 Eval test on arch: [conv-trad], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm1_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [456 / 600] acc: [76.0000] with loss: [222.9571]
+2021-08-07 16:21:18,074 Eval my on arch: [conv-trad], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm1_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [20 / 25] acc: [80.0000] with loss: [44.8558]
+2021-08-07 16:21:18,887 
+
+2021-08-07 16:51:23,443 Training on arch: [conv-trad], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm1_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, device: [cuda:0], time: [00:30:01]
+2021-08-07 16:51:24,225 Eval test on arch: [conv-trad], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm1_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [453 / 600] acc: [75.5000] with loss: [223.6309]
+2021-08-07 16:51:24,997 Eval my on arch: [conv-trad], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm1_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [23 / 25] acc: [92.0000] with loss: [42.2229]
+2021-08-07 16:51:25,695 
+
+2021-08-07 17:11:18,847 Training on arch: [conv-fstride], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm1_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, device: [cuda:0], time: [00:19:50]
+2021-08-07 17:11:19,407 Eval test on arch: [conv-fstride], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm1_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [388 / 600] acc: [64.6667] with loss: [236.6154]
+2021-08-07 17:11:20,137 Eval my on arch: [conv-fstride], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm1_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [23 / 25] acc: [92.0000] with loss: [42.5264]
+2021-08-07 17:11:20,828 
+
+2021-08-07 17:31:31,093 Training on arch: [conv-fstride], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm1_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, device: [cuda:0], time: [00:20:07]
+2021-08-07 17:31:31,643 Eval test on arch: [conv-fstride], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm1_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [388 / 600] acc: [64.6667] with loss: [236.6493]
+2021-08-07 17:31:32,371 Eval my on arch: [conv-fstride], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm1_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [22 / 25] acc: [88.0000] with loss: [43.4675]
+2021-08-07 17:31:33,062 
+
+2021-08-07 17:51:41,850 Training on arch: [conv-fstride], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm1_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, device: [cuda:0], time: [00:20:06]
+2021-08-07 17:51:42,403 Eval test on arch: [conv-fstride], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm1_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [372 / 600] acc: [62.0000] with loss: [239.7233]
+2021-08-07 17:51:43,129 Eval my on arch: [conv-fstride], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm1_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [23 / 25] acc: [92.0000] with loss: [42.6074]
+2021-08-07 17:51:43,818 
+
+2021-08-07 18:11:49,334 Training on arch: [conv-fstride], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm1_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, device: [cuda:0], time: [00:20:03]
+2021-08-07 18:11:49,885 Eval test on arch: [conv-fstride], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm1_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [386 / 600] acc: [64.3333] with loss: [237.2486]
+2021-08-07 18:11:50,610 Eval my on arch: [conv-fstride], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm1_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [23 / 25] acc: [92.0000] with loss: [42.4902]
+2021-08-07 18:11:51,297 
+
+2021-08-07 18:32:06,038 Training on arch: [conv-fstride], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm1_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, device: [cuda:0], time: [00:20:12]
+2021-08-07 18:32:06,591 Eval test on arch: [conv-fstride], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm1_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [375 / 600] acc: [62.5000] with loss: [238.7213]
+2021-08-07 18:32:07,316 Eval my on arch: [conv-fstride], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm1_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [23 / 25] acc: [92.0000] with loss: [42.5984]
+2021-08-07 18:32:08,003 
+
+2021-08-07 18:59:35,634 Training on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm1_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, device: [cuda:0], time: [00:27:25]
+2021-08-07 18:59:36,222 Eval test on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm1_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [394 / 600] acc: [65.6667] with loss: [235.8812]
+2021-08-07 18:59:36,957 Eval my on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm1_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [17 / 25] acc: [68.0000] with loss: [48.5168]
+2021-08-07 18:59:37,736 
+
+2021-08-07 19:26:56,099 Training on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm1_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, device: [cuda:0], time: [00:27:15]
+2021-08-07 19:26:56,781 Eval test on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm1_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [372 / 600] acc: [62.0000] with loss: [239.6870]
+2021-08-07 19:26:57,518 Eval my on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm1_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [16 / 25] acc: [64.0000] with loss: [49.8780]
+2021-08-07 19:26:58,210 
+
+2021-08-07 19:54:23,027 Training on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm1_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, device: [cuda:0], time: [00:27:21]
+2021-08-07 19:54:23,609 Eval test on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm1_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [403 / 600] acc: [67.1667] with loss: [233.5139]
+2021-08-07 19:54:24,344 Eval my on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm1_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [16 / 25] acc: [64.0000] with loss: [49.3442]
+2021-08-07 19:54:25,036 
+
+2021-08-07 20:21:47,673 Training on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm1_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, device: [cuda:0], time: [00:27:19]
+2021-08-07 20:21:48,260 Eval test on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm1_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [401 / 600] acc: [66.8333] with loss: [234.0197]
+2021-08-07 20:21:48,992 Eval my on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm1_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [20 / 25] acc: [80.0000] with loss: [45.8185]
+2021-08-07 20:21:49,769 
+
+2021-08-07 20:49:12,645 Training on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm1_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, device: [cuda:0], time: [00:27:19]
+2021-08-07 20:49:13,325 Eval test on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm1_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [402 / 600] acc: [67.0000] with loss: [233.9392]
+2021-08-07 20:49:14,061 Eval my on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-500_r1-5_mfcc32-32_c1d0d0e0_norm1_f-1x32x50/], train_params: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}, correct: [15 / 25] acc: [60.0000] with loss: [50.6803]
+2021-08-07 20:49:14,750 
+

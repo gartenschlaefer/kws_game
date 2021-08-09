@@ -88,7 +88,7 @@ class FeatureExtractor():
     mfcc_all = np.empty(shape=(1, 0, mfcc.shape[1]), dtype=np.float32) if self.channel_size == 1 else np.empty(shape=(0, self.feature_size, mfcc.shape[1]), dtype=np.float32)
 
     # compute deltas [feature x frames]
-    deltas = self.compute_deltas(mfcc) if self.feature_params['use_delta_features'] else None
+    deltas = self.compute_deltas(mfcc) if self.feature_params['use_delta_features'] or self.feature_params['use_double_delta_features'] else None
 
     # compute double deltas [feature x frames]
     double_deltas = self.compute_deltas(deltas) if self.feature_params['use_double_delta_features'] else None

@@ -236,7 +236,10 @@ def training_logs(cfg):
   #LatexTableMakerCepstral(in_file=log_path + 'log_cepstral.log', out_file=plot_path_tab + 'tab_exp_fs_cepstral.tex', caption='Experiment on the impact of the amount of cepstral coefficient of MFCC features. Frame based normalization was evaluated additionally.', label='tab:exp_fs_cepstral')
   
   # cepstral table l12
-  LatexTableMakerCepstral(in_file=log_path + 'log_exp_cepstral_l12.log', out_file=plot_path_tab + 'tab_exp_fs_cepstral_l12.tex', caption='Experiment on the impact of the amount of cepstral coefficient of MFCC features with additional frame based normalization evaluation.', label='tab:exp_fs_cepstral_l12')
+  #LatexTableMakerCepstral(in_file=log_path + 'log_exp_cepstral_l12.log', out_file=plot_path_tab + 'tab_exp_fs_cepstral_l12.tex', caption='Experiment on the impact of the amount of cepstral coefficient of MFCC features with additional frame based normalization evaluation.', label='tab:exp_fs_cepstral_l12')
+  
+  # randomize frames
+  LatexTableMakerCepstral(in_file=log_path + 'log_exp_rand_frames_l12.log', out_file=plot_path_tab + 'tab_exp_fs_rand_frames_l12.tex', caption='Experiment of not randomizing frame positions.', label='tab:exp_fs_rand_frames_l12')
 
 
 if __name__ == '__main__':

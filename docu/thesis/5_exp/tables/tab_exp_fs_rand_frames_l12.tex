@@ -1,0 +1,17 @@
+\begin{table}[ht!]
+\begin{center}
+\caption{Experiment of not randomizing frame positions.}
+\begin{tabular}{ M{3cm}  M{2cm}  M{2cm}  M{2.5cm}  M{2.5cm} }
+\toprule
+\textbf{arch} & \textbf{mfcc} & \textbf{norm} & \textbf{acc test} & \textbf{acc my} \\
+\midrule
+conv-trad & mfcc32-12 & 0 & $82.13 \pm 0.74$ & $84.00 \pm 5.66$ \\
+conv-fstride & mfcc32-12 & 0 & $73.60 \pm 1.59$ & $66.40 \pm 5.43$ \\
+conv-jim & mfcc32-12 & 0 & $78.07 \pm 0.77$ & $73.60 \pm 7.42$ \\
+\bottomrule
+\label{tab:exp_fs_rand_frames_l12}
+\end{tabular}
+\end{center}
+\end{table}
+\FloatBarrier
+\noindent
