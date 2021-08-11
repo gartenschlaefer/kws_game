@@ -3,18 +3,18 @@
 
 \section{Theory}\label{sec:nn_theory}
 \thesisStateNotReady
-The theory provided in this sections merely focuses on the used neural network architectures and some basic theory elements in neural networks.
+The theory provided in this section, merely focuses on the used neural network architectures and some basic theory elements in neural networks.
 The most basic element in neural networks is described here as node, an abstract element, usually illustrated as circle, that defines input and output connections from and to other nodes within the network.
-The connections from and to a node are multiplications with scalar values, denoted as weight.
+The edges of the connections from and to a node represent multiplications with scalar values, denoted as weight.
 Each node usually incorporates an additive term, denoted as bias term.
 All weights and bias terms are forming the parameters of a network and can be trained through back-propagation.
 The output of a node is a scalar computed from all inputs and mapped with a non-linear function denoted as activation function.
 A neural network can consist of thousand of nodes in each possible constellation of connections.
 In this thesis, the focus is only on single directional connections (no bidirectional connections).
-The structure of a neural network is defined by its layers, where a layer is a set of nodes with specific connection properties that receive inputs from the previous layer and output connections to the next layer.
-For example, a neural network consists one convolutional layer followed by three fully connected layers.
-The last layer of a neural network represents for instance the class labels of a classification tasks.
-A loss function computes the difference between the predicted and the actual class label during training and is essential for the backpropagation algorithm that updates each parameter in the network through the gradients of the obtained error.
+The structure of a neural network is defined by its layers, where a layer is a set of nodes with specific connection properties, that receive inputs from the previous layer and output connections to the next layer.
+For example, a neural network consists of one convolutional layer followed by three fully connected layers.
+The last layer of a neural network usually represents the class labels of a classification tasks.
+A loss function computes the difference between the predicted and the actual class label during training and is essential for the backpropagation algorithm, that updates each parameter in the network through the gradients of the obtained error.
 
 
 % --
@@ -23,7 +23,7 @@ A loss function computes the difference between the predicted and the actual cla
 \subsection{Activation Functions}\label{sec:nn_theory_acti}
 Activation functions for neural networks of a node in a current layer are non-linear functions that usually maps the sum of the weighted inputs from nodes in a previous layer to a single output value $z$ as following:
 \begin{equation}\label{eq:nn_theory_acti}
-  z = h(w \, x^T)
+  z = h(w^T \, x)
 \end{equation}
 where $h$ is the activation function, $w \in \R^n$ is an weight vector and $x \in \R^n$ an input vector for one specific node.
 The output of each node in a current layer is further connected to other nodes in the next layer and builds up the neural network.
@@ -49,10 +49,10 @@ and the tanh functions:
 % fully connected
 
 \subsection{Fully Connected Layer}
-A fully connected (FC) layer is the simplest layer type in neural networks.
-Each node from the previous layer is connected in forward direction to all nodes in the FC layer and each node in the FC layer is further connected to all nodes in the next layer.
-Further each connection has one trainable weight and each node has a bias term.
-A simple FC layer is illustrated in \rfig{nn_theory_fc}.
+A fully connected (FC) layer is one of the simplest and most commonly used layer types in neural network architectures.
+Each node from the previous layer is forwardly connected to all nodes in the current FC layer and each node in the current FC layer is connected to all nodes in the next layer.
+Further every connection has one trainable weight and every node has a bias term.
+A simple FC layer is illustrated in \rfig{nn_theory_fc} with 3 nodes.
 % fc
 \begin{figure}[!ht]
   \centering
@@ -62,36 +62,49 @@ A simple FC layer is illustrated in \rfig{nn_theory_fc}.
 \end{figure}
 \FloatBarrier
 \noindent
-In one node usually following computation is processed:
+Mathematically one node $i$ performs following calculation:
 \begin{equation}
-  z = h(w \, x^T + b)
+  z = h(w^T \, x + b_i)
 \end{equation}
-with the same notations as in \req{nn_theory_acti} and an additional bias term $b \in \R$.
+with the same notations as described in \req{nn_theory_acti} and an additional bias term $b_i \in \R$.
+For all nodes in a layer this equation of a single node can be summarized to a weight matrix $W \in \R^{m \times n}$ with $m$ as total amount of nodes in that layer, so that an FC layer can be written as:
+\begin{equation}
+  \hat{z} = h(W \, x + b)
+\end{equation}
+where $b \in \R^m$ are the bias terms of all nodes and $\hat{z} \in \R^m$ the outputs of each nodes in that layer.
+With the matrix representation it is easy to obtain the amounts of operations needed for a FC layer.
+The amount of parameters are clearly $m \cdot n$ for $W$ and $m$ for $b$ so in total $m \cdot n + m$ parameters.
+The amount of operations are the matrix vector multiplication with approximated amounts of multiplication and additions plus the bias terms.
+With the activation function disregarded, the amount of calculations are closely:
+\begin{equation} 
+  \mathcal{T}(W \, x + b) = 2 (m \cdot n) + m
+\end{equation}
+which would give for example with $n = 128$ and $m = 64$ roughly $\mathcal{T}(W \, x + b) = \SI{16.4}{\kilo\ops}$.
 
 
 % --
 % cnn
 
 \subsection{Convolutional Layers}\label{sec:nn_theory_cnn}
-Convolutional layers are the fundament of every Covolutional Neural Networks (CNN) as already discussed in \rsec{prev_nn_cnn}.
-They use convolutional filters on small areas of the input data, so that spatial information is retrieved.
-Those convolutional filters are also called kernels and illustrated in case of images as rectangle in 2D space with kernel width $k_w$ and height $k_h$.
-The kernel is shifted over its input map in each axis with an operation called \emph{stride}, denoted as $s$, and produce a output map through convolution.
-The output dimension $o_d$ for striding along this axis with $s_d$ and kernel size for that axis $k_d$ over the input dimension $i_d$ can be computed as:
+Convolutional layers are the fundamental building block of every Covolutional Neural Networks (CNN), as already discussed in \rsec{prev_nn_cnn}.
+Convolutional filters are applied on small areas of the input data, so that spatial information can be retrieved.
+Those convolutional filters are also called kernels, denoted as $k$ and illustrated in case of images as rectangles in 2D space with kernel width $d_{k_w}$ and height $d_{k_h}$.
+The kernel is shifted over its input map in each dimensional axis with an operation called \emph{stride}, denoted as $s$, and produce an output map through the convolution operation, mathematically denoted with a star $*$.
+The output length $d_{o_z}$ of an image in dimension $z$ convoluted from an input length $d_{x_z}$ with a kernel $k$ striding along axis $i$ with $s_z$ and kernel size for that axis $d_{k_z}$ can be computed as following:
 \begin{equation}\label{eq:nn_theory_cnn_}
-  o_d = \floor*{\frac{i_d + p_d - k_d}{s_d} + 1}
+  d_{o_z} = \floor*{\frac{d_{x_z} + p_z - d_{k_z}}{s_z} + 1}
 \end{equation}
-where $p_d$ is additionally a \emph{padding} term, where for instance for in zero-padding, zeros are added on both sides of the input dimension.
-For example if a $16 \times 16$ image is convoluted by a $5 \times 5$ kernel with stride $1$ in each direction and no padding, the output image is $12 \times 12$.
-The padding operation has usually the purpose to keep a the output and input dimension the same.
-This is used for instance in residual neural networks, where the input to convolutional layers of a block, is bypassed and added to the output of this block again.
-Being able to compute the addition operation from input and output of the residual block, their dimensions must be the same.
+where $p_z$ is an additional \emph{padding} term in dimension $z$, for instance zero-padding adds zeros on both sides of the selected axis.
+For example if a $16 \times 16$ image is convoluted by a $5 \times 5$ kernel with stride $1$ in each direction and no padding is done, the output image is a $12 \times 12$ image.
+The padding operation has usually the purpose to keep the same output and input dimension.
+This is for instance necessary in residual neural networks, where the input to a residual block with several convolutional layers is bypassed and added to the output of this block again.
+Being able to compute the addition operation from input and output of the residual block, their dimensions must coincide.
 However in most convolutional network applications without residual blocks, it is preferred not to pad the image, so that dimensions are reduced hence parameters and multiplications saved.
-Further there exist some special convolutional layers designed to reduce the dimensions (subsampling), such as a Max-Pooling layer. 
+Further some types of sub-sampling layers exist, such as a Max-Pooling layer, especially designed to reduce the dimensions of the output image and save computations.
 
-As already mentioned above CNNs are defined with the amount of input and output channels (feature maps), the kernel size, the stride of the kernel and some other specialties like dilation.
-However it is not immediately clear from those parameter, how many convolutional filters are applied and what how the output feature maps are calculated exactly.
-The amount of convolutional filters is in most practical examples always:
+A convolutional layer is defined by the amount of input and output channels (feature maps), the kernel size, the stride of the kernel and some other specialties like dilation.
+However it is not immediately clear from those parameter, how many convolutional filters are applied and how the output feature maps are calculated exactly.
+The amount of convolutional filters $k$ is in most practical examples always:
 \begin{equation}\label{eq:nn_theory_n_filters}
   \#k = i \cdot j
 \end{equation}
@@ -102,7 +115,7 @@ This is usually done by summing up all output maps of input channels $i$ for one
   o_j = \sum_{i} k_{i, j} * x_i
 \end{equation}
 where $o_j$ is the j-th feature map, $k_{i, j}$ the kernel of $i$ and $j$ and $x_i$ the i-th input channel.
-A gaphical example of this procedure is shown in \rfig{nn_theory_cnn_basics}.
+A graphical example of this procedure is shown in \rfig{nn_theory_cnn_basics}.
 % cnn basics
 \begin{figure}[!ht]
   \centering
@@ -112,6 +125,21 @@ A gaphical example of this procedure is shown in \rfig{nn_theory_cnn_basics}.
 \end{figure}
 \FloatBarrier
 \noindent
+
+The amount of parameters are all weights in the convolutional filters (kernels) and their bias terms, however the bias terms for each filter can be ignored, in this thesis no bias terms were used for the convolutional layers.
+Therefore the amount of parameters are $\#k \cdot d_{k_w} \cdot d_{k_h}$ for a two dimensional convolutional layer, which makes $3 \cdot 4 \cdot 5 \cdot 5 = 300$ parameters for the example in \rfig{nn_theory_cnn_basics}.
+The amount of operations are therefore each convolution operation for each filter and the summation to $j$ output channels.
+One convolution with a single two dimensional kernel $k$ and one input channel $x$ has an approximate number of multiplication and addition operations:
+\begin{equation}
+  \mathcal{T}(k * x) = 2(d_{k_w} \cdot d_{k_h}) (d_{o_w} \cdot d_{o_h})
+\end{equation}
+and for all feature maps and the summation of them to the output channels:
+\begin{equation}
+  \mathcal{T}(o) = \#k \cdot \mathcal{T}(k * x) + \#k \cdot (d_{o_w} \cdot d_{o_h})
+\end{equation}
+For the previous example this would give $\mathcal{T}(k * x) = 2 (12 \cdot 12) (5 \cdot 5) = \SI{7.2}{\kilo\ops}$ and $\mathcal{T}(o) = 12 \cdot \SI{7.2}{\kilo\ops} + 12 \cdot (12 \cdot 12) = \SI{88.1}{\kilo\ops}$.
+
+
 
 
 % --

@@ -33,6 +33,7 @@ The naming of those models is as following:
 	\item \enquote{\texttt{fstride4}}: from \cite{Sainath2015}, striding only in frequency dimension.
 	\item \enquote{\texttt{conv-encoder-fc3}}: self designed model, striding only in frame dimension.
 \end{itemize}
+The naming of the \texttt{trad} and \texttt{fstride4} comes from their original papers, the self defined network \texttt{conv-jim} was named bluntly after the astronaut avatar shown inside this thesis very often.
 The network architecture of the traditional network (\texttt{trad}) is shown in \rfig{nn_arch_cnn_trad}.
 % trad
 \begin{figure}[!ht]
@@ -49,6 +50,8 @@ The length of 20 frames in the first convolutional layer is reasonable and corre
 Note that the \enquote{Flatten} layer simply flattens the output tensor of the last convolutional layers to 1-dimension, so that fully conected layers can be appended.
 Dropout was used in the first two FC layers.
 The last FC layer has $c$ nodes corresponding to $c$ output labels, depending on the amount of chosen key words in the vocabulary.
+Assuming that the input will be of shape $x = (1 \times 12 \times 50)$ this will give following dimensions and operations as listed in \rtab{nn_arch_cnn_trad}.
+\input{./4_nn/tables/tab_nn_arch_cnn_trad.tex}
 
 The \texttt{fstride4} model is shown in \rfig{nn_arch_cnn_fstride}
 \begin{figure}[!ht]

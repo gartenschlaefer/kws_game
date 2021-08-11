@@ -62,6 +62,20 @@ class ConvBasics():
     return conv_layer_dim
 
 
+  def calc_amount_of_params(self):
+    """
+    calculate amount of parameters
+    """
+    return [np.prod(f) * np.prod(k) for f, k in zip(self.n_feature_maps, self.kernel_sizes)]
+
+
+  def calc_amount_of_operations(self):
+    """
+    calculate amount of operations
+    """
+    return[np.prod(f) * 2 * np.prod(o) * np.prod(k) + np.prod(f) * np.prod(o) for o, f, k in zip(self.conv_layer_dim[1:], self.n_feature_maps, self.kernel_sizes)]
+
+
   def transfer_params(self, model):
     """
     transfer parameters from other models
@@ -71,8 +85,6 @@ class ConvBasics():
 
       # go through all parameters
       for param_name in model.state_dict():
-
-        #print("param_tensor: ", param_name)
 
         # encoders
         if param_name == 'conv_layer0.weight': self.state_dict()['conv_layer0.weight'][:] = model.state_dict()[param_name]
@@ -92,8 +104,6 @@ class ConvBasics():
 
       # regard every conv encoder
       for i, model in enumerate(models):
-
-        #print("stat: ", model.state_dict().keys())
 
         # go through all parameters
         for param_name in model.state_dict():
@@ -366,15 +376,20 @@ if __name__ == '__main__':
   """
 
   # generate random sample
-  x = torch.randn((1, 1, 13, 50))
+  x = torch.randn((1, 1, 12, 50))
 
   # create net
-  #net = ConvNetFstride4(n_classes=5, data_size=x.shape[1:])
-  #net = ConvNetTrad(n_classes=5, data_size=x.shape[1:])
-  net = ConvJim(n_classes=5, data_size=x.shape[1:])
+  #model = ConvNetFstride4(n_classes=5, data_size=x.shape[1:])
+  model = ConvNetTrad(n_classes=5, data_size=x.shape[1:])
+  #model = ConvJim(n_classes=5, data_size=x.shape[1:])
 
   # test net
-  o = net(x)
+  o = model(x)
 
   # print some infos
-  print("\nx: ", x.shape), print("Net: ", net), print("o: ", o)
+  print("\nx: ", x.shape), print("model: ", model), print("o: ", o)
+
+  # print amount of operations and number of params
+  print("dim: {}".format(model.conv_layer_dim))
+  print("params: {}, sum: {:,}".format(model.calc_amount_of_params(), np.sum(model.calc_amount_of_params())))
+  print("operations: {}, sum: {:,}".format(model.calc_amount_of_operations(), np.sum(model.calc_amount_of_operations())))

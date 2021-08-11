@@ -1,0 +1,18 @@
+\begin{table}[ht!]
+\begin{center}
+\caption{Network description of \texttt{conv-trad}}
+\begin{tabular}{ M{1.5cm} M{1.5cm} M{1.4cm} M{1.4cm} M{2cm} M{2cm} M{2cm} }
+\toprule
+ \textbf{layer types} & \textbf{number of feature maps} & \textbf{kernel size} & \textbf{stride} & \textbf{output dimension} & \textbf{number of operations}\\
+\midrule
+input & - & - & - & $1 \times 12 \times 50$ & -\\
+conv. & 64 & $(4 \times 20)$ & $(1, 1)$ & $64 \times 9 \times 31 $ & \SI{2.87}{\mega\ops}\\
+max & - & $(2 \times 4)$ & $(2, 4)$ & $64 \times 4 \times 7 $ & -\\
+conv. & 64 & $(2 \times 4)$ & $(1, 1)$ & $64 \times 3 \times 31 $ & \SI{2.87}{\mega\ops}\\
+\bottomrule
+\label{tab:nn_arch_cnn_trad}
+\end{tabular}
+\end{center}
+\end{table}
+\FloatBarrier
+\noindent

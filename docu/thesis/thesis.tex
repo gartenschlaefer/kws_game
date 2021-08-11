@@ -34,18 +34,6 @@
 % colors
 \include{./0_shards/colors.tex}
 
-%\pagestyle{headings}
-
-%\usepackage{fancyhdr}
-
-%\pagestyle{fancy}
-%\fancyhf{}
-
-% \renewcommand{\headrulewidth}{0.5pt}
-% \renewcommand{\footrulewidth}{0pt
-
-
-
 
 % --
 % begin document
@@ -61,7 +49,7 @@
 % ***
 % ToDo
 % Date of completion (optional argument sets a different \date{})
-\thesisdate[ ]{Month 2021}
+\thesisdate[ ]{August, 2021}
 
 % Supervisor headline (select male/female/plural version)
 \supervisortitle{\germanenglish{Betreuerin/Betreuer}{Supervisor}}
@@ -81,12 +69,20 @@
 % --
 % titles
 
+% roman page numbers
+\frontmatter
+
+% title pages with list of contents
 \input{./0_shards/shard_title.tex}
 
 
 % -- 
 % content
 
+% alphabetic numbers
+\mainmatter
+
+% all contents
 \input{./1_intro/intro.tex}
 \input{./2_prev/prev.tex}
 \input{./3_signal/signal.tex}
@@ -99,8 +95,11 @@
 % --
 % appendix
 
+% appendix section
 \appendix
-\addpart*{Appendix}
+
+% appendix
+\input{./8_appendix/appendix.tex}
 
 
 % --
