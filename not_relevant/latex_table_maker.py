@@ -169,7 +169,7 @@ class LatexTableMakerCepstral(LatexTableFunctions, LogExtractor):
     train_instances_sep = [[ti for ti in train_instances_dict if ti['arch'] == a and ti['mfcc'] == m and ti['norm'] == n] for a, m, n in separators]
 
     # row entries
-    row_entries = [[tis[0]['arch'], tis[0]['mfcc'], tis[0]['norm'], '${:.2f} \\pm {:.2f}$'.format(np.mean(np.array([ti['acc'][0] for ti in tis]).astype(float)), np.sqrt(np.var(np.array([ti['acc'][0] for ti in tis]).astype(float)))), '${:.2f} \\pm {:.2f}$'.format(np.mean(np.array([ti['acc'][1] for ti in tis]).astype(float)), np.sqrt(np.var(np.array([ti['acc'][1] for ti in tis]).astype(float))))] for tis in train_instances_sep]
+    row_entries = [[tis[0]['arch'], tis[0]['mfcc'], tis[0]['norm'], '${:.2f} \\pm {:.2f}$'.format(np.mean(np.array([ti['acc'][0] for ti in tis]).astype(float)), np.sqrt(np.var(np.array([ti['acc'][0] for ti in tis]).astype(float)))), '${:.2f} \\pm {:.2f}$'.format(np.mean(np.array([ti['acc'][1] for ti in tis]).astype(float)), np.sqrt(np.var(np.array([ti['acc'][1] for ti in tis]).astype(float))))] for tis in train_instances_sep if len(tis)]
     
     # header
     table_str = self.table_header(col_spaces_cm=col_spaces_cm, sep=[], caption=caption)

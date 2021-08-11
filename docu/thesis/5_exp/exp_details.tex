@@ -24,18 +24,21 @@ Several other \texttt{Python} packages were used within the project, but are not
 \subsection{Neural Network Training Details}\label{sec:exp_details_training}
 The training details of the used neural networks can be split into following parameters:
 \begin{enumerate}
-  \item Features extraction parameters
+  \item Feature extraction parameters
   \item Dataset parameters
-  \item Feature selection
-  \item Transfer Learning parameters
+  \item Pre-Training details
   \item Training parameters
 \end{enumerate}
 The feature extraction parameters provide information about how the MFCC feautes were extracted.
-Note that no
-During the feature selection experiments the parameters for cepstral coefficients with enhancements are varying normalization.
+The dataset parameters are the selected labels and the number of examples per labels.
+
+\subsubsection{Feature extraction parameters}
+During the feature selection experiments, the parameters for cepstral coefficients with enhancements are varying.
 If not other stated, the feature extraction parameters in \rtab{exp_details_params_feature} are used.
 \input{./5_exp/tables/tab_exp_details_params_feature}
-The dataset parameters are the selected labels and the number of examples per labels.
+
+\subsubsection{Dataset parameters}
+
 The selected labels are either the 12 labels for comparison to the benchmark networks described in \rsec{prev_kws_benchmark} or 7 labels used for the deployed KWS Game are listed as well as the number of examples per label in \rtab{exp_details_params_dataset}.
 \input{./5_exp/tables/tab_exp_details_params_dataset}
 %The Abbreviation regarding dataset parameters and feature selection were already listed in \rtab{exp_dataset_abbr}.

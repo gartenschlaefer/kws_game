@@ -63,7 +63,7 @@ class ML():
     self.model_path = self.paths['model'] + self.cfg_ml['nn_arch'] + '/' + self.audio_dataset.param_path + self.param_path_ml
 
     # model instance
-    self.model_instance = '_i{}'.format(len(glob(self.model_path[:-1] + '*')))
+    self.model_instance = '_i{}'.format(len(glob(self.model_path[:-1] + '*'))) if len(glob(self.model_path[:-1] + '*')) < self.cfg_ml['num_instances'] else '_i{}'.format(len(glob(self.model_path[:-1] + '*')) - 1)
 
     # create new instance
     self.model_path = self.model_path[:-1] + self.model_instance + '/' if os.path.isdir(self.model_path) and self.cfg_ml['new_instance'] and self.nn_arch_context not in ['adv_dual', 'adv_label', 'adv_label_all'] else self.model_path
@@ -163,17 +163,14 @@ class ML():
     training
     """
 
-    # check if model already exists
-    if check_files_existance(self.model_files) and not self.cfg_ml['retrain']:
-
-      # load model and check if it was possible
-      self.net_handler.load_models(model_files=self.model_files)
+    # check if model already exists, load model if possible and do no training
+    if check_files_existance(self.model_files) and not self.cfg_ml['retrain']: return self.net_handler.load_models(model_files=self.model_files)
 
     # change training parameters if requested
     train_params = self.train_params if new_train_params is None else new_train_params
 
     # print train infos
-    print("\nTraining on nn_arch: {}\nparam string: {}".format(self.nn_arch, self.param_path_ml))
+    print("\nTraining on nn_arch: {}\naudio set params string: {}\ntrain params string: {}\nmodel path: {}".format(self.nn_arch, self.audio_dataset.param_path, self.param_path_ml, self.model_path))
 
     # train
     train_score = self.net_handler.train_nn(train_params=train_params, batch_archive=self.batch_archive, callback_f=self.image_collect)
@@ -182,10 +179,7 @@ class ML():
     if log_on: logging.info('Training on arch: [{}], audio set param string: [{}], train_params: {}, device: [{}], time: {}'.format(self.cfg_ml['nn_arch'], self.audio_dataset.param_path, train_params, self.net_handler.device, s_to_hms_str(train_score.score_dict['time_usage'])))
     
     # save models and parameters
-    if save_models_enabled:
-      self.net_handler.save_models(model_files=self.model_files)
-      self.save_params()
-      self.save_metrics(train_score=train_score)
+    if save_models_enabled: self.net_handler.save_models(model_files=self.model_files), self.save_params(), self.save_metrics(train_score=train_score)
 
     # save info
     self.save_infos()

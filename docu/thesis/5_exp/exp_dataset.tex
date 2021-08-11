@@ -32,18 +32,18 @@ In this thesis, the experiments are done on the second version \texttt{v0.02} of
 The hard-facts about the speech command dataset \texttt{v0.02} are listed in \rtab{exp_dataset_hard_facts}.
 % hard facts
 \input{./5_exp/tables/tab_exp_dataset_hard_facts.tex}
-All speech command key words with their separation in training, test and validation set are shown in \rtab{exp_dataset_all_labels}.
+All speech command key words with their separation in training, test and validation set are shown in \rtab{exp_dataset_all_labels} loacated in the appendix.
 % all labels tab
-\input{./5_exp/tables/tab_exp_dataset_all_labels.tex}
+%\input{./5_exp/tables/tab_exp_dataset_all_labels.tex}
 In \rtab{exp_dataset_all_labels} it can be observed, that some labels are occurring significantly more often than others.
 The idea behind this is, as described in \cite{Warden2018}, to separate the key words into \emph{core key words} and \emph{auxiliary key words}.
 The core key words are the more frequent ones with about 3000 to 4000 examples each, in detail they are \{\enquote{yes}, \enquote{no}, \enquote{up}, \enquote{down}, \enquote{left}, \enquote{right}, \enquote{on}, \enquote{off}, \enquote{stop}, \enquote{go}, \enquote{zero}, \enquote{one}, ..., \enquote{nine} \}.
 
 The auxiliary words are the less frequent ones that are not already listed above in the core key words of all available key words in the dataset.
-The intention is that the core key words should be classified individually and therefore get an own class label each. 
-The auxiliary key words should gather to a single separate class label representing all other possible unknown words to the classification system.
-Those auxiliary key words are often labeled in papers with \enquote{unknown}, but in this thesis it is referred as \enquote{\_mixed} label.
-Further some of the auxiliary key words are similar to core key words, such as \enquote{three} and \enquote{tree}, which should increase the difficulty in the classification task.
+The intention is that the core key words should each get an own class label and classified individually out of all key words.
+The auxiliary words are used as nuisances and should gather to a single representative class label for all other possible unknown words to the classification system.
+Those auxiliary key words are often labeled in papers with \enquote{unknown}, but in this thesis it is referred as \enquote{\_mixed} label, since it is a mixture of auxiliary key words.
+Note that the auxiliary key words make the classification task much more difficult because of similarities to the core words.
 In the creation of the examples for the \enquote{\_mixed} label, it is important to have equal amounts of examples per individual auxiliary key word.
 
 Some examples of the speech command dataset in raw audio format are shown in \rfig{exp_dataset_wav_grid_speech_commands_v2} to provide a small glimpse on the recordings.
@@ -103,25 +103,28 @@ The recording devices of the speakers, who contributed examples to the dataset, 
 
 The personal experiments made, when listening to the examples in the dataset, were:
 \begin{itemize}
-  \item The quality of the examples in the dataset are ranging from really good and understandable to very bad, noisy, unrecognizable and cut away, though most of the examples are good.
+  \item The quality of the examples in the dataset are ranging from really good and understandable to very bad, noisy, unrecognizable and cut off, though most of the examples are good.
 
-  \item Different accents can be perceived, that suggests that people from several countries were involved. However the bias is layed on American English as noted in the paper.
+  \item Different accents can be perceived, that suggests that people from several countries were involved. 
+  However the bias was laid on American English, as noted in the paper.
 
-  \item No children speakers were found on the personal listening.
+  \item No children speakers had been found in the personal listening of examples.
 \end{itemize}
 
-Due to data privacy issues the information on the individual speakers are not given.
+Due to data privacy issues the information of individual speakers is not displayed.
 Further it is not clear if there are equal amounts of male and female speakers and if there are any children speakers included.
 The last would be especially interesting for a video games suited for kids.
 
 In many recordings the background noise is imminent, such as traffic noise, chattering people, office sounds, etc.
-A quality check of the recorded files in the dataset was done, as described in \cite{Warden2018}, to ensure that bad samples are rejected.
+A quality check of the recorded files in the dataset had been done beforehand, as described in \cite{Warden2018}, to ensure that bad samples were rejected.
 However there are still some existing flaws such as extremely loud or silent files or examples with inconsistent sample numbers or too much noise in it or in the worst case, noise only (very rarely).
 Those quality issues in the dataset are for most cases neglectable or can be fixed, such as inconsistent sample numbers. 
 Other more problematic cases, for instance noise-only examples, should actually be filtered out, but since their occurrence is very rare, it is not worth the effort.
-%Still it is a great dataset, because there is no need for a perfect dataset when working with neural networks and one can be happy that there exists one with this amount of diversity and free of access under the creative common license.
-Usually it is not a problem for neural networks to cope with noisy datasets, actually it is good if many noisy samples are contained, so that they could learn invariance against noise, loudness differences and other nuisances during training.
+Usually it is not a problem for neural networks to cope with noisy datasets. 
+Actually it is favorable if the dataset contains many noisy samples, so that neural networks can learn invariance against noise, loudness differences and other nuisances during training.
 Further if the training dataset is large enough and the test and validation sets do not contain very bad examples, there should be no problem in training and evaluation of different models.
+%Still it is a great dataset, because there is no need for a perfect dataset when working with neural networks and one can be happy that there exists one with this amount of diversity and free of access under the creative common license.
+%And since the dataset provides references for testing and validation files, those files surely were checked, so that no extremely bad example is included.
 
 
 % --
