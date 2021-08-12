@@ -185,8 +185,13 @@ The amount of zeros compared to ones can be sampled from a Bernoulli distributio
 % training
 
 \subsection{Training of a Neural Network}
-The training process of a neural network is usually done with backpropagation of gradients from a loss function at the output nodes.
-Those gradients are used to update the parameters of the network according to an update rule, such as Stochastic Gradient Descend (SGD), Adam \cite{Kingma2015}, etc.
-The general training techniques for neural networks are not described here, because of many existing books and papers \cite{LeCun2006}, \cite{Goodfellow2016}, \cite{DeepLearning} that are already describing this topic very well. 
+The training of a neural network is usually done by updating each parameter of the model with back-propagated gradients from the loss obtained at the output nodes.
+The loss is calculated by a specific loss function comparing the predicted labels to the targets of the actual training samples.
+To update the parameters of the network, an update rule, such as Stochastic Gradient Descend (SGD) or Adam \cite{Kingma2015} is applied.
+Note that a single update step is usually not performed on the whole dataset, unless it is a very small dataset. 
+In the normal case the update is performed for each small chunk of the dataset called \emph{batch}.
+During one training iteration, denoted as \emph{epoch}, each example in the dataset is processed a single time, then the next epochs starts.
+Note that the training of neural networks may take over thousands of epochs until a convergence is reached.
+The general training techniques for neural networks and further details are not described here, because of many existing books and papers \cite{LeCun2006}, \cite{Goodfellow2016}, \cite{DeepLearning} that are already presenting this topic very well. 
 Further it does not add any value to this thesis as the algorithms are well examined and run in the background of all neural network frameworks.
-The interesting elements are therefore only the neural network architecture and the loss functions used for training.
+The interesting elements are therefore only the neural network architecture design, the training parameters and the used loss functions.

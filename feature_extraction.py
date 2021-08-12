@@ -98,17 +98,8 @@ class FeatureExtractor():
     e_deltas = self.calc_energy(deltas) if self.feature_params['use_delta_features'] else None
     e_double_deltas = self.calc_energy(double_deltas) if self.feature_params['use_double_delta_features'] else None
 
-    # stack as features
-    if self.channel_size == 1:
-      if self.feature_params['use_cepstral_features']: mfcc_all = np.concatenate((mfcc_all, mfcc[np.newaxis, :]), axis=1) if not self.feature_params['use_energy_features'] else np.concatenate((mfcc_all, mfcc[np.newaxis, :], e_mfcc[np.newaxis, :]), axis=1)
-      if self.feature_params['use_delta_features']: mfcc_all = np.concatenate((mfcc_all, deltas[np.newaxis, :]), axis=1) if not self.feature_params['use_energy_features'] else np.concatenate((mfcc_all, deltas[np.newaxis, :], e_deltas[np.newaxis, :]), axis=1)
-      if self.feature_params['use_double_delta_features']: mfcc_all = np.concatenate((mfcc_all, double_deltas[np.newaxis, :]), axis=1) if not self.feature_params['use_energy_features'] else np.concatenate((mfcc_all, double_deltas[np.newaxis, :], e_double_deltas[np.newaxis, :]), axis=1)
-
-    # stack as channels
-    else:
-      if self.feature_params['use_cepstral_features']: mfcc_all = np.concatenate((mfcc_all, mfcc[np.newaxis, :]), axis=0) if not self.feature_params['use_energy_features'] else np.concatenate((mfcc_all, np.vstack((mfcc, e_mfcc))[np.newaxis, :]), axis=0)
-      if self.feature_params['use_delta_features']: mfcc_all = np.concatenate((mfcc_all, deltas[np.newaxis, :]), axis=0) if not self.feature_params['use_energy_features'] else np.concatenate((mfcc_all, np.vstack((deltas, e_deltas))[np.newaxis, :]), axis=0)
-      if self.feature_params['use_double_delta_features']: mfcc_all = np.concatenate((mfcc_all, double_deltas[np.newaxis, :]), axis=0) if not self.feature_params['use_energy_features'] else np.concatenate((mfcc_all, np.vstack((double_deltas, e_double_deltas))[np.newaxis, :]), axis=0)
+    # stacking
+    mfcc_all = self.mfcc_feature_stacking(mfcc_all, mfcc, deltas, double_deltas, e_mfcc, e_deltas, e_double_deltas)
 
     # norm -> [0, 1]
     if self.feature_params['norm_features']:
@@ -127,6 +118,39 @@ class FeatureExtractor():
 
     # return mfcc and best onset
     return (mfcc_all[:, :, bon_pos:bon_pos+self.frame_size], bon_pos) if reduce_to_best_onset else (mfcc_all, bon_pos)
+
+
+  def mfcc_feature_stacking(self, mfcc_all, mfcc, deltas, double_deltas, e_mfcc, e_deltas, e_double_deltas):
+    """
+    stacking of mfcc features
+    """
+
+    # old stacking: energy at last positions
+    if self.feature_params['old_stacking']:
+
+      # stack as features
+      if self.channel_size == 1:
+        if self.feature_params['use_cepstral_features']: mfcc_all = np.concatenate((mfcc_all, mfcc[np.newaxis, :]), axis=1)
+        if self.feature_params['use_delta_features']: mfcc_all = np.concatenate((mfcc_all, deltas[np.newaxis, :]), axis=1)
+        if self.feature_params['use_double_delta_features']: mfcc_all = np.concatenate((mfcc_all, double_deltas[np.newaxis, :]), axis=1)
+        if self.feature_params['use_energy_features']: mfcc_all = np.concatenate((mfcc_all, e_mfcc[np.newaxis, :], e_deltas[np.newaxis, :], e_double_deltas[np.newaxis, :]), axis=1)
+
+    # usual constellation (cep + e_cep + delta + e_delta + ...)
+    else:
+
+      # stack as features
+      if self.channel_size == 1:
+        if self.feature_params['use_cepstral_features']: mfcc_all = np.concatenate((mfcc_all, mfcc[np.newaxis, :]), axis=1) if not self.feature_params['use_energy_features'] else np.concatenate((mfcc_all, mfcc[np.newaxis, :], e_mfcc[np.newaxis, :]), axis=1)
+        if self.feature_params['use_delta_features']: mfcc_all = np.concatenate((mfcc_all, deltas[np.newaxis, :]), axis=1) if not self.feature_params['use_energy_features'] else np.concatenate((mfcc_all, deltas[np.newaxis, :], e_deltas[np.newaxis, :]), axis=1)
+        if self.feature_params['use_double_delta_features']: mfcc_all = np.concatenate((mfcc_all, double_deltas[np.newaxis, :]), axis=1) if not self.feature_params['use_energy_features'] else np.concatenate((mfcc_all, double_deltas[np.newaxis, :], e_double_deltas[np.newaxis, :]), axis=1)
+
+      # stack as channels
+      else:
+        if self.feature_params['use_cepstral_features']: mfcc_all = np.concatenate((mfcc_all, mfcc[np.newaxis, :]), axis=0) if not self.feature_params['use_energy_features'] else np.concatenate((mfcc_all, np.vstack((mfcc, e_mfcc))[np.newaxis, :]), axis=0)
+        if self.feature_params['use_delta_features']: mfcc_all = np.concatenate((mfcc_all, deltas[np.newaxis, :]), axis=0) if not self.feature_params['use_energy_features'] else np.concatenate((mfcc_all, np.vstack((deltas, e_deltas))[np.newaxis, :]), axis=0)
+        if self.feature_params['use_double_delta_features']: mfcc_all = np.concatenate((mfcc_all, double_deltas[np.newaxis, :]), axis=0) if not self.feature_params['use_energy_features'] else np.concatenate((mfcc_all, np.vstack((double_deltas, e_double_deltas))[np.newaxis, :]), axis=0)
+
+    return mfcc_all
 
 
   def find_max_energy_region(self, x, window_size, rand_best_onset=False, rand_delta_percs=0.05):

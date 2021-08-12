@@ -11,10 +11,10 @@ config_changer:
   enabled: True
 
   # mfcc mix
-  change_mfcc_mix: False
+  change_mfcc_mix: True
 
   # change architectures
-  change_archs: True
+  change_archs: False
 
   # archs
   archs: ['conv-trad', 'conv-fstride', 'conv-jim']
@@ -255,9 +255,12 @@ feature_params:
   n_ceps_coeff: 12
 
   # normalized features -> [0, 1] over frames
-  norm_features: False
+  norm_features: True
 
   # old ones do not use anymore: #compute_deltas: True #compute_energy_features: True
+
+  # stacking option
+  old_stacking: False
 
   # use deltas as own channels
   use_channels: False
@@ -281,18 +284,18 @@ ml:
   #nn_arch: conv-experimental
   #nn_arch: conv-fstride
   #nn_arch: conv-trad
-  #nn_arch: conv-jim
+  nn_arch: conv-jim
   #nn_arch: adv-experimental
   #nn_arch: adv-jim
   #nn_arch: adv-jim-label
   #nn_arch: hyb-jim
-  nn_arch: wavenet
+  #nn_arch: wavenet
 
   # params
   train_params:
 
     # training params for cnn architectures
-    cnn: {'batch_size': 32, 'num_epochs': 1000, 'lr': 0.0001, 'beta': 0.9}
+    cnn: {'batch_size': 32, 'num_epochs': 2000, 'lr': 0.0001, 'beta': 0.9}
 
     # adv
     adv: {'batch_size': 32, 'num_epochs': 100, 'lr_d': 0.0001, 'lr_g': 0.0001, 'beta_d': 0.9, 'beta_g': 0.9}

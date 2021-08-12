@@ -7,8 +7,8 @@ Feature selection is a very important step prior to neural network training.
 The reduction of input features always means a reduction of computations and is therefore a crucial point to evaulate.
 Unfortunately it is not always clear, which feature are contributing to good classification scores and which do not or even worsen them.
 In this section only Mel Frequency Cepstral Coefficients (MFCC) and their enhancements, as described in \rsec{signal_mfcc}, are the focus of the experiments.
-The feature selection of Raw features, used for Wavenets, would not make much sense, since each sample is an own feature itself.
-Another important aspect in the feature selection experimnets is the evaluation of the proposed frame based normalization \req{signal_mfcc_norm} originally applied to improve the visualization of MFCCs and making Generative Adversarial Neural Networks (GANs) more easy and faster to train.
+A feature selection for raw audio samples, used in the Wavenet architecture, would not make much sense, because each sample is an feature itself on the time axis.
+Another important aspect in the feature selection experiments is the evaluation of the proposed frame based normalization \req{signal_mfcc_norm} originally applied to improve the visualization of MFCCs and making Generative Adversarial Neural Networks (GANs) more easy and faster to train.
 However frame based normalization might be critical, because it is a normalization done only on the frame (time) scale and disregards the frequency dimension.
 
 Two experiments are done to shade some light into MFCC feature selection:
@@ -17,15 +17,16 @@ Two experiments are done to shade some light into MFCC feature selection:
     \item Impact on the enhancements of MFCCs
 \end{enumerate}
 For saving training time and computations, those experiments were done on a smaller subset of the whole speech commands dataset, described in \rsec{exp_dataset_speech_cmd}, using 500 samples of each one of the L12 labels.
-The training with one set of parameters was done with 5 consecutive iterations.
-The scores obtained from those iterations for each set prameters are presented with a mean value and the standard deviation (square root of the variance).
+The filter bands of the MFCCs are fixed to a total number of 32 bands for all experiments.
+The training of one set of parameters was done with 5 consecutive iterations to create better statistics of the scores.
+The scores obtained from those iterations for each set parameters are presented with a mean value and the standard deviation (square root of the variance).
 
 
 % --
 % cepstral
 
 \subsection{Impact on the Amount of Cepstral Coefficients}
-The filter bands of the MFCCs are fixed to a total number of 32 bands and the cepstral coefficients are selected to either 12 or 32, where 12 is the common selection of coefficients in many papers.
+The cepstral coefficients are selected to either 12 or 32, where 12 is the common selection of coefficients in many papers.
 Also the experiments are done once with and once without frame based normalization.
 The training parameters for the experiment are listed in \rsec{exp_details_training}.
 The experiment is shown in \rtab{exp_fs_cepstral}.
@@ -40,6 +41,10 @@ The experiment is shown in \rtab{exp_fs_cepstral}.
 % enhancements
 
 \subsection{Impact on the enhancements of MFCCs}
+In this experiment the cepstral coefficients were selected to 12, but enhanced with deltas, double deltas and energy frames.
+The frame based normalization was applied in this experiment
+
+\input{./5_exp/tables/tab_exp_fs_mfcc_l12.tex}
 
 
 

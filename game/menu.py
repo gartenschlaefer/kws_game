@@ -71,6 +71,18 @@ class Menu(Interactable):
     self.game_logic.run_loop = False
 
 
+  def esc_key(self):
+    """
+    esc key
+    """
+
+    # end loop
+    self.game_logic.run_loop = False
+
+    # end with escape key pressed
+    self.game_logic.esc_key_exit = True
+
+
   def reset(self):
     """
     reset menu
@@ -366,7 +378,6 @@ class OptionMenu(Menu):
       # activate mic device
       else: self.mic.change_device_flag = True
 
-
     # cmd menu
     elif self.button_state == self.button_state_dict['cmd_button']: 
 
@@ -376,6 +387,34 @@ class OptionMenu(Menu):
       # activate mic device
       if not self.menu_button_sel_enable: self.mic.change_device_flag = True
 
+
+  def esc_key(self):
+    """
+    esc key
+    """
+
+    # only if enter key was pressed
+    if not self.menu_button_sel_enable:
+
+      # update selection mode
+      self.menu_button_sel_enable = not self.menu_button_sel_enable
+
+      # device menu
+      if self.button_state == self.button_state_dict['device_button']: self.canvas.interactable_dict['device_canvas'].device_select(not self.menu_button_sel_enable)
+
+      # thresh menu
+      elif self.button_state == self.button_state_dict['thresh_button']: self.canvas.interactable_dict['thresh_canvas'].select(not self.menu_button_sel_enable)
+
+      # cmd menu
+      elif self.button_state == self.button_state_dict['cmd_button']: self.canvas.interactable_dict['cmd_canvas'].select(not self.menu_button_sel_enable)
+
+    # standard esc routine
+    else:
+      # end loop
+      self.game_logic.run_loop = False
+
+      # end with escape key pressed
+      self.game_logic.esc_key_exit = True
 
 
   def button_select(self):

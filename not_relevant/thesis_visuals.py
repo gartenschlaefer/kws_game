@@ -15,7 +15,7 @@ from audio_dataset import AudioDataset
 from feature_extraction import FeatureExtractor, custom_dct_matrix
 from batch_archive import SpeechCommandsBatchArchive
 from plots import plot_mel_band_weights, plot_mfcc_profile, plot_waveform, plot_dct, plot_wav_grid, plot_spec_profile, plot_mel_scale, plot_grid_images, plot_mfcc_plain
-from latex_table_maker import LatexTableMaker, LatexTableMakerAudiosetLabels, LatexTableMakerCepstral
+from latex_table_maker import LatexTableMakerMFCC, LatexTableMakerAudiosetLabels, LatexTableMakerCepstral
 
 
 def get_infos_from_log(in_file):
@@ -137,30 +137,30 @@ def showcase_wavs(cfg, raw_plot=True, spec_plot=True, mfcc_plot=True, use_mfcc_3
       plot_mfcc_profile(x, cfg['feature_params']['fs'], feature_extractor.N, feature_extractor.hop, mfcc, anno_file=anno, sep_features=False, bon_pos=bon_pos, frame_size=cfg['feature_params']['frame_size'], plot_path=plot_path, name=name, close_plot=False, show_plot=show_plot)
 
 
-def feature_selection_tables(overwrite=False):
-  """
-  feature selection tables
-  """
+# def feature_selection_tables(overwrite=False):
+#   """
+#   feature selection tables
+#   """
 
-  # files
-  in_files = ['../ignore/logs/ml_it1000_c5_features_trad.log', '../ignore/logs/ml_it1000_c5_features_fstride.log', '../ignore/logs/ml_it2000_c30_features_fc3.log', '../ignore/logs/ml_it1000_c30_features_fc1.log', '../ignore/logs/ml_it500_c5_features_fc1.log']
-  out_files = ['../docu/thesis/4_practice/tables/tab_fs_trad_it1000_c5.tex', '../docu/thesis/4_practice/tables/tab_fs_fstride_it1000_c5.tex', '../docu/thesis/4_practice/tables/tab_fs_fc3_it2000_c30.tex', '../docu/thesis/4_practice/tables/tab_fs_fc1_it1000_c30.tex', '../docu/thesis/4_practice/tables/tab_fs_fc1_it500_c5.tex']
+#   # files
+#   in_files = ['../ignore/logs/ml_it1000_c5_features_trad.log', '../ignore/logs/ml_it1000_c5_features_fstride.log', '../ignore/logs/ml_it2000_c30_features_fc3.log', '../ignore/logs/ml_it1000_c30_features_fc1.log', '../ignore/logs/ml_it500_c5_features_fc1.log']
+#   out_files = ['../docu/thesis/4_practice/tables/tab_fs_trad_it1000_c5.tex', '../docu/thesis/4_practice/tables/tab_fs_fstride_it1000_c5.tex', '../docu/thesis/4_practice/tables/tab_fs_fc3_it2000_c30.tex', '../docu/thesis/4_practice/tables/tab_fs_fc1_it1000_c30.tex', '../docu/thesis/4_practice/tables/tab_fs_fc1_it500_c5.tex']
 
-  for in_file, out_file in zip(in_files, out_files):
+#   for in_file, out_file in zip(in_files, out_files):
 
-    # check files existance
-    if os.path.isfile(out_file) and not overwrite:
-      print("out file exists: ", out_file)
-      continue
+#     # check files existance
+#     if os.path.isfile(out_file) and not overwrite:
+#       print("out file exists: ", out_file)
+#       continue
 
-    # table info
-    print("feature selection table: ", out_file)
+#     # table info
+#     print("feature selection table: ", out_file)
 
-    # instances
-    lt_maker = LatexTableMaker(in_file=in_file, extraction_type='feature_selection')
+#     # instances
+#     lt_maker = LatexTableMaker(in_file=in_file, extraction_type='feature_selection')
 
-    # extract table
-    tables = lt_maker.extract_table(out_file=out_file, caption=get_thesis_table_captions(in_file))
+#     # extract table
+#     tables = lt_maker.extract_table(out_file=out_file, caption=get_thesis_table_captions(in_file))
 
 
 def audio_set_wavs(cfg, statistics_plot=True, wav_grid_plot=False, label_table_plot=False):
@@ -239,7 +239,10 @@ def training_logs(cfg):
   #LatexTableMakerCepstral(in_file=log_path + 'log_exp_cepstral_l12.log', out_file=plot_path_tab + 'tab_exp_fs_cepstral_l12.tex', caption='Experiment on the impact of the amount of cepstral coefficient of MFCC features with additional frame based normalization evaluation.', label='tab:exp_fs_cepstral_l12')
   
   # randomize frames
-  LatexTableMakerCepstral(in_file=log_path + 'log_exp_rand_frames_l12.log', out_file=plot_path_tab + 'tab_exp_fs_rand_frames_l12.tex', caption='Experiment of not randomizing frame positions.', label='tab:exp_fs_rand_frames_l12')
+  #LatexTableMakerCepstral(in_file=log_path + 'log_exp_rand_frames_l12.log', out_file=plot_path_tab + 'tab_exp_fs_rand_frames_l12.tex', caption='Experiment of not randomizing frame positions.', label='tab:exp_fs_rand_frames_l12')
+
+  # feature selection
+  LatexTableMakerMFCC(in_file=log_path + 'log_exp_mfcc_l12.log', out_file=plot_path_tab + 'tab_exp_fs_mfcc_l12.tex', caption='Experiment on the impact of feature enhancement of cepstral coefficients (c), deltas (d), double deltas (dd) and energy vectors (e).', label='tab:exp_fs_mfcc_l12')
 
 
 if __name__ == '__main__':

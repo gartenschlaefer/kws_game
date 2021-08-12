@@ -179,12 +179,7 @@ class MenuGameLogic(GameLogic):
     """
     if esc is pressed
     """
-
-    # end loop
-    self.run_loop = False
-
-    # end with escape key pressed
-    self.esc_key_exit = True
+    self.menu.esc_key()
 
 
   def reset(self):

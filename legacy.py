@@ -19,6 +19,9 @@ def legacy_adjustments_feature_params(feature_params):
   if 'use_mfcc_features' not in feature_params.keys(): feature_params.update({'use_mfcc_features': True})
   if 'frame_size_s' not in feature_params.keys(): feature_params.update({'frame_size_s': 0.5})
 
+  # stacking
+  if 'old_stacking' not in feature_params.keys(): feature_params.update({'old_stacking': False})
+
   # mfcc selection extension
   if 'use_channels' not in feature_params.keys(): feature_params.update({'use_channels': False})
   if 'use_cepstral_features' not in feature_params.keys(): feature_params.update({'use_cepstral_features': True})
@@ -47,7 +50,7 @@ def legacy_adjustments_net_params(net_params):
   try:
     feature_params = net_params['feature_params'][()]
   except:
-    feature_params = {'use_mfcc_features': True, 'fs': 16000, 'N_s': 0.025, 'hop_s': 0.010, 'frame_size_s': 0.32, 'n_filter_bands': 32, 'n_ceps_coeff': 12, 'frame_size': 32, 'norm_features': False, 'use_channels': False, 'use_cepstral_features': True, 'use_delta_features': True, 'use_double_delta_features': True, 'use_energy_features': True}
+    feature_params = {'use_mfcc_features': True, 'fs': 16000, 'N_s': 0.025, 'hop_s': 0.010, 'frame_size_s': 0.32, 'n_filter_bands': 32, 'n_ceps_coeff': 12, 'frame_size': 32, 'norm_features': False, 'old_stacking': True, 'use_channels': False, 'use_cepstral_features': True, 'use_delta_features': True, 'use_double_delta_features': True, 'use_energy_features': True}
     print("old classifier model use fixed feature parameters: {}".format(feature_params))
 
   # feature params adjustment for old saves
