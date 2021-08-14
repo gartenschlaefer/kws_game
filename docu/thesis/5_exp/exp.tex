@@ -3,19 +3,18 @@
 
 \chapter{Experiments}\label{sec:exp}
 All experiments and their obtained results are presented in this chapter.
-Before the experiments are demonstrated, the datasets and its feature extraction used for training the neural network architectures is described and analyzed.
-Some sound examples and feature representation of the datasets are shown and the quality and diversity of the recorded samples is discussed.
-More importantly this chapter includes the evaluation of the neural network models in Key Word Spotting (KWS) of speech commands.
-In detail the feature selection of Mel Frequency Cepstral Coefficients (MFCC) is evaluated on Convolutional Neural Networks (CNN), to observe the impact of feature reduction.
-Adversarial pre-training of CNNs is compared to usual training.
-Wavenet performances on raw speech signals are examined.
+Before the experiments are demonstrated, the speech command datasets are described and analyzed.
+Samples from those datasets with their feature extracted representation are shown and the quality and diversity of the recordings are discussed.
+More importantly this chapter includes the evaluation of the neural network architectures presented in \rsec{nn_arch} for the task of Key Word Spotting (KWS) of the speech commands dataset \cite{Warden2018}.
+In detail the experiments include the feature selection of Mel Frequency Cepstral Coefficients (MFCC) evaluated on Convolutional Neural Network (CNN) architectures, to observe the impact of feature reduction and a novel frame based normalization.
+Further Adversarial pre-training of CNNs is compared to usual training and the performance of a Wavenet architecture operating on raw audio sampels are examined.
 
 % dataset
 \input{./5_exp/exp_dataset.tex}
 
 % neural networks
 \input{./5_exp/exp_details.tex}
-\input{./5_exp/exp_feature_selection.tex}
+\input{./5_exp/exp_fs.tex}
 \input{./5_exp/exp_adv.tex}
 \input{./5_exp/exp_wavenets.tex}
 \input{./5_exp/exp_test_bench.tex}

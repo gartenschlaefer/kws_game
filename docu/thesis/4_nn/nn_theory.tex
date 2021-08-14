@@ -4,13 +4,13 @@
 \section{Theory}\label{sec:nn_theory}
 \thesisStateNotReady
 The theory provided in this section, merely focuses on the used neural network architectures and some basic theory elements in neural networks.
-The most basic element in neural networks is described here as node, an abstract element, usually illustrated as circle, that defines input and output connections from and to other nodes within the network.
-The edges of the connections from and to a node represent multiplications with scalar values, denoted as weight.
+The most basic element in neural networks is described here as node, an abstract element, that defines input and output connections from and to other nodes within the network.
+The edges of the connections from and to a node represents a multiplication with a scalar value, denoted as weight.
 Each node usually incorporates an additive term, denoted as bias term.
 All weights and bias terms are forming the parameters of a network and can be trained through back-propagation.
 The output of a node is a scalar computed from all inputs and mapped with a non-linear function denoted as activation function.
 A neural network can consist of thousand of nodes in each possible constellation of connections.
-In this thesis, the focus is only on single directional connections (no bidirectional connections).
+In this thesis, the connections are uni-directional (no bi-directional connections), which is the more common approach in neural networks.
 The structure of a neural network is defined by its layers, where a layer is a set of nodes with specific connection properties, that receive inputs from the previous layer and output connections to the next layer.
 For example, a neural network consists of one convolutional layer followed by three fully connected layers.
 The last layer of a neural network usually represents the class labels of a classification tasks.
@@ -140,24 +140,22 @@ and for all feature maps and the summation of them to the output channels:
 For the previous example this would give $\mathcal{T}(k * x) = 2 (12 \cdot 12) (5 \cdot 5) = \SI{7.2}{\kilo\ops}$ and $\mathcal{T}(o) = 12 \cdot \SI{7.2}{\kilo\ops} + 12 \cdot (12 \cdot 12) = \SI{88.1}{\kilo\ops}$.
 
 
-
-
 % --
 % loss functions
 
 \subsection{Loss Functions and Softmax}
 Loss functions also known as cost functions are used to determine the difference between the predicted labels $\hat{y}$ compared to the actual or ground truth labels $y$.
 The predicted labels are usually presented by the output nodes in the last layer of a neural network.
-Therefore $\hat{y} = [\hat{y_1}, \, \hat{y_2}, \dots, \hat{y_c}]^T$ has the dimension of the number of labels or classes $c$.
-Often it is preferred that $\hat{y} \in R^c$ provides a probability distribution such that:
+Therefore $\hat{y} = [\hat{y_1}, \, \hat{y_2}, \dots, \hat{y_C}]^T$ has the dimension of the number of labels or classes $C$.
+Often it is preferred that $\hat{y} \in R^C$ provides a probability distribution such that:
 \begin{equation}
-  \sum_{i=0}^c \hat{y}_i = 1
+  \sum_{i=0}^C \hat{y}_i = 1
 \end{equation}
 which can be achieved with the softmax function:
 \begin{equation}\label{eq:nn_theory_softmax}
   \hat{y}_i = \frac{\exp{x_i}}{\sum_{j=0}^{c}\exp{x_j}}
 \end{equation}
-where $c$ is the amount of nodes in this layer, if it is the last layer as usual for the softmax, $c$ is the amount of classes and $\hat{y}_i$ the probability value of the corresponding class $i$.
+where $C$ is the amount of nodes in this layer, if it is the last layer as usual for the softmax, $C$ is the amount of classes and $\hat{y}_i$ the probability value of the corresponding class $i$.
 
 There are already plenty of different loss functions available for training neural networks, however in this thesis only one kind of it is used for all neural network architecture, the cross-entropy loss or for two classes the binary cross-entropy loss function.
 Without going too much into the detail of this loss function, it is described in the same way as in the \texttt{pytorch} framework \cite{Pytorch}.
@@ -165,10 +163,16 @@ The binary cross entropy is implemented as:
 \begin{equation}
   l_i(x_i, y_i) = y_i \cdot \log x_i + (1 - y_i) \cdot \log (1 - x_i)
 \end{equation}
-where $n$ is the sample index of the training pair $(x_i, y_i)$, with $x_i$ as feature input and $y_i$ as corresponding label.
-During the training procedure a whole batch of sample size $N$ is sent through the network for classification.
-The loss function should provide only a single value, therefore all $l_i$ with $i = 0, \dots, N$ must be concatenated.
+with the training pair $(x_i, y_i)$, where $x_i \in \R^{N \times 1}$ as feature input and $y_i \in \{0, 1\}^N$ as corresponding label for the two label classification problem.
+During the training procedure a whole batch of sample size $N$ is used for one update step, however the loss function should provide only a single value, therefore all $l_i$ with $i = 0, \dots, N$ must be concatenated.
 This can simply be done for instance with the calculation of the mean of all $l_i$.
+
+The multiclass variant of the cross entropy can be defined by
+\begin{equation}
+  l_i(x_i, y_i) = - x_i[y_i] + \log{\left( \sum_{j=0}^{C} \exp{x_i[j]} \right)}
+\end{equation}
+where $x_i \in \R^{N \times C}$, $y_i \in \{0, 1, \dots, C\}^N$ and a total number of $C$ classes.
+Note that $x_i[y_i]$ is denoted as indexing of $x_i$ of its class dimension $C$. 
 
 
 % --
@@ -189,8 +193,9 @@ The training of a neural network is usually done by updating each parameter of t
 The loss is calculated by a specific loss function comparing the predicted labels to the targets of the actual training samples.
 To update the parameters of the network, an update rule, such as Stochastic Gradient Descend (SGD) or Adam \cite{Kingma2015} is applied.
 Note that a single update step is usually not performed on the whole dataset, unless it is a very small dataset. 
-In the normal case the update is performed for each small chunk of the dataset called \emph{batch}.
-During one training iteration, denoted as \emph{epoch}, each example in the dataset is processed a single time, then the next epochs starts.
+In the normal case the update is performed on small chunks of the dataset called \emph{batch}.
+During one training iteration, denoted as \emph{epoch}, each example in each batch of the dataset is processed a single time, then the next epochs starts.
+A training step is one update of parameters done for a single batch and is therefore not the same as the trainning iteration or epoch.
 Note that the training of neural networks may take over thousands of epochs until a convergence is reached.
 The general training techniques for neural networks and further details are not described here, because of many existing books and papers \cite{LeCun2006}, \cite{Goodfellow2016}, \cite{DeepLearning} that are already presenting this topic very well. 
 Further it does not add any value to this thesis as the algorithms are well examined and run in the background of all neural network frameworks.

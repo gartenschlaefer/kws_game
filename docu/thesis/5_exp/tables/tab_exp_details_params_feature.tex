@@ -7,16 +7,16 @@
 \toprule
 \textbf{Parameter} & \textbf{Value} & \textbf{Varying for experiments} \\
 \midrule
-Length of signal & \SI{500}{\milli\second} & - \\
+Speech signal length & \SI{500}{\milli\second} & - \\
 Analytic window size & \SI{25}{\milli\second} & -\\
 Hop size & \SI{10}{\milli\second} & -\\
 Window Function & Hanning & -\\
 \midrule
 Number of filter bands & 32 & -\\
 Number of cepstral coefficients & 12 & yes\\
-Delta features & 12 & yes \\
-Double delta features & 12 & yes \\
-Energy features & 3 & yes \\
+Delta features & no & yes \\
+Double delta features & no & yes \\
+Energy features & no 	& yes \\
 Frame based normalization & yes & yes\\
 \bottomrule
 \label{tab:exp_details_params_feature}

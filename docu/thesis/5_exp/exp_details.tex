@@ -3,52 +3,84 @@
 
 \section{Implementation and Training Details}\label{sec:exp_details}
 \thesisStateNotReady
-In this sections, the implementation und parameters for training are described in more detail.
+%In this sections, the implementation und parameters for training are described in more detail.
+The implementation describes the software tools used for the experiments on the neural networks, such as the programming language and packages for the code.
+The training details are sets of parameters that were commonly applied in the experiments.
+Note that the training details can vary between different experiments and the listing provides merely an overview of all available parameters to choose from and a recommendations of parameters. 
+If parameters are varying in some experiments, they are usually noted, otherwise the parameters listed were used.
+
 
 % --
 % implementation notes
 
-\subsection{Implementation notes}\label{sec:exp_details_implementation}
-The programming code for this thesis was entirely done in \texttt{Python} with version $>3.8$ evaluated on a linux system.
-This might be important if one tries to run the python code on a windows machine, it was not tested for it and could yield in errors (especially regarding paths variables).
-The training and implementation of all used neural networks are done with the \texttt{Pytorch} \cite{Pytorch} framework with version $1.7.0$. 
-Usually it should not be a problem if a newer version of \texttt{Pytorch} are applied, during the work on the thesis the version changed to $1.9.0$ with no problems.
-The feature extraction of Mel Frequency Cepstral Coefficients (MFCC) self implemented, but using efficients functions for transforms, such as the Short Time Fourier Transform (STFT) or Discrete Cosine Transform (DCT), with packages from \texttt{scipy}.
-Matrix computations were usually done with the well known package \texttt{numpy}.
-Several other \texttt{Python} packages were used within the project, but are not named explicitly, they can be looked up in the open source repository of the project.
+\subsection{Implementation Notes}\label{sec:exp_details_implementation}
+The code for this thesis was entirely done in \texttt{Python} with version $>3.8$ evaluated on a Linux operating system.
+The operating system might be important if someone tries to run the python code on a Windows machine, where unexpected errors might occur (especially regarding path variables).
+Also the project does not download the speech command dataset by its own and a path to the dataset has to be specified in the \texttt{config.yaml} file of the project.
+More on information about how to used the actual project is described in the \texttt{README.txt} file.
+The training and implementation of all used neural networks were done with the \texttt{Pytorch} \cite{Pytorch} framework of version $1.7.0$. 
+Usually it should not be a problem if a newer version of \texttt{Pytorch} is used, during the work on the thesis the version changed to $1.9.0$ without any version depending problems.
+The feature extraction of Mel Frequency Cepstral Coefficients (MFCC) was self implemented, but use already existing and efficient code for transforms, such as the Short Time Fourier Transform (STFT) or Discrete Cosine Transform (DCT), with packages from \texttt{Scipy}.
+All matrix-vector computations were done with the well known package \texttt{Numpy} or with \texttt{Pytorch}.
+Several other \texttt{Python} packages were used within the project, but are not named explicitly, they can be looked up in the open source repository of the project if requested.
 
 
 % --
 % training details
 
 \subsection{Neural Network Training Details}\label{sec:exp_details_training}
-The training details of the used neural networks can be split into following parameters:
+The training details of the used neural networks described in \rsec{nn_arch} can be split into following parameters:
 \begin{enumerate}
   \item Feature extraction parameters
   \item Dataset parameters
-  \item Pre-Training details
   \item Training parameters
+  \item Pre-Training details
 \end{enumerate}
-The feature extraction parameters provide information about how the MFCC feautes were extracted.
-The dataset parameters are the selected labels and the number of examples per labels.
+The feature extraction parameters provide information about how the MFCC features were extracted in detail.
+The dataset parameters are the selected labels and the number of examples per labels for training.
+With the training parameters, the neural network training is classically specified, such as learning rate or batch size.
+The pre-training details are describing a separate training of for instance Generative Adversarial Neural Networks (GAN), to use the obtained weights for Convolutional Neural Networks (CNN).
+Therefore the pre-training details are similar to the training parameters but include more specific details, such as which weights were used from the adversarial pre-training.
+
+
+% --
+% feature
 
 \subsubsection{Feature extraction parameters}
-During the feature selection experiments, the parameters for cepstral coefficients with enhancements are varying.
+During the feature selection experiments in \rsec{exp_fs}, the parameters for cepstral coefficients with enhancements are varying.
 If not other stated, the feature extraction parameters in \rtab{exp_details_params_feature} are used.
 \input{./5_exp/tables/tab_exp_details_params_feature}
 
+
+% --
+% dataset
+
 \subsubsection{Dataset parameters}
-
-The selected labels are either the 12 labels for comparison to the benchmark networks described in \rsec{prev_kws_benchmark} or 7 labels used for the deployed KWS Game are listed as well as the number of examples per label in \rtab{exp_details_params_dataset}.
+The selected labels are either the 12 labels for comparison to the benchmark networks described in \rsec{prev_kws_benchmark} or 7 labels used for the deployed KWS game are listed as well as the number of examples per label in \rtab{exp_details_params_dataset}.
 \input{./5_exp/tables/tab_exp_details_params_dataset}
-%The Abbreviation regarding dataset parameters and feature selection were already listed in \rtab{exp_dataset_abbr}.
-%The feature selection is the information about what input feature groups are used in the training, e.g. use cepstral coefficients only, or add delta and energy features, their references are shown in \rtab{dataset_feature_groups}.
-The transfer learning parameters describe the training details of the adversarial networks and what
-For instance it describes if the weights are used from the discriminator or generator network or how much epochs were used for the adversarial training, etc.
-%The Abbreviations for training parameters can be specified as listed in \rtab{exp_details_adv}
-%\input{./5_exp/tables/tab_exp_details_adv.tex}
+Note that the amount of examples per label for the 12 and 7 labels differs as shown in \rtab{exp_dataset_all_labels} and the minimum amount of examples per label is provided by the key word \enquote{up} with 2948 examples.
+This is important, because the number of examples per label should not be chosen to higher values than 2948 for training, otherwise the same amount of examples per label is not given.
 
-The training parameters are classical parameters for neural network training, such as learning rate, number of epochs, etc.
+
+% --
+% training parameters
+
+\subsubsection{Training parameters}
+The training parameters for the CNNs can be found in ...
+\input{./5_exp/tables/tab_exp_details_params_train}
+
+
+% --
+% training parameters
+
+\subsubsection{Pre-Training details}
+
+The pre-training parameters describe the training details of the adversarial networks used for the  described in \rsec{nn_arch_cnn}.
+For instance it describes if the weights are used from the discriminator or generator network or how much epochs were used for the adversarial training, etc.
+\input{./5_exp/tables/tab_exp_details_params_pre_train}
+
+%\input{./5_exp/tables/tab_exp_details_adv.tex}
 %Their selection and references are listed in \rtab{exp_details_train_params}
+%The Abbreviations for training parameters can be specified as listed in \rtab{exp_details_adv}
 %\input{./5_exp/tables/tab_exp_details_train_params.tex}
 

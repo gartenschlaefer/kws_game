@@ -29,35 +29,35 @@ The same holds for another model, but so that the kernel has the size of the fea
 Also one traditional model is used, that does the strides as usual in both dimensions.
 The naming of those models is as following:
 \begin{itemize}
-	\item \enquote{\texttt{trad}}: from \cite{Sainath2015} a traditional CNN network, striding in both dimensions.
-	\item \enquote{\texttt{fstride4}}: from \cite{Sainath2015}, striding only in frequency dimension.
+	\item \enquote{\texttt{conv-trad}}: from \cite{Sainath2015} a traditional CNN network, striding in both dimensions.
+	\item \enquote{\texttt{conv-fstride4}}: from \cite{Sainath2015}, striding only in frequency dimension.
 	\item \enquote{\texttt{conv-jim}}: self designed model, striding only in frame dimension.
 \end{itemize}
-The naming of the \texttt{trad} and \texttt{fstride4} comes from their original papers, the self defined network \texttt{conv-jim} was named bluntly after the astronaut avatar shown inside this thesis very often.
-The network architecture of the traditional network (\texttt{trad}) is shown in \rfig{nn_arch_cnn_trad}.
-% trad
+The naming of the \texttt{conv-trad} and \texttt{conv-fstride4} comes from their original papers, the self defined network \texttt{conv-jim} was named bluntly after the astronaut avatar shown inside this thesis very often.
+The network architecture of the traditional network (\texttt{conv-trad}) is shown in \rfig{nn_arch_cnn_trad}.
+% conv-trad
 \begin{figure}[!ht]
   \centering
     \includegraphics[height=0.2\textwidth]{./4_nn/figs/nn_arch_cnn_trad.eps}
-  \caption{Traditional CNN network design from \cite{Sainath2015} named \texttt{trad}.}
+  \caption{Traditional CNN network design from \cite{Sainath2015} named \texttt{conv-trad}.}
   \label{fig:nn_arch_cnn_trad}
 \end{figure}
 \FloatBarrier
 \noindent
-The \texttt{trad} network consists of 2 convolutional layers and one max pooling layer in between.
+The \texttt{conv-trad} network consists of 2 convolutional layers and one max pooling layer in between.
 The architecture was adapted from \cite{Sainath2015} as a baseline network and modified a bit in the kernel sizes, so that also reduced input features, for instance 12 MFCCs instead of 39 MFCC plus deltas and energies, can be computed with the same model.
 The length of 20 frames in the first convolutional layer is reasonable and corresponse approximately to the length of a vowel sound.
 Note that the \enquote{Flatten} layer simply flattens the output tensor of the last convolutional layers to 1-dimension, so that fully conected layers can be appended.
 Dropout was used in the first two FC layers.
-The last FC layer has $c$ nodes corresponding to $c$ output labels, depending on the amount of chosen key words in the vocabulary.
+The last FC layer has $C$ nodes corresponding to $C$ output class labels, depending on the amount of chosen key words in the vocabulary.
 Assuming that the input will be of shape $x = (1 \times 12 \times 50)$ this will give following dimensions and operations as listed in \rtab{nn_arch_cnn_trad}.
 \input{./4_nn/tables/tab_nn_arch_cnn_trad.tex}
 
-The \texttt{fstride4} model is shown in \rfig{nn_arch_cnn_fstride}
+The \texttt{conv-fstride4} model is shown in \rfig{nn_arch_cnn_fstride}
 \begin{figure}[!ht]
   \centering
     \includegraphics[height=0.2\textwidth]{./4_nn/figs/nn_arch_cnn_fstride.eps}
-  \caption{Frequency striding CNN network design from \cite{Sainath2015} named \texttt{fstride4}.}
+  \caption{Frequency striding CNN network design from \cite{Sainath2015} named \texttt{conv-fstride4}.}
   \label{fig:nn_arch_cnn_fstride}
 \end{figure}
 \FloatBarrier
