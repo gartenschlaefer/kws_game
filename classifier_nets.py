@@ -18,6 +18,9 @@ class ClassifierNetFc1(nn.Module):
     # parent init
     super().__init__()
 
+    # fc dims
+    self.fc_layer_dims = [(input_dim, output_dim)]
+
     # structure
     self.fc1 = nn.Linear(input_dim, output_dim)
     self.softmax =  nn.Softmax(dim=1)
@@ -40,6 +43,9 @@ class ClassifierNetFc3(nn.Module):
 
     # parent init
     super().__init__()
+
+    # fc dims
+    self.fc_layer_dims = [(input_dim, 64), (64, 32), (32, output_dim)]
 
     # structure
     self.fc1 = nn.Linear(input_dim, 64)

@@ -1,0 +1,23 @@
+\begin{table}[ht!]
+\begin{center}
+\caption{Network footprint of \texttt{conv-jim} with 12 output labels.}
+\begin{tabular}{ M{1.5cm} M{1.5cm} M{1.4cm} M{1.4cm} M{2cm} M{2.5cm} M{2.5cm} }
+\toprule
+ \textbf{layer types} & \textbf{number of feature maps} & \textbf{kernel size} & \textbf{stride} & \textbf{output dimension} & \textbf{number of operations}\\
+\midrule
+input & - & - & - & $1 \times 12 \times 50$ & -\\
+conv. & 48 & $(8 \times 50)$ & $(4, 1)$ & $48 \times 1 \times 31 $ & \SI{715.73}{\kilo\ops}\\
+conv. & 8 & $(8 \times 50)$ & $(4, 1)$ & $8 \times 1 \times 27 $ & \SI{114.05}{\kilo\ops}\\
+flatten & - & - & - & $1 \times 216$ & - \\
+fc & - & - & - & $1 \times 64$ & \SI{27.71}{\kilo\ops} \\
+fc & - & - & - & $1 \times 32$ & \SI{4.13}{\kilo\ops} \\
+fc & - & - & - & $1 \times 12$ & \SI{0.78}{\kilo\ops} \\
+\midrule
+\textbf{sum} & - & - & - & - & \textbf{\SI{862.40}{\kilo\ops}} \\ 
+\bottomrule
+\label{tab:nn_arch_cnn_jim}
+\end{tabular}
+\end{center}
+\end{table}
+\FloatBarrier
+\noindent

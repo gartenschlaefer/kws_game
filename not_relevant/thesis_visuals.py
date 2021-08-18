@@ -15,7 +15,7 @@ from audio_dataset import AudioDataset
 from feature_extraction import FeatureExtractor, custom_dct_matrix
 from batch_archive import SpeechCommandsBatchArchive
 from plots import plot_mel_band_weights, plot_mfcc_profile, plot_waveform, plot_dct, plot_wav_grid, plot_spec_profile, plot_mel_scale, plot_grid_images, plot_mfcc_plain
-from latex_table_maker import LatexTableMakerMFCC, LatexTableMakerAudiosetLabels, LatexTableMakerCepstral
+from latex_table_maker import LatexTableMakerMFCC, LatexTableMakerAudiosetLabels, LatexTableMakerCepstral, LatexTableMakerAdv
 
 
 def get_infos_from_log(in_file):
@@ -197,6 +197,9 @@ def batch_archive_grid_examples(cfg, show_plot=False):
   batch archive examples from each label ploted as grid
   """
 
+  # plot path
+  plot_path = '../docu/thesis/5_exp/figs/'
+
   # audioset init
   audio_set1 = AudioDataset(cfg['datasets']['speech_commands'], feature_params=cfg['feature_params'], root_path='../')
   audio_set2 = AudioDataset(cfg['datasets']['my_recordings'], feature_params=cfg['feature_params'], root_path='../')
@@ -205,7 +208,7 @@ def batch_archive_grid_examples(cfg, show_plot=False):
   batch_archive = SpeechCommandsBatchArchive(feature_file_dict={**audio_set1.feature_file_dict, **audio_set2.feature_file_dict}, batch_size_dict={'train': 32, 'test': 5, 'validation': 5, 'my': 1}, shuffle=False)
 
   # for all labels
-  for l in cfg['datasets']['speech_commands']['sel_labels']:
+  for l in ['left', 'right', 'up', 'down', 'go']:
 
     print("l: ", l)
 
@@ -213,14 +216,14 @@ def batch_archive_grid_examples(cfg, show_plot=False):
     batch_archive.create_batches(selected_labels=[l])
 
     # plot
-    plot_grid_images(batch_archive.x_batch_dict['train'][0, :30], context='mfcc', padding=1, num_cols=5, title=l, name='grid_' + l, show_plot=show_plot)
+    plot_grid_images(batch_archive.x_batch_dict['train'][0, :30], context='mfcc', padding=1, num_cols=5, plot_path=plot_path, title='', name='exp_dataset_speech_cmd_mfcc_' + l, show_plot=show_plot)
 
   # create batches for my data
   batch_archive.create_batches()
   batch_archive.print_batch_infos()
   
   # plot my data
-  plot_grid_images(np.squeeze(batch_archive.x_batch_dict['my'], axis=1), context='mfcc', padding=1, num_cols=5, title='grid', name='grid', show_plot=show_plot)
+  plot_grid_images(np.squeeze(batch_archive.x_batch_dict['my'], axis=1), context='mfcc', padding=1, num_cols=5, plot_path=plot_path, title='', name='exp_dataset_my_mfcc', show_plot=show_plot)
 
 
 def training_logs(cfg):
@@ -242,7 +245,10 @@ def training_logs(cfg):
   #LatexTableMakerCepstral(in_file=log_path + 'log_exp_rand_frames_l12.log', out_file=plot_path_tab + 'tab_exp_fs_rand_frames_l12.tex', caption='Experiment of not randomizing frame positions.', label='tab:exp_fs_rand_frames_l12')
 
   # feature selection
-  LatexTableMakerMFCC(in_file=log_path + 'log_exp_mfcc_l12.log', out_file=plot_path_tab + 'tab_exp_fs_mfcc_l12.tex', caption='Experiment on the impact of feature enhancement of cepstral coefficients (c), deltas (d), double deltas (dd) and energy vectors (e).', label='tab:exp_fs_mfcc_l12')
+  #LatexTableMakerMFCC(in_file=log_path + 'log_exp_mfcc_l12.log', out_file=plot_path_tab + 'tab_exp_fs_mfcc_l12.tex', caption='Experiment on the impact of feature enhancement of cepstral coefficients (c), deltas (d), double deltas (dd) and energy vectors (e).', label='tab:exp_fs_mfcc_l12')
+
+  # adv label
+  LatexTableMakerAdv(in_file=log_path + 'log_exp_adv_label_l12.log', out_file=plot_path_tab + 'tab_exp_adv_label_l12.tex', caption='Experiment with adversarial label pre-training, using either Generator \enquote{g} or Discriminator \enquote{d} weights.', label='tab:exp_adv_label_l12')
 
 
 if __name__ == '__main__':

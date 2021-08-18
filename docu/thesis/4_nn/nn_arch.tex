@@ -53,7 +53,9 @@ The last FC layer has $C$ nodes corresponding to $C$ output class labels, depend
 Assuming that the input will be of shape $x = (1 \times 12 \times 50)$ this will give following dimensions and operations as listed in \rtab{nn_arch_cnn_trad}.
 \input{./4_nn/tables/tab_nn_arch_cnn_trad.tex}
 
-The \texttt{conv-fstride4} model is shown in \rfig{nn_arch_cnn_fstride}
+The \texttt{conv-fstride4} has the kernel size adapted to the input frame size and is therefore striding only in the frequency dimension.
+The kernel heigth of 8 with vertical stride of 4 creates only two dimensions in the vertical direction for an input size of $12 \times 50$, which is very energy efficient. 
+The model is shown in \rfig{nn_arch_cnn_fstride} and its footprint is listed in \rtab{nn_arch_cnn_fstride4}
 \begin{figure}[!ht]
   \centering
     \includegraphics[height=0.2\textwidth]{./4_nn/figs/nn_arch_cnn_fstride.eps}
@@ -62,8 +64,12 @@ The \texttt{conv-fstride4} model is shown in \rfig{nn_arch_cnn_fstride}
 \end{figure}
 \FloatBarrier
 \noindent
+\input{./4_nn/tables/tab_nn_arch_cnn_fstride4.tex}
 
-The self designed \texttt{conv-jim} model is shown in \rfig{nn_arch_cnn_conv-jim}.
+The self designed \texttt{conv-jim} consists of two convolutional layers, where the first has an adaptive kernel size in the feature (freqnecy) dimension and is therefore striding only in frame (time) dimension.
+The kernel width of the first convolutional filters is set to $20$, which represents much of the learned structure from the data, further $20$ frames are equal to \SI{200}{\milli\second}, which is a good time duration for vowels.
+The second convolutional filter has a width of $5$ intended for temporal variations.
+The \texttt{conv-jim} model is shown in \rfig{nn_arch_cnn_conv-jim} with footprint in \rtab{nn_arch_cnn_jim}.
 \begin{figure}[!ht]
   \centering
     \includegraphics[height=0.2\textwidth]{./4_nn/figs/nn_arch_cnn_conv-jim.eps}
@@ -72,6 +78,7 @@ The self designed \texttt{conv-jim} model is shown in \rfig{nn_arch_cnn_conv-jim
 \end{figure}
 \FloatBarrier
 \noindent
+\input{./4_nn/tables/tab_nn_arch_cnn_jim.tex}
 
 
 % --

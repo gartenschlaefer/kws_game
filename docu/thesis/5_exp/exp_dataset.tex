@@ -50,12 +50,12 @@ In the creation of the examples for the \enquote{\_mixed} label, it is of course
 This had been done by placing all unused core key words and auxiliary words into a separate folder and reading them into a list, which is ordered so that one example per key word is placed consecutive to the next for each key word, then it starts over again filling up all examples.
 The number of examples picked for training is then simply the entries from index 0 to the number of examples in training. 
 
-To examine the recorded examples, one example per label from the speech command dataset in raw audio format is shown in \rfig{exp_dataset_wav_grid_speech_commands_v2}.
+To examine the recorded examples, one example per label from the speech command dataset in raw audio format is shown in \rfig{exp_dataset_speech_cmd_wav_grid}.
 \begin{figure}[!ht]
   \centering
-    \includegraphics[width=0.65\textwidth]{./5_exp/figs/exp_dataset_wav_grid_speech_commands_v2}
+    \includegraphics[width=0.65\textwidth]{./5_exp/figs/exp_dataset_speech_cmd_wav_grid}
   \caption{One random sample of each individual speech command in the speech command dataset in normalized raw audio format.}
-  \label{fig:exp_dataset_wav_grid_speech_commands_v2}
+  \label{fig:exp_dataset_speech_cmd_wav_grid}
 \end{figure}
 \FloatBarrier
 \noindent
@@ -145,6 +145,25 @@ Further the dataset provides a testing file list called \texttt{testing\_list.tx
 Those file lists for testing and validation should ensure the comparability between different neural network approaches from individual researchers.
 The testing and validation file lists are applied in this thesis and the separation into sets are shown in \rtab{exp_dataset_all_labels}.
 
+% --
+% extracted examples
+
+\subsubsection{Samples from the Feature Extraction}
+The dataset is feature extracted with specified parameters and stored as separate files, so that the feature extraction must not be applied each time a training of the neural networks is performed.
+Samples from the Mel Frequency Cepstral Coefficients (MFCC) with frame based normalization as explained in \rsec{signal_mfcc} are shown in \rfig{exp_dataset_speech_cmd_mfcc}.
+\begin{figure}[!ht]
+  \centering
+    \subfigure[left]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_dataset_speech_cmd_mfcc_left}}
+    \subfigure[right]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_dataset_speech_cmd_mfcc_right}}
+    \subfigure[up]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_dataset_speech_cmd_mfcc_up}}
+    \subfigure[down]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_dataset_speech_cmd_mfcc_down}}
+    \subfigure[go]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_dataset_speech_cmd_mfcc_go}}
+  \caption{MFCC extracted samples of specific labels obtained from the training set of the speech commands dataset \texttt{v0.02}.}
+  \label{fig:exp_dataset_speech_cmd_mfcc}
+\end{figure}
+\FloatBarrier
+\noindent
+
 
 % --
 % my dataset
@@ -156,12 +175,21 @@ The examples per key word are spoken with different emphasis and stress on indiv
 Also the prolongation of the words are different, for instance that in one example the word is spoken very hasty and in the other it is spoken slowly.
 The emphasis and prolongation ensure the diversity of the dataset. 
 It is important to mention that none of the self recorded files were used within the training set, so that the neural networks performance is evaluated on unseen data.
-All examples of my own dataset are illustrated in \rfig{exp_dataset_wav_grid_my} in raw audio format.
+All examples of my own dataset are illustrated in \rfig{exp_dataset_my_wav_grid} in raw audio format.
 \begin{figure}[!ht]
   \centering
-    \includegraphics[width=0.65\textwidth]{./5_exp/figs/exp_dataset_wav_grid_my}
+    \includegraphics[width=0.65\textwidth]{./5_exp/figs/exp_dataset_my_wav_grid}
   \caption{Self recorded files of the \enquote{my dataset} in raw audio format.}
-  \label{fig:exp_dataset_wav_grid_my}
+  \label{fig:exp_dataset_my_wav_grid}
+\end{figure}
+\FloatBarrier
+\noindent
+The same examples extracted to MFCC features are shown in \rfig{exp_dataset_my_mfcc}.
+\begin{figure}[!ht]
+  \centering
+    \includegraphics[width=0.65\textwidth]{./5_exp/figs/exp_dataset_my_mfcc}
+  \caption{All MFCC extracted samples of the \enquote{my dataset} with the same ordering as shown in \rfig{exp_dataset_my_wav_grid}.}
+  \label{fig:exp_dataset_my_mfcc}
 \end{figure}
 \FloatBarrier
 \noindent

@@ -8,16 +8,19 @@
 config_changer:
 
   # enable
-  enabled: True
+  enabled: False
 
   # mfcc mix
-  change_mfcc_mix: True
+  change_mfcc_mix: False
 
   # change architectures
   change_archs: False
 
   # archs
   archs: ['conv-trad', 'conv-fstride', 'conv-jim']
+
+  # adv evaluate both encoder decoder
+  adv_both_coders: False
 
 
 # --
@@ -284,12 +287,12 @@ ml:
   #nn_arch: conv-experimental
   #nn_arch: conv-fstride
   #nn_arch: conv-trad
-  nn_arch: conv-jim
+  #nn_arch: conv-jim
   #nn_arch: adv-experimental
   #nn_arch: adv-jim
   #nn_arch: adv-jim-label
   #nn_arch: hyb-jim
-  #nn_arch: wavenet
+  nn_arch: wavenet
 
   # params
   train_params:
@@ -298,32 +301,32 @@ ml:
     cnn: {'batch_size': 32, 'num_epochs': 2000, 'lr': 0.0001, 'beta': 0.9}
 
     # adv
-    adv: {'batch_size': 32, 'num_epochs': 100, 'lr_d': 0.0001, 'lr_g': 0.0001, 'beta_d': 0.9, 'beta_g': 0.9}
+    adv: {'batch_size': 32, 'num_epochs': 1000, 'lr_d': 0.0001, 'lr_g': 0.0001, 'beta_d': 0.9, 'beta_g': 0.9, 'k_update_d': -1, 'k_update_g': -1}
 
     # pre adv dual
-    adv_dual: {'batch_size': 32, 'num_epochs': 100, 'lr_d': 0.0001, 'lr_g': 0.0001, 'beta_d': 0.9, 'beta_g': 0.9}
+    adv_dual: {'batch_size': 32, 'num_epochs': 100, 'lr_d': 0.0001, 'lr_g': 0.0001, 'beta_d': 0.9, 'beta_g': 0.9, 'k_update_d': 2, 'k_update_g': 2}
 
     # pre adv label train
-    adv_label: {'batch_size': 32, 'num_epochs': 100, 'lr_d': 0.0001, 'lr_g': 0.0001, 'beta_d': 0.9, 'beta_g': 0.9}
+    adv_label: {'batch_size': 32, 'num_epochs': 1000, 'lr_d': 0.0001, 'lr_g': 0.0001, 'beta_d': 0.9, 'beta_g': 0.9, 'k_update_d': 2, 'k_update_g': 2}
 
     # hybrid net
-    hyb: {'batch_size': 32, 'num_epochs': 5000, 'lr_d': 0.0001, 'lr_g': 0.0001, 'beta_d': 0.9, 'beta_g': 0.9}
+    hyb: {'batch_size': 32, 'num_epochs': 5000, 'lr_d': 0.0001, 'lr_g': 0.0001, 'beta_d': 0.9, 'beta_g': 0.9, 'k_update_d': -1, 'k_update_g': -1}
 
     # wavenet
-    wave: {'batch_size': 32, 'num_epochs': 100, 'lr': 0.001, 'beta': 0.9}
+    wave: {'batch_size': 32, 'num_epochs': 2000, 'lr': 0.0002, 'beta': 0.9}
 
 
   # adversarial parameters
   adv_params:
 
     # pre training with dual network
-    dual_train: False
+    dual_train: True
 
     # pre training with label network
     label_train: False
 
     # use decoder weights for further training
-    use_decoder_weights: False
+    use_decoder_weights: True
 
 
   # use a pre trained model at pre trained model path

@@ -481,7 +481,7 @@ def plot_grid_images(x, padding=1, num_cols=8, cmap=None, context='none', color_
 
   # design
   plt.axis("off")
-  plt.title(title, fontsize=get_fontsize('title'))
+  if len(title): plt.title(title, fontsize=get_fontsize('title'))
 
   # colorbar
   add_colorbar(fig, im)

@@ -3,9 +3,21 @@
 
 \section{Adversarial Pre-Training}\label{sec:exp_adv}
 \thesisStateNotReady
-Adversarial pre-training al already described in \rsec{nn_adv} is the transfer of learned weights obtained from adversarial training between a Generator (G) and a Discriminator (D) network.
-The only neural network architecture used for adversarial pre-training is the \texttt{conv-jim} described in \rsec{nn_arch_cnn}.
-To evaluate the gain of adversarial pre-training, the architecture is trained first with random init and compared to a training with adversarial pre-training. 
+Adversarial pre-training as already described in \rsec{nn_adv} is the transfer of learned weights obtained from adversarial training between a Generator (G) and a Discriminator (D) network.
+The only neural network architecture used for adversarial pre-training is the \texttt{conv-jim} model and its GAN version, described in \rsec{nn_arch_cnn} and \rsec{nn_arch_adv}.
+Note that frame-based normalization was applied, which made the training of GANs considerably more easy and the weights from the Generator network applicable.
+Two adversarial pre-training techniques were used:
+\begin{enumerate}
+  \item adv-label-train 
+  \item adv-dual-train
+\end{enumerate}
+in the adv-label-train, the labels were separated into smaller subsets of labels and each subset of labels were given a small amount of feature maps from all feature maps of the \texttt{conv-jim} model, for training. 
+All feature maps from the individual label trains were concatenated and used for the \texttt{conv-jim} model as pre trained weights.
+In adv-dual-train, the GAN models had the same convolutional layer structure as the \texttt{conv-jim} model and the transferring of weights is much more straight forward.
+
+% old
+\subsection{old renew this}
+To evaluate the value of adversarial pre-training, the architecture is trained first with random init and compared to a training with adversarial pre-training. 
 The training losses of those two training methods are shown in \rfig{exp_adv_fc3_train_loss} as well as their obtained accuracies in \rfig{exp_adv_fc3_val_acc}.
 
 \begin{figure}[!ht]

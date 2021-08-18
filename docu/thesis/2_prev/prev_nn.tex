@@ -101,9 +101,16 @@ Wavenets are in some sense similar to RNNs, because they also use outputs from p
 % adversarial nets
 
 \subsection{Generative Adversarial Neural Networks}\label{sec:prev_nn_adv}
-Generative Adversarial Neural Networks (GAN) are motivated by Game Theory, in a way that they contain usually two separate networks, denoted as players, playing a game against each other.
-The game hereby is to outperform the other player in an adversary task.
-The idea of GANs emerged from Goodfellow in 2014 \cite{Goodfellow2014}, where one player (network) produces fake images, that are similar to real ones and the other player has to detect if it given image is a real or fake one.
-Both players are therefore improving themselves upon each other, to either create more realistic fakes or to detect fakes from reals with low error rates.
+Generative Adversarial Neural Networks (GAN) emerged from Goodfellow in 2014 \cite{Goodfellow2014} and was initially motivated by Game Theory of a two player zero-sum game with the Min-Max-Theorem as solution concept \cite{VonNeumann1944}.
+The game in terms of GANs is, that two neural networks try to outperform the other in an adversary task, where the task hereby is the creation of fake images by one network and the detection or discrimination of real and fake images by the other network.
+In \cite{Radford2016} some practical guidelines for designing GAN architectures and improving training are shown with the Deep Convolutional Generative Adversarial Network (DCGAN) network.
+DCGANs however consider only images and not speech signals, but they were the first starting point for developing GANs in this thesis.
 
-In this thesis, the concept of GANs is used for pre-training weights to hopefully improve generalization and performance in a CNN network.
+The Generator (G) network, that has to create fake images, has to perform a so called \emph{transposed convolution}, \emph{up-convolution} or \emph{de-convolution} for up-sampling the low-dimensional image to the desired output dimensions dimensions of the real samples.
+The transposed convolution and some problems regarding GANs are described in \cite{Durall2020}.
+
+GANs are not the only application of adversarial neural networks, in \cite{Oezdenizci2020} it is shown how an adversarial network improves generalization over invariance of subject specific samples from Electroencephalogram (EEG) data.
+The adversarial network in this paper is connected to a convolutional encoder network, which is also input to a classifier network.
+The update of the encoder network is therefore done via the adversarial network and the classifier network at the same time and specified in a collective loss function.
+
+In this thesis, the concept of GANs is used for pre-training weights to improve generalization and performance in a CNN network.

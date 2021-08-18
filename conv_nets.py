@@ -66,14 +66,28 @@ class ConvBasics():
     """
     calculate amount of parameters
     """
-    return [np.prod(f) * np.prod(k) for f, k in zip(self.n_feature_maps, self.kernel_sizes)]
+
+    # convolution parameters
+    n_params = {'conv{}'.format(i): np.prod(f) * np.prod(k) for i, (f, k) in enumerate(zip(self.n_feature_maps, self.kernel_sizes))}
+
+    # fully connected parameters
+    n_params.update({'fc{}'.format(i): m * n + n for i, (m, n) in enumerate(self.fc_layer_dims)})
+
+    return n_params
 
 
   def calc_amount_of_operations(self):
     """
     calculate amount of operations
     """
-    return[np.prod(f) * 2 * np.prod(o) * np.prod(k) + np.prod(f) * np.prod(o) for o, f, k in zip(self.conv_layer_dim[1:], self.n_feature_maps, self.kernel_sizes)]
+
+    # convolution operations
+    n_ops = {'conv{}'.format(i): np.prod(f) * 2 * np.prod(o) * np.prod(k) + np.prod(f) * np.prod(o) for i, (o, f, k) in enumerate(zip(self.conv_layer_dim[1:], self.n_feature_maps, self.kernel_sizes))}
+
+    # fully connected operations
+    n_ops.update({'fc{}'.format(i): 2 * m * n + n for i, (m, n) in enumerate(self.fc_layer_dims)})
+
+    return n_ops
 
 
   def transfer_params(self, model):
@@ -129,34 +143,37 @@ class ConvNetTrad(nn.Module, ConvBasics):
     super().__init__()
     ConvBasics.__init__(self, n_classes, data_size)
 
-    # params
-    self.n_feature_maps = [64, 64]
-
     # original settings for 39x32
     #self.kernel_sizes = [(8, 20), (4, 1), (4, 10)]
     #self.strides = [(1, 1), (4, 1), (1, 1)]
 
-    # for 13x32
+    # params for 13x32
+    self.n_feature_maps = [(self.n_channels, 64), (0, 0), (64, 64)]
     self.kernel_sizes = [(4, 20), (2, 4), (2, 4)]
     self.strides = [(1, 1), (2, 4), (1, 1)]
     self.padding = [(0, 0), (0, 0), (0, 0)]
 
     # get layer dimensions
     self.conv_layer_dim = self.get_conv_layer_dimensions(input_dim=(self.n_features, self.n_frames), kernel_sizes=self.kernel_sizes, strides=self.strides, padding=self.padding)
+    self.conv_in_dim = self.data_size
+    self.conv_out_dim = ((self.n_feature_maps[-1][1],) + self.conv_layer_dim[-1])
 
     # 1. conv layer
-    self.conv1 = nn.Conv2d(self.n_channels, self.n_feature_maps[0], kernel_size=self.kernel_sizes[0], stride=self.strides[0])
+    self.conv1 = nn.Conv2d(self.n_feature_maps[0][0], self.n_feature_maps[0][1], kernel_size=self.kernel_sizes[0], stride=self.strides[0])
 
     # max pool layer
     self.pool = nn.MaxPool2d(kernel_size=self.kernel_sizes[1], stride=self.strides[1])
 
     # 2. conv layer
-    self.conv2 = nn.Conv2d(64, 64, kernel_size=self.kernel_sizes[2], stride=self.strides[2])
+    self.conv2 = nn.Conv2d(self.n_feature_maps[2][0], self.n_feature_maps[2][1], kernel_size=self.kernel_sizes[2], stride=self.strides[2])
 
-    # fully connected layers with affine transformations: y = Wx + b
-    self.fc1 = nn.Linear(np.prod(self.conv_layer_dim[-1]) * self.n_feature_maps[-1], 32)
+    # fc dims
+    self.fc_layer_dims = [(np.prod(self.conv_out_dim), 32), (32, 128), (128, self.n_classes)]
+
+    # fully connected layers
+    self.fc1 = nn.Linear(np.prod(self.conv_out_dim), 32)
     self.fc2 = nn.Linear(32, 128)
-    self.fc3 = nn.Linear(128, n_classes)
+    self.fc3 = nn.Linear(128, self.n_classes)
 
     # dropout layer
     self.dropout_layer1 = nn.Dropout(p=0.2)
@@ -210,19 +227,24 @@ class ConvNetFstride4(nn.Module, ConvBasics):
     ConvBasics.__init__(self, n_classes, data_size)
 
     # params
-    self.n_feature_maps = [54]
+    self.n_feature_maps = [(self.n_channels, 54)]
     self.kernel_sizes = [(8, self.n_frames)]
     self.strides = [(4, 1)]
     self.padding = [(0, 0)]
 
     # get layer dimensions
     self.conv_layer_dim = self.get_conv_layer_dimensions(input_dim=(self.n_features, self.n_frames), kernel_sizes=self.kernel_sizes, strides=self.strides, padding=self.padding)
+    self.conv_in_dim = self.data_size
+    self.conv_out_dim = ((self.n_feature_maps[-1][1],) + self.conv_layer_dim[-1])
+
+    # fc dims
+    self.fc_layer_dims = [(np.prod(self.conv_out_dim), 32), (32, 128), (128, 128), (128, self.n_classes)]
 
     # conv layer
-    self.conv = nn.Conv2d(self.n_channels, self.n_feature_maps[0], kernel_size=self.kernel_sizes[0], stride=self.strides[0])
+    self.conv = nn.Conv2d(self.n_feature_maps[0][0], self.n_feature_maps[0][1], kernel_size=self.kernel_sizes[0], stride=self.strides[0])
 
     # fully connected layers with affine transformations: y = Wx + b
-    self.fc1 = nn.Linear(np.prod(self.conv_layer_dim[-1]) * self.n_feature_maps[-1], 32)
+    self.fc1 = nn.Linear(np.prod(self.conv_out_dim), 32)
     self.fc2 = nn.Linear(32, 128)
     self.fc3 = nn.Linear(128, 128)
     self.fc4 = nn.Linear(128, self.n_classes)
@@ -350,6 +372,9 @@ class ConvJim(nn.Module, ConvBasics):
     # classifier net
     self.classifier_net = ClassifierNetFc3(np.prod(self.conv_out_dim), n_classes)
 
+    # fc layer dims
+    self.fc_layer_dims = self.classifier_net.fc_layer_dims
+
 
   def forward(self, x):
     """
@@ -379,17 +404,22 @@ if __name__ == '__main__':
   x = torch.randn((1, 1, 12, 50))
 
   # create net
-  #model = ConvNetFstride4(n_classes=5, data_size=x.shape[1:])
-  model = ConvNetTrad(n_classes=5, data_size=x.shape[1:])
-  #model = ConvJim(n_classes=5, data_size=x.shape[1:])
+  #model = ConvNetFstride4(n_classes=12, data_size=x.shape[1:])
+  #model = ConvNetTrad(n_classes=12, data_size=x.shape[1:])
+  model = ConvJim(n_classes=12, data_size=x.shape[1:])
 
   # test net
   o = model(x)
+
+  # get params and ops
+  n_params = model.calc_amount_of_params()
+  n_ops = model.calc_amount_of_operations()
 
   # print some infos
   print("\nx: ", x.shape), print("model: ", model), print("o: ", o)
 
   # print amount of operations and number of params
   print("dim: {}".format(model.conv_layer_dim))
-  print("params: {}, sum: {:,}".format(model.calc_amount_of_params(), np.sum(model.calc_amount_of_params())))
-  print("operations: {}, sum: {:,}".format(model.calc_amount_of_operations(), np.sum(model.calc_amount_of_operations())))
+  print("conv out dim: {} flatten: {}".format(model.conv_out_dim, np.prod(model.conv_out_dim)))
+  print("params: {}, sum: {:,}".format(n_params, np.sum(list(n_params.values()))))
+  print("operations: {}, sum: {:,}".format(n_ops, np.sum(list(n_ops.values()))))

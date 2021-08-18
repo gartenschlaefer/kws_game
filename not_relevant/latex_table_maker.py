@@ -136,6 +136,18 @@ class LogExtractor():
         'acc': ['{:.2f}'.format(float(re.sub(r'[acc: \[\]]', '', a))) for a in re.findall(self.acc_re, ti)]
         }
 
+      # check if adversarial pre training is in the training instance
+      if ti.find('adv-pre') != -1:
+
+        # get adv params
+        adv_params = re.findall(r'adv-pre[\w_\-0-9]+]', ti)[0]
+
+        #print(adv_params)
+        train_instance_dict.update({
+          'adv-it': re.sub(r'[it\-_]', '', re.findall(r'it-[0-9]+_', adv_params)[0]),
+          'adv-model': re.sub(r'model-', '', re.findall(r'model-[gd]', adv_params)[0])
+          })
+
       # append
       train_instance_dicts.append(train_instance_dict)
 
@@ -209,8 +221,6 @@ class LatexTableMakerMFCC(LatexTableFunctions, LogExtractor):
     # get training instances
     train_instances_dict = self.get_train_instance_infos(in_file)
 
-    print(train_instances_dict[0]['feature_sel'][0])
-
     # separators used to get training instances
     sep_combi = {'arch': ['conv-jim'], 'c': [0, 1], 'd': [0, 1], 'dd': [0, 1], 'e': [0, 1]}
 
@@ -222,6 +232,60 @@ class LatexTableMakerMFCC(LatexTableFunctions, LogExtractor):
 
     # row entries
     row_entries = [[tis[0]['feature_sel'][0], tis[0]['feature_sel'][1], tis[0]['feature_sel'][2], tis[0]['feature_sel'][3], '${:.2f} \\pm {:.2f}$'.format(np.mean(np.array([ti['acc'][0] for ti in tis]).astype(float)), np.sqrt(np.var(np.array([ti['acc'][0] for ti in tis]).astype(float)))), '${:.2f} \\pm {:.2f}$'.format(np.mean(np.array([ti['acc'][1] for ti in tis]).astype(float)), np.sqrt(np.var(np.array([ti['acc'][1] for ti in tis]).astype(float))))] for tis in train_instances_sep if len(tis)]
+    
+    # header
+    table_str = self.table_header(col_spaces_cm=col_spaces_cm, sep=[], caption=caption)
+
+    # title string
+    table_str += self.table_titles(titles=titles, textbf=True, midrule=True, color=False)
+
+    # row entries
+    table_str += ''.join([self.table_row_entry(row_entry) for row_entry in row_entries])
+
+    # footer
+    table_str += self.table_footer(label=label)
+
+    # message
+    print("table_str: ", table_str)
+
+    # save to file
+    with open(out_file, 'w') as f: print(table_str, file=f, end='')
+
+
+class LatexTableMakerAdv(LatexTableFunctions, LogExtractor):
+  """
+  latex table maker class
+  """
+
+  def __init__(self, in_file, out_file, caption='', label=''):
+
+
+    # parent init
+    super().__init__()
+
+    # vars
+    titles = ['adv iterations', 'adv model', 'acc test', 'acc my']
+    col_spaces_cm = [2, 2, 2.5, 2.5]
+
+    # get training instances
+    train_instances_dict = self.get_train_instance_infos(in_file)
+
+    print(train_instances_dict[0])
+    print(train_instances_dict[0]['adv-it'])
+    print(train_instances_dict[0]['adv-model'])
+    #stop
+
+    # separators used to get training instances
+    sep_combi = {'arch': ['conv-jim'], 'adv-it': ['100', '1000'], 'adv-model': ['g', 'd']}
+
+    # all combinations
+    separators = [(a, it, m) for a in sep_combi['arch'] for it in sep_combi['adv-it'] for m in sep_combi['adv-model']]
+
+    # separation
+    train_instances_sep = [[ti for ti in train_instances_dict if ti['arch'] == a and ti['adv-it'] == it and ti['adv-model'] == m] for a, it, m in separators]
+
+    # row entries
+    row_entries = [[tis[0]['adv-it'], tis[0]['adv-model'], '${:.2f} \\pm {:.2f}$'.format(np.mean(np.array([ti['acc'][0] for ti in tis]).astype(float)), np.sqrt(np.var(np.array([ti['acc'][0] for ti in tis]).astype(float)))), '${:.2f} \\pm {:.2f}$'.format(np.mean(np.array([ti['acc'][1] for ti in tis]).astype(float)), np.sqrt(np.var(np.array([ti['acc'][1] for ti in tis]).astype(float))))] for tis in train_instances_sep if len(tis)]
     
     # header
     table_str = self.table_header(col_spaces_cm=col_spaces_cm, sep=[], caption=caption)

@@ -2,7 +2,7 @@
 % theory
 
 \section{Theory}\label{sec:nn_theory}
-\thesisStateNotReady
+\thesisStateReady
 The theory provided in this section, merely focuses on the used neural network architectures and some basic theory elements in neural networks.
 The most basic element in neural networks is described here as node, an abstract element, that defines input and output connections from and to other nodes within the network.
 The edges of the connections from and to a node represents a multiplication with a scalar value, denoted as weight.
@@ -153,9 +153,9 @@ Often it is preferred that $\hat{y} \in R^C$ provides a probability distribution
 \end{equation}
 which can be achieved with the softmax function:
 \begin{equation}\label{eq:nn_theory_softmax}
-  \hat{y}_i = \frac{\exp{x_i}}{\sum_{j=0}^{c}\exp{x_j}}
+  \hat{y}_i = \frac{\exp{x_i}}{\sum_{j=0}^{C}\exp{x_j}}
 \end{equation}
-where $C$ is the amount of nodes in this layer, if it is the last layer as usual for the softmax, $C$ is the amount of classes and $\hat{y}_i$ the probability value of the corresponding class $i$.
+where $C$ is the amount of nodes in this layer, if it is the last layer as usual for the softmax, $C$ is the total amount of classes and $\hat{y}_i$ the probability value of the corresponding class $i$.
 
 There are already plenty of different loss functions available for training neural networks, however in this thesis only one kind of it is used for all neural network architecture, the cross-entropy loss or for two classes the binary cross-entropy loss function.
 Without going too much into the detail of this loss function, it is described in the same way as in the \texttt{pytorch} framework \cite{Pytorch}.

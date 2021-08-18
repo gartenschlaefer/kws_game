@@ -417,13 +417,9 @@ class AdversarialNetHandler(NetHandler):
     if self.encoder_model is not None: self.models['d'].transfer_params(encoder_model)
     if self.decoder_model is not None: self.models['g'].transfer_params(decoder_model)
 
-    # update rules
-    self.d_update_epochs = 1
-    self.g_update_epochs = 5
-
     # actual counter
-    self.actual_d_epoch = self.d_update_epochs
-    self.actual_g_epoch = 0
+    self.actual_d_epoch = -1
+    self.actual_g_epoch = -1
     self.actual_update_epoch = 0
 
 
@@ -435,6 +431,9 @@ class AdversarialNetHandler(NetHandler):
     # Setup Adam optimizers for both G and D
     self.optimizer_d = torch.optim.Adam(self.models['d'].parameters(), lr=train_params['lr_d'], betas=(train_params['beta_d'], 0.999))
     self.optimizer_g = torch.optim.Adam(self.models['g'].parameters(), lr=train_params['lr_g'], betas=(train_params['beta_g'], 0.999))
+
+    # init actual d epoch
+    self.actual_d_epoch = train_params['k_update_d']
 
 
   def train_nn(self, train_params, batch_archive, callback_f=None, callback_act_epochs=10):
@@ -458,7 +457,7 @@ class AdversarialNetHandler(NetHandler):
       for mini_batch, (x, y) in enumerate(zip(batch_archive.x_batch_dict['train'].to(self.device), batch_archive.y_batch_dict['train'].to(self.device))):
 
         # update models
-        train_score = self.update_models(x, y, epoch, mini_batch, train_score)
+        train_score = self.update_models(x, y, epoch, mini_batch, train_score, train_params)
 
       # check progess after epoch with callback function
       if callback_f is not None and not epoch % callback_act_epochs: callback_f(self.generate_samples(noise=fixed_noise, to_np=True), epoch)
@@ -469,7 +468,7 @@ class AdversarialNetHandler(NetHandler):
     return train_score
 
 
-  def update_models(self, x, y, epoch, mini_batch, train_score):
+  def update_models(self, x, y, epoch, mini_batch, train_score, train_params):
     """
     model updates
     """
@@ -485,23 +484,23 @@ class AdversarialNetHandler(NetHandler):
       self.actual_update_epoch = epoch
 
       # discriminator update rule
-      if self.actual_d_epoch: 
+      if self.actual_d_epoch > 0: 
 
         self.actual_d_epoch -= 1
-        if not self.actual_d_epoch: self.actual_g_epoch = self.g_update_epochs
+        if not self.actual_d_epoch: self.actual_g_epoch = train_params['k_update_g']
 
       # generator update rule
-      elif self.actual_g_epoch: 
+      elif self.actual_g_epoch > 0: 
 
         self.actual_g_epoch -= 1
-        if not self.actual_g_epoch: self.actual_d_epoch = self.d_update_epochs
+        if not self.actual_g_epoch: self.actual_d_epoch = train_params['k_update_d']
 
 
     # update discriminator
-    d_loss_real, d_loss_fake = self.update_d(x, y, fakes, backward=self.actual_d_epoch > 0)
+    d_loss_real, d_loss_fake = self.update_d(x, y, fakes, backward=self.actual_d_epoch != 0)
 
     # update generator
-    g_loss_fake, g_loss_sim = self.update_g(x, fakes, backward=self.actual_g_epoch > 0)
+    g_loss_fake, g_loss_sim = self.update_g(x, fakes, backward=self.actual_g_epoch != 0)
 
     # update batch loss collection
     train_score.update_batch_losses(epoch, mini_batch, g_loss_fake=g_loss_fake, g_loss_sim=g_loss_sim, d_loss_real=d_loss_real, d_loss_fake=d_loss_fake)
@@ -701,13 +700,9 @@ class HybridNetHandler(NetHandler):
     if self.encoder_model is not None: self.models['hyb'].transfer_params(encoder_model)
     if self.decoder_model is not None: self.models['g'].transfer_params(decoder_model)
 
-    # update rules
-    self.d_update_epochs = 5
-    self.g_update_epochs = 5
-
     # actual counter
-    self.actual_d_epoch = self.d_update_epochs
-    self.actual_g_epoch = self.g_update_epochs if self.g_update_epochs < 0 else 0
+    self.actual_d_epoch = -1
+    self.actual_g_epoch = -1
     self.actual_update_epoch = 0
 
     # cosine similarity
@@ -722,6 +717,9 @@ class HybridNetHandler(NetHandler):
     # Setup Adam optimizers for both G and D
     self.optimizer_hyb = torch.optim.Adam(self.models['hyb'].parameters(), lr=train_params['lr_d'], betas=(train_params['beta_d'], 0.999))
     self.optimizer_g = torch.optim.Adam(self.models['g'].parameters(), lr=train_params['lr_g'], betas=(train_params['beta_g'], 0.999))
+
+    # init actual d epoch
+    self.actual_d_epoch = train_params['k_update_d']
 
 
   def train_nn(self, train_params, batch_archive, callback_f=None, callback_act_epochs=10):
@@ -745,7 +743,7 @@ class HybridNetHandler(NetHandler):
       for mini_batch, (x, y) in enumerate(zip(batch_archive.x_batch_dict['train'].to(self.device), batch_archive.y_batch_dict['train'].to(self.device))):
 
         # update models
-        train_score = self.update_models(x, y, epoch, mini_batch, train_score)
+        train_score = self.update_models(x, y, epoch, mini_batch, train_score, train_params)
 
       # valdiation
       eval_score = self.eval_nn('validation', batch_archive)
@@ -762,7 +760,7 @@ class HybridNetHandler(NetHandler):
     return train_score
 
 
-  def update_models(self, x, y, epoch, mini_batch, train_score):
+  def update_models(self, x, y, epoch, mini_batch, train_score, train_params):
     """
     model updates
     """
@@ -781,13 +779,13 @@ class HybridNetHandler(NetHandler):
       if self.actual_d_epoch > 0: 
 
         self.actual_d_epoch -= 1
-        if not self.actual_d_epoch: self.actual_g_epoch = self.g_update_epochs
+        if not self.actual_d_epoch: self.actual_g_epoch = train_params['k_update_g']
 
       # generator update rule
       elif self.actual_g_epoch > 0: 
 
         self.actual_g_epoch -= 1
-        if not self.actual_g_epoch: self.actual_d_epoch = self.d_update_epochs
+        if not self.actual_g_epoch: self.actual_d_epoch = train_params['k_update_d']
 
 
     # update discriminator

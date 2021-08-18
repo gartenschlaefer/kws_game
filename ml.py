@@ -18,7 +18,7 @@ class ML():
   machine learning class
   """
 
-  def __init__(self, cfg_ml, audio_dataset, audio_dataset_my=None, nn_arch_context='config', encoder_label='', encoder_model=None, decoder_model=None, root_path='./'):
+  def __init__(self, cfg_ml, audio_dataset, audio_dataset_my=None, nn_arch_context='config', encoder_label='', encoder_model=None, decoder_model=None, param_path_ext='', root_path='./'):
 
     # arguments
     self.cfg_ml = cfg_ml
@@ -29,6 +29,7 @@ class ML():
     self.encoder_label = encoder_label
     self.encoder_model = encoder_model
     self.decoder_model = decoder_model
+    self.param_path_ext = param_path_ext
     self.root_path = root_path
 
     # get architecture for net handler
@@ -57,16 +58,30 @@ class ML():
     self.param_path_ml += 'bs-{}_it-{}_lr-{}'.format(self.train_params['batch_size'], self.train_params['num_epochs'], str(self.train_params['lr']).replace('.', 'p')) if not (self.nn_arch.startswith('adv') or self.nn_arch.startswith('hyb')) else 'bs-{}_it-{}_lr-d-{}_lr-g-{}'.format(self.train_params['batch_size'], self.train_params['num_epochs'], str(self.train_params['lr_d']).replace('.', 'p'), str(self.train_params['lr_g']).replace('.', 'p'))
     self.param_path_ml += '_dual' if self.cfg_ml['adv_params']['dual_train'] and self.nn_arch_context in ['adv_dual'] else ''
     self.param_path_ml += '_label' if self.cfg_ml['adv_params']['label_train'] and self.nn_arch_context in ['adv_label', 'adv_label_all'] else ''
-    self.param_path_ml += '_pre-adv' if (self.cfg_ml['adv_params']['label_train'] or self.cfg_ml['adv_params']['dual_train']) and not self.nn_arch_context in ['adv_dual', 'adv_label', 'adv_label_all'] else '/'
+    self.param_path_ml += '_adv-pre' if (self.cfg_ml['adv_params']['label_train'] or self.cfg_ml['adv_params']['dual_train']) and not self.nn_arch_context in ['adv_dual', 'adv_label', 'adv_label_all'] and not self.nn_arch.startswith('hyb') else ''
+    self.param_path_ml += self.param_path_ext
+    self.param_path_ml += '/' if self.param_path_ml[-1] != '/' else ''
 
     # model path
     self.model_path = self.paths['model'] + self.cfg_ml['nn_arch'] + '/' + self.audio_dataset.param_path + self.param_path_ml
 
-    # model instance
-    self.model_instance = '_i{}'.format(len(glob(self.model_path[:-1] + '*'))) if len(glob(self.model_path[:-1] + '*')) < self.cfg_ml['num_instances'] else '_i{}'.format(len(glob(self.model_path[:-1] + '*')) - 1)
+    # model paths
+    n_models = len(glob(self.model_path[:-1] + '*'))
 
-    # create new instance
-    self.model_path = self.model_path[:-1] + self.model_instance + '/' if os.path.isdir(self.model_path) and self.cfg_ml['new_instance'] and self.nn_arch_context not in ['adv_dual', 'adv_label', 'adv_label_all'] else self.model_path
+    # model instance standard
+    self.model_instance = '_i{}'.format(n_models) if n_models and self.cfg_ml['new_instance'] else ''
+
+    # model instance for encoder labels
+    if len(self.encoder_label) or self.nn_arch_context in ['adv_label_all']:
+      if n_models == 1 and (not os.path.isdir(self.model_path + self.encoder_label) or self.nn_arch_context in ['adv_label_all']): self.model_instance = ''
+      elif n_models >= 2 and (not os.path.isdir(self.model_path[:-1] + '_i{}'.format(n_models - 1) + '/' + self.encoder_label) or self.nn_arch_context in ['adv_label_all']): self.model_instance = '_i{}'.format(n_models - 1)
+
+
+    # model instance extnesion
+    self.model_path = self.model_path[:-1] + self.model_instance + '/'
+
+    # param string
+    self.param_string = self.model_path.split('/')[-2]
 
     # new sub directory for encoder label
     self.model_path += self.encoder_label + '/' if len(self.encoder_label) else ''
@@ -93,7 +108,7 @@ class ML():
     # create ml folders
     create_folder(list(self.paths.values()) + [self.model_path] + list(self.model_path_folders.values()))
 
-    # config
+    # config log
     logging.basicConfig(filename=self.paths['log'] + 'ml.log', level=logging.INFO, format='%(asctime)s %(message)s')
 
     # disable unwanted logs
@@ -176,7 +191,7 @@ class ML():
     train_score = self.net_handler.train_nn(train_params=train_params, batch_archive=self.batch_archive, callback_f=self.image_collect)
 
     # training info
-    if log_on: logging.info('Training on arch: [{}], audio set param string: [{}], train_params: {}, device: [{}], time: {}'.format(self.cfg_ml['nn_arch'], self.audio_dataset.param_path, train_params, self.net_handler.device, s_to_hms_str(train_score.score_dict['time_usage'])))
+    if log_on: logging.info('Training on arch: [{}], audio set param string: [{}], param_string: [{}] train_params: {}, device: [{}], time: {}'.format(self.cfg_ml['nn_arch'], self.audio_dataset.param_path, self.param_string, train_params, self.net_handler.device, s_to_hms_str(train_score.score_dict['time_usage'])))
     
     # save models and parameters
     if save_models_enabled: self.net_handler.save_models(model_files=self.model_files), self.save_params(), self.save_metrics(train_score=train_score)
@@ -371,7 +386,7 @@ def pre_train_adv_label(cfg, audio_set1, encoder_model=None, decoder_model=None)
   """
 
   # check architecture
-  if cfg['ml']['nn_arch'] not in ['conv-jim', 'conv-encoder-fc1', 'conv-encoder-fc3']: return None, None
+  if cfg['ml']['nn_arch'] not in ['conv-jim', 'conv-encoder-fc1', 'conv-encoder-fc3']: return None, None, ''
 
   # encoder model list
   encoder_models = torch.nn.ModuleList()
@@ -434,7 +449,7 @@ def pre_train_adv_label(cfg, audio_set1, encoder_model=None, decoder_model=None)
   ml_all.analyze()
   ml_all.net_handler.save_models(ml_all.model_files)
 
-  return (None, ml_all.net_handler.models['g']) if cfg['ml']['adv_params']['use_decoder_weights'] else (ml_all.net_handler.models['d'], None)
+  return (ml_all.net_handler.models['d'], ml_all.net_handler.models['g'], '_' + ml_all.param_string)
 
 
 def pre_train_adv_dual(cfg, audio_set1, encoder_model=None, decoder_model=None):
@@ -443,7 +458,7 @@ def pre_train_adv_dual(cfg, audio_set1, encoder_model=None, decoder_model=None):
   """
 
   # check architecture
-  if cfg['ml']['nn_arch'] not in ['conv-jim', 'conv-encoder-fc1', 'conv-encoder-fc3']: return None, None
+  if cfg['ml']['nn_arch'] not in ['conv-jim', 'conv-encoder-fc1', 'conv-encoder-fc3']: return None, None, ''
 
   # ml dual network
   ml = ML(cfg_ml=cfg['ml'], audio_dataset=audio_set1, nn_arch_context='adv_dual')
@@ -454,8 +469,7 @@ def pre_train_adv_dual(cfg, audio_set1, encoder_model=None, decoder_model=None):
     # load models
     ml.net_handler.load_models(ml.model_files)
 
-    # return encoder or decoder model
-    return (None, ml.net_handler.models['g']) if cfg['ml']['adv_params']['use_decoder_weights'] else (ml.net_handler.models['d'], None)
+    return (ml.net_handler.models['d'], ml.net_handler.models['g'], '_' + ml.param_string)
 
   # create batches with all labels
   ml.batch_archive.create_batches()
@@ -465,8 +479,7 @@ def pre_train_adv_dual(cfg, audio_set1, encoder_model=None, decoder_model=None):
   ml.train(log_on=False, name_ext='_adv-post_train', save_models_enabled=True)
   ml.analyze(name_ext='_1-1_post-adv')
 
-  # return either encoder or decoder model
-  return (None, ml.net_handler.models['g']) if cfg['ml']['adv_params']['use_decoder_weights'] else (ml.net_handler.models['d'], None)
+  return (ml.net_handler.models['d'], ml.net_handler.models['g'], '_' + ml.param_string)
 
 
 def get_audiosets(cfg):
@@ -578,36 +591,43 @@ if __name__ == '__main__':
       continue
 
 
-    # adversarial pre training with dual network
-    (encoder_model, decoder_model) = pre_train_adv_dual(cfg, audio_set1, encoder_model=None, decoder_model=None) if cfg['ml']['adv_params']['dual_train'] else (None, None)
-    
-    # adversarial pre training with label networks
-    (encoder_model, decoder_model) = pre_train_adv_label(cfg, audio_set1, encoder_model=None, decoder_model=None) if cfg['ml']['adv_params']['label_train'] else (encoder_model, decoder_model)
-
-
     # --
     # machine learning and evaluation
 
     for i in range(cfg['ml']['num_instances']):
 
-      # instance
-      ml = ML(cfg_ml=cfg['ml'], audio_dataset=audio_set1, audio_dataset_my=audio_set2, encoder_model=encoder_model, decoder_model=decoder_model)
 
-      # analyze and train eval analyze
-      ml.analyze(name_ext='_init')
-      ml.train()
-      ml.eval()
-      ml.analyze()
+      # adversarial pre training with dual network
+      (encoder_model, decoder_model, param_string) = pre_train_adv_dual(cfg, audio_set1, encoder_model=None, decoder_model=None) if cfg['ml']['adv_params']['dual_train'] else (None, None, '')
+      
+      # adversarial pre training with label networks
+      (encoder_model, decoder_model, param_string) = pre_train_adv_label(cfg, audio_set1, encoder_model=None, decoder_model=None) if cfg['ml']['adv_params']['label_train'] else (encoder_model, decoder_model, param_string)
+
+      # either encoder or decoder model
+      pre_models = (([(encoder_model, None, param_string + '_model-d')] if not cfg['ml']['adv_params']['use_decoder_weights'] else [(None, decoder_model, param_string + '_model-g')]) if not cfg['config_changer']['adv_both_coders'] else [(encoder_model, None, param_string + '_model-d'), (None, decoder_model, param_string + '_model-g')]) if encoder_model is not None or decoder_model is not None else [(None, None, '')]
 
 
-      # --
-      # test bench
+      # if both coder models should be evaluated
+      for enc, dec, params in pre_models:
 
-      # only for non adversarials
-      if not cfg['ml']['nn_arch'].startswith('adv-'):
+        # instance
+        ml = ML(cfg_ml=cfg['ml'], audio_dataset=audio_set1, audio_dataset_my=audio_set2, encoder_model=enc, decoder_model=dec, param_path_ext=params)
 
-        # create test bench
-        test_bench = TestBench(cfg['test_bench'], test_model_path=ml.model_path)
+        # analyze and train eval analyze
+        ml.analyze(name_ext='_init')
+        ml.train()
+        ml.eval()
+        ml.analyze()
 
-        # shift invariance test
-        test_bench.test_invariances()
+
+        # --
+        # test bench
+
+        # only for non adversarials
+        if not cfg['ml']['nn_arch'].startswith('adv-'):
+
+          # create test bench
+          test_bench = TestBench(cfg['test_bench'], test_model_path=ml.model_path)
+
+          # shift invariance test
+          test_bench.test_invariances()

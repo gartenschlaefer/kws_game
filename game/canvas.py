@@ -180,6 +180,9 @@ class CanvasCommand(Canvas):
     # enable view
     self.enabled = False
 
+    # num kws cmds
+    self.num_kws_cmds = 5
+
     # info text
     self.interactable_dict.update({'text_info': Text(self.canvas_surf, message='speech commands: ', position=(0, 0), font_size='small', color=self.color_bag.text_menu)})
     
@@ -190,8 +193,8 @@ class CanvasCommand(Canvas):
     self.interactable_dict.update({'text_class{}'.format(v): Text(self.canvas_surf, message='{}'.format(k), position=(30 + 90 * int(v > 4), 60 + 15 * v - 75 * int(v > 4)), font_size='tiny', color=self.color_bag.text_menu) for (k, v) in self.mic.classifier.class_dict.items()})
 
     # kws text
-    self.interactable_dict.update({'text_kws': Text(self.canvas_surf, message='key word spotting:', position=(20, 200), font_size='tiny_small', color=self.color_bag.text_menu_active, enabled=False)})
-    self.interactable_dict.update({'text_cmd': Text(self.canvas_surf, message='_', position=(50, 230), font_size='tiny_small', color=self.color_bag.text_menu_active, enabled=False)})
+    self.interactable_dict.update({'text_kws': Text(self.canvas_surf, message='key word spotting:', position=(20, 200), font_size='tiny_small', color=self.color_bag.text_menu_active, enabled=False)})    
+    self.interactable_dict.update({'text_cmd{}'.format(i): Text(self.canvas_surf, message='_', position=(50, 230 + 18 * i), font_size='tiny_small', color=self.color_bag.text_menu_active, enabled=False) for i in range(self.num_kws_cmds)})
 
 
   def select(self, active):
@@ -199,9 +202,17 @@ class CanvasCommand(Canvas):
     select by clicking enter -> change color and make it editable
     """
 
-    # set color and render
+    # reset texts
+    if active:
+      for i in range(self.num_kws_cmds):
+        self.interactable_dict['text_cmd{}'.format(i)].message = '_'
+        self.interactable_dict['text_cmd{}'.format(i)].render()
+
+    # enable text
     self.interactable_dict['text_kws'].enabled = True if active else False
-    self.interactable_dict['text_cmd'].enabled = True if active else False
+
+    # enable cmds
+    for i in range(self.num_kws_cmds): self.interactable_dict['text_cmd{}'.format(i)].enabled = True if active else False
 
 
   def update(self):
@@ -209,6 +220,7 @@ class CanvasCommand(Canvas):
     update
     """
     
+    # return if not enabled
     if not self.enabled: return
 
     # update all interactables
@@ -219,11 +231,18 @@ class CanvasCommand(Canvas):
 
     # interpret command
     if command is not None:
-      print("yeah: ", command)
+      print("command: ", command)
 
-      # update render message
-      self.interactable_dict['text_cmd'].message = command
-      self.interactable_dict['text_cmd'].render()
+      # listing downwards
+      for i in range(self.num_kws_cmds - 1, 0, -1):
+        
+        # update render message
+        self.interactable_dict['text_cmd{}'.format(i)].message = self.interactable_dict['text_cmd{}'.format(i-1)].message
+        self.interactable_dict['text_cmd{}'.format(i)].render()
+
+      # first entry is always the command
+      self.interactable_dict['text_cmd0'].message = command
+      self.interactable_dict['text_cmd0'].render()
 
 
 
