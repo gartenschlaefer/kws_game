@@ -343,7 +343,13 @@ class OptionMenu(Menu):
     self.menu_button_sel_enable = not self.menu_button_sel_enable
     
     # end loop
-    if self.button_state == self.button_state_dict['end_button']: self.game_logic.run_loop = False
+    if self.button_state == self.button_state_dict['end_button']: 
+
+      # end loop
+      self.game_logic.run_loop = False
+
+      # button sel state
+      self.menu_button_sel_enable = True
 
     # device menu
     elif self.button_state == self.button_state_dict['device_button']:
@@ -410,6 +416,7 @@ class OptionMenu(Menu):
 
     # standard esc routine
     else:
+      
       # end loop
       self.game_logic.run_loop = False
 
@@ -539,7 +546,7 @@ class OptionMenu(Menu):
     user_settings.update({'energy_thresh_db': e})
 
     # write file
-    with open(cfg['game']['user_setting_file'], 'w') as f:
+    with open(self.cfg_game['user_setting_file'], 'w') as f:
       yaml.dump(user_settings, f)
 
 

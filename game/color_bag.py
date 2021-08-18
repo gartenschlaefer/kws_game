@@ -26,7 +26,8 @@ class ColorBag():
 
     # mic bar
     #self.mic_bar_meter = (210, 100, 20)
-    self.mic_bar_background = (255, 100, 255)
+    #self.mic_bar_background = (255, 100, 255)
+    self.mic_bar_background = (230, 210, 200)
     self.mic_bar_border = (0, 0, 0)
     self.mic_bar_energy_thresh = (210, 100, 20)
     self.mic_bar_meter = (100, 0, 100)
