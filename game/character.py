@@ -20,24 +20,33 @@ class Character(Interactable, Moveable):
     # arguments
     self.position = position
     self.scale = scale
+    self.has_gravity = has_gravity
+    self.grid_move = grid_move
 
     # character sprite
-    self.character_sprite = CharacterSprite(self.position, self.scale)
+    self.character_sprite = self.define_character_sprite()
 
     # moveable init
-    Moveable.__init__(self, move_sprite=self.character_sprite, move_rect=self.character_sprite.rect, move_speed=[3, 3], has_gravity=has_gravity, grid_move=grid_move)
+    Moveable.__init__(self, move_sprite=self.character_sprite, move_rect=self.character_sprite.rect, move_speed=[3, 3], has_gravity=self.has_gravity, grid_move=self.grid_move)
 
     # save init pos
     self.init_pos = position
 
     # input handler
-    self.input_handler = InputKeyHandler(self, grid_move=grid_move)
+    self.input_handler = InputKeyHandler(self, grid_move=self.grid_move)
 
     # interactions
     self.obstacle_sprites = pygame.sprite.Group()
     self.thing_sprites = pygame.sprite.Group()
     self.things_collected = 0
     self.is_active = True
+
+
+  def define_character_sprite(self):
+    """
+    define the character for child classes intended
+    """
+    return CharacterSprite(self.position, self.scale)
 
 
   def set_position(self, position, is_init_pos=False):
@@ -222,6 +231,19 @@ class CharacterSprite(pygame.sprite.Sprite):
 
     # update image
     self.image = self.view_sprites[self.sprite_index]
+
+
+
+class Jim(Character):
+  """
+  Jim the shovelnaut
+  """
+
+  def define_character_sprite(self):
+    """
+    use jim sprite
+    """
+    return CharacterSprite(self.position, self.scale)
 
 
 

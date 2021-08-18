@@ -106,7 +106,7 @@ class CanvasMainMenu(Canvas):
     text = Text(self.canvas_surf, message='main menu', position=(0, 0), font_size='small', color=self.color_bag.text_menu)
 
     # update canvas objects
-    self.interactable_dict.update({'text': text, 'start_button': StartButton(self.canvas_surf, position=(100, 100), scale=(3, 3)), 'help_button': HelpButton(self.canvas_surf, position=(100, 200), scale=(3, 3)), 'option_button': OptionButton(self.canvas_surf, position=(100, 300), scale=(3, 3)), 'end_button': EndButton(self.canvas_surf, position=(100, 400), scale=(3, 3))})
+    self.interactable_dict.update({'text': text, 'start_button': StartButton(self.canvas_surf, position=(30, 75), scale=(3, 3)), 'help_button': HelpButton(self.canvas_surf, position=(30, 175), scale=(3, 3)), 'option_button': OptionButton(self.canvas_surf, position=(30, 275), scale=(3, 3)), 'end_button': EndButton(self.canvas_surf, position=(30, 375), scale=(3, 3))})
 
 
 
@@ -124,7 +124,7 @@ class CanvasHelpMenu(Canvas):
     text = Text(self.canvas_surf, message='help', position=(0, 0), font_size='small', color=self.color_bag.text_menu)
 
     # update canvas objects
-    self.interactable_dict.update({'text': text, 'end_button': EndButton(self.canvas_surf, position=(100, 300), scale=(3, 3))})
+    self.interactable_dict.update({'text': text, 'end_button': EndButton(self.canvas_surf, position=(30, 375), scale=(3, 3))})
 
 
 
@@ -145,19 +145,19 @@ class CanvasOptionMenu(Canvas):
     text = Text(self.canvas_surf, message='option', position=(0, 0), font_size='small', color=self.color_bag.text_menu)
 
     # mic bar
-    mic_bar = MicBar(self.canvas_surf, self.mic, position=(550, 200), bar_size=(30, 150), scale_margin=(50, 40))
+    mic_bar = MicBar(self.canvas_surf, self.mic, position=(540, 225), bar_size=(30, 150), scale_margin=(50, 40))
 
     # device canvas
-    self.interactable_dict.update({'device_canvas': CanvasDevice(self.canvas_surf, self.mic, size=(350, 350), position=(200, 50))})
+    self.interactable_dict.update({'device_canvas': CanvasDevice(self.canvas_surf, self.mic, size=(350, 380), position=(170, 50))})
 
     # thresh canvas
-    self.interactable_dict.update({'thresh_canvas': CanvasThresh(self.canvas_surf, self.mic, size=(350, 350), position=(200, 50))})
+    self.interactable_dict.update({'thresh_canvas': CanvasThresh(self.canvas_surf, self.mic, size=(350, 380), position=(170, 50))})
     
     # command canvas
-    self.interactable_dict.update({'cmd_canvas': CanvasCommand(self.canvas_surf, self.mic, size=(350, 350), position=(200, 50))})
+    self.interactable_dict.update({'cmd_canvas': CanvasCommand(self.canvas_surf, self.mic, size=(350, 380), position=(170, 50))})
 
     # update canvas objects
-    self.interactable_dict.update({'text': text, 'mic_bar': mic_bar, 'cmd_button': CmdButton(self.canvas_surf, position=(50, 75), scale=(3, 3)), 'thresh_button': ThreshButton(self.canvas_surf, position=(50, 175), scale=(3, 3)), 'device_button': DeviceButton(self.canvas_surf, position=(50, 275), scale=(3, 3)), 'end_button': EndButton(self.canvas_surf, position=(50, 375), scale=(3, 3))})
+    self.interactable_dict.update({'text': text, 'mic_bar': mic_bar, 'cmd_button': CmdButton(self.canvas_surf, position=(30, 75), scale=(3, 3)), 'thresh_button': ThreshButton(self.canvas_surf, position=(30, 175), scale=(3, 3)), 'device_button': DeviceButton(self.canvas_surf, position=(30, 275), scale=(3, 3)), 'end_button': EndButton(self.canvas_surf, position=(30, 375), scale=(3, 3))})
 
 
 
