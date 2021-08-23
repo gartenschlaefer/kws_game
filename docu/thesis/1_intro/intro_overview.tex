@@ -1,13 +1,13 @@
 % --
 % intro overview of thesis
 
-\section{Overview of this thesis and notations}\label{sec:intro_overview}
-\thesisStateReady
+\section{Overview}\label{sec:intro_overview}
+\thesisStateRevised
 %This thesis is organized such, that each chapter leads to the next one and guiding someone who is interested in creating her own KWS game to follow through the process and challenges that might appear.
-This thesis is organized that each chapter connects to the next one in a typical processing pipeline for a KWS video game.
+This thesis is organized such that each chapter connects to the next one in a typical processing pipeline for a KWS video game.
 % prev
 After this introduction, \rsec{prev} provides information about previous and related work.
-A small history about neural networks is given and important works on neural network architecture regarding this thesis are referrenced.
+A small history about neural networks is given and important works on neural network architectures used in this thesis are referrenced.
 Further some works are presented that influenced and motivated this thesis.
 %Others works provide benchmarks on the used speech commands dataset or describe neural networks models that perform well on speech.
 %In any way it is important to know, what is happening in the field of KWS and in which direction research is heading towards.
@@ -19,46 +19,12 @@ The feature extraction is guided with examples to visualize their properties.
 The used neural network architectures are described in detail in \rsec{nn}. 
 Further some theory of neural networks in general, CNNs, GANs and Wavenets is provided and highlighted with training results from experiments.
 % experiments
-In the \rsec{exp} information about the dataset and specific feature extraction is given as well as the experiments that are presented.
+In \rsec{exp} information about the dataset and specific feature extraction is given as well as the experiments that are presented.
 The experiments are done on the feature selection of MFCCs for the CNN models to determine the best suitable feature constellation the further experiments.
 The adversarial pre-training of weights is compared to usual training of CNNs and Wavenet results are examined in contrast to the CNN based architectures.
 % game
 \rsec{game} describes the online and classification scheme in a potential video game application.
-Further some game design ideas are presented and notes and challenges are statet regarding a KWS video game.
+Further some game design ideas are presented and notes and challenges are stated regarding a KWS video game.
 % conclusion
-The thesis finishes with the conclusion in \rsec{conclusion}.
+The thesis finishes with the conclusion and an outlook to future work in \rsec{conclusion}.
 
-
-% visual guidance
-%\subsection{Visual Guidance}\label{sec:intro_overview_visual}
-%To get a better overview on the presentation of data and results, context specific color color-schemes are used within this thesis.
-% There exist following context abstractions:
-
-% \begin{itemize}
-%     \item raw waveforms from soundfiles
-%     \item extracted features, e.g. MFCCs
-%     \item weights matrices of neural network models
-%     \item training scores
-% \end{itemize}
-
-% ipa
-\subsection{International Phonetic Alphabet}\label{sec:intro_overview_ipa}
-The International Phonetic Alphabet (IPA) defines phonetics by human speaking sounds, where each symbol represents one specific sound.
-A word formed with letters from a natural language alphabet, does not necessarily represent the pronunciation of that word, therefore many dictionaries provide an IPA transcription so that no misconceptions may happen.
-The plots, in some sections within this thesis, contain phonetic transcriptions with IPA characters, some of the more special ones are described in \rtab{intro_overview_ipa}.
-
-% ipa table
-\input{./1_intro/tables/tab_intro_overview_ipa.tex}
-
-% math
-\subsection{Mathematical Notations}\label{sec:intro_overview_math}
-The mathematical equations or expressions are following a unified criteria.
-Vectors and scalars are usually written in small letters with no special indication for vectors.
-The from a vectors in row or column vector is depended on the application, for instance the position (left or right hand side to a matrix) for a matrix-vector multiplication.
-However in general the vectors are notated as column vectors, but the reader should not be confused when a matrix-vector multiplication is written as $x A$ (row vector notation) instead of $x^T A$ or $A x$ (column vector notation).
-Capital Letters are often representing matrices or transformed signals, but not necessarily.
-Also capital letters are often used for fixed integer numbers, for instance the length of a signal window $N$.
-The dimension of vectors and matrices are normally provided in the text, such as $x\in\R^n$ or $X\in\C^{M \times N}$, or follow from the context.
-Many letters like $n$ or $x$ are likewise used in different sections, but with different meaning and representations and should hopefully not confuse the reader of this thesis.
-Regarding the logarithm notation, a $\log x$ without subscription is always referred as natural logarithm to the basis $e$.
-%The letters $m$ and $n$ usually describes the length of a signal, $x$  and $y$ often represents input and output variables.

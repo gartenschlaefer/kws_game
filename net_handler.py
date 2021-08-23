@@ -11,7 +11,7 @@ import re
 # nets
 from conv_nets import ConvNetTrad, ConvNetFstride4, ConvNetExperimental, ConvJim
 from adversarial_nets import Adv_G_Experimental, Adv_D_Experimental, Adv_G_Jim, Adv_D_Jim
-from hybrid_nets import HybJim
+from hybrid_nets import HybJim, HybJimG
 from wavenet import Wavenet
 from legacy import legacy_model_file_naming
 
@@ -50,6 +50,12 @@ class NetHandler():
       for child_cls in cls.__subclasses__():
         if child_cls.__name__ == 'HybridNetHandler':
           return super().__new__(HybridNetHandler)
+
+    # hybrid handler
+    elif nn_arch in ['hyb-jim-g']:
+      for child_cls in cls.__subclasses__():
+        if child_cls.__name__ == 'HybridGNetHandler':
+          return super().__new__(HybridGNetHandler)
 
     # wavenet handler
     elif nn_arch in ['wavenet']:
@@ -104,6 +110,7 @@ class NetHandler():
   
     # hybrid
     elif self.nn_arch == 'hyb-jim': self.models = {'hyb': HybJim(self.n_classes, self.data_size), 'g': Adv_G_Jim(self.n_classes, self.data_size, is_last_activation_sigmoid=self.feature_params['norm_features'])}
+    elif self.nn_arch == 'hyb-jim-g': self.models = {'hyb': HybJimG(self.n_classes, self.data_size), 'd': Adv_D_Jim(self.n_classes, self.data_size)}
 
     # wavenet
     elif self.nn_arch == 'wavenet': self.models = {'wav': Wavenet(self.n_classes)}
@@ -514,7 +521,6 @@ class AdversarialNetHandler(NetHandler):
     """
 
     # zero gradients
-    self.models['d'].zero_grad()
     self.optimizer_d.zero_grad()
 
     # create real labels
@@ -558,7 +564,6 @@ class AdversarialNetHandler(NetHandler):
     """
 
     # zero gradients
-    self.models['g'].zero_grad()
     self.optimizer_g.zero_grad()
 
     # fakes should be real labels for G
@@ -644,7 +649,6 @@ class AdversarialSimNetHandler(AdversarialNetHandler):
     """
 
     # zero gradients
-    self.models['g'].zero_grad()
     self.optimizer_g.zero_grad()
 
     # fakes should be real labels for G
@@ -714,8 +718,12 @@ class HybridNetHandler(NetHandler):
     set optimizer in training
     """
 
+    # convolutional filter params
+    conv_params = list(self.models['hyb'].conv_layer0.parameters()) + list(self.models['hyb'].conv_layer1.parameters())
+
     # Setup Adam optimizers for both G and D
-    self.optimizer_hyb = torch.optim.Adam(self.models['hyb'].parameters(), lr=train_params['lr_d'], betas=(train_params['beta_d'], 0.999))
+    self.optimizer_class = torch.optim.Adam(list(self.models['hyb'].classifier_net.parameters()) + conv_params, lr=train_params['lr'], betas=(train_params['beta'], 0.999))
+    self.optimizer_d = torch.optim.Adam(list(self.models['hyb'].discriminator_net.parameters()) + conv_params, lr=train_params['lr_d'], betas=(train_params['beta_d'], 0.999))
     self.optimizer_g = torch.optim.Adam(self.models['g'].parameters(), lr=train_params['lr_g'], betas=(train_params['beta_g'], 0.999))
 
     # init actual d epoch
@@ -806,8 +814,8 @@ class HybridNetHandler(NetHandler):
     """
 
     # zero gradients
-    self.models['hyb'].zero_grad()
-    self.optimizer_hyb.zero_grad()
+    self.optimizer_class.zero_grad()
+    self.optimizer_d.zero_grad()
 
     # create real labels
     y_real = torch.full((x.shape[0],), self.real_label, dtype=torch.float, device=self.device)
@@ -848,7 +856,8 @@ class HybridNetHandler(NetHandler):
     loss.backward()
 
     # optimizer step
-    self.optimizer_hyb.step()
+    self.optimizer_class.step()
+    self.optimizer_d.step()
 
     return loss_class.item(), lam * d_loss_real.item(), lam * d_loss_fake.item()
 
@@ -859,7 +868,6 @@ class HybridNetHandler(NetHandler):
     """
 
     # zero gradients
-    self.models['g'].zero_grad()
     self.optimizer_g.zero_grad()
 
     # fakes should be real labels for G
@@ -954,6 +962,210 @@ class HybridNetHandler(NetHandler):
 
 
 
+class HybridGNetHandler(NetHandler):
+  """
+  Hybrid Neural Network Handler
+  """
+
+  def __init__(self, nn_arch, class_dict, data_size, feature_params, encoder_model=None, decoder_model=None, use_cpu=False):
+
+    # parent class init
+    super().__init__(nn_arch, class_dict, data_size, feature_params, encoder_model=encoder_model, decoder_model=decoder_model, use_cpu=use_cpu)
+
+    # loss criterion
+    self.criterion_adv = torch.nn.BCELoss()
+    self.criterion_class = torch.nn.CrossEntropyLoss()
+
+    # neural network models init
+    self.init_models()
+
+    # labels
+    self.real_label = 1.
+    self.fake_label = 0.
+
+    # cosine similarity
+    self.cos_sim = torch.nn.CosineSimilarity(dim=2, eps=1e-08)
+
+
+  def set_up_training(self, train_params):
+    """
+    set optimizer in training
+    """
+
+    # Setup Adam optimizers for both G and D
+    self.optimizer_hyb = torch.optim.Adam(self.models['hyb'].parameters(), lr=train_params['lr_d'], betas=(train_params['beta_d'], 0.999))
+    self.optimizer_d = torch.optim.Adam(self.models['d'].parameters(), lr=train_params['lr_d'], betas=(train_params['beta_d'], 0.999))
+
+
+  def train_nn(self, train_params, batch_archive, callback_f=None, callback_act_epochs=10):
+    """
+    train adversarial nets
+    """
+
+    # setup training
+    self.set_up_training(train_params)
+
+    # score collector
+    train_score = HybridTrainScore(train_params['num_epochs'], invoker_class_name=self.__class__.__name__, k_print=batch_archive.y_batch_dict['train'].shape[0] // self.num_print_per_epoch)
+
+    # epochs
+    for epoch in range(train_params['num_epochs']):
+
+      # fetch data samples
+      for mini_batch, (x, y) in enumerate(zip(batch_archive.x_batch_dict['train'].to(self.device), batch_archive.y_batch_dict['train'].to(self.device))):
+
+        # update models
+        train_score = self.update_models(x, y, epoch, mini_batch, train_score, train_params)
+
+      # valdiation
+      eval_score = self.eval_nn('validation', batch_archive)
+
+      # update score collector
+      train_score.score_dict['val_loss'][epoch], train_score.score_dict['val_acc'][epoch] = eval_score.loss, eval_score.acc
+
+      # check progess after epoch with callback function
+      if callback_f is not None and not epoch % callback_act_epochs: callback_f(self.generate_samples(to_np=True), epoch)
+
+    # finish train score
+    train_score.finish()
+
+    return train_score
+
+
+  def update_models(self, x, y, epoch, mini_batch, train_score, train_params):
+    """
+    model updates
+    """
+
+    # update discriminator
+    loss_class, d_loss_real, d_loss_fake, g_loss_fake, g_loss_sim = self.update_hyb(x, y)
+
+    # update batch loss collection
+    train_score.update_batch_losses(epoch, mini_batch, loss_class=loss_class, d_loss_real=d_loss_real, d_loss_fake=d_loss_fake, g_loss_fake=g_loss_fake, g_loss_sim=g_loss_sim)
+
+    return train_score
+
+
+  def update_hyb(self, x, y, lam=0.5, backward=True):
+    """
+    update discriminator D with real and fake data
+    """
+
+    # zero gradients
+    self.optimizer_hyb.zero_grad()
+    self.optimizer_d.zero_grad()
+
+    # create real labels
+    y_real = torch.full((x.shape[0],), self.real_label, dtype=torch.float, device=self.device)
+    y_fake = torch.full((x.shape[0],), self.fake_label, dtype=torch.float, device=self.device)
+
+    # hybrid model
+    o_class, fakes = self.models['hyb'](x)
+
+    # generator
+    o_g_fake = self.models['d'](fakes)
+
+    # discriminator
+    o_d_real = self.models['d'](x)
+    o_d_fake = self.models['d'](fakes.detach())
+
+    # loss of D with reals
+    d_loss_real = self.criterion_adv(o_d_real.view(-1), y_real)
+    d_loss_fake = self.criterion_adv(o_d_fake.view(-1), y_fake)
+
+    # loss of G with fakes marked as reals
+    g_loss_fake = self.criterion_adv(o_g_fake.view(-1), y_real)
+    g_loss_sim = (1 - torch.mean(self.cos_sim(x, fakes)))
+    #g_loss_sim = 0.0
+
+    # loss of class label
+    loss_class = self.criterion_class(o_class, y)
+
+    # discriminator loss
+    d_loss = d_loss_real + d_loss_fake
+
+    # generator loss
+    g_loss = g_loss_fake + g_loss_sim
+
+    # calculate whole loss
+    loss_hyb = loss_class + g_loss
+
+    # gradients for class prediction
+    loss_hyb.backward()
+    d_loss.backward()
+
+    # optimizer step
+    self.optimizer_hyb.step()
+    self.optimizer_d.step()
+
+    return loss_class.item(), d_loss_real.item(), d_loss_fake.item(), g_loss_fake.item(), g_loss_sim.item()
+
+
+  def eval_forward(self, mini_batch, x, y, z, eval_score, verbose=False):
+    """
+    eval forward pass
+    """
+
+    # classify
+    o_class, o_fake = self.models['hyb'](x)
+
+    # loss
+    loss = self.criterion_class(o_class, y)
+
+    # prediction
+    _, y_hat = torch.max(o_class.data, 1)
+
+    # update eval score
+    eval_score.update(loss, y.cpu(), y_hat.cpu(), z, o_class.data)
+
+    return eval_score
+
+
+  def classify_sample(self, x):
+    """
+    classification of a single sample with feature size dimension
+    """
+
+    # input to tensor [n, c, m, f]
+    x = torch.unsqueeze(torch.from_numpy(x.astype(np.float32)), 0).to(self.device)
+
+    # no gradients for eval
+    with torch.no_grad():
+
+      # classify
+      o_class, o_fake = self.models['hyb'](x)
+
+      # prediction
+      _, y_hat = torch.max(o_class.data, 1)
+
+    # int conversion
+    y_hat = int(y_hat)
+
+    # get label
+    label = list(self.class_dict.keys())[list(self.class_dict.values()).index(y_hat)]
+
+    return y_hat, o_class, label
+
+
+  def generate_samples(self, noise=None, num_samples=10, to_np=False):
+    """
+    generator samples from G
+    """
+
+    # generate noise if not given
+    if noise is None: noise = torch.randn((num_samples,) + self.models['hyb'].data_size, device=self.device)
+
+    # create fakes through Generator
+    with torch.no_grad():
+      o, fakes = self.models['hyb'](noise)
+
+    # to numpy if necessary
+    if to_np: fakes = fakes.numpy()
+
+    return fakes
+
+
+
 class WavenetHandler(NetHandler):
   """
   wavenet handler
@@ -980,10 +1192,9 @@ class WavenetHandler(NetHandler):
     self.optimizer = torch.optim.Adam(self.models['wav'].parameters(), lr=train_params['lr'], betas=(train_params['beta'], 0.999))
 
 
-  def train_nn(self, train_params, batch_archive, callback_f=None, lam=2.0):
+  def train_nn(self, train_params, batch_archive, callback_f=None, lam=5.0):
     """
-    train the neural network
-    train_params: {'num_epochs': [], 'lr': [], 'momentum': []}
+    wavenet training
     """
 
     # setup training
@@ -1011,10 +1222,10 @@ class WavenetHandler(NetHandler):
         loss_t = self.criterion(o_t, t)
 
         # loss for correct prediction
-        loss_y = self.criterion(o_y, y)
+        loss_y = torch.mul(self.criterion(o_y, y), lam)
 
         # loss
-        loss = loss_t + loss_y * lam
+        loss = loss_t + loss_y
 
         # backward
         loss.backward()
@@ -1023,7 +1234,7 @@ class WavenetHandler(NetHandler):
         self.optimizer.step()
 
         # update batch loss collection
-        train_score.update_batch_losses(epoch, mini_batch, loss_t=loss_t.item(), loss_y=loss_y.item() * lam)
+        train_score.update_batch_losses(epoch, mini_batch, loss_t=loss_t.item(), loss_y=loss_y.item())
 
       # valdiation
       eval_score = self.eval_nn('validation', batch_archive)

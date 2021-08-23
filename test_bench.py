@@ -117,11 +117,11 @@ class TestBench():
     if self.cfg_tb['enable_info_prints']: print("\nall_corrects_shift:\n", all_corrects_shift), print("\nall_corrects_noise:\n", all_corrects_noise), print("\nall labels: ", all_labels)
 
     # plots
-    plot_test_bench_shift(x=all_corrects_shift, y=all_labels, context='bench-shift-2', title='shift ' + self.test_model_name, plot_path=self.test_model_path, name='test_bench_shift', show_plot=False)
-    plot_test_bench_shift(x=all_probs_shift, y=all_labels, context='bench-shift', title='shift ' + self.test_model_name, plot_path=self.test_model_path, name='test_bench_shift-prob', show_plot=False)
+    plot_test_bench_shift(x=all_corrects_shift, y=all_labels, context='tb-shift-2', plot_path=self.test_model_path, name='test_bench_shift', show_plot=False)
+    plot_test_bench_shift(x=all_probs_shift, y=all_labels, context='tb-shift', plot_path=self.test_model_path, name='test_bench_shift-prob', show_plot=False)
 
-    plot_test_bench_noise(x=all_corrects_noise, y=all_labels, snrs=self.cfg_tb['snrs'], context='bench-noise-2', title='noise ' + self.test_model_name, plot_path=self.test_model_path, name='test_bench_noise', show_plot=False)
-    plot_test_bench_noise(x=all_probs_noise, y=all_labels, snrs=self.cfg_tb['snrs'], context='bench-noise', title='noise ' + self.test_model_name, plot_path=self.test_model_path, name='test_bench_noise-prob', show_plot=False)
+    plot_test_bench_noise(x=all_corrects_noise, y=all_labels, snrs=self.cfg_tb['snrs'], context='tb-noise-2', plot_path=self.test_model_path, name='test_bench_noise', show_plot=False)
+    plot_test_bench_noise(x=all_probs_noise, y=all_labels, snrs=self.cfg_tb['snrs'], context='tb-noise', plot_path=self.test_model_path, name='test_bench_noise-prob', show_plot=False)
 
 
   def test_noise_invariance(self, x_wav, actual_label, mu=0):
@@ -247,7 +247,7 @@ if __name__ == '__main__':
   cfg = yaml.safe_load(open("./config.yaml"))
 
   # create test bench
-  test_bench = TestBench(cfg['test_bench'], test_model_path='./ignore/test_bench/test_models/conv-encoder/')
+  test_bench = TestBench(cfg['test_bench'], test_model_path='./ignore/test_bench/test_models/conv-fstride/')
 
   # shift invariance test
   test_bench.test_invariances()

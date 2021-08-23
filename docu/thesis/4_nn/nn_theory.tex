@@ -2,15 +2,14 @@
 % theory
 
 \section{Theory}\label{sec:nn_theory}
-\thesisStateReady
-The theory provided in this section, merely focuses on the used neural network architectures and some basic theory elements in neural networks.
-The most basic element in neural networks is described here as node, an abstract element, that defines input and output connections from and to other nodes within the network.
+\thesisStateRevised
+The theory provided in this section, merely focuses on the used neural network architectures and some basic theory about neural networks.
+The most basic element in neural networks is denoted as node, an abstract element, that defines input and output connections from and to other nodes within the network.
 The edges of the connections from and to a node represents a multiplication with a scalar value, denoted as weight.
 Each node usually incorporates an additive term, denoted as bias term.
 All weights and bias terms are forming the parameters of a network and can be trained through back-propagation.
 The output of a node is a scalar computed from all inputs and mapped with a non-linear function denoted as activation function.
 A neural network can consist of thousand of nodes in each possible constellation of connections.
-In this thesis, the connections are uni-directional (no bi-directional connections), which is the more common approach in neural networks.
 The structure of a neural network is defined by its layers, where a layer is a set of nodes with specific connection properties, that receive inputs from the previous layer and output connections to the next layer.
 For example, a neural network consists of one convolutional layer followed by three fully connected layers.
 The last layer of a neural network usually represents the class labels of a classification tasks.
@@ -31,17 +30,17 @@ The constraint of an activation function is, that an easy computable derivative 
 
 The most famous activation function nowadays is the RELU function:
 \begin{equation}\label{eq:nn_theory_relu}
-  z = \max{(0, a)}
+  h(a) = \max{(0, a)}
 \end{equation}
 with $a \in \R$ as input to the activation function.
-The big advantage is that this function and its subgradients are very easy and fast to compute.
-The two other activation functions that are used in wavenets are the sigmoid function:
+The big advantage is that this function and its sub-gradients are very easy and fast to compute.
+The two other activation functions that are used in Wavenets are the sigmoid function:
 \begin{equation}\label{eq:nn_theory_sigmoid}
-  z = \frac{1}{1 + \exp{-x}}
+  h(a) = \frac{1}{1 + \exp{-a}}
 \end{equation}
 and the tanh functions:
 \begin{equation}\label{eq:nn_theory_tanh}
-  z = \frac{\exp{x} - \exp{-x}}{\exp{x} + \exp{-x}}
+  h(a) = \frac{\exp{a} - \exp{-a}}{\exp{a} + \exp{-a}}
 \end{equation}
 
 
@@ -57,22 +56,22 @@ A simple FC layer is illustrated in \rfig{nn_theory_fc} with 3 nodes.
 \begin{figure}[!ht]
   \centering
     \includegraphics[width=0.30\textwidth]{./4_nn/figs/nn_theory_fc.eps}
-  \caption{Basic fully connected layer with 3 nodes, receiving connections from 2 input nodes and outputing connections to 2 output nodes.}
+  \caption{Basic fully connected layer with 3 nodes, receiving connections from 2 input nodes and outputting connections to 2 output nodes.}
   \label{fig:nn_theory_fc}
 \end{figure}
 \FloatBarrier
 \noindent
 Mathematically one node $i$ performs following calculation:
 \begin{equation}
-  z = h(w^T \, x + b_i)
+  z_i = h(w_i^T \, x + b_i)
 \end{equation}
 with the same notations as described in \req{nn_theory_acti} and an additional bias term $b_i \in \R$.
 For all nodes in a layer this equation of a single node can be summarized to a weight matrix $W \in \R^{m \times n}$ with $m$ as total amount of nodes in that layer, so that an FC layer can be written as:
 \begin{equation}
-  \hat{z} = h(W \, x + b)
+  z = h(W \, x + b)
 \end{equation}
-where $b \in \R^m$ are the bias terms of all nodes and $\hat{z} \in \R^m$ the outputs of each nodes in that layer.
-With the matrix representation it is easy to obtain the amounts of operations needed for a FC layer.
+where $b \in \R^m$ are the bias terms of all nodes and $z \in \R^m$ the outputs of all nodes in that layer.
+With the matrix representation it is easy to obtain the amount of operations needed for a FC layer.
 The amount of parameters are clearly $m \cdot n$ for $W$ and $m$ for $b$ so in total $m \cdot n + m$ parameters.
 The amount of operations are the matrix vector multiplication with approximated amounts of multiplication and additions plus the bias terms.
 With the activation function disregarded, the amount of calculations are closely:
@@ -147,7 +146,7 @@ For the previous example this would give $\mathcal{T}(k * x) = 2 (12 \cdot 12) (
 Loss functions also known as cost functions are used to determine the difference between the predicted labels $\hat{y}$ compared to the actual or ground truth labels $y$.
 The predicted labels are usually presented by the output nodes in the last layer of a neural network.
 Therefore $\hat{y} = [\hat{y_1}, \, \hat{y_2}, \dots, \hat{y_C}]^T$ has the dimension of the number of labels or classes $C$.
-Often it is preferred that $\hat{y} \in R^C$ provides a probability distribution such that:
+Often it is preferred that $\hat{y} \in \R^C$ provides a probability distribution such that:
 \begin{equation}
   \sum_{i=0}^C \hat{y}_i = 1
 \end{equation}
@@ -158,7 +157,7 @@ which can be achieved with the softmax function:
 where $C$ is the amount of nodes in this layer, if it is the last layer as usual for the softmax, $C$ is the total amount of classes and $\hat{y}_i$ the probability value of the corresponding class $i$.
 
 There are already plenty of different loss functions available for training neural networks, however in this thesis only one kind of it is used for all neural network architecture, the cross-entropy loss or for two classes the binary cross-entropy loss function.
-Without going too much into the detail of this loss function, it is described in the same way as in the \texttt{pytorch} framework \cite{Pytorch}.
+Without going too much into the detail of this loss function, it is described in the same way as in the \texttt{Pytorch} framework \cite{Pytorch}.
 The binary cross entropy is implemented as:
 \begin{equation}
   l_i(x_i, y_i) = y_i \cdot \log x_i + (1 - y_i) \cdot \log (1 - x_i)
@@ -194,9 +193,9 @@ The loss is calculated by a specific loss function comparing the predicted label
 To update the parameters of the network, an update rule, such as Stochastic Gradient Descend (SGD) or Adam \cite{Kingma2015} is applied.
 Note that a single update step is usually not performed on the whole dataset, unless it is a very small dataset. 
 In the normal case the update is performed on small chunks of the dataset called \emph{batch}.
-During one training iteration, denoted as \emph{epoch}, each example in each batch of the dataset is processed a single time, then the next epochs starts.
-A training step is one update of parameters done for a single batch and is therefore not the same as the trainning iteration or epoch.
-Note that the training of neural networks may take over thousands of epochs until a convergence is reached.
+One training iteration is therefore the update of parameters for a single batch.
+The run over all batches of a dataset is defined as \emph{epoch}.
+Note that the training of neural networks may take over thousands of epochs until convergence is reached.
 The general training techniques for neural networks and further details are not described here, because of many existing books and papers \cite{LeCun2006}, \cite{Goodfellow2016}, \cite{DeepLearning} that are already presenting this topic very well. 
 Further it does not add any value to this thesis as the algorithms are well examined and run in the background of all neural network frameworks.
 The interesting elements are therefore only the neural network architecture design, the training parameters and the used loss functions.

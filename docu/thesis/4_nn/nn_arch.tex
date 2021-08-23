@@ -91,7 +91,7 @@ The G network is able to produce samples from the data distribution, while the D
 Being able to transfer the obtained weights from the training of the adversarial models, the layers parameters of the target network must coincide with the adversarial network layers.
 Both D and G network convolutional layer parameters can be used, even if G performs a convolutional upsampling (transposed convolution) instead of usual convolution.
 
-The major model tested with adversarial training has the same structure as the \texttt{conv-jim} network and is therefore denoted as \texttt{adv-d-jim} shown in \rfig{nn_arch_adv_d_jim} and \texttt{adv-g-jim} in \rfig{nn_arch_adv_g_jim}.
+The major model tested with adversarial pre-training has the same convolutional layer structure as the \texttt{conv-jim} network and is therefore denoted as \texttt{adv-d-jim} shown in \rfig{nn_arch_adv_d_jim} and \texttt{adv-g-jim} in \rfig{nn_arch_adv_g_jim}.
 
 \begin{figure}[!ht]
   \centering
@@ -110,7 +110,9 @@ The major model tested with adversarial training has the same structure as the \
 \end{figure}
 \FloatBarrier
 \noindent
-
+Note that the number of operations are the same as in \rtab{nn_arch_cnn_jim} except for the fully-connected layers.
+The \texttt{adv-g-jim} model uses either the sigmoid or an identity (same output as input) activation function, depending if the Mel Frequency Cepstral Coefficients (MFCC) are frame-based normalized.
+If the MFCC are frame-based normalized the sigmoid activation function is used to produce outputs in the range of $[0, 1]$, which enhances the models training speed compared to the generation of samples that are not normalized.
 %An overview of all models is shown in \rtab{nn_arch_overview} with abbreviations in \rtab{nn_arch_abbreviation}.
 %\input{./4_nn/tables/tab_nn_arch_abbreviation.tex}
 %\input{./4_nn/tables/tab_nn_arch.tex}
@@ -119,8 +121,10 @@ The major model tested with adversarial training has the same structure as the \
 % --
 % wavenets
 \subsection{Wavenets}\label{sec:nn_arch_wavenet}
-
-A Wavenet residual block introduced by \cite{Oord2016}, with an extension for class prediction is illustrated in \rfig{nn_arch_wavenet_block} 
+Wavenets were introduced in \cite{Oord2016}, while the idea behind the dilated convolution is clear, it is a bit difficult to imagine the whole Wavenet model structure only by reading the paper.
+Also it is not described in detail how the class predictions are done for the mentioned Automatic Speech Recognition (ASR) tasks.
+An implementation of a Wavenet can be found in \cite{Herrmann2018} (without class predictions) and motivated the following model structure.
+A Wavenet residual block introduced by \cite{Oord2016}, with an extension for class prediction is illustrated in \rfig{nn_arch_wavenet_block} .
 \begin{figure}[!ht]
   \centering
     \includegraphics[width=0.7\textwidth]{./4_nn/figs/nn_arch_wavenet_block.eps}
@@ -129,7 +133,8 @@ A Wavenet residual block introduced by \cite{Oord2016}, with an extension for cl
 \end{figure}
 \FloatBarrier
 \noindent
-The whole Wavenet architecture with class and sample prediction is shown in \rfig{nn_arch_wavenet_all}.
+The whole Wavenet architecture is composed of several Wavenet residual blocks with increasing dilation parameters for the convolutional layers.
+The Wavenet architecture adaption with class prediction is shown in \rfig{nn_arch_wavenet_all}.
 \begin{figure}[!ht]
   \centering
     \includegraphics[width=0.9\textwidth]{./4_nn/figs/nn_arch_wavenet_all.eps}

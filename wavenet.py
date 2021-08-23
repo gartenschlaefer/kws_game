@@ -107,7 +107,7 @@ class Wavenet(nn.Module, ConvBasics):
     self.target_quant_size = 256
 
     # layers of wavenet blocks -> receptive field: 2^n_layers
-    self.n_layers = 8
+    self.n_layers = 7
 
     # wavenet_layers
     self.wavenet_layers = torch.nn.ModuleList()
@@ -217,10 +217,10 @@ if __name__ == '__main__':
   """
 
   # wavenet
-  wavenet = Wavenet()
+  wavenet = Wavenet(n_classes=5)
 
   # next sample
-  y = wavenet(torch.randn(1, 1, 16000))
+  y = wavenet(torch.randn(1, 1, 8000))
 
   # count params
   layer_params = wavenet.count_params()

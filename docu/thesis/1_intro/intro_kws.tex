@@ -1,13 +1,13 @@
 % --
 % Intro of key word spotting
 
-\section{The task of Key Word Spotting}\label{sec:intro_kws}
-\thesisStateReady
+\section{The Key Word Spotting Task}\label{sec:intro_kws}
+\thesisStateRevised
 As described earlier Key Word Spotting (KWS) is the task of classifying speech signals of spoken word to a single key word out of a set of key words.
 The set of key words $S$, also called vocabulary, can be defined as:
 % kws dict
 \begin{equation}\label{eq:intro_kws_dict}
-	S \coloneqq \{s_i \, | \, i = 0, 1, \dots C\}
+	S \coloneqq \{s_i \, | \, i = 0, 1, \dots, C\}
 \end{equation}
 with a total number of $C$ key words denoted individually as $s_i$ for each key word.
 The task is to select the key word closest to the spoken word from the user, denoted as target $t$.
@@ -22,7 +22,7 @@ The formulation in \req{intro_kws_task} is merely semantic, but KWS in computer 
 From the audio data an inference to output class probabilities $y \in \R^C$ with a total number of $C$ classes or key words, can be processed with a neural network containing a softmax function at its last layer (transforming the output of the last layer to probability values).
 The most probable key word can be picked by:
 \begin{equation}\label{eq:intro_kws_class}
-	\hat{s} = \{s_i \, | \, \underset{i = 0, 1, \dots C}{\arg \max} \, y_i\}
+	\hat{s} = \{s_i \, | \, \underset{i = 0, 1, \dots, C}{\arg \max} \, y_i\}
 \end{equation}
 if the highest value of $y_i$ for all $i$ refers to the most probable index or indices of a spotted key word or key words in the vocabulary.
 

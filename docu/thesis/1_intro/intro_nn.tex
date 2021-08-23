@@ -2,7 +2,7 @@
 % Intro to neural networks
 
 \section{Neural Networks for Key Word Spotting}\label{sec:intro_nn}
-\thesisStateReady
+\thesisStateRevised
 Neural networks enable computers to automatically learn from data to be able to solve tasks such as pattern recognition in images or audio.
 The examples or samples from the input data can be paired with annotations, denoted as \emph{labels} or \emph{classes}.
 If the label information of each example is used during the \emph{training} of a machine learning system, such as a neural network, it is called \emph{supervised learning} otherwise it is called \emph{unsupervised learning}, however supervised learning is more commonly applied.
@@ -10,12 +10,12 @@ If the label information of each example is used during the \emph{training} of a
 The big advantage of neural networks is that they are able to cope with large amounts of input variables per data example.
 Considering a raw waveform file of merely \SI{1}{s} time duration, sampled with \SI{16}{\kilo\hertz} would give a input size of 16000 features.
 This huge amount of input features is even difficult for neural networks to learn from and usually a feature extraction stage is placed in between to reduce the input dimension.
-For instance the computation of MFCCs with 12 coefficients and a time duration of \SI{0.5}{s} with a time shift of \SI{10}{\milli\second}, reduces the input feature size dramatically to $12 \times 50 = 600$, which is still a high number of input features, but much more affordable and faster to train.
+For instance the computation of Mel Frequency Cepstral Coefficients (MFCC) with 12 coefficients and a time duration of \SI{0.5}{s} with a time shift of \SI{10}{\milli\second}, reduces the input feature size dramatically to $12 \times 50 = 600$, which is still a high number of input features, but much more affordable and faster to train.
 
 Neural networks are able to learn own feature representations, selection and interpretation, rather than using hand-crafted ones done by humans with expertise in the application.
 Note that hand-crafting features of a complex recognition task, is in most cases not even possible or extremely cumbersome.
 So researchers prefer neural networks because of their easy deployment scheme and state of the art performances.
-Further it enables everyone who is capable of using neural network tools, to create solution to rather complex problems usually solved by experts in the field, given there is enough data and processing power available.
+Further it enables everyone who is capable of using neural network tools, to create solution to rather complex problems usually solved by experts in the research field, given there is enough data and processing power available.
 Therefore elaborate feature extraction stages become less relevant to the users.
 This on the other side may lead into less understanding of the actual problem and more \enquote{try and error} approaches of different neural network architectures and training parameters.
 The energy consumption required to train Deep Neural Network (DNN) with many parameters on a huge training dataset, shall not be forgotten, especially in times of climatic change.

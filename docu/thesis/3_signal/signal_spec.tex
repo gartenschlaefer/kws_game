@@ -23,11 +23,11 @@ The audio samples contained by the analytic window of size $N$, are transformed 
   \hat{X}[k] = \sum_{n=0}^{N-1} x[n] \, e^{-j\frac{2 \pi n}{N}k}
 \end{equation}
 into the frequency space $\hat{X}[k] \in \C$ with frequency index $k$ and discrete audio samples $x[n]$ with sample index $n$.
-More conveniently, \req{signal_spec_dtft} can be written in matrix notation with the DFT operator denoted as $\mathcal{F} \in \C^{N \times K}$ with a total number of $N$ samples of the input signal $x \in R^N$ and $K$ Fourier coefficients:
+More conveniently, \req{signal_spec_dtft} can be written in matrix notation with the DFT operator denoted as $\mathcal{F} \in \C^{N \times K}$ with a total number of $N$ samples of the input signal $x \in \R^N$ and $K$ Fourier coefficients:
 %--
 % DFT matrix
 \begin{equation}\label{eq:signal_spec_dtft_matrix}
-  \hat{X} = x \, \mathcal{F} \quad \mathrm{with} 
+  \hat{X} = x^T \, \mathcal{F} \quad \mathrm{with} 
   \quad \mathcal{F}[n, k] = e^{-j\frac{2 \pi n}{N} k},
   \quad n,\, k = (0, 1, \dots N-1),\, (0, 1 \dots K-1)
 \end{equation}
@@ -36,7 +36,7 @@ where $n$ and $k$ are row and column indices in the matrix $\mathcal{F}$, which 
 The length of the analytic window in samples $N$ is crucial for the frequency resolution and the lowest frequency that can be represented.
 For example, the periodic time of a sound with $f=\SI{20}{\hertz}$ is $t=\frac{1}{f} = \SI{50}{\milli\second}$.
 To represent a waveform it is necessary to have at least a quarter of its wavelength captured.
-Within this thesis, the length of the analytic window is selected to \SI{25}{\milli\second}, which is totally enough for speech signals.
+Within this thesis, the length of the analytic window is selected to \SI{25}{\milli\second}, which is enough for speech signals.
 
 The \emph{hop size} $h$ in samples of the hop time $t_h$, by which the analytical window is shifted on the time axis, indicates the resolution in time and is especially important for sequential changes within the audio data.
 In applications like speech processing, the hop time should be selected so that the fastest pronounced phone and its transitions to other phones is captured with sufficient resolution.
@@ -48,8 +48,8 @@ With the hop size $h$ in samples and $N$ the length of the analytical window, th
 \begin{equation}\label{eq:signal_spec_stft}
     \tilde{X}[m, k] = \sum_{n=0}^{N-1} x[n + m] \, w[n] \, e^{-j\frac{2 \pi n}{N}k}, \qquad m = 0 h, \, 1 h, \, \dots, \, M h 
 \end{equation}
-so that $\tilde{X}[m, k] \in \C$ is the STFT coefficient of frame $m$ and DFT coefficient $k$, where $n$ is here denoted as summation index, $w$ as a window function, such as the \emph{Hanning} window, $m$ indicates the frame index shifted by the hop size $h$ and $M$ is the maximum number of possible hops until the end of the signal is reached by shifting the analytical window of size $N$ by the hop size on the discrete time axis.
-The maximum number of hops $M$ can therfore be computed as:
+so that $\tilde{X}[m, k] \in \C$ is the STFT coefficient of frame $m$ and DFT coefficient $k$, where $n$ is denoted here as summation index, $w$ as a window function, such as the \emph{Hanning} window, $m$ indicates the frame index shifted by the hop size $h$ and $M$ is the maximum number of possible hops until the end of the signal is reached by shifting the analytical window of size $N$ by the hop size on the discrete time axis.
+The maximum number of hops $M$ can therefore be computed as:
 % --
 % hop
 \begin{equation}\label{eq:signal_spec_hop}
@@ -81,13 +81,13 @@ The used STFT parameters for this thesis are shown in \rtab{signal_spec_stft}.
 % --
 % stft params
 \input{./3_signal/tables/tab_signal_spec_stft.tex}
-A spectrogram $P \in \R^{M \times K}$ is simply the power spectrum of the STFT $\tilde{X} \in \C^{M \times K}$ computed with:
+A spectrogram $P \in \R^{M \times K}$ is simply the power spectrum of the STFT $\tilde{X} \in \C^{M \times K}$ computed as:
 % --
 % spec
 \begin{equation}\label{eq:signal_spec_spec}
   P = \abs{\tilde{X}}^2.
 \end{equation}
-Note that $P$ has now real values instead of complex values.
+Note that $P$ has now real values instead of complex ones.
 The recorded examples transformed to a spectrogram with linear representation is shown in \rfig{signal_spec_lin_showcase}.
 \begin{figure}[!ht]
   \centering
@@ -101,15 +101,14 @@ The recorded examples transformed to a spectrogram with linear representation is
 \end{figure}
 \FloatBarrier
 \noindent
-It can be observed, that most of the signals energy is in the lower frequency regions of under approximately \SI{1}{\kilo\hertz}.
-Therefore it is more interesting to transform the spectrogram into the log scale of its value space, done by:
+It can be observed, that most of the signals energy is in the lower frequency regions of under approximately \SI{1}{\kilo\hertz}, therefore it is more appealing to transform the spectrogram into the log scale of its value space, achieved by:
 % --
 % log
 \begin{equation}\label{eq:signal_spec_log}
   P_{DB} = 10 \cdot \log{P}
 \end{equation}
 so that small energies are more emphasized with $P_{DB} \in \R^{M \times K}$. 
-The same examples with log scaling in the value space and visualized with log scaling of the frequency space are shown in \rfig{signal_spec_log_showcase}.
+The same examples with log scaling in the value space visualized with log scaling of the frequency space in the plots are shown in \rfig{signal_spec_log_showcase}.
 \begin{figure}[!ht]
   \centering
     \subfigure[left]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_spec-log_showcase_left0}}
