@@ -2,7 +2,7 @@
 % spectrogram
 
 \section{Spectral Features}\label{sec:signal_spec}
-\thesisStateReady
+\thesisStateRevised
 Spectral features, such as a spectrogram, are the most intuitive form to represent audio waveforms. 
 It is possible to observe active energy regions of certain frequency bands that are active at consecutive time chunks.
 Methodically this is done by shifting an \emph{analytic window} of time span $t_N$, on the time axis.
@@ -20,18 +20,18 @@ The audio samples contained by the analytic window of size $N$, are transformed 
 % --
 % DTFT
 \begin{equation}\label{eq:signal_spec_dtft}
-  \hat{X}[k] = \sum_{n=0}^{N-1} x[n] \, e^{-j\frac{2 \pi n}{N}k}
+  \hat{x}[k] = \sum_{n=0}^{N-1} x[n] \, e^{-j\frac{2 \pi n}{N}k}
 \end{equation}
-into the frequency space $\hat{X}[k] \in \C$ with frequency index $k$ and discrete audio samples $x[n]$ with sample index $n$.
-More conveniently, \req{signal_spec_dtft} can be written in matrix notation with the DFT operator denoted as $\mathcal{F} \in \C^{N \times K}$ with a total number of $N$ samples of the input signal $x \in \R^N$ and $K$ Fourier coefficients:
+into the frequency space $\hat{x}[k] \in \C$ with frequency index $k$ and discrete audio samples $x[n]$ with sample index $n$.
+More conveniently, \req{signal_spec_dtft} can be written in matrix notation with the DFT operator denoted as $\mathcal{F} \in \C^{N \times K}$ with a total number of $N$ samples of the input signal $\bm{x} \in \R^N$ and $K$ Fourier coefficients:
 %--
 % DFT matrix
 \begin{equation}\label{eq:signal_spec_dtft_matrix}
-  \hat{X} = x^T \, \mathcal{F} \quad \mathrm{with} 
+  \hat{\bm{x}} = \bm{x}^T \, \mathcal{F} \quad \mathrm{with} 
   \quad \mathcal{F}[n, k] = e^{-j\frac{2 \pi n}{N} k},
   \quad n,\, k = (0, 1, \dots N-1),\, (0, 1 \dots K-1)
 \end{equation}
-where $n$ and $k$ are row and column indices in the matrix $\mathcal{F}$, which gives an output dimension of the DFT $\hat{X} \in \C^K$.
+where $n$ and $k$ are row and column indices in the matrix $\mathcal{F}$, which gives an output dimension of the DFT $\hat{\bm{x}} \in \C^K$.
 
 The length of the analytic window in samples $N$ is crucial for the frequency resolution and the lowest frequency that can be represented.
 For example, the periodic time of a sound with $f=\SI{20}{\hertz}$ is $t=\frac{1}{f} = \SI{50}{\milli\second}$.
@@ -58,9 +58,9 @@ The maximum number of hops $M$ can therefore be computed as:
 where $n$ is here the length of the discrete time signal $x$.
 The calculation of the STFT can be written in matrix notation if the input chunks from the shifting of the analytic window is denoted as vector:
 \begin{equation}
-  \bar{x}_i = [\, x_{i \cdot h}, \dots, x_{i \cdot h+N}]^T
+  \bar{\bm{x}}_i = [\, x_{i \cdot h}, \dots, x_{i \cdot h+N}]^T
 \end{equation}
-where each individual $\bar{x}_i \in \R^N$ can be concatenated in a matrix $X \in \R^{M \times N}$ denoted as:
+where each individual $\bar{\bm{x}}_i \in \R^N$ can be concatenated in a matrix $X \in \R^{M \times N}$ denoted as:
 \begin{equation}
   X = 
   \begin{bmatrix}
@@ -73,9 +73,9 @@ so that the STFT $\tilde{X} \in \C^{M \times K}$ can be conveniently written as:
 % --
 % stft matrix
 \begin{equation}\label{eq:signal_spec_stft_matrix}
-  \tilde{X} = X \, \diag{\bar{w}} \, \mathcal{F}
+  \tilde{X} = X \, \diag{\bm{w}} \, \mathcal{F}
 \end{equation}
-where $\diag{\bar{w}}$ is a diagonal matrix of weight vectors with the window function written as vector $\bar{w} \in \R^N$.
+where $\diag{\bm{w}}$ is a diagonal matrix of weight vectors with a realization of a window function $\bm{w} \in \R^N$ in vector notation.
 The matrix $\tilde{X} \in \C^{M \times K}$ represents the whole STFT where the rows are the shifts of the analytical window on the time axis and the columns are the Fourier coefficients of each DFT.
 The used STFT parameters for this thesis are shown in \rtab{signal_spec_stft}.
 % --

@@ -70,12 +70,12 @@ The energy of a recorded file provides information about a recordings amplificat
 In the first version of the speech command dataset (\texttt{v0.01}) too silent files were a problem, this had been fixed in the second version by rejecting those silent files, therefore \texttt{v0.01} is a bit more unclean than \texttt{v0.02}.
 The energy value $e \in \R$ can be computed as:
 \begin{equation}\label{eq:exp_dataset_energy}
-  e = \frac{1}{n} \left( x^T\, x \right)
+  e = \frac{1}{n} \left( \bm{x}^T\, \bm{x} \right)
 \end{equation}
-where $x \in \R^n$ are the values of all samples from the recorded files.
-The division through the length of each individual audio recording of a total number of samples $n$, has to be done, because not every file has a duration of \SI{1}{\second} corresponding to 16000 samples.
-For an unknown reason some of the recordings have less than 16000 samples.
-It would be problematic if the sample length is too low to capture a word, but the minimum duration of all files is about \SI{0.4}{\second}, and this is enough for words like \enquote{go}.
+where $\bm{x} \in \R^n$ are all samples from a single recorded file with a total number of samples $n$.
+The division through the sample length $n$ of each individual audio recording is necessary, because not every file has a duration of \SI{1}{\second} corresponding to 16000 samples.
+For an unknown reason many of the recordings consist of less than 16000 samples.
+It would be problematic if the sample length is too low to capture a word, but the minimum duration of all files is about \SI{0.4}{\second}, and this is enough for words like \enquote{go}, where the reduced samples length often show up.
 The histograms of all available examples in the dataset are shown in \rfig{exp_dataset_hist}.
 
 \begin{figure}[!ht]
@@ -203,23 +203,24 @@ It is difficult to examine why exactly this one example is classified wrong.
 % preparation for neural networks
 
 \subsection{Data preparation for neural networks}\label{sec:exp_data_prep}
-The neural network architectures are trained with supervised learning, that means a class label $y_i$ correspondence to each data example $x_i$ must exist.
+The neural network architectures are trained with supervised learning, that means a class label $y_i \in \{0, 1, \dots, C\} = \mathcal{C}$ correspondence to each data example $x_i \in \R^{\mathcal{X}}$ must exist, where $C$ is the total number of classes and $\mathcal{X}$ is the dimension of the data example.
 Some selected examples and their labels form a dataset $S$ for example for training or testing and can be written as:
 \begin{equation}\label{eq:exp_dataset}
-  S = \{ (\,x_i, \, y_i\,) \, | \, i = 0 \dots n \}
+  S = \{ (\,x_i, \, y_i\,) \, | \, i = 0, 1, \dots, n \}
 \end{equation}
 where $n$ is the total number of examples within the dataset.
-Class labels $y_i$ are usually translated to integer numbers that are referencing to indices in a class dictionary, for instance $y_1 = 0$ refers to the label \enquote{left} in the dictionary \{0: \enquote{left}, 1: \enquote{right}\}.
-It is important that the enumeration of class labels starts from zero, because they refer to the output nodes for each class in the used neural networks.
+Class labels $y_i$ are usually translated to integer numbers that are referencing to indices in a class dictionary, for instance $y_1 = 0$ of example $i=1$ refers to the label \enquote{left} in the dictionary \{0: \enquote{left}, 1: \enquote{right}\}.
+It is important that the enumeration of class labels starts from zero, because they correspond to the output nodes for each class in the used neural networks.
 
-It was already shown how to extract MFCC features in \rsec{signal_mfcc}, however it is important that each individual $x_i$ for all $i$ has the same dimension for data preparation in the training of neural networks.
+It was already shown how to extract MFCC features in \rsec{signal_mfcc}, however it is important that each individual $x_i$ for all $i$ has the same dimension $\mathcal{X}$ for data preparation in the training of neural networks.
 It could happen that the sample numbers of the waveform files are inconsistent as described in \rsec{exp_dataset_speech_cmd} and therefore a different dimension may be obtained.
-To ensure that each $x_i$ has the same dimension, the audio files were adjusted to have the same sample length of a duration of \SI{1}{\second} and sampling frequency \SI{16}{\kilo\hertz}.
+To ensure that all $x_i$ have the same dimension, the audio files were adjusted to the same fixed sample length of a duration of \SI{1}{\second} and sampling frequency \SI{16}{\kilo\hertz}.
 This was done by zero-padding the signals to the desired length of 16000 samples.
 Further dither noise was added, so that neural networks are not confused when operating with pure zeros emerging from the data examples.
 The dithering was done by Gaussian additive noise with:
 \begin{equation}\label{eq:exp_dither}
-  x = \tilde{x} + v, \quad v = \mathcal{N}(\mu=0, \, \sigma=0.5) \cdot \tilde{x}_{quant}%, \quad \mu, \sigma = 0, 0.5
+  \bm{x} = \bm{\tilde{x}} + \bm{v}, \quad \bm{v} \sim \mathcal{N}(\mu=0, \, \sigma=0.5) \cdot \tilde{x}_{quant}%, \quad \mu, \sigma = 0, 0.5
 \end{equation}
-where $\mathcal{N}$ is the normal distribution and $v \in \R^n$ is sampled from this distribution, $\tilde{x} \in \R^n$ is the zero-padded signal (only if the total sample number is less than 16000) and $\tilde{x}_{quant} \in \R$ is the quantization error, corresponding to the minimum of all absolute values from the samples of $\tilde{x}$, except the pure zero entries, that were added through the zero-padding.
+with fixed sample length of $n = 16000$, $\mathcal{N}$ is the normal distribution and $\bm{v} \in \R^n$ is sampled from this distribution multiplied with the quantization error $\tilde{x}_{quant} \in \R$, $\bm{\tilde{x}} \in \R^n$ is the zero-padded signal (only if the total sample number is less than 16000).
+The quantization error $\tilde{x}_{quant}$ corresponds to the minimum of all absolute values from the samples of $\bm{\tilde{x}}$, except the pure zero entries, that were added through the zero-padding.
 When the dithering is applied to the signal, the pure zeros are overwritten by the sampled dither noise, while at the same time a minimal altering of the original signal is done, because the maximum change is in range of a normal distribution of the quantization error from the original recording.

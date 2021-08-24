@@ -20,11 +20,11 @@ A loss function computes the difference between the predicted and the actual cla
 % activation functions
 
 \subsection{Activation Functions}\label{sec:nn_theory_acti}
-Activation functions for neural networks of a node in a current layer are non-linear functions that usually maps the sum of the weighted inputs from nodes in a previous layer to a single output value $z$ as following:
+Activation functions for neural networks of a node in a current layer are non-linear functions that usually maps the sum of the weighted inputs from nodes in a previous layer to a single output value $z \in \R$ as following:
 \begin{equation}\label{eq:nn_theory_acti}
-  z = h(w^T \, x)
+  z = h(\bm{w}^T \, \bm{x})
 \end{equation}
-where $h$ is the activation function, $w \in \R^n$ is an weight vector and $x \in \R^n$ an input vector for one specific node.
+where $h$ is the activation function, $\bm{w} \in \R^n$ is an weight vector and $\bm{x} \in \R^n$ an input vector for one specific node receiving connections from a total number of $n$ nodes in the previous layer.
 The output of each node in a current layer is further connected to other nodes in the next layer and builds up the neural network.
 The constraint of an activation function is, that an easy computable derivative of this function exist, in order to backpropagate gradients.
 
@@ -63,22 +63,22 @@ A simple FC layer is illustrated in \rfig{nn_theory_fc} with 3 nodes.
 \noindent
 Mathematically one node $i$ performs following calculation:
 \begin{equation}
-  z_i = h(w_i^T \, x + b_i)
+  z_i = h(\bm{w_i}^T \, \bm{x} + b_i)
 \end{equation}
 with the same notations as described in \req{nn_theory_acti} and an additional bias term $b_i \in \R$.
 For all nodes in a layer this equation of a single node can be summarized to a weight matrix $W \in \R^{m \times n}$ with $m$ as total amount of nodes in that layer, so that an FC layer can be written as:
 \begin{equation}
-  z = h(W \, x + b)
+  \bm{z} = h(W \, \bm{x} + \bm{b})
 \end{equation}
-where $b \in \R^m$ are the bias terms of all nodes and $z \in \R^m$ the outputs of all nodes in that layer.
+where $\bm{b} \in \R^m$ are the bias terms of all nodes and $\bm{z} \in \R^m$ the outputs of all nodes in that layer.
 With the matrix representation it is easy to obtain the amount of operations needed for a FC layer.
-The amount of parameters are clearly $m \cdot n$ for $W$ and $m$ for $b$ so in total $m \cdot n + m$ parameters.
-The amount of operations are the matrix vector multiplication with approximated amounts of multiplication and additions plus the bias terms.
+The amount of parameters are clearly $m \cdot n$ for $W$ and $m$ for $\bm{b}$, so in total this gives $m \cdot n + m$ parameters.
+The amount of operations are the matrix vector multiplication with approximated amounts of multiplication and additions, plus the bias terms.
 With the activation function disregarded, the amount of calculations are closely:
 \begin{equation} 
-  \mathcal{T}(W \, x + b) = 2 (m \cdot n) + m
+  \mathcal{T}(W \, \bm{x} + \bm{b}) = 2 (m \cdot n) + m
 \end{equation}
-which would give for example with $n = 128$ and $m = 64$ roughly $\mathcal{T}(W \, x + b) = \SI{16.4}{\kilo\ops}$.
+which would give for example with $n = 128$ and $m = 64$ roughly $\mathcal{T}(W \, \bm{x} + \bm{b}) = \SI{16.4}{\kilo\ops}$.
 
 
 % --
@@ -143,10 +143,10 @@ For the previous example this would give $\mathcal{T}(k * x) = 2 (12 \cdot 12) (
 % loss functions
 
 \subsection{Loss Functions and Softmax}
-Loss functions also known as cost functions are used to determine the difference between the predicted labels $\hat{y}$ compared to the actual or ground truth labels $y$.
+Loss functions also known as cost functions are used to determine the difference between the predicted labels $\hat{y}_i$ for class $i$ compared to the actual or ground truth labels $y$.
 The predicted labels are usually presented by the output nodes in the last layer of a neural network.
-Therefore $\hat{y} = [\hat{y_1}, \, \hat{y_2}, \dots, \hat{y_C}]^T$ has the dimension of the number of labels or classes $C$.
-Often it is preferred that $\hat{y} \in \R^C$ provides a probability distribution such that:
+Therefore $\hat{\bm{y}} = [\hat{y_0}, \, \hat{y_1}, \dots, \hat{y_C}]^T$ has the dimension of the number of labels or classes $C$.
+Often it is preferred that $\hat{\bm{y}} \in \R^C$ provides a probability distribution such that:
 \begin{equation}
   \sum_{i=0}^C \hat{y}_i = 1
 \end{equation}

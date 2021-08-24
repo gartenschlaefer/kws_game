@@ -66,20 +66,20 @@ The creation of those filter bands is not described mathematically, because the 
 For further calculations, those filter bands are notated in a weight matrix called $W_m \in \R^{B \times N}$, where $B$ are the amount of used filter bands as rows in the matrix and $N$ the amount of frequency bins of the DFT transformed input signal as columns.
 
 % dct
-The DCT is very similar to the Fourier transform and projects the input signal to a set of orthogonal basis functions, however the transformed signal is real valued only instead of complex valued.
+The DCT is very similar to the Fourier transform and projects the input signal to a set of orthogonal basis functions, however the transformed signal is merely real valued instead of complex valued.
 Different types of DCTs formulations exists, but most commonly the \enquote{type 2} DCT is used and can be calculated as:
 % dct
 \begin{equation}\label{eq:signal_mfcc_dct}
-  X[c] = \sum_{n=0}^{N-1} x[n] \, \cos{\left[ \frac{\pi}{N} \left( n + \frac{1}{2} \right) c \right]}
+  \hat{x}[c] = \sum_{n=0}^{N-1} x[n] \, \cos{\left[ \frac{\pi}{N} \left( n + \frac{1}{2} \right) c \right]}
 \end{equation}
 with $c$ as DCT coefficient index and $n$ as sample index of a signal with total length of $N$.
 This can be conveniently written in matrix notation with a total number of $C$ DCT coefficients:
 % dct matrix
 \begin{equation}\label{eq:signal_mfcc_dct_matrix}
-  X =  x^T \, \mathcal{D} \quad \mathrm{with} \quad \mathcal{D}[n, c] = \cos{\left[ \frac{\pi}{N} \left( n + \frac{1}{2} \right) c  \right]}, 
+  \hat{\bm{x}} =  x^T \, \mathcal{D} \quad \mathrm{with} \quad \mathcal{D}[n, c] = \cos{\left[ \frac{\pi}{N} \left( n + \frac{1}{2} \right) c  \right]}, 
   \quad n, c = (0, 1 \dots N - 1), (0, 1 \dots C) 
 \end{equation}
-with $\mathcal{D} \in \R^{N \times C}$ as DCT matrix and input signal $x \in \R^N$ which gives the transformed signal $X \in \R^C$
+with $\mathcal{D} \in \R^{N \times C}$ as DCT matrix and input signal $\bm{x} \in \R^N$ which gives the transformed signal $\hat{\bm{x}} \in \R^C$
 The DCT basis functions illustrated in a matrix in two different color schemes are shown in \rfig{signal_mfcc_dct}.
 \begin{figure}[!ht]
   \centering
@@ -106,10 +106,10 @@ The differences in the value space leads to a problem in the visualization with 
 A solution to this problem is to normalize the feature vectors over each frame dimension with the infinity norm as:
 % frame based normalization
 \begin{equation}\label{eq:signal_mfcc_norm}
-  \hat{U}[m, c] = \frac{U[m, c]}{\norm{u_c[m]}_\infty} \quad \forall \, m, c = (1, \dots, M), (1, \dots, C)
+  U[m, c] \gets \frac{U[m, c]}{\norm{\bm{u}_c}_\infty} \quad \forall \, m, c = (0, 1, \dots, M), (0, 1, \dots, C)
 \end{equation}
-where $m$ is again the frame (time) index, $c$ the individual MFCC coefficient and $u_c[m]$ the individual MFCC coefficient vector over all frames.
-This equation gives a value space between $[0, 1]$ for each feature vector $u_c[m]$.
+where $m$ is again the frame (time) index, $c$ the individual MFCC coefficient and $\bm{u}_c \in \R^M$ the individual MFCC coefficient vector over all frames $M$.
+This equation gives a value space between $[0, 1]$ for each feature vector $\bm{u}_c$.
 
 A visualization of MFCC features with 32 filter bands and 32 cepstral coefficients with frame based normalization of each coefficient is shown in \rfig{signal_mfcc_showcase_mfcc32}.
 \begin{figure}[!ht]
@@ -138,16 +138,16 @@ The question arises, whether feature enhancement can improve the performance in 
 The best practice, applied in many papers, is to use $B=32$, $C=12$, compute derivatives of those 12 MFCC coefficients named as deltas (first derivative regarding the frame dimension) and double deltas (second derivative) and add energy vectors of the 12 coefficients and each one of the deltas.
 The deltas are simply computed as frame $m$ difference of the MFCCs with:
 \begin{equation}\label{eq:signal_mfcc_delta}
-  \Delta u_i[m] = \frac{u_i[m - 1] + u_i[m + 1]}{2}
+  \Delta u_c[m] = \frac{u_c[m - 1] + u_c[m + 1]}{2}
 \end{equation}
-where $u_i \in \R^M$ is the i-th MFCC coefficient vector and $m$ the frame index.
+where $\bm{u}_c \in \R^M$ is the c-th MFCC coefficient vector and $m$ the frame index.
 Note that the computation of the deltas at the edges $m=0$ and $m=M$ is not possible and the same value is obtained from the neighbor at this specific locations.
 The second derivative of MFCC features, known as double deltas, are the frame differences of the deltas and in the same way computed as in \req{signal_mfcc_delta}.
 Another enhancement is the computation of an energy feature vector of the MFCCs with:
 \begin{equation}
-  e[m] = u[m]^T \, u[m] 
+  e[m] = \bm{u}[m]^T \, \bm{u}[m] 
 \end{equation}
-where $u[m] \in \R^C$ is the MFCC feature vector of frame $m$.
+where $\bm{u}[m] \in \R^C$ is the MFCC feature vector of frame $m$.
 The same energy computation may also be applied to the deltas and double deltas each.
 The MFCCs, their deltas, double deltas and energy vectors can simply be stacked at top of each other and used as enhanced feature inputs to neural networks.
 In this thesis the feature vectors are stacked as following:

@@ -76,6 +76,13 @@ class ConvBasics():
     return n_params
 
 
+  def count_params(self):
+    """
+    count all parameters
+    """
+    return [p.numel() for p in self.parameters() if p.requires_grad]
+
+
   def calc_amount_of_operations(self):
     """
     calculate amount of operations
@@ -415,11 +422,13 @@ if __name__ == '__main__':
   n_params = model.calc_amount_of_params()
   n_ops = model.calc_amount_of_operations()
 
+
   # print some infos
   print("\nx: ", x.shape), print("model: ", model), print("o: ", o)
 
   # print amount of operations and number of params
   print("dim: {}".format(model.conv_layer_dim))
   print("conv out dim: {} flatten: {}".format(model.conv_out_dim, np.prod(model.conv_out_dim)))
+  print("all params: ", model.count_params())
   print("params: {}, sum: {:,}".format(n_params, np.sum(list(n_params.values()))))
   print("operations: {}, sum: {:,}".format(n_ops, np.sum(list(n_ops.values()))))

@@ -6,10 +6,10 @@
 This section lists and formulates relevant research questions regarding Key Word Spotting (KWS) in video games.
 Those research questions can be split into 3 parts:
 \begin{enumerate}[label={Q.\arabic*)}, leftmargin=1.4cm]
-    \item Signal processing and feature extraction of speech signals.
-    \item Neural network training and classification for KWS.
-    %\item Game were Speech Commands enhance the game experience.
-    \item Video games with KWS.
+  \item Signal processing and feature extraction of speech signals.
+  \item Neural network training and classification for KWS.
+  %\item Game were Speech Commands enhance the game experience.
+  \item Video games with KWS.
 \end{enumerate}
 Note that the terms \enquote{key word} and \enquote{speech command} are often named interchangeably, because speech commands are used as key words in the KWS system.
 Not all research questions can be answered within the scope of this thesis, nevertheless those questions can be asked and some solution concepts discussed.
@@ -24,14 +24,10 @@ The features are extracted as feature vectors from raw microphone data samples i
 Those retrieved feature vectors are input to neural networks for the classification of speech commands in KWS. 
 The following Questions arise here:
 \begin{enumerate}[label={Q.1.\alph*)}, leftmargin=1.75cm]
-    \item When should the feature extraction be activated, so to reduce computations?
-    \label{it:q1-a}
-    \item Which time interval should be captured to represent a speech command?
-    \label{it:q1-b}
-    \item Does the signal processing have to be invariant to background noise and especially to game sounds?
-    \label{it:q1-c}
-    \item What are meaningful features for speech recognition?
-    \label{it:q1-d}
+  \item When should the feature extraction be activated, so to reduce computations?\label{it:q1-a}
+  \item Which time interval should be captured to represent a speech command?\label{it:q1-b}
+  \item Does the signal processing have to be invariant to background noise and especially to game sounds?\label{it:q1-c}
+  \item What are meaningful features for speech recognition?\label{it:q1-d}
 \end{enumerate}
 \noindent
 \textbf{Question \ref{it:q1-a}:} 
@@ -95,19 +91,15 @@ Further every neural network has to be trained with enough data and some special
 Following Questions can therefore be asked in general:
 
 \begin{enumerate}[label={Q.2.\alph*)}, leftmargin=1.75cm]
-    \item What vocabulary of speech commands is used in the game and is there enough training data with sufficient diversity available for the neural network to learn from?
-    \label{it:q2-a}
-    
-    \item What happens if an input feature represents a spoken word, which is not in the speech commands vocabulary (Non Key Word) and how should this exception be handled?
-    \label{it:q2-b}
-    
-    \item What is the best neural network architecture so that the classification yields good results and the game is not slowed down during the inference process.
-    \label{it:q2-c}
-    \begin{enumerate}[label=(\roman*)]
-        \item Are Wavenets a solution to this task? 
-        \item Can Adversarial Networks improve the generalization?
-    \end{enumerate}
-    
+  \item What vocabulary of speech commands is used in the game and is there enough training data with sufficient diversity available for the neural network to learn from?\label{it:q2-a}
+
+  \item What happens if an input feature represents a spoken word, which is not in the speech commands vocabulary (Non Key Word) and how should this exception be handled?\label{it:q2-b}
+
+  \item What is the best neural network architecture so that the classification yields good results and the game is not slowed down during the inference process.\label{it:q2-c}
+  \begin{enumerate}[label=(\roman*)]
+    \item Are Wavenets a solution to this task? 
+    \item Can Adversarial Networks improve the generalization?
+  \end{enumerate}
 \end{enumerate}
 \noindent
 \textbf{Question \ref{it:q2-a}:} The question of availability of a dataset can be answered right away, as there exists a speech commands dataset \cite{Warden2018} with enough and diverse data.
@@ -139,11 +131,8 @@ Video games that use KWS can create a unique playing experience, but must face c
 This rather empirical section asks following important question:
 
 \begin{enumerate}[label={Q.3.\alph*)}, leftmargin=1.75cm]
-    \item What is the added value of KWS in the gaming experience of players?
-    \label{it:q3-a}
-    \item What do game developers have to consider, when designing a game with KWS?
-    \label{it:q3-b}
-    
+  \item What is the added value of KWS in the gaming experience of players?\label{it:q3-a}
+  \item What do game developers have to consider, when designing a game with KWS?\label{it:q3-b}
 \end{enumerate}
 \noindent
 \textbf{Question \ref{it:q3-a}:} %The game design is the focus of this question and it should be answered in the player and game developers view.

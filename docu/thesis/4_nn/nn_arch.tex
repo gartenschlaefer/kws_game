@@ -121,18 +121,20 @@ If the MFCC are frame-based normalized the sigmoid activation function is used t
 % --
 % wavenets
 \subsection{Wavenets}\label{sec:nn_arch_wavenet}
-Wavenets were introduced in \cite{Oord2016}, while the idea behind the dilated convolution is clear, it is a bit difficult to imagine the whole Wavenet model structure only by reading the paper.
-Also it is not described in detail how the class predictions are done for the mentioned Automatic Speech Recognition (ASR) tasks.
+Wavenets were introduced in \cite{Oord2016} intended for speech generation on the processing of raw audio data.
+In the paper it is mentioned that it can be used for Automatic Speech Recognition (ASR) tasks as well, though it is a bit sparsely described.
 An implementation of a Wavenet can be found in \cite{Herrmann2018} (without class predictions) and motivated the following model structure.
-A Wavenet residual block introduced by \cite{Oord2016}, with an extension for class prediction is illustrated in \rfig{nn_arch_wavenet_block} .
+A Wavenet residual block with an extension for class prediction is illustrated in \rfig{nn_arch_wavenet_block}.
 \begin{figure}[!ht]
   \centering
     \includegraphics[width=0.7\textwidth]{./4_nn/figs/nn_arch_wavenet_block.eps}
-  \caption{Wavenet residual block \cite{Oord2016} with extension of class prediction layers.}
+  \caption{Wavenet residual block \cite{Oord2016} with an extension of class prediction layers.}
   \label{fig:nn_arch_wavenet_block}
 \end{figure}
 \FloatBarrier
 \noindent
+Note that the dilated convolutional filters have a filter size of two with adjustable dilation parameter and that strides are merely done in the time dimension, because the input is a one-dimensional time signal.
+The $1 \times 1$ convolutions are a special form of convolutional filters, that work the same way as usual convolutions, just with a filter size of one. 
 The whole Wavenet architecture is composed of several Wavenet residual blocks with increasing dilation parameters for the convolutional layers.
 The Wavenet architecture adaption with class prediction is shown in \rfig{nn_arch_wavenet_all}.
 \begin{figure}[!ht]
