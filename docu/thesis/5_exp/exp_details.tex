@@ -89,10 +89,10 @@ For instance it describes if the weights are used from the discriminator or gene
 % --
 % evaluation details
 
-\subsection{Evaulation details and the Test Bench}\label{sec:exp_details_tb}
-The main evaluation score of trained models is the computation of the accuracy on the test sets.
-The accuracy $a \in [0, 1]$ is simply obtained by counting all correct classifications and deviding it by the number of classified samples $n$.
-A score function $c(\hat{y}_i, y_i)$ can be defined as:
+\subsection{Evaluation details}\label{sec:exp_details_tb}
+The main evaluation score of the trained models is the computation of the accuracy on the test sets described in \rsec{exp_dataset}.
+The accuracy is simply obtained by counting all correct classifications and dividing it by the number of classified samples $n$.
+A score function $c(\hat{y}_i, y_i)$ for the accuracy can be defined as:
 \begin{equation}
   c(\hat{y}_i, y_i) = 
   \begin{cases}
@@ -101,23 +101,27 @@ A score function $c(\hat{y}_i, y_i)$ can be defined as:
   \end{cases}
 \end{equation}
 where $\hat{y}_i \in [0, \dots, C]$ is the predicted label and $y_i \in [0, \dots, C]$ the actual label of the sample $i$ with a total number of classes $C$.
-The accuracy can therefore be written as:
+The accuracy $a \in [0, 1]$ can therefore be written as:
 \begin{equation}
   a = \frac{\sum_{i=0}^n c(\hat{y}_i, y_i)}{n}
 \end{equation}
+Another more unconventional evaluation technique used, is the evaluation on noise and shift invariance.
+For this one sample from each class label from the self recorded files of the \enquote{my dataset} is used as test targets.
+The length of those audio files is cut, such that by applying a fixed input frame of \SI{500}{\milli\second}, both end positions consists of at least the half of the audio file information, which is especially important for the shift invariance.
+The evaluation results are plotted in figures of correct classification upon shift and noise level changes.
+In the following the shift and noise invariance test is explained in detail.
+%The problem of neural networks is that generalization is difficult to learn and overfitting happens.
 
-\subsubsection{Test Bench of best Neural Network Architectures}\label{sec:exp_tb}
-\thesisStateNotReady
-This section compares the best neural network architectures in terms of noise and shift invariance to fixed self recorded test audio files of the five speech commands with L5 labels.
-The length of those audio files is cut, such that by applying a the fixed input frames of \SI{500}{\milli\second}, both end positions consists of at least the half of the audio file information.
-This is especially important for the shift invariance.
-The noise invariance finds the highest energy region, as described in \rsec{signal_raw} and uses this frame for classification.
+%\subsubsection{Test Bench of best Neural Network Architectures}\label{sec:exp_tb}
+%\thesisStateNotReady
+%This section compares the best neural network architectures in terms of noise and shift invariance to fixed self recorded test audio files of the five speech commands with L5 labels.
+%The noise invariance finds the highest energy region, as described in \rsec{signal_raw} and uses this frame for classification.
 
 % --
 % shift invariance
 
-\subsubsection{Shift invariances}
-Shift invariances is very important for speech recognition, for instance the waveform should still be classified to the same class, when shifted a little bit in time.
+\subsubsection{Shift invariance}
+Shift invariance is very important for speech recognition, for instance the classification of a waveform should still be the same regardless of little shifts in time, as long there is enough and valuable information present that is necessary for a correct classification.
 However the restricted frame size of \SI{500}{\milli\second} makes this task very difficult, as it is already known that not all information might fit into the analytic window, like the \enquote{t} in \enquote{left} or \enquote{right} is often missed.
 The figures in this section present a correct classification with a colored pixel and an incorrect with a white pixel.
 The examples from the adversarial training section are shown in \rfig{exp_tb_shift_fc3}.
@@ -135,12 +139,11 @@ The examples from the adversarial training section are shown in \rfig{exp_tb_shi
 % --
 % noise invariance
 
-\subsubsection{Noise invariances}
-Noise invariance is a good trait in the classification of speech signals.
-That is because the usage of bad microphones or recording set ups may add a lot of noise to the audio and therefore might disturb the classification accuracy.
+\subsubsection{Noise invariance}
+Noise invariance is especially important in the classification of speech signals, because of the usage of bad microphones or recording set ups noise is added to the signal and therefore might disturb the classification accuracy.
 To create a test upon noise invariance, artificial normal noise is added to the test audio files.
 In the plots this is indicated in the x-axis of the plots as Signal to Noise Ration (SNR).
-A SNR level of zero means there is equal energy of noise and signal, therefore this signal is already pretty much disturbed.
+A SNR level of zero means there is equal energy of noise and signal, therefore this signal is already strong disturbed with noise.
 \rfig{exp_tb_noise_fc3} shows the noise invariance from the example in the adversarial training section.
 
 \begin{figure}[!ht]

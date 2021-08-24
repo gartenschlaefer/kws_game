@@ -70,7 +70,7 @@ The energy of a recorded file provides information about a recordings amplificat
 In the first version of the speech command dataset (\texttt{v0.01}) too silent files were a problem, this had been fixed in the second version by rejecting those silent files, therefore \texttt{v0.01} is a bit more unclean than \texttt{v0.02}.
 The energy value $e \in \R$ can be computed as:
 \begin{equation}\label{eq:exp_dataset_energy}
-  e = \frac{1}{n} \left( x\, x^T \right)
+  e = \frac{1}{n} \left( x^T\, x \right)
 \end{equation}
 where $x \in \R^n$ are the values of all samples from the recorded files.
 The division through the length of each individual audio recording of a total number of samples $n$, has to be done, because not every file has a duration of \SI{1}{\second} corresponding to 16000 samples.
@@ -149,7 +149,7 @@ The testing and validation file lists are applied in this thesis and the separat
 % extracted examples
 
 \subsubsection{Samples from the Feature Extraction}
-The dataset is feature extracted with specified parameters and stored as separate files, so that the feature extraction must not be applied each time a training of the neural networks is performed.
+The feature extraction of the dataset with specified parameters and storage of the extracted features and labels as separate files is done beforehand, so that it does not have to be applied each time a training instance of a neural network is performed.
 Samples from the Mel Frequency Cepstral Coefficients (MFCC) with frame based normalization as explained in \rsec{signal_mfcc} are shown in \rfig{exp_dataset_speech_cmd_mfcc}.
 \begin{figure}[!ht]
   \centering
@@ -158,7 +158,8 @@ Samples from the Mel Frequency Cepstral Coefficients (MFCC) with frame based nor
     \subfigure[up]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_dataset_speech_cmd_mfcc_up}}
     \subfigure[down]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_dataset_speech_cmd_mfcc_down}}
     \subfigure[go]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_dataset_speech_cmd_mfcc_go}}
-  \caption{MFCC extracted samples of specific labels obtained from the training set of the speech commands dataset \texttt{v0.02}.}
+  %\caption{MFCC extracted samples of specific labels obtained from the training set of the speech commands dataset \texttt{v0.02}.}
+  \caption{MFCC extraction of randomly selected 30 samples per class label, obtained from the training set of the speech commands dataset \texttt{v0.02}. The corresponding class labels are written below the plots.}
   \label{fig:exp_dataset_speech_cmd_mfcc}
 \end{figure}
 \FloatBarrier
@@ -202,7 +203,7 @@ It is difficult to examine why exactly this one example is classified wrong.
 % preparation for neural networks
 
 \subsection{Data preparation for neural networks}\label{sec:exp_data_prep}
-The neural networks architectures are trained with supervised learning, that means a class label $y_i$ correspondence to each data example $x_i$ must exist.
+The neural network architectures are trained with supervised learning, that means a class label $y_i$ correspondence to each data example $x_i$ must exist.
 Some selected examples and their labels form a dataset $S$ for example for training or testing and can be written as:
 \begin{equation}\label{eq:exp_dataset}
   S = \{ (\,x_i, \, y_i\,) \, | \, i = 0 \dots n \}
@@ -220,6 +221,5 @@ The dithering was done by Gaussian additive noise with:
 \begin{equation}\label{eq:exp_dither}
   x = \tilde{x} + v, \quad v = \mathcal{N}(\mu=0, \, \sigma=0.5) \cdot \tilde{x}_{quant}%, \quad \mu, \sigma = 0, 0.5
 \end{equation}
-where $\mathcal{N}$ is the normal distribution and $v \R^n$ is sampled from this distribution, $\tilde{x} \in \R^n$ is the zero-padded signal (only if the total sample number is less than 16000) and $\tilde{x}_{quant} \in \R$ is the quantization error, corresponding to the minimum of all absolute values from the samples of $\tilde{x}$, except the pure zero entries, that were added through the zero-padding.
+where $\mathcal{N}$ is the normal distribution and $v \in \R^n$ is sampled from this distribution, $\tilde{x} \in \R^n$ is the zero-padded signal (only if the total sample number is less than 16000) and $\tilde{x}_{quant} \in \R$ is the quantization error, corresponding to the minimum of all absolute values from the samples of $\tilde{x}$, except the pure zero entries, that were added through the zero-padding.
 When the dithering is applied to the signal, the pure zeros are overwritten by the sampled dither noise, while at the same time a minimal altering of the original signal is done, because the maximum change is in range of a normal distribution of the quantization error from the original recording.
-

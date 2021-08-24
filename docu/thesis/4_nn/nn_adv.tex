@@ -24,7 +24,7 @@ The convolutional layers of the classification network and D or G, must have of 
 There are several questions that arise regarding Adversarial Training:
 \begin{enumerate}[label={Q.\textgoth{A}.\arabic*)}, leftmargin=1.4cm]
   \item Does the Network Architecture of G and D have to be the same but transposed?
-  \item Does the value space of in and outputs, for D and G respectively, have to be limited e.g. [0, 1] done by e.g. frame normalization, or sigmoid output?
+  \item Does the value space of in and outputs, for D and G respectively, have to be limited between a range of [0, 1] done by for instance the frame normalization, or sigmoid output?
   \item What loss function works well for training?
   \item How long should be trained?
   \item When transfering weights to another network, should the weights from G or D be transfered?

@@ -292,6 +292,7 @@ ml:
   #nn_arch: adv-jim
   #nn_arch: adv-jim-label
   #nn_arch: hyb-jim
+  #nn_arch: hyb-jim-g
   nn_arch: wavenet
 
   # params
@@ -310,17 +311,17 @@ ml:
     adv_label: {'batch_size': 32, 'num_epochs': 1000, 'lr_d': 0.0001, 'lr_g': 0.0001, 'beta_d': 0.9, 'beta_g': 0.9, 'k_update_d': 2, 'k_update_g': 2}
 
     # hybrid net
-    hyb: {'batch_size': 32, 'num_epochs': 5000, 'lr_d': 0.0001, 'lr_g': 0.0001, 'beta_d': 0.9, 'beta_g': 0.9, 'k_update_d': -1, 'k_update_g': -1}
+    hyb: {'batch_size': 32, 'num_epochs': 3000, 'lr': 0.0001, 'beta': 0.9, 'lr_d': 0.00001, 'lr_g': 0.00001, 'beta_d': 0.5, 'beta_g': 0.5, 'k_update_d': 2, 'k_update_g': 3}
 
     # wavenet
-    wave: {'batch_size': 32, 'num_epochs': 2000, 'lr': 0.0002, 'beta': 0.9}
+    wave: {'batch_size': 32, 'num_epochs': 100, 'lr': 0.0008, 'beta': 0.9}
 
 
   # adversarial parameters
   adv_params:
 
     # pre training with dual network
-    dual_train: True
+    dual_train: False
 
     # pre training with label network
     label_train: False
@@ -339,10 +340,10 @@ ml:
   retrain: False
 
   # create new instance
-  new_instance: True
+  new_instance: Truem
 
   # number of instances
-  num_instances: 5
+  num_instances: 1
 
   # logging enable
   logging_enabled: True
@@ -407,7 +408,7 @@ test_bench:
     - ignore/dataset/my_recordings/clean_records/go.wav
 
   # file names
-  model_file_names: ['cnn_model.pth', 'g_model.pth', 'hyb_model.pth', 'wav_model.pth']
+  model_file_names: ['cnn_model.pth', 'g_model.pth', 'd_model.pth', 'hyb_model.pth', 'wav_model.pth']
   params_file_name: 'params.npz'
 
   # snrs
@@ -427,7 +428,7 @@ classifier:
   #model_path: 'models/conv-encoder/v4_c-5_n-500_f-13x50/bs-32_it-1024_lr-0p0001/'
 
   # file names
-  model_file_names: ['cnn_model.pth', 'g_model.pth', 'hyb_model.pth', 'wav_model.pth', 'model.pth']
+  model_file_names: ['cnn_model.pth', 'g_model.pth', 'd_model.pth', 'hyb_model.pth', 'wav_model.pth', 'model.pth']
   params_file_name: 'params.npz'
 
   # verbose

@@ -2,7 +2,7 @@
 % Introduction
 
 \chapter{Introduction}\label{sec:intro}
-\thesisStateReady
+\thesisStateRevised
 Controlling video games with the voice of a player to render certain actions within the game, is an interdisciplinary challenge of speech signal processing, machine learning and game design.
 A microphone is necessary to capture the voice of a player providing a speech signal of a potential command for the video game.
 The speech signal should be extracted from raw audio samples to meaningful feature vectors, that are used as inputs to a Key Word Spotting (KWS) system with the task of classifying those features to the most probable command.
@@ -24,11 +24,11 @@ In terms of video games, those key words might be commands like \enquote{left} o
 The limited set of key words, or sometimes referred as vocabulary, is crucial to restrict the complexity of the recognition task, because usually in all KWS applications it is not necessary to cover all words in a natural language.
 % which is an extremely difficult task in full automatic speech recognition.
 Especially in video games, where the game environment is restricted by rules, technical limits and play-ability, KWS is suited perfectly as an alternative or augmented control system.
-The size of the vocabulary and the selected words are two parameters that influence for one the choice of the neural network architecture in its energy efficiency and accuracy and for second the game experience over the controls a player can choose from.
+The size of the vocabulary and the selected words are two parameters that influence on one hand the choice of the neural network architecture evaluated on energy efficiency and accuracy performance and on the other hand the game experience over the controls a player can choose from.
 If the vocabulary of a KWS system would be too large, the chance of confusion between two different key words grows naturally.
 In many KWS applications it is absolutely necessary that the vocabulary includes labels for \emph{background noise}, \emph{silence} and \emph{unknown words}. 
 This is especially interesting in \emph{wake word} applications, where a single key word must be detected over the previously mentioned labels.
-Also in video games those additional labels are useful, in a way that the player does not elicit an unwanted command accidentally through for instance loud background noise.
+Also in video games those additional labels are useful to prevent that the player elicits an unwanted command accidentally, through for instance loud background noise.
 Therefore a KWS system has the demand of being very accurate and fast in its classification of key words.
 
 %If a vocabulary would be to large, KWS might not be the best approach for finding a solution and it is recommended to explore other ideas such as phoneme recognition and probabilistic models of word occurrences.
@@ -45,29 +45,32 @@ Application like this create more awareness of key word spotting, or generally s
 Unfortunately some consumer applications, that are incorporating speech recognition, leave some bitter aftertastes in data privacy issues through an externally and extensive computational processing pipeline and data storage over corporate servers \cite{Tang2018}.
 It is therefore important to create KWS systems that respects private user data and provide an efficient implementation to save energy consumption. %data collection and waste of energy and enhance its value in society.
 %A video game with KWS can contribute to better the image and bring more joy and fun into this subtle topic.
-Video games can be yet another very positive application for KWS systems, until now however, there are existing very few video games with this special feature.
+Video games can be yet another very positive application for KWS systems, until now however, there exist very few video games with this special feature.
 %One possibility to better the image of KWS might be to create functionalities of speech input in video games, that bring more joy and fun into this subtle topic.
-Reasons for that might depends on the history of video games itself, where players find themselves in a fast paced arcade game and speech recognition is simply to slow.
+Reasons for that might be found in the history of video games itself, where players find themselves in a fast paced arcade game and speech recognition is simply too slow.
 Also the complexity of KWS and lack of training data are often two valid reasons for not even considering the development of a KWS system.
 
 The following section in this introduction will explain and illustrate further details about the individual disciplines, necessary to embed KWS in video games. 
 Further the research questions are listed and an overview of this thesis with further notations is given.
-In summary, the focus of this thesis lies on key word spotting with neural networks in supervised learning trained on a speech command dataset \cite{Warden2018}.
-The best suitable solutions of speech commands classification for video games are presented and evaluated with special interests in Convolutional Neural Networks (CNN), Generative Adversarial Neural Networks (GAN) and Wavenets.
+In summary, the focus of this thesis lies on key word spotting with neural networks trained through supervised learning on a speech command dataset \cite{Warden2018}.
+The best suitable solutions for speech commands classification for video games are presented and evaluated with special interests in Convolutional Neural Networks (CNN), Generative Adversarial Neural Networks (GAN) and Wavenets.
+
+% overview
+\input{./1_intro/intro_overview.tex}
+
+
+% --
+% background section
+
+\chapter{Background}\label{sec:back}
+\thesisStateReady
+This chapter gives a fundamental background of the individual disciplines of Key Word Spotting (KWS), neural networks and the usage of both in video games.
+Some research questions are listed to provide a deeper insight in the actual problems that are present for the implementation of a KWS video game.
 
 % disciplines
 \input{./1_intro/intro_kws.tex}
 \input{./1_intro/intro_nn.tex}
 \input{./1_intro/intro_games.tex}
 
-% research questions / problem formulation
+% research questions
 \input{./1_intro/intro_rq.tex}
-%\input{./1_intro/intro_rq_signal.tex}
-%\input{./1_intro/intro_rq_nn.tex}
-%\input{./1_intro/intro_rq_game.tex}
-
-% overview
-\input{./1_intro/intro_overview.tex}
-
-
-

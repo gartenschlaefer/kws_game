@@ -37,7 +37,9 @@ def get_figsize(context='none'):
   elif context == 'mel': return (8, 5)
   elif context == 'half': return (8, 4)
   elif context == 'waveform': return (8, 3)
-  elif context == 'shift': return (8, 1.5)
+  #elif context == 'tb_shift': return (8, 1.5)
+  elif context == 'tb_shift': return (10, 2)
+  elif context == 'tb_noise': return (4, 2)
 
   return (6, 6)
 
@@ -61,6 +63,8 @@ def get_fontsize(context='none', add_size=0):
   elif context == 'conf_normal': font_size = 10
   elif context == 'conf_small': font_size = 7
   elif context == 'anno': font_size = 12
+  elif context == 'tb_noise_label': font_size = 10
+  elif context == 'tb_shift_label': font_size = 10
   #elif context == 'anno': font_size = 18
 
   # modification
@@ -110,15 +114,11 @@ def get_colormap_from_context(context='none'):
   #elif context == 'acc': return Prism_8.mpl_colors[5:]
   elif context == 'mel': return Antique_4.mpl_colors[3:]
 
-  elif context == 'bench-noise': return ListedColormap(red_16.mpl_colormap.reversed()(np.linspace(0, 0.6, 10)), name='red_short')
-  elif context == 'bench-noise-2': return ListedColormap(red_16.mpl_colormap.reversed()(np.linspace(0, 0.6, 2)), name='red_short')
-  #elif context == 'bench-noise': return ListedColormap(purple_16.mpl_colormap.reversed()(np.linspace(0, 0.6, 10)), name='purple_short')
-  
-  elif context == 'bench-shift': return ListedColormap(red_16.mpl_colormap.reversed()(np.linspace(0, 0.6, 10)), name='red_short')
-  elif context == 'bench-shift-2': return ListedColormap(red_16.mpl_colormap.reversed()(np.linspace(0, 0.6, 2)), name='red_short')
-  #elif context == 'bench-shift': return ListedColormap(np.vstack((red_16.mpl_colormap.reversed()(np.linspace(0, 0, 5)), red_16.mpl_colormap.reversed()(np.linspace(0.2, 0.6, 5)))), name='red_short')
-  #elif context == 'bench': return purple_16.mpl_colormap.reversed()
-  #elif context == 'bench': return purple_16.mpl_colormap.reversed()
+  elif context == 'tb-noise': return ListedColormap(red_16.mpl_colormap.reversed()(np.linspace(0, 0.6, 10)), name='red_short')
+  elif context == 'tb-noise-2': return ListedColormap(red_16.mpl_colormap.reversed()(np.linspace(0, 0.6, 2)), name='red_short')
+  #elif context == 'tb-noise': return ListedColormap(purple_16.mpl_colormap.reversed()(np.linspace(0, 0.6, 10)), name='purple_short')
+  elif context == 'tb-shift': return ListedColormap(red_16.mpl_colormap.reversed()(np.linspace(0, 0.6, 10)), name='red_short')
+  elif context == 'tb-shift-2': return ListedColormap(red_16.mpl_colormap.reversed()(np.linspace(0, 0.6, 2)), name='red_short')
 
   return None
 
@@ -198,7 +198,7 @@ def plot_histogram(x, bins=None, color=None, y_log_scale=False, x_log_scale=Fals
   return fig
 
 
-def plot_test_bench_noise(x, y, snrs, cmap=None, context='bench-noise', title='noise', plot_path=None, name='test_bench_noise', show_plot=False):
+def plot_test_bench_noise(x, y, snrs, cmap=None, context='tb-noise', title='', plot_path=None, name='test_bench_noise', show_plot=False, close_plot=False):
   """
   shiftinvariant test
   """
@@ -207,43 +207,41 @@ def plot_test_bench_noise(x, y, snrs, cmap=None, context='bench-noise', title='n
   if cmap is None: cmap = get_colormap_from_context(context=context)
 
   # plot init
-  fig = plt.figure(figsize=get_figsize(context='half'))
+  fig = plt.figure(figsize=get_figsize(context='tb_noise'))
 
   # image
   ax = plt.axes()
   im = ax.pcolormesh(x, edgecolors='k', linewidth=1, vmax=1, vmin=0, cmap=cmap)
 
   # design
-  plt.title(title)
+  if len(title): plt.title(title)
   plt.xlabel("SNR [dB]")
 
   # tick adjustment
   ax.set_yticks(np.arange(0.5, len(y), 1))
-  ax.set_yticklabels(y, fontsize=get_fontsize('axis_label'))
+  ax.set_yticklabels(y, fontsize=get_fontsize('tb_noise_label'))
 
   ax.set_xticks(np.arange(0.5, len(snrs), 1))
-  ax.set_xticklabels(snrs, fontsize=get_fontsize('axis_label'))
+  ax.set_xticklabels(snrs, fontsize=get_fontsize('tb_noise_label'))
 
   # aspect
   ax.set_aspect('equal')
 
   # colorbar
-  add_colorbar(fig, im)
+  add_colorbar(fig, im, size='3%', pad='3%')
 
   # tight plot
   plt.tight_layout()
 
   # plot save and show
-  if plot_path is not None: 
-    plt.savefig(plot_path + name + '.png', dpi=150)
-    plt.close()
-    
+  if plot_path is not None: plt.savefig(plot_path + name + '.png', dpi=150)
+  if close_plot: plt.close()
   if show_plot: plt.show()
 
   return fig
 
 
-def plot_test_bench_shift(x, y, cmap=None, context='bench-shift', title='shift', plot_path=None, name='test_bench_shift', show_plot=False):
+def plot_test_bench_shift(x, y, cmap=None, context='tb-shift', title='', plot_path=None, name='test_bench_shift', show_plot=False, close_plot=False):
   """
   shiftinvariant test
   """
@@ -252,7 +250,7 @@ def plot_test_bench_shift(x, y, cmap=None, context='bench-shift', title='shift',
   if cmap is None: cmap = get_colormap_from_context(context=context)
 
   # plot init
-  fig = plt.figure(figsize=get_figsize(context='shift'))
+  fig = plt.figure(figsize=get_figsize(context='tb_shift'))
 
   # image
   ax = plt.axes()
@@ -261,29 +259,27 @@ def plot_test_bench_shift(x, y, cmap=None, context='bench-shift', title='shift',
   im = ax.pcolormesh(x, edgecolors='k', linewidth=1, vmax=1, vmin=0, cmap=cmap)
 
   # design
-  plt.title(title)
+  if len(title): plt.title(title)
   plt.xlabel("shift index")
 
   # tick adjustment
   ax.set_yticks(np.arange(0.5, len(y), 1))
-  ax.set_yticklabels(y, fontsize=get_fontsize('axis_label'))
+  ax.set_yticklabels(y, fontsize=get_fontsize('tb_shift_label'))
 
-  ax.tick_params(axis='x', which='major', labelsize=get_fontsize('axis_tick_major'))
+  ax.tick_params(axis='x', which='major', labelsize=get_fontsize('tb_shift_label'))
 
   # aspect
   ax.set_aspect('equal')
 
   # colorbar
-  add_colorbar(fig, im)
+  add_colorbar(fig, im, size='1%', pad='1%')
 
   # tight plot
   plt.tight_layout()
 
   # plot save and show
-  if plot_path is not None: 
-    plt.savefig(plot_path + name + '.png', dpi=150)
-    plt.close()
-    
+  if plot_path is not None: plt.savefig(plot_path + name + '.png', dpi=150)
+  if close_plot: plt.close()
   if show_plot: plt.show()
 
   return fig

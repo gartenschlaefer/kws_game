@@ -35,7 +35,7 @@ The feature extraction module extracts the highest energy region of the collecte
 
 \subsection{Classification System}
 The classification system consists of a classifier, which is composed of a trained neural network architecture for the classification the key words (speech commands).
-The trained weights of a neural network are stored in the \texttt{.pth} format for \texttt{pytorch}.
+The trained weights of a neural network are stored in the \texttt{.pth} format for \texttt{Pytorch}.
 A separate parameter file is stored that provide information of the unique name (id) of the neural network architecture, the feature extraction parameters and the class dictionary.
 Feature extraction parameters are necessary for the feature extraction module to determine which constellation of features were used during training, so that the same scheme is same-wise applied for inference to classify given samples.
 The class dictionary describes which output node of the neural network corresponds to which speech command, this is especially important because of the presence of different sets of labels and therefore the prevention of wrong inference by mixing up the labels.

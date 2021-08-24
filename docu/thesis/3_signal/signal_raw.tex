@@ -5,8 +5,9 @@
 \thesisStateReady
 Physical acoustic waves are recorded by microphones, translating mechanical vibrations to electrical signals. 
 Those electrical signals are further stored in \emph{waveform files} or \emph{audio files} with a specific audio format, for example the \texttt{.wav} format.
-Apart from any compression technique the most important storage details are the bit resolution, e.g. \SI{24}{\bit} floating point and the sample rate $f_s$. 
-The sample rate tells, which frequency range of the continuous acoustic waveform is possible to store in a discrete representation.
+Apart from any compression technique the most important storage details are the bit resolution, for example \SI{24}{\bit} floating point and the sample rate $f_s$. 
+%The sample rate defines, which frequency range of the continuous acoustic waveform is possible to store in a discrete representation.
+The sample rate defines, which frequency range of a continuous acoustic waveform can be stored in a discrete representation.
 This is restricted by the Nyquist-Shannon sampling theorem, where the maximal frequency of the signal $f_{x_{max}}$ should not exceed the half of the sampling frequency: 
 \begin{equation}\label{eq:signal_raw_nyquist}
   f_{x_{max}} < \frac{fs}{2}
@@ -22,7 +23,7 @@ With the sampling frequency known, a discrete time signal of an audio recording 
   x = [x_1,\, x_2,\, \dots,\, x_n]^T
 \end{equation}
 with a total number of $n$ samples.
-The recorded audio files provided in the speech command dataset \cite{Warden2018} used for the experiments in \rsec{exp}, are sampled with a sampling rate of \SI{16}{\kilo\hertz}, which is totally enough for human speech signals.
+The recorded audio files provided in the speech command dataset \cite{Warden2018} used for the experiments in \rsec{exp}, are sampled with a sampling rate of \SI{16}{\kilo\hertz}, which is enough for human speech signals.
 Further those recordings usually have a time duration of \SI{1}{\second}, apart from some individual shorter files.
 
 For evaluation and visualization purpose, the author of this thesis recorded his own examples of the speech commands \{\enquote{left}, \enquote{right}, \enquote{up}, \enquote{down}, \enquote{go}\}.
@@ -43,21 +44,21 @@ The example are shown in \rfig{signal_raw_showcase} in raw audio format.
 From the shown raw audio files, one can estimate how long a speech command may take in terms of duration and see that usually a whole second is too much for a single speech command.
 The pronunciation of words can of course deviate strongly in duration, but usually when commanding something it is preferred to speak short and well pronounced.
 If a time interval of \SI{500}{\milli\second} is used to capture a speech command (this time interval is used in the feature extraction), it might happen that not every phoneme of the spoken words are captured. 
-For instance this might happen often for words with glottal stops before consonants, for example the phoneme \enquote{t} in \enquote{left} or \enquote{right}, therefore the input features may only contain information of the first phonemes \enquote{lef} or \enquote{righ}.
-But since Key Word Spotting (KWS) is restricted in its vocabulary and no similar words are included in the vocabulary, it should be no problem in distinguishing those.
+Often this might occur for words with glottal stops before consonants, for example the phoneme \enquote{t} in \enquote{left} or \enquote{right}, therefore the input features may only contain information of the first phonemes \enquote{lef} or \enquote{righ}.
+But since Key Word Spotting (KWS) is restricted in its vocabulary and no similar words are contained within, it should be no problem in distinguishing those.
 
 Another important aspect is to detect the onset position of the speech commands on the time axis. 
 It is easy to see in \rfig{signal_raw_showcase} where the spoken words are beginning and ending, but usually not all recordings are as clean as those.
-There might be a huge noise level or background noise or cut away signals, so that the detection of the right onset position for the \SI{500}{\milli\second} time interval within the \SI{1}{\second} recordings is not always appropriate.
+There might be a huge noise level or background noise or cut off signals, so that the detection of the right onset position for the \SI{500}{\milli\second} time interval within the \SI{1}{\second} recordings is not always appropriate.
 An intuitive method is to simply use the signal energy to determine the onset of the key words.
-If the signal $x$ is windowed with the length of a \SI{500}{\milli\second} striding frame with sample length $N$, the energy of each windowed signal is calculated with:
+If the signal $x \in \R^n$ is windowed with the length of a \SI{500}{\milli\second} striding frame with sample length $N$ of the window, the energy of each windowed signal is calculated as:
 \begin{equation}
   e_{w}(m) = \sum_{i=0}^{N-1} \abs{x[i + m]}^2
 \end{equation}
-with shift index $m = 0 \dots n - N + 1$, where $n$ is the number of sample of $x$.
-The onset sample $o$ with the highest energy region is then determined by
+with shift index $m \in \mathcal{M} = \{0, 1, \dots, n - N + 1\}$, where $n$ is the total number of samples of $x$.
+The onset sample number $o \in \mathcal{M}$ with the highest energy region can be determined by
 \begin{equation}
-  o = \underset{m}{\arg \max} \, e_{w}(m)
+  o = \underset{m \in \mathcal{M}}{\arg \max} \, e_{w}(m)
 \end{equation}
 for all windowed signal energies $e_{w}(m)$.
 
