@@ -21,27 +21,14 @@ class Spritesheet():
     # load spritesheet
     self.spritesheet = pygame.image.load(self.file).convert_alpha()
 
-    # get rect
-    self.rect = self.spritesheet.get_rect()
-
-    # scale sprites
-    #self.spritesheet = pygame.transform.scale(self.spritesheet, (self.rect.width * self.scale[0], self.rect.height * self.scale[1]))
-
     # init sprite dict
     self.sprite_dict = {}
 
     # create sprites
-    self.create_sprites()
+    self.sprite_dict.update({name: [self.spritesheet.subsurface(r) for r in rects] for name, rects in self.define_sprite_cuts().items()})
 
     # scale sprites
     self.sprite_dict = {name: [pygame.transform.scale(s, (s.get_width() * self.scale[0], s.get_height() * self.scale[1])) for s in surfs] for name, surfs in self.sprite_dict.items()}
-
-
-  def create_sprites(self):
-    """
-    create sprites
-    """
-    self.sprite_dict.update({name: [self.spritesheet.subsurface(r) for r in rects] for name, rects in self.define_sprite_cuts().items()})
 
 
   def define_sprite_cuts(self):
@@ -72,8 +59,9 @@ class SpritesheetJim(Spritesheet):
     cut_dict = {}
 
     # jim
-    cut_dict.update({'left': [(i*16, 0, 16, 16) for i in range(2)]})
-    cut_dict.update({'right': [(i*16, 16, 16, 16) for i in range(2)]})
+    cut_dict.update({'front': [(i*16, 0, 16, 16) for i in range(2)]})
+    cut_dict.update({'side-l': [(i*16, 0, 16, 16) for i in range(2)]})
+    cut_dict.update({'side-r': [(i*16, 16, 16, 16) for i in range(2)]})
 
     return cut_dict
 
@@ -104,7 +92,6 @@ if __name__ == '__main__':
   clock = pygame.time.Clock()
 
   # sprite sheet
-  #spritesheet = Spritesheet(file='./art/shovelnaut/shovelnaut_spritesheet.png')
   spritesheet = SpritesheetJim()
   
   screen.blit(spritesheet.sprite_dict['left'][0], (0, 0))

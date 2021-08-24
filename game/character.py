@@ -159,39 +159,37 @@ class CharacterSprite(pygame.sprite.Sprite):
     # sprite index
     self.sprite_index = 0
 
-    # root for sprites
-    self.sprite_root_path = str(pathlib.Path(__file__).parent.absolute()) + "/art/henry/"
-
-    # image file names
-    self.image_file_names = ["henry_front.png", "henry_side-1.png", "henry_side-2.png", "henry_side-3.png"]
-
-    # index for sprites infos
-    self.view_index = {"front":(0, 1), "side-r":(1, 4), "side-l":(4, 7)}
-
     # actual view
-    self.view = "front"
+    self.view = 'front'
 
-    # actual sprites as image arrays
-    self.sprites = [pygame.image.load(self.sprite_root_path + s).convert_alpha() for s in self.image_file_names]
-
-    # load image and create rect
-    self.rect = self.sprites[self.sprite_index].get_rect()
-
-    # scale sprites
-    self.sprites = [pygame.transform.scale(s, (self.rect.width * scale[0], self.rect.height * scale[1])) for s in self.sprites]
-
-    # add flipped views
-    self.sprites.extend([pygame.transform.flip(s, True, False) for s in self.sprites[self.view_index['side-r'][0]:self.view_index['side-r'][1]]])
+    # define sprite dictionary
+    self.sprite_dict = self.define_sprite_dictionary()
 
     # subset of sprites
-    self.view_sprites = self.sprites[self.view_index[self.view][0]:self.view_index[self.view][1]]
+    self.view_sprites = self.sprite_dict[self.view]
 
     # image refs
-    self.image = self.sprites[self.sprite_index]
+    self.image = self.view_sprites[self.sprite_index]
     self.rect = self.image.get_rect()
 
     # set rect position
     self.rect.x, self.rect.y = self.position[0], self.position[1]
+
+
+  def define_sprite_dictionary(self):
+    """
+    sprite sheet to dictionary
+    """
+
+    # sprite dictionary
+    sprite_dict = {'front': [pygame.Surface(size=(16, 16))], 'side-r': [pygame.Surface(size=(16, 16))], 'side-l': [pygame.Surface(size=(16, 16))]}
+
+    # fill
+    sprite_dict['front'][0].fill((100, 100, 0))
+    sprite_dict['side-r'][0].fill((50, 100, 50))
+    sprite_dict['side-l'][0].fill((50, 50, 100))
+
+    return sprite_dict
 
 
   def change_view_sprites(self, view):
@@ -200,15 +198,15 @@ class CharacterSprite(pygame.sprite.Sprite):
     """
 
     # safety check
-    if not view in self.view_index.keys():
-      print("view of sprite is not in list")
+    if not view in self.sprite_dict.keys():
+      print("view of sprite is not in list: {}".format(view))
       return
 
     # view update
     self.view = view
 
     # view sprites update
-    self.view_sprites = self.sprites[self.view_index[self.view][0]:self.view_index[self.view][1]]
+    self.view_sprites = self.sprite_dict[self.view]
 
 
   def update(self):
@@ -226,11 +224,57 @@ class CharacterSprite(pygame.sprite.Sprite):
       self.anim_frame = 0
 
     # loop animation
-    if self.sprite_index >= len(self.view_sprites):
-      self.sprite_index = 0
+    if self.sprite_index >= len(self.view_sprites): self.sprite_index = 0
 
     # update image
     self.image = self.view_sprites[self.sprite_index]
+
+
+class Henry(Character):
+  """
+  henry character
+  """
+
+  def define_character_sprite(self):
+    """
+    use jim sprite
+    """
+    return HenrySprite(self.position, self.scale)
+
+
+
+class HenrySprite(CharacterSprite):
+  """
+  henry sprite
+  """
+
+  def define_sprite_dictionary(self):
+    """
+    sprite sheet to dictionary
+    """
+
+    # root for sprites
+    sprite_root_path = str(pathlib.Path(__file__).parent.absolute()) + '/art/henry/'
+
+    # image file names
+    image_file_names = ['henry_front.png', 'henry_side-1.png', 'henry_side-2.png', 'henry_side-3.png']
+
+    # index for sprites infos
+    view_index = {'front':(0, 1), 'side-r':(1, 4), 'side-l':(4, 7)}
+
+    # actual sprites as image arrays
+    sprites = [pygame.image.load(sprite_root_path + s).convert_alpha() for s in image_file_names]
+    
+    # scale sprites
+    sprites = [pygame.transform.scale(s, (s.get_width() * self.scale[0], s.get_height() * self.scale[1])) for s in sprites]
+    
+    # extend right sprites
+    sprites.extend([pygame.transform.flip(s, True, False) for s in sprites[view_index['side-r'][0]:view_index['side-r'][1]]])
+    
+    # sprite dict
+    sprite_dict = {k: sprites[v[0]:v[1]] for k, v in view_index.items()}
+
+    return sprite_dict
 
 
 
@@ -243,7 +287,29 @@ class Jim(Character):
     """
     use jim sprite
     """
-    return CharacterSprite(self.position, self.scale)
+    return JimSprite(self.position, self.scale)
+
+
+
+class JimSprite(CharacterSprite):
+  """
+  character sprite class
+  """
+
+  def define_sprite_dictionary(self):
+    """
+    sprite sheet to dictionary
+    """
+
+    from spritesheet import SpritesheetJim
+
+    # init sprite sheet
+    self.spritesheet = SpritesheetJim(scale=self.scale)
+      
+    # sprite dict
+    sprite_dict = self.spritesheet.sprite_dict
+
+    return sprite_dict
 
 
 
