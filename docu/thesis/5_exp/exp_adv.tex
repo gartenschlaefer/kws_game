@@ -15,6 +15,22 @@ in the adv-label-train, the labels were separated into smaller subsets of labels
 All feature maps from the individual label trains were concatenated and used for the \texttt{conv-jim} model as pre trained weights.
 In adv-dual-train, the GAN models had the same convolutional layer structure as the \texttt{conv-jim} model and the transferring of weights is much more straight forward.
 
+
+% --
+% label train
+
+\subsection{Adversarial Label Train}
+The adv-label-train experiments on the \texttt{conv-jim} architecture with obtained weights from either \texttt{adv-g-jim} or \texttt{adv-d-jim} are shown in \rtab{exp_adv_label_l12}.
+\input{./5_exp/tables/tab_exp_adv_label_l12}
+
+
+% --
+% adv dual train
+\subsection{Adversarial Dual Train}
+The adv-dual-train experiment similar to the adv-label-train experiments but without choosing subsets of labels are presented in \rtab{exp_adv_dual_l12}
+\input{./5_exp/tables/tab_exp_adv_dual_l12}
+
+
 % old
 \subsection{old renew this}
 To evaluate the value of adversarial pre-training, the architecture is trained first with random init and compared to a training with adversarial pre-training. 

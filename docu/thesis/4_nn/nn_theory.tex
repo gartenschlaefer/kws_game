@@ -199,3 +199,18 @@ Note that the training of neural networks may take over thousands of epochs unti
 The general training techniques for neural networks and further details are not described here, because of many existing books and papers \cite{LeCun2006}, \cite{Goodfellow2016}, \cite{DeepLearning} that are already presenting this topic very well. 
 Further it does not add any value to this thesis as the algorithms are well examined and run in the background of all neural network frameworks.
 The interesting elements are therefore only the neural network architecture design, the training parameters and the used loss functions.
+
+
+% --
+% GANs
+
+\subsection{Generative Adversarial Neural Networks Game}
+Generative Adversarial Neural Networks (GAN) \cite{Goodfellow2014}, as already mentioned in \rsec{prev_nn_adv}, uses two networks: a Generator (G) network for generating fake images and a Discriminator (D) network for discriminating between fake and real images.
+The min-max game both networks are playing is the following:
+\begin{equation}
+  \underset{G}{\min} \, \underset{D}{\max} \, V(D, G) = \E_{\bm{x} \sim p_{data}(\bm{x})}\left[ \log D(\bm{x}) \right] + 
+    \E_{\bm{z} \sim p_{\bm{z}}(\bm{z})}\left[ \log (1 - D(G(\bm{z}))) \right]
+\end{equation}
+where $\bm{x} \in \R^\mathcal{X}$ are samples from the data distribution $p_{data}$, $\bm{z} \in \R^\mathcal{Z}$ is a latent variable sampled from $p_{\bm{z}}$, $D: \mathcal{X} \to [0, 1]$ is the discriminator network and $G: \mathcal{Z} \to \mathcal{X}$ the generator network.
+The advise from the original paper is not to minimize G, such as $\log (1 - D(G(\bm{z})))$, but to maximize $\log D(G(\bm{z}))$ instead.
+The training algorithm can be read from \cite{Goodfellow2014} in detail.

@@ -1,0 +1,18 @@
+\begin{table}[ht!]
+\begin{center}
+\caption{Experiment with adversarial dual pre-training, using either Generator \enquote{g} or Discriminator \enquote{d} weights.}
+\begin{tabular}{ M{2cm}  M{2cm}  M{2.5cm}  M{2.5cm} }
+\toprule
+\textbf{adv iterations} & \textbf{adv model} & \textbf{acc test} & \textbf{acc my} \\
+\midrule
+100 & g & $73.53 \pm 1.75$ & $79.20 \pm 7.33$ \\
+100 & d & $69.03 \pm 6.53$ & $72.80 \pm 15.88$ \\
+1000 & g & $73.53 \pm 1.53$ & $84.00 \pm 4.38$ \\
+1000 & d & $72.57 \pm 1.05$ & $83.20 \pm 2.99$ \\
+\bottomrule
+\label{tab:exp_adv_label_l12}
+\end{tabular}
+\end{center}
+\end{table}
+\FloatBarrier
+\noindent

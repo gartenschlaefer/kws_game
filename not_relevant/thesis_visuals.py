@@ -248,7 +248,10 @@ def training_logs(cfg):
   #LatexTableMakerMFCC(in_file=log_path + 'log_exp_mfcc_l12.log', out_file=plot_path_tab + 'tab_exp_fs_mfcc_l12.tex', caption='Experiment on the impact of feature enhancement of cepstral coefficients (c), deltas (d), double deltas (dd) and energy vectors (e).', label='tab:exp_fs_mfcc_l12')
 
   # adv label
-  LatexTableMakerAdv(in_file=log_path + 'log_exp_adv_label_l12.log', out_file=plot_path_tab + 'tab_exp_adv_label_l12.tex', caption='Experiment with adversarial label pre-training, using either Generator \enquote{g} or Discriminator \enquote{d} weights.', label='tab:exp_adv_label_l12')
+  #LatexTableMakerAdv(in_file=log_path + 'log_exp_adv_label_l12.log', out_file=plot_path_tab + 'tab_exp_adv_label_l12.tex', caption='Experiment with adversarial label pre-training, using either Generator \enquote{g} or Discriminator \enquote{d} weights.', label='tab:exp_adv_label_l12')
+  
+  # adv dual
+  LatexTableMakerAdv(in_file=log_path + 'log_exp_adv_dual_l12.log', out_file=plot_path_tab + 'tab_exp_adv_dual_l12.tex', caption='Experiment with adversarial dual pre-training, using either Generator \enquote{g} or Discriminator \enquote{d} weights.', label='tab:exp_adv_label_l12')
 
 
 if __name__ == '__main__':
