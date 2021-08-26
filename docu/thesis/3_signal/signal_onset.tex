@@ -1,0 +1,75 @@
+% --
+% onset
+
+\section{Onset Detection}\label{sec:signal_onset}
+\thesisStateReady
+\thesisStateNew
+Onset detection of key words is an essential part in Key Word Spotting systems.
+In this thesis the onset detection is separated into:
+\begin{itemize}
+  \item key word onset detection (within a fixed time span)
+  \item online onset detection
+\end{itemize}
+the key word onset detection is performed on already extracted time signals, such as raw data examples from the dataset, where the time interval of those signals are limited to \SI{1}{\second}.
+The online onset detection is run during the recording of potential key words from a microphone input during playing the video game.
+Note that onset detection can be quite challenging and is of some sorts an own research subject.
+For this thesis, however it is enough to use trivial methods, that do not use much computational effort.
+
+
+% --
+% key word onset detection
+
+\subsection{Key Word Onset Detection}
+An intuitive method to detect the onsets of key words in a fixed time signal, is to simply use the signal energy.
+Consider a fixed time signal $\bm{x} \in \R^n$ with a total number of $n$ samples, that is windowed with a striding frame of sample length $N$ corresponding to a time duration of \SI{500}{\milli\second}, the energy of each windowed signal is calculated as:
+\begin{equation}\label{eq:e_win}
+  e(m) = \sum_{i=0}^{N-1} \abs{x[i + m]}^2
+\end{equation}
+with shift index $m \in \mathcal{M} = \{0, 1, \dots, n - N + 1\}$, .
+The onset sample number $o \in \mathcal{M}$ with the highest energy region can be determined by
+\begin{equation}\label{eq:onset}
+  o = \underset{m \in \mathcal{M}}{\arg \max} \, e(m)
+\end{equation}
+for all windowed signal energies $e(m)$.
+Note that it is assumed, that most of the key word in each signal is captured by the window length $N$ and that no noise peaks are present before and after the key word, otherwise the onset $o$ is shifted to either left or right of the key word.
+It is for sure, that this onset detection is not the most reliable one, but it is the simplest and the most cost efficient method.
+
+A better approach is to use energy values from the frequency response of the signal.
+Since the Mel Frequency Cepstral Coefficients (MFCC) are extracted to obtain features for neural networks, it is straight forward to use them also for onset detection.
+The first cepstral coefficient $c_0$ of the MFCCs is actually an energy value, that is the sum of all equidistant mel filter bands.
+The equivalent of \req{e_win} for MFCCs in the cepstral and frame space is therefore:
+\begin{equation}
+  e(m) = \sum_{i=0}^{N-1} c_0[i + m]
+\end{equation}
+where $m$ and $N$ are in the frame space instead of the sample space.
+A conversion from sample to frame space can simply be done by dividing the sample variable with the hop size $h$ in samples.
+The onset frame $o$ is determined in the same way as formulated in \req{onset}.
+
+A showcase on the performance of both energy onset detection methods are shown in \rfig{signal_onset_showcase}
+\begin{figure}[!ht]
+  \centering
+    \subfigure[left]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_onset_showcase_left0}}
+    \subfigure[right]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_onset_showcase_right0}}
+    \subfigure[up]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_onset_showcase_up0}}
+    \subfigure[down]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_onset_showcase_down0}}
+    \subfigure[go]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_onset_showcase_go0}}
+  \caption{Onsets (vertical colored lines) obtained from the maximum of either the sample energy or first MFCC coefficient energy, with an analytical window length of \SI{500}{\milli\second}.}
+  \label{fig:signal_onset_showcase}
+\end{figure}
+\FloatBarrier
+\noindent
+It can be observed that the MFCC onset method works much better, especially for the \enquote{left} example, where a little noise peak shifts the sample energy onset too far to the left so that the whole word is not captured.
+For all MFCC extractions from the datasets during the experiments, the MFCC onset method is used. 
+For raw audio extraction, applied in Wavenets, the sample energy method is used.
+
+
+% --
+% key word onset detection
+
+\subsection{Online Onset Detection}
+The onset detection of online speech signals received from a microphone, is processed by running a window over the samples inside an input buffer and computing an energy value.
+It is not the purpose to detect key word onsets by its correct starting time, but to signalize that a signal with enough energy is available for a potential key word classification.
+The online onset detection is done by using the energy level of the running window and comparing it with a fixed energy threshold, that is adjustable by the player depending on the owned microphone setup.
+The adjustable threshold can be set in a video game option menu, described in \rsec{game_interactables_menu}.
+If an online onset was detected, the whole buffer is read and MFCC features extracted for Convolutional Neural Network (CNN) models.
+From those MFCCs the exact key word onset is calculated and the \SI{500}{\milli\second} long feature are sent to the classification system.

@@ -31,6 +31,7 @@ def get_figsize(context='none'):
   # squares
   if context == 'square_big': return (8, 8)
   elif context == 'square_small': return (4, 4)
+  elif context == 'square_mini': return (3, 3)
 
   # special
   elif context == 'score': return (8, 5)
@@ -102,6 +103,7 @@ def get_colormap_from_context(context='none'):
   # colors
   elif context == 'wav': return Antique_4.mpl_colors
   elif context == 'wav-hline': return Antique_4.mpl_colors[1]
+  elif context == 'wav-hline2': return Antique_4.mpl_colors[2]
   elif context == 'hist': return Antique_4.mpl_colors[1]
   #elif context == 'wav-hline': return red_16.mpl_colors[10]
   #elif context == 'loss': return [Prism_8.mpl_colors[2]] + [Prism_8.mpl_colors[5]]
@@ -235,8 +237,8 @@ def plot_test_bench_noise(x, y, snrs, cmap=None, context='tb-noise', title='', p
 
   # plot save and show
   if plot_path is not None: plt.savefig(plot_path + name + '.png', dpi=150)
-  if close_plot: plt.close()
   if show_plot: plt.show()
+  if close_plot: plt.close()
 
   return fig
 
@@ -279,8 +281,8 @@ def plot_test_bench_shift(x, y, cmap=None, context='tb-shift', title='', plot_pa
 
   # plot save and show
   if plot_path is not None: plt.savefig(plot_path + name + '.png', dpi=150)
-  if close_plot: plt.close()
   if show_plot: plt.show()
+  if close_plot: plt.close()
 
   return fig
 
@@ -515,7 +517,7 @@ def plot_damaged_file_score(z, plot_path=None, name='z_score', show_plot=False):
   if show_plot: plt.show()
 
 
-def plot_waveform(x, fs, e=None, anno_file=None, bon_samples=None, hop=None, onset_frames=None, fig_size=None, y_ax_balance=True, cmap=None, title='', xlim=None, ylim=None, axis_off=False, plot_path=None, name='None', show_plot=False, close_plot=False):
+def plot_waveform(x, fs, e_mfcc=None, e_samples=None, anno_file=None, bon_samples=[], bon_mfcc=[], hop=None, onset_frames=[], fig_size=None, y_ax_balance=True, cmap=None, title='', xlim=None, ylim=None, axis_off=False, plot_path=None, name='None', show_plot=False, close_plot=False):
   """
   just a simple waveform
   """
@@ -536,15 +538,16 @@ def plot_waveform(x, fs, e=None, anno_file=None, bon_samples=None, hop=None, ons
   # plot signal
   ax.plot(t, x)
 
-  # energy plot
-  if e is not None: ax.plot(np.arange(0, len(x)/fs, 1/fs * hop), e)
+  # energy plots
+  if e_samples is not None: ax.plot(t[0:len(e_samples)], e_samples / np.max(e_samples), lw=1.5, linestyle='dashed', color=get_colormap_from_context(context='wav-hline'), label='sample energy')
+  if e_mfcc is not None: ax.plot(np.arange(0, len(x)/fs, 1/fs * hop)[0:len(e_mfcc)], e_mfcc / np.max(e_mfcc), lw=1.5, linestyle='dashdot', color=get_colormap_from_context(context='wav-hline2'), label='mfcc0 energy')
 
   # draw onsets
-  if onset_frames is not None:
-    for onset in frames_to_time(onset_frames, fs, hop): plt.axvline(x=float(onset), dashes=(5, 1), color='k')
+  [plt.axvline(x=float(frames_to_time(o, fs, hop)), dashes=(5, 1), color='k') for o in onset_frames]
 
-  if bon_samples is not None:
-    for bon_sample in bon_samples: plt.axvline(x=float(bon_sample)/fs, dashes=(5, 1), color=get_colormap_from_context(context='wav-hline'))
+  # draw bon samples  
+  [plt.axvline(x=float(b)/fs, lw=2, linestyle='dashed', color=get_colormap_from_context(context='wav-hline')) for b in bon_samples]
+  [plt.axvline(x=float(b)*hop/fs, lw=2, linestyle='dashdot', color=get_colormap_from_context(context='wav-hline2')) for b in bon_mfcc]
 
   # lims
   if xlim is not None: plt.xlim(xlim)
@@ -567,7 +570,7 @@ def plot_waveform(x, fs, e=None, anno_file=None, bon_samples=None, hop=None, ons
   if len(title): plt.title(title, fontsize=get_fontsize('title'))
 
   # layout
-  plt.ylabel('magnitude', fontsize=get_fontsize('axis_label')), plt.xlabel('time [s]', fontsize=get_fontsize('axis_label')), plt.grid()
+  plt.legend(), plt.ylabel('magnitude', fontsize=get_fontsize('axis_label')), plt.xlabel('time [s]', fontsize=get_fontsize('axis_label')), plt.grid()
 
   if axis_off: plt.axis('off'), ax.axis('off'),
 
@@ -778,11 +781,7 @@ def plot_hyb_train_loss(train_score_dict, cmap=None, plot_path=None, name='score
 
   # plot the fig
   if plot_path is not None: plt.savefig(plot_path + name + '_class.png', dpi=150)
-  
-  # show plot
   if show_plot: plt.show()
-
-  # close plot
   if close_plot: plt.close()
 
 
@@ -1010,12 +1009,8 @@ def plot_mfcc_profile(x, fs, N, hop, mfcc, sep_features=True, diff_plot=False, c
 
   # save
   if plot_path is not None: plt.savefig(plot_path + name + '.png', dpi=150)
-
-  # close plot
-  if close_plot: plt.close()
-
-  # show plot
   if show_plot: plt.show()
+  if close_plot: plt.close()
 
 
 def plot_mfcc_only(mfcc, fs=16000, hop=160, cmap=None, context='mfcc', plot_path=None, name='mfcc_only', show_plot=False, close_plot=True):
@@ -1253,6 +1248,42 @@ def plot_mel_scale(cmap=None, plot_path=None, name='mel', show_plot=False):
 
   # show plot
   if show_plot: plt.show()
+
+
+def plot_activation_function(x, y, cmap=None, plot_path=None, name='mel', show_plot=False, close_plot=False):
+  """
+  activation function plot
+  """
+
+  # get cmap
+  if cmap is None: cmap = get_colormap_from_context(context='mel')
+
+  # plot mel bands
+  fig = plt.figure(figsize=get_figsize(context='square_small'))
+
+  # create axis
+  ax = plt.axes()
+  if cmap is not None: ax.set_prop_cycle('color', cmap)
+
+  # plot
+  ax.plot(x, y, lw=2)
+
+  # tick size
+  ax.tick_params(axis='both', which='major', labelsize=get_fontsize('axis_tick_major', add_size=2)), ax.tick_params(axis='both', which='minor', labelsize=get_fontsize('axis_tick_minor', add_size=2))
+
+  # lim
+  ax.set_xlim([np.min(x), np.max(x)])
+
+  # layout
+  plt.ylabel('h(a)', fontsize=get_fontsize('axis_label', add_size=2)), plt.xlabel('a', fontsize=get_fontsize('axis_label', add_size=2)), plt.grid()
+
+  # tight plot
+  plt.tight_layout()
+
+  # save plot
+  if plot_path is not None: plt.savefig(plot_path + name + '.png', dpi=100)
+  if show_plot: plt.show()
+  if close_plot: plt.close()
 
 
 def plot_dct(h, cmap=None, context='dct', plot_path=None, name='dct', show_plot=False):

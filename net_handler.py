@@ -1192,7 +1192,7 @@ class WavenetHandler(NetHandler):
     self.optimizer = torch.optim.Adam(self.models['wav'].parameters(), lr=train_params['lr'], betas=(train_params['beta'], 0.999))
 
 
-  def train_nn(self, train_params, batch_archive, callback_f=None, lam=5.0):
+  def train_nn(self, train_params, batch_archive, callback_f=None, lam=2.0):
     """
     wavenet training
     """

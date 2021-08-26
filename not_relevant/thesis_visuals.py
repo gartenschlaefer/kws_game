@@ -2,6 +2,7 @@
 thesis visualizations
 """
 
+import torch
 import numpy as np
 import librosa
 import re
@@ -14,8 +15,9 @@ sys.path.append("../")
 from audio_dataset import AudioDataset
 from feature_extraction import FeatureExtractor, custom_dct_matrix
 from batch_archive import SpeechCommandsBatchArchive
-from plots import plot_mel_band_weights, plot_mfcc_profile, plot_waveform, plot_dct, plot_wav_grid, plot_spec_profile, plot_mel_scale, plot_grid_images, plot_mfcc_plain
+from plots import plot_mel_band_weights, plot_mfcc_profile, plot_waveform, plot_dct, plot_wav_grid, plot_spec_profile, plot_mel_scale, plot_grid_images, plot_mfcc_plain, plot_activation_function
 from latex_table_maker import LatexTableMakerMFCC, LatexTableMakerAudiosetLabels, LatexTableMakerCepstral, LatexTableMakerAdv
+from skimage.util.shape import view_as_windows
 
 
 def get_infos_from_log(in_file):
@@ -87,7 +89,7 @@ def mfcc_stuff(cfg, dct_plot=False, mel_scale_plot=False, mel_band_plot=False, s
   if mel_band_plot: plot_mel_band_weights(feature_extractor.w_f, feature_extractor.w_mel, feature_extractor.f, feature_extractor.m, plot_path=plot_path, name='signal_mfcc_weights', show_plot=show_plot)
 
 
-def showcase_wavs(cfg, raw_plot=True, spec_plot=True, mfcc_plot=True, use_mfcc_39=False, show_plot=False):
+def showcase_wavs(cfg, raw_plot=True, raw_energy_plot=True, spec_plot=True, mfcc_plot=True, use_mfcc_39=False, show_plot=False):
   """
   showcase wavs
   """
@@ -121,9 +123,25 @@ def showcase_wavs(cfg, raw_plot=True, spec_plot=True, mfcc_plot=True, use_mfcc_3
 
     # raw waveform
     if raw_plot: 
-      plot_waveform(x, feature_params['fs'], fig_size=(4, 1), anno_file=anno, hop=feature_extractor.hop, plot_path='../docu/showcase_wavs/ignore/', name='signal_raw_showcase_' + wav.split('/')[-1].split('.')[0], axis_off=True, show_plot=show_plot)
+      #plot_waveform(x, feature_params['fs'], fig_size=(4, 1), anno_file=anno, hop=feature_extractor.hop, plot_path='../docu/showcase_wavs/ignore/', name='signal_raw_showcase_' + wav.split('/')[-1].split('.')[0], axis_off=True, show_plot=show_plot)
       plot_waveform(x, feature_params['fs'], anno_file=anno, hop=feature_extractor.hop, plot_path=plot_path, name='signal_raw_showcase_' + wav.split('/')[-1].split('.')[0], show_plot=show_plot)
     
+    # raw energy plot
+    if raw_energy_plot:
+
+      # mfcc
+      mfcc, bon_pos_mfcc = feature_extractor.extract_mfcc(x, reduce_to_best_onset=False)
+
+      # energy frames
+      e_win = np.sum(np.squeeze(view_as_windows(np.abs(x)**2, feature_extractor.raw_frame_size, step=1)), axis=1)
+      e_win_mfcc = np.sum(np.squeeze(view_as_windows(mfcc[0, 0, :], feature_extractor.frame_size, step=1)), axis=1)
+
+      # bon pos samples
+      bon_pos = np.argmax(e_win)
+
+      # plot
+      plot_waveform(x, feature_params['fs'], e_samples=e_win, e_mfcc=e_win_mfcc, bon_mfcc=[bon_pos_mfcc, bon_pos_mfcc + feature_extractor.frame_size], bon_samples=[bon_pos, bon_pos + feature_extractor.raw_frame_size], y_ax_balance=False, anno_file=anno, hop=feature_extractor.hop, plot_path=plot_path, name='signal_onset_showcase_' + wav.split('/')[-1].split('.')[0], show_plot=show_plot)
+
     # spectogram
     if spec_plot:
       plot_spec_profile(x, feature_extractor.calc_spectogram(x).T, feature_params['fs'], feature_extractor.N, feature_extractor.hop, anno_file=anno, plot_path=plot_path, name='signal_spec-lin_showcase_' + wav.split('/')[-1].split('.')[0], show_plot=show_plot)
@@ -135,32 +153,6 @@ def showcase_wavs(cfg, raw_plot=True, spec_plot=True, mfcc_plot=True, use_mfcc_3
       name = 'signal_mfcc_showcase_mfcc32_' + wav.split('/')[-1].split('.')[0] if not use_mfcc_39 else 'signal_mfcc_showcase_mfcc39_' + wav.split('/')[-1].split('.')[0]
       plot_mfcc_plain(mfcc, plot_path='../docu/showcase_wavs/ignore/', name=name + '_plain', show_plot=show_plot)
       plot_mfcc_profile(x, cfg['feature_params']['fs'], feature_extractor.N, feature_extractor.hop, mfcc, anno_file=anno, sep_features=False, bon_pos=bon_pos, frame_size=cfg['feature_params']['frame_size'], plot_path=plot_path, name=name, close_plot=False, show_plot=show_plot)
-
-
-# def feature_selection_tables(overwrite=False):
-#   """
-#   feature selection tables
-#   """
-
-#   # files
-#   in_files = ['../ignore/logs/ml_it1000_c5_features_trad.log', '../ignore/logs/ml_it1000_c5_features_fstride.log', '../ignore/logs/ml_it2000_c30_features_fc3.log', '../ignore/logs/ml_it1000_c30_features_fc1.log', '../ignore/logs/ml_it500_c5_features_fc1.log']
-#   out_files = ['../docu/thesis/4_practice/tables/tab_fs_trad_it1000_c5.tex', '../docu/thesis/4_practice/tables/tab_fs_fstride_it1000_c5.tex', '../docu/thesis/4_practice/tables/tab_fs_fc3_it2000_c30.tex', '../docu/thesis/4_practice/tables/tab_fs_fc1_it1000_c30.tex', '../docu/thesis/4_practice/tables/tab_fs_fc1_it500_c5.tex']
-
-#   for in_file, out_file in zip(in_files, out_files):
-
-#     # check files existance
-#     if os.path.isfile(out_file) and not overwrite:
-#       print("out file exists: ", out_file)
-#       continue
-
-#     # table info
-#     print("feature selection table: ", out_file)
-
-#     # instances
-#     lt_maker = LatexTableMaker(in_file=in_file, extraction_type='feature_selection')
-
-#     # extract table
-#     tables = lt_maker.extract_table(out_file=out_file, caption=get_thesis_table_captions(in_file))
 
 
 def audio_set_wavs(cfg, statistics_plot=True, wav_grid_plot=False, label_table_plot=False):
@@ -251,7 +243,26 @@ def training_logs(cfg):
   #LatexTableMakerAdv(in_file=log_path + 'log_exp_adv_label_l12.log', out_file=plot_path_tab + 'tab_exp_adv_label_l12.tex', caption='Experiment with adversarial label pre-training, using either Generator \enquote{g} or Discriminator \enquote{d} weights.', label='tab:exp_adv_label_l12')
   
   # adv dual
-  LatexTableMakerAdv(in_file=log_path + 'log_exp_adv_dual_l12.log', out_file=plot_path_tab + 'tab_exp_adv_dual_l12.tex', caption='Experiment with adversarial dual pre-training, using either Generator \enquote{g} or Discriminator \enquote{d} weights.', label='tab:exp_adv_label_l12')
+  LatexTableMakerAdv(in_file=log_path + 'log_exp_adv_dual_l12.log', out_file=plot_path_tab + 'tab_exp_adv_dual_l12.tex', caption='Experiment with adversarial dual pre-training, using either Generator \enquote{g} or Discriminator \enquote{d} weights.', label='tab:exp_adv_dual_l12')
+
+
+def nn_theory():
+  """
+  neural network theury
+  """
+
+  # plot path
+  plot_path = '../docu/thesis/4_nn/figs/'
+  #plot_path = None
+
+  # x-axis
+  x = np.linspace(-10, 10, 100)
+
+  # plot activation functions
+  plot_activation_function(x, torch.sigmoid(torch.from_numpy(x)), plot_path=plot_path, name='nn_theory_activation_sigmoid', show_plot=True)
+  plot_activation_function(x, torch.tanh(torch.from_numpy(x)), plot_path=plot_path, name='nn_theory_activation_tanh', show_plot=True)
+  plot_activation_function(x, torch.relu(torch.from_numpy(x)), plot_path=plot_path, name='nn_theory_activation_relu', show_plot=True)
+
 
 
 if __name__ == '__main__':
@@ -268,7 +279,7 @@ if __name__ == '__main__':
   #mfcc_stuff(cfg, dct_plot=True, show_plot=True)
 
   # showcase wavs
-  #showcase_wavs(cfg, raw_plot=True, spec_plot=False, mfcc_plot=False, use_mfcc_39=False, show_plot=True)
+  showcase_wavs(cfg, raw_plot=False, raw_energy_plot=True, spec_plot=False, mfcc_plot=False, use_mfcc_39=False, show_plot=True)
 
   # feature selection tables
   #feature_selection_tables(overwrite=True)
@@ -280,6 +291,9 @@ if __name__ == '__main__':
   #batch_archive_grid_examples(cfg, show_plot=True)
 
   # logs
-  training_logs(cfg)
+  #training_logs(cfg)
+
+  # theory
+  #nn_theory()
 
 

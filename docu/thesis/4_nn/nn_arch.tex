@@ -65,7 +65,6 @@ The model is shown in \rfig{nn_arch_cnn_fstride} and its footprint is listed in 
 \FloatBarrier
 \noindent
 \input{./4_nn/tables/tab_nn_arch_cnn_fstride4.tex}
-
 The self designed \texttt{conv-jim} consists of two convolutional layers, where the first has an adaptive kernel size in the feature (freqnecy) dimension and is therefore striding only in frame (time) dimension.
 The kernel width of the first convolutional filters is set to $20$, which represents much of the learned structure from the data, further $20$ frames are equal to \SI{200}{\milli\second}, which is a good time duration for vowels.
 The second convolutional filter has a width of $5$ intended for temporal variations.

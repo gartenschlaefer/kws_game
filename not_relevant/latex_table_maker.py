@@ -78,7 +78,7 @@ class LatexTableFunctions():
     """
     footer for table
     """
-    return '\\bottomrule\n\\label{{{}}}\n\\end{{tabular}}\n\\end{{center}}\n\\end{{table}}\n\\FloatBarrier\n\\noindent'.format(label)
+    return '\\bottomrule\n\\label{{{}}}\n\\end{{tabular}}\n\\end{{center}}\n\\vspace{{-4mm}}\n\\end{{table}}\n\\FloatBarrier\n\\noindent'.format(label)
 
 
 
