@@ -119,9 +119,10 @@ If the MFCC are frame-based normalized the sigmoid activation function is used t
 
 % --
 % wavenets
+
 \subsection{Wavenets}\label{sec:nn_arch_wavenet}
 Wavenets were introduced in \cite{Oord2016} intended for speech generation on the processing of raw audio data.
-In the paper it is mentioned that it can be used for Automatic Speech Recognition (ASR) tasks as well, though it is a bit sparsely described.
+In the paper it is mentioned that Wavenets can be used for Automatic Speech Recognition (ASR) tasks as well, though it is very sparsely described.
 An implementation of a Wavenet can be found in \cite{Herrmann2018} (without class predictions) and motivated the following model structure.
 A Wavenet residual block with an extension for class prediction is illustrated in \rfig{nn_arch_wavenet_block}.
 \begin{figure}[!ht]
@@ -132,6 +133,8 @@ A Wavenet residual block with an extension for class prediction is illustrated i
 \end{figure}
 \FloatBarrier
 \noindent
+One residual block incorporates few parameters, but a huge amount of operations, which are listed in \rtab{nn_arch_wavenet_block}
+\input{./4_nn/tables/tab_nn_arch_wavenet_block}
 Note that the dilated convolutional filters have a filter size of two with adjustable dilation parameter and that strides are merely done in the time dimension, because the input is a one-dimensional time signal.
 The $1 \times 1$ convolutions are a special form of convolutional filters, that work the same way as usual convolutions, just with a filter size of one. 
 The whole Wavenet architecture is composed of several Wavenet residual blocks with increasing dilation parameters for the convolutional layers.
@@ -144,4 +147,6 @@ The Wavenet architecture adaption with class prediction is shown in \rfig{nn_arc
 \end{figure}
 \FloatBarrier
 \noindent
+The whole structure with estimated number of operations is listed in \rtab{nn_arch_wavenet_whole}
+\input{./4_nn/tables/tab_nn_arch_wavenet_whole}
 

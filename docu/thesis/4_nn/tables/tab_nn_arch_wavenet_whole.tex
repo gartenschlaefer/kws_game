@@ -1,0 +1,19 @@
+\begin{table}[ht!]
+\begin{center}
+\caption{Whole Wavenet architecture with extension of class predictions and input sample length of 8000.}
+\begin{tabular}{ M{1.5cm} M{1.5cm} M{1.4cm} M{1.4cm} M{2cm} M{2.5cm} M{2.5cm} }
+\toprule
+ \textbf{layer types} & \textbf{number of feature maps} & \textbf{kernel size} & \textbf{stride} & \textbf{output dimension} & \textbf{number of operations}\\
+\midrule
+input & - & - & - & $1 \times 8000$ & -\\
+7 residual blocks & - & - & - & - & \SI{11111}{\kilo\ops}\\
+\midrule
+\textbf{sum} & - & - & - & - & \textbf{\SI{1111}{\kilo\ops}} \\ 
+\bottomrule
+\label{tab:nn_arch_wavenet_whole}
+\end{tabular}
+\end{center}
+\vspace{-4mm}
+\end{table}
+\FloatBarrier
+\noindent
