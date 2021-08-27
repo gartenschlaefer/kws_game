@@ -308,13 +308,13 @@ ml:
     adv_dual: {'batch_size': 32, 'num_epochs': 100, 'lr_d': 0.0001, 'lr_g': 0.0001, 'beta_d': 0.9, 'beta_g': 0.9, 'k_update_d': 2, 'k_update_g': 2}
 
     # pre adv label train
-    adv_label: {'batch_size': 32, 'num_epochs': 1000, 'lr_d': 0.0001, 'lr_g': 0.0001, 'beta_d': 0.9, 'beta_g': 0.9, 'k_update_d': 2, 'k_update_g': 2}
+    adv_label: {'batch_size': 32, 'num_epochs': 100, 'lr_d': 0.0001, 'lr_g': 0.0001, 'beta_d': 0.9, 'beta_g': 0.9, 'k_update_d': 2, 'k_update_g': 2}
 
     # hybrid net
     hyb: {'batch_size': 32, 'num_epochs': 3000, 'lr': 0.0001, 'beta': 0.9, 'lr_d': 0.00001, 'lr_g': 0.00001, 'beta_d': 0.5, 'beta_g': 0.5, 'k_update_d': 2, 'k_update_g': 3}
 
     # wavenet
-    wave: {'batch_size': 32, 'num_epochs': 100, 'lr': 0.0008, 'beta': 0.9}
+    wave: {'batch_size': 32, 'num_epochs': 10, 'lr': 0.0008, 'beta': 0.9}
 
 
   # adversarial parameters
@@ -340,7 +340,7 @@ ml:
   retrain: False
 
   # create new instance
-  new_instance: Truem
+  new_instance: True
 
   # number of instances
   num_instances: 1

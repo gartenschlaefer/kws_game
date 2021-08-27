@@ -15,7 +15,7 @@ class WavenetResBlock(nn.Module):
   wavenet residual block
   """
 
-  def __init__(self, in_channels, out_channels, skip_channels=16, pred_channels=16, dilation=1):
+  def __init__(self, in_channels, out_channels, dilated_channels=1, skip_channels=16, pred_channels=64, dilation=1, n_samples=8000):
 
     # parent init
     super().__init__()
@@ -23,22 +23,25 @@ class WavenetResBlock(nn.Module):
     # arguments
     self.in_channels = in_channels
     self.out_channels = out_channels
+    self.dilated_channels = dilated_channels
     self.skip_channels = skip_channels
     self.pred_channels = pred_channels
     self.dilation = dilation
+    self.n_samples = n_samples
 
     # dilated convolution filter and gate
-    self.conv_filter = nn.Conv1d(self.in_channels, self.out_channels, kernel_size=2, stride=1, padding=0, dilation=self.dilation, groups=1, bias=False, padding_mode='zeros')
-    self.conv_gate = nn.Conv1d(self.in_channels, self.out_channels, kernel_size=2, stride=1, padding=0, dilation=self.dilation, groups=1, bias=False, padding_mode='zeros')
+    self.conv_filter = nn.Conv1d(self.in_channels, self.dilated_channels, kernel_size=2, stride=1, padding=0, dilation=self.dilation, groups=1, bias=False, padding_mode='zeros')
+    self.conv_gate = nn.Conv1d(self.in_channels, self.dilated_channels, kernel_size=2, stride=1, padding=0, dilation=self.dilation, groups=1, bias=False, padding_mode='zeros')
 
     # 1 x 1 convolution for skip connection
-    self.conv_skip = nn.Conv1d(self.out_channels, out_channels=self.skip_channels, kernel_size=2, stride=1, padding=0, dilation=1, groups=1, bias=False, padding_mode='zeros')
+    #self.conv_skip = nn.Conv1d(self.dilated_channels, out_channels=self.skip_channels, kernel_size=1, stride=1, padding=0, dilation=1, groups=1, bias=False, padding_mode='zeros')
+    self.conv_skip = nn.Conv1d(self.dilated_channels, out_channels=self.out_channels, kernel_size=1, stride=1, padding=0, dilation=1, groups=1, bias=False, padding_mode='zeros')
     
     # average pooling for class prediction, downsample to 10ms
     self.av_pool = nn.AvgPool1d(kernel_size=160, stride=80)
 
-    # conv prediction 1
-    self.conv_pred1 = nn.Conv1d(self.out_channels, out_channels=self.pred_channels, kernel_size=1, stride=1, padding=0, dilation=1, groups=1, bias=False, padding_mode='zeros')
+    # conv prediction
+    self.conv_pred1 = nn.Conv1d(self.dilated_channels, out_channels=self.pred_channels, kernel_size=1, stride=1, padding=0, dilation=1, groups=1, bias=False, padding_mode='zeros')
 
 
   def forward(self, x):
@@ -46,13 +49,11 @@ class WavenetResBlock(nn.Module):
     forward connection
     """
 
-    #print("x: ", x.shape)
-
     # input length
     input_len = x.shape[-1]
 
     # residual connection
-    residual = x
+    residual = torch.clone(x)
 
     # zero padding from left
     x = torch.nn.functional.pad(x, (self.dilation, 0), 'constant', 0)
@@ -70,12 +71,10 @@ class WavenetResBlock(nn.Module):
     # prediction layer
     y = self.conv_pred1(y)
 
-    # padding for skip connection
-    o = torch.nn.functional.pad(o, (1, 0), 'constant', 0)
-
-    # skip connection
-    skip = self.conv_skip(o)
+    # output and skip connection
+    #skip = self.conv_skip(o)
     o = self.conv_skip(o)
+    skip = torch.clone(o)
 
     # add residual
     o += residual
@@ -83,25 +82,42 @@ class WavenetResBlock(nn.Module):
     return o, skip, y
 
 
+  def calc_amount_of_operations(self):
+    """
+    calculate amount of operations
+    """
+
+    # amount of ops
+    n_ops = {
+      'conv_filter': (self.in_channels * self.dilated_channels) * self.n_samples * (2 * 2 + 1), 
+      'conv_gate': (self.in_channels * self.dilated_channels) * self.n_samples * (2 * 2 + 1),
+      'conv_skip': (self.dilated_channels * self.out_channels) * self.n_samples * (2 * 1 + 1),
+      'conv_pred': (self.dilated_channels * self.pred_channels) * 99 * (2 * 1 + 1)
+      }
+
+    return n_ops
+
 
 class Wavenet(nn.Module, ConvBasics):
   """
   wavenet class
   """
 
-  def __init__(self, n_classes):
+  def __init__(self, n_classes, n_samples=8000):
 
     # parent init
     super().__init__()
 
     # arguments
     self.n_classes = n_classes
+    self.n_samples = n_samples
 
     # channel params
     self.in_channels = 1
-    self.out_channels = 16
+    self.out_channels = 1
+    self.dilated_channels = 16
     self.skip_channels = 16
-    self.pred_channels = 16
+    self.pred_channels = 64
 
     # n classes
     self.target_quant_size = 256
@@ -113,13 +129,15 @@ class Wavenet(nn.Module, ConvBasics):
     self.wavenet_layers = torch.nn.ModuleList()
 
     # first block
-    self.wavenet_layers.append(WavenetResBlock(self.in_channels, self.out_channels, skip_channels=self.skip_channels, pred_channels=self.pred_channels, dilation=1))
+    self.wavenet_layers.append(WavenetResBlock(self.in_channels, self.out_channels, dilated_channels=self.dilated_channels, skip_channels=self.skip_channels, pred_channels=self.pred_channels, dilation=1))
 
     # append further blocks
-    for i in range(1, self.n_layers): self.wavenet_layers.append(WavenetResBlock(self.out_channels, self.out_channels, skip_channels=self.skip_channels, pred_channels=self.pred_channels, dilation=2**i))
+    for i in range(1, self.n_layers): self.wavenet_layers.append(WavenetResBlock(self.out_channels, self.out_channels, dilated_channels=self.dilated_channels, skip_channels=self.skip_channels, pred_channels=self.pred_channels, dilation=2**i))
+    #for i in range(1, self.n_layers): self.wavenet_layers.append(WavenetResBlock(self.in_channels, self.out_channels, dilated_channels=self.dilated_channels, skip_channels=self.skip_channels, pred_channels=self.pred_channels, dilation=2**i))
 
     # conv layer post for skip connection
-    self.conv_skip1 = nn.Conv1d(in_channels=self.skip_channels, out_channels=16, kernel_size=1, stride=1, padding=0, dilation=1, groups=1, bias=True, padding_mode='zeros')
+    #self.conv_skip1 = nn.Conv1d(in_channels=self.skip_channels, out_channels=16, kernel_size=1, stride=1, padding=0, dilation=1, groups=1, bias=True, padding_mode='zeros')
+    self.conv_skip1 = nn.Conv1d(in_channels=self.out_channels, out_channels=16, kernel_size=1, stride=1, padding=0, dilation=1, groups=1, bias=True, padding_mode='zeros')
     self.conv_skip2 = nn.Conv1d(in_channels=16, out_channels=self.target_quant_size, kernel_size=1, stride=1, padding=0, dilation=1, groups=1, bias=True, padding_mode='zeros')
 
     # conv layer predictions
@@ -146,23 +164,23 @@ class Wavenet(nn.Module, ConvBasics):
     forward connection
     """
 
-    # init output and skips
-    o, skips, y = x, torch.zeros(x.shape[0], self.skip_channels, x.shape[-1]).to(device=x.device), torch.zeros(x.shape[0], self.pred_channels, 99).to(device=x.device)
+    # output, skip, class
+    o, s, y = self.wavenet_layers[0](x)
 
     # wavenet layers
-    for wavenet_layer in self.wavenet_layers: 
+    for i, wavenet_layer in enumerate(self.wavenet_layers[1:]): 
 
       # wavenet layer
-      o, skip, y = wavenet_layer(o)
+      o, s_i, y_i = wavenet_layer(o)
 
       # sum skips
-      skips += skip
+      s += s_i
 
       # sum predictions
-      y += y
+      y += y_i
 
     # relu of summed skip
-    t = torch.relu(skips)
+    t = torch.relu(s)
 
     # conv layers post
     t = torch.relu(self.conv_skip1(t))
@@ -210,11 +228,28 @@ class Wavenet(nn.Module, ConvBasics):
     return [p.numel() for p in self.parameters() if p.requires_grad]
 
 
+  def calc_amount_of_operations(self):
+    """
+    calculate amount of operations
+    """
+
+    n_ops = {}
+
+    for i, l in enumerate(self.wavenet_layers):
+
+      n_ops.update({'block{}'.format(i): sum(l.calc_amount_of_operations().values())})
+
+    return n_ops
+
+
 
 if __name__ == '__main__':
   """
   main
   """
+
+  # resnet block
+  res_block = WavenetResBlock(1, 1, dilated_channels=16, skip_channels=16, pred_channels=64, dilation=1)
 
   # wavenet
   wavenet = Wavenet(n_classes=5)
@@ -228,3 +263,7 @@ if __name__ == '__main__':
   # prints
   print("wavenet: ", wavenet)
   print("layer: {} sum: {}".format(layer_params, sum(layer_params)))
+
+  # operations
+  print("res block ops: ", res_block.calc_amount_of_operations())
+  print("ops: ", wavenet.calc_amount_of_operations())

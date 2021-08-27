@@ -304,14 +304,14 @@ class ML():
           x = v.detach().cpu().numpy()
 
           # plot images
-          plot_grid_images(x, context=context, color_balance=True, padding=1, num_cols=np.clip(v.shape[0], 1, 8), title=k + self.param_path_ml.replace('/', ' ') + ' ' + self.encoder_label + name_ext, plot_path=self.model_path_folders['conv_plots'], name=k + name_ext, show_plot=False)
-          plot_grid_images(x, context=context+'-div', color_balance=True, padding=1, num_cols=np.clip(v.shape[0], 1, 8), title=k + self.param_path_ml.replace('/', ' ') + ' ' + self.encoder_label + name_ext, plot_path=self.model_path_folders['conv_diff_plots'], name='div_' + k + name_ext, show_plot=False)
+          plot_grid_images(x, context=context, color_balance=True, padding=1, num_cols=np.clip(v.shape[0], 1, 8), plot_path=self.model_path_folders['conv_plots'], name=k + name_ext)
+          plot_grid_images(x, context=context+'-div', color_balance=True, padding=1, num_cols=np.clip(v.shape[0], 1, 8), plot_path=self.model_path_folders['conv_diff_plots'], name='div_' + k + name_ext)
 
     # generate samples from trained model (only for adversarial)
     fakes = self.net_handler.generate_samples(num_samples=30, to_np=True)
     if fakes is not None:
-      plot_grid_images(x=fakes, context='mfcc', padding=1, num_cols=5, title='generated samples ' + self.encoder_label + name_ext, plot_path=self.model_path, name='generated_samples_' + self.encoder_label + name_ext, show_plot=False)
-      plot_mfcc_only(fakes[0, 0], fs=16000, hop=160, plot_path=self.model_path, name='generated_sample_' + self.encoder_label + name_ext, show_plot=False)
+      plot_grid_images(x=fakes, context='mfcc', padding=1, num_cols=5, plot_path=self.model_path, name='generated_samples_' + self.encoder_label + name_ext)
+      plot_mfcc_only(fakes[0, 0], fs=16000, hop=160, plot_path=self.model_path, name='generated_sample_' + self.encoder_label + name_ext)
 
     # animation (for generative networks)
     if self.cfg_ml['create_animation']: self.create_anim()

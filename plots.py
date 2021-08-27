@@ -402,7 +402,7 @@ def plot_other_grid(x, grid_size=(8, 8), title='grid1', plot_path=None, name='gr
   if show_plot: plt.show()
 
 
-def plot_grid_images(x, padding=1, num_cols=8, cmap=None, context='none', color_balance=False, title='grid2', plot_path=None, name='grid2', show_plot=False):
+def plot_grid_images(x, padding=1, num_cols=8, cmap=None, context='none', color_balance=False, title='', plot_path=None, name='grid2', show_plot=False, close_plot=True):
   """
   plot grid images
   """
@@ -489,11 +489,9 @@ def plot_grid_images(x, padding=1, num_cols=8, cmap=None, context='none', color_
   #plt.subplots_adjust(left=0.01, bottom=0.01, right=0.99, top=0.97, wspace=0, hspace=0)
 
   # plot save and show
-  if plot_path is not None: 
-    plt.savefig(plot_path + name + '.png', dpi=150)
-    plt.close()
-    
+  if plot_path is not None: plt.savefig(plot_path + name + '.png', dpi=100)
   if show_plot: plt.show()
+  if close_plot: plt.close()
 
   return fig
 
@@ -1038,7 +1036,7 @@ def plot_mfcc_only(mfcc, fs=16000, hop=160, cmap=None, context='mfcc', plot_path
 
   else:
     sel_coefs = [np.arange(0, mfcc.shape[0])]
-    titles = ['MFCCs' + ' of "' + name + '"',]
+    titles = ['']
     n_rows, n_cols, n_im_rows = 20, 20, 8
 
   # grid
@@ -1059,7 +1057,7 @@ def plot_mfcc_only(mfcc, fs=16000, hop=160, cmap=None, context='mfcc', plot_path
     #im = ax.imshow(mfcc[c], aspect='equal', interpolation='none', extent=[0, t[-1], c[-1], c[0]], cmap=cmap)
 
     # some labels
-    ax.set_title(titles[i])
+    if len(titles[i]): ax.set_title(titles[i])
     ax.set_ylabel("cepstrum coeff")
     if i == len(sel_coefs) - 1: ax.set_xlabel("time [s]")
     ax.set_xlim(left=0)
