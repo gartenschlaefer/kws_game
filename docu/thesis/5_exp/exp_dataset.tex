@@ -2,7 +2,7 @@
 % dataset
 
 \section{Dataset}\label{sec:exp_dataset}
-\thesisStateReady
+\thesisStateRevised
 Two datasets are used within this thesis, one is the second version of the speech commands dataset \cite{Warden2018} and the other is self made consisting of only 5 labels (speech commands) that are especially valuable for movement in video games.
 The self made dataset is denoted as \enquote{my dataset} and it is merely used for evaluation.
 The training, validation and testing of the neural network architectures is performed on the speech commands dataset.
@@ -12,41 +12,29 @@ Some datasets provide feature extraction beforehand, so that the comparability o
 The speech commands dataset does not explicitly separate each \texttt{.wav} file into train, test and validation sets, but provides file lists that refers to distinct waveform files that should be used for testing and validation and therefore provides means for comparison to researchers.
 More details about the datasets is presented below.
 
-% Some abbreviations and references were done, so that the jungle of selected parameters get a little bit more clear to the reader of this thesis.in the \texttt{.wav} format
-% The abbreviations of the dataset are shown in \rtab{exp_dataset_abbr}.
-
-% The speech commands dataset is extracted before it is used for training. 
-% To reduce computations in the evaluation process of neural networks, it was important to reduce the number of classes and examples per class to an suitable number.
-
-% \input{./5_exp/tables/tab_exp_dataset_abbr.tex}
-
 
 % --
 % speech commands dataset
 
 \subsection{Speech Commands Dataset}\label{sec:exp_dataset_speech_cmd}
-The speech command dataset \cite{Warden2018} exists in two versions (\texttt{v0.01} and \texttt{v0.02}).
-The first version was published in 2017 and the second emerged as improved version of the first with 5 more key words \{\enquote{backward}, \enquote{forward}, \enquote{follow}, \enquote{learn}, \enquote{visual}\}, class examples and better quality check in 2018.
-The dataset consists of \SI{1}{\second} speech recordings of 30 different words in \texttt{v0.01} and 35 different words in \texttt{v0.02}, done by over thousands of individual speakers.
+The speech command dataset \cite{Warden2018} consists of \SI{1}{\second} speech recordings, done by over thousands of individual speakers and exists in two versions (\texttt{v0.01} and \texttt{v0.02}).
+The first version was published in 2017 with a total number of 30 key words and the second version extended the first version with 5 additional key words \{\enquote{backward}, \enquote{forward}, \enquote{follow}, \enquote{learn}, \enquote{visual}\}, class examples and a better quality check, in the year 2018.
 
-In this thesis, the experiments are done on the second version \texttt{v0.02} of the dataset with hard-facts listed in \rtab{exp_dataset_hard_facts}.
-% hard facts
+In this thesis, the experiments are solely performed on the second version \texttt{v0.02} of the dataset with hard-facts listed in \rtab{exp_dataset_hard_facts}.
 \input{./5_exp/tables/tab_exp_dataset_hard_facts.tex}
 All speech command key words with their separation in training, test and validation set are shown in \rtab{exp_dataset_all_labels} loacated in the appendix.
-% all labels tab
-%\input{./5_exp/tables/tab_exp_dataset_all_labels.tex}
-Some labels have a significantly higher number of example than others do.
+Some key words have a significantly higher number of examples per class than others.
 %In \rtab{exp_dataset_all_labels} it can be observed, that some labels are occurring significantly more often than others.
-The inconsistent number of the total number of examples per label, emerged from the recording settings as described in \cite{Warden2018}, where the more important words were recorded with a higher number of iterations from the same speaker, for instance the speaker has to create five samples of \enquote{go} and two of \enquote{marvin}.
+This inconsistency of examples per classes, emerged from the recording settings as described in \cite{Warden2018}, where the more important words were recorded with a higher number of iterations from the same speaker, for instance the speaker has to create five samples of \enquote{go} and two of \enquote{marvin}.
 This makes the key words separable into into \emph{core key words} and \emph{auxiliary key words}.
 The core key words are the main classification objective and each core key word should corresponds to one class label, therefore the core key words have the higher count of samples with about 3000 to 4000 examples each.
 In detail the core key words are \{\enquote{yes}, \enquote{no}, \enquote{up}, \enquote{down}, \enquote{left}, \enquote{right}, \enquote{on}, \enquote{off}, \enquote{stop}, \enquote{go}, \enquote{zero}, \enquote{one}, ..., \enquote{nine} \}.
 
 The auxiliary key words have the purpose to disturb the classification of the core key words, therefore the auxiliary key words should be represented by a single class label.
 In many papers those auxiliary key words are labeled with \enquote{unknown}, but in this thesis it is referred as \enquote{\_mixed} label, since it is a mixture of all auxiliary key words and the core words that were not used for classification.
-The \enquote{\_mixed} key words should represent all unknown words that a user might speak and are therefore a very important element in the KWS task for the identification of words that are not in the class dictionary.
-Note that the \enquote{\_mixed} label makes the classification task much more challenging, because the network has to be more accurate in modeling the core key words against the other key words.
-In the creation of the examples for the \enquote{\_mixed} label, it is of course preferable to have equal amounts of examples per individual auxiliary key word and unused core key words.
+The \enquote{\_mixed} key words should represent all unknown words that a user might speak and are therefore a very important element in the Key Word Spotting (KWS) task for the identification of words that are not in the class dictionary.
+Note that the \enquote{\_mixed} label makes the classification task much more challenging, because the network has to be more accurate in modeling each core key words against the other core key words and additionally to the auxiliary key words.
+In the creation of the examples for the \enquote{\_mixed} label, it is preferable to have an equal number of examples per individual auxiliary key word and unused core key words.
 This had been done by placing all unused core key words and auxiliary words into a separate folder and reading them into a list, which is ordered so that one example per key word is placed consecutive to the next for each key word, then it starts over again filling up all examples.
 The number of examples picked for training is then simply the entries from index 0 to the number of examples in training. 
 
@@ -133,24 +121,27 @@ Finally it has to be acknowledged that the dataset is under the creative common 
 % --
 % dataset structure
 
-\subsubsection{Dataset Structure}
+\subsubsection{Dataset Structure}\label{sec:exp_dataset_structure}
 The speech command examples are stored in separate folders named after each individual key word, in the \texttt{.wav} format.
-The folder named as \texttt{\_background\_noise\_} contains six different background noise files, such as \texttt{white\_noise.wav} or \texttt{doing\_the\_dishes.wav}, with a duration of more than one minute each.
-Noise examples with a new noise label named \texttt{\_noise} were extracted from those background noise files with a \SI{1}{\second} window shifted by \SI{0.2}{\second}.
+The folder named as \texttt{\_background\_noise\_} contains six different background noise files, such as \texttt{white\_noise.wav} or \texttt{doing\_the\_dishes.wav}, with a duration of more than one minute each and altogehter summing up to a duration of about \SI{400}{s}.
+To extract noise examples from those files with a sufficient number of examples of over 3500, those noise files have to be extracted by a striding window of \SI{1}{\second} length shifted by \SI{0.110}{\second}.
+The noise examples were assigned to the label \enquote{\_noise}.
 
-Each waveform file is named with an 8-digit hexadecimal hash code for the speaker identification, followed by the utterance number, for instance \texttt{3b4f8f24\_nohash\_0.wav}.
-Therefore it is possible to distinguish between different speakers, however as mentioned above, no further information about the speaker is given due to data privacy issues.
+Each waveform file from the key word folders is named by an 8-digit hexadecimal hash code for the speaker identification, followed by the utterance number, for instance \texttt{3b4f8f24\_nohash\_0.wav}.
+With the speaker identification code, it is possible to distinguish between different speakers, however as mentioned above, no further information about the speaker is provided due to data privacy issues.
 
-Further the dataset provides a testing file list called \texttt{testing\_list.txt} and a validation file list \texttt{validation\_list.txt} where each row entry refers to a file in the dataset, for example \texttt{right/bb05582b\_nohash\_3.wav}.
-Those file lists for testing and validation should ensure the comparability between different neural network approaches from individual researchers.
+Further the dataset contains a testing file list called \texttt{testing\_list.txt} and a validation file list \texttt{validation\_list.txt}, where each row entry in the text file, refers to a file in the dataset, for example \texttt{right/bb05582b\_nohash\_3.wav}.
+Those file lists should ensure the comparability between different neural network approaches from individual researchers.
 The testing and validation file lists are applied in this thesis and the separation into sets are shown in \rtab{exp_dataset_all_labels}.
+
 
 % --
 % extracted examples
 
 \subsubsection{Samples from the Feature Extraction}
-The feature extraction of the dataset with specified parameters and storage of the extracted features and labels as separate files is done beforehand, so that it does not have to be applied each time a training instance of a neural network is performed.
-Samples from the Mel Frequency Cepstral Coefficients (MFCC) with frame based normalization as explained in \rsec{signal_mfcc} are shown in \rfig{exp_dataset_speech_cmd_mfcc}.
+The feature extraction of the dataset with specified parameters are stored to separate files before using them for training.
+This has the practicability that features do not have to be extracted each time a new training instance of a neural network is performed.
+Samples from the extracted Mel Frequency Cepstral Coefficients (MFCC) with frame based normalization as explained in \rsec{signal_mfcc} are shown in \rfig{exp_dataset_speech_cmd_mfcc}.
 \begin{figure}[!ht]
   \centering
     \subfigure[left]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_dataset_speech_cmd_mfcc_left}}
@@ -158,7 +149,6 @@ Samples from the Mel Frequency Cepstral Coefficients (MFCC) with frame based nor
     \subfigure[up]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_dataset_speech_cmd_mfcc_up}}
     \subfigure[down]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_dataset_speech_cmd_mfcc_down}}
     \subfigure[go]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_dataset_speech_cmd_mfcc_go}}
-  %\caption{MFCC extracted samples of specific labels obtained from the training set of the speech commands dataset \texttt{v0.02}.}
   \caption{MFCC extraction of randomly selected 30 samples per class label, obtained from the training set of the speech commands dataset \texttt{v0.02}. The corresponding class labels are written below the plots.}
   \label{fig:exp_dataset_speech_cmd_mfcc}
 \end{figure}
@@ -174,7 +164,7 @@ This dataset was created by the author of this thesis and contains five examples
 The datasets purpose is mainly to have an additional test set for evaluating trained models on the authors own voice.
 The examples per key word are spoken with different emphasis and stress on individual phonemes for each key word.
 Also the prolongation of the words are different, for instance that in one example the word is spoken very hasty and in the other it is spoken slowly.
-The emphasis and prolongation ensure the diversity of the dataset. 
+The emphasis and prolongation ensure the diversity of the dataset.
 It is important to mention that none of the self recorded files were used within the training set, so that the neural networks performance is evaluated on unseen data.
 All examples of my own dataset are illustrated in \rfig{exp_dataset_my_wav_grid} in raw audio format.
 \begin{figure}[!ht]
@@ -203,7 +193,7 @@ It is difficult to examine why exactly this one example is classified wrong.
 % preparation for neural networks
 
 \subsection{Data preparation for neural networks}\label{sec:exp_data_prep}
-The neural network architectures are trained with supervised learning, that means a class label $y_i \in \{0, 1, \dots, C\} = \mathcal{C}$ correspondence to each data example $x_i \in \R^{\mathcal{X}}$ must exist, where $C$ is the total number of classes and $\mathcal{X}$ is the dimension of the data example.
+The neural network architectures are trained with supervised learning, that means a class label $y_i \in \{0, 1, \dots, L\}$ correspondence to each data example $x_i \in \R^{\mathcal{X}}$ must exist, where $L$ is the total number of classes and $\mathcal{X}$ is the dimension of the data example.
 Some selected examples and their labels form a dataset $S$ for example for training or testing and can be written as:
 \begin{equation}\label{eq:exp_dataset}
   S = \{ (\,x_i, \, y_i\,) \, | \, i = 0, 1, \dots, n \}

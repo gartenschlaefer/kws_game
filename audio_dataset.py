@@ -160,7 +160,7 @@ class AudioDataset():
     print("overall stat of label: [{}]\tnum: [{}]".format(label, len(label_files)))
 
     # check label num
-    if len(label_files) < int(self.cfg_dataset['n_examples'] * self.cfg_dataset['split_percs'][set_name]):
+    if (len(label_files) < int(self.cfg_dataset['n_examples'] * self.cfg_dataset['split_percs'][set_name])) and label in self.sel_labels:
       print("***[audio set] labels are less than n_examples, recreate dataset and check files")
       import sys
       sys.exit()
@@ -702,7 +702,6 @@ class MyRecordingsDataset(SpeechCommandsDataset):
     cut and copy recorded wavs
     """
 
-    #print("wav: ", self.wav_folders)
     print("wav folders: ", self.wav_folder_dict)
 
     # get all .wav files

@@ -49,7 +49,7 @@ The architecture was adapted from \cite{Sainath2015} as a baseline network and m
 The length of 20 frames in the first convolutional layer is reasonable and corresponse approximately to the length of a vowel sound.
 Note that the \enquote{Flatten} layer simply flattens the output tensor of the last convolutional layers to 1-dimension, so that fully conected layers can be appended.
 Dropout was used in the first two FC layers.
-The last FC layer has $C$ nodes corresponding to $C$ output class labels, depending on the amount of chosen key words in the vocabulary.
+The last FC layer has $L$ nodes corresponding to $L$ output class labels, depending on the amount of chosen key words in the vocabulary.
 Assuming that the input will be of shape $x = (1 \times 12 \times 50)$ this will give following dimensions and operations as listed in \rtab{nn_arch_cnn_trad}.
 \input{./4_nn/tables/tab_nn_arch_cnn_trad.tex}
 
@@ -83,15 +83,13 @@ The \texttt{conv-jim} model is shown in \rfig{nn_arch_cnn_conv-jim} with footpri
 % --
 % GANs
 
-\subsection{Adversarial Neural Networks}\label{sec:nn_arch_adv}
-Generative Adversarial Neural Networks (GAN), as already mentioned in \rsec{prev_nn_adv} are consisting of two neural network architectures competing against each other.
-The architectures are denoted as Discriminator (D) and Generator (G) network.
+\subsection{Generative Adversarial Neural Networks}\label{sec:nn_arch_adv}
+Generative Adversarial Neural Networks (GAN), as already mentioned in \rsec{prev_nn_adv} are consisting of two separate neural network architectures, denoted as Discriminator (D) and Generator (G) network.
 The G network is able to produce samples from the data distribution, while the D network has the role of discriminating between fake and real.
 Being able to transfer the obtained weights from the training of the adversarial models, the layers parameters of the target network must coincide with the adversarial network layers.
-Both D and G network convolutional layer parameters can be used, even if G performs a convolutional upsampling (transposed convolution) instead of usual convolution.
+The convolutional layer parameters of both D and G can be used, even if G performs a convolutional upsampling (transposed convolution) instead of usual convolution, however it is preferred to use frame-based normalization for the G network.
 
 The major model tested with adversarial pre-training has the same convolutional layer structure as the \texttt{conv-jim} network and is therefore denoted as \texttt{adv-d-jim} shown in \rfig{nn_arch_adv_d_jim} and \texttt{adv-g-jim} in \rfig{nn_arch_adv_g_jim}.
-
 \begin{figure}[!ht]
   \centering
     \includegraphics[height=0.2\textwidth]{./4_nn/figs/nn_arch_adv_d_jim.eps}
@@ -100,7 +98,6 @@ The major model tested with adversarial pre-training has the same convolutional 
 \end{figure}
 \FloatBarrier
 \noindent
-
 \begin{figure}[!ht]
   \centering
     \includegraphics[height=0.23\textwidth]{./4_nn/figs/nn_arch_adv_g_jim.eps}
@@ -109,8 +106,8 @@ The major model tested with adversarial pre-training has the same convolutional 
 \end{figure}
 \FloatBarrier
 \noindent
-Note that the number of operations are the same as in \rtab{nn_arch_cnn_jim} except for the fully-connected layers.
-The \texttt{adv-g-jim} model uses either the sigmoid or an identity (same output as input) activation function, depending if the Mel Frequency Cepstral Coefficients (MFCC) are frame-based normalized.
+Note that the number of operations are the same as in \rtab{nn_arch_cnn_jim}, except for the fully-connected layers.
+The \texttt{adv-g-jim} model uses either the sigmoid or an identity (same output as input) activation function, depending whether the Mel Frequency Cepstral Coefficients (MFCC) are frame-based normalized or not.
 If the MFCC are frame-based normalized the sigmoid activation function is used to produce outputs in the range of $[0, 1]$, which enhances the models training speed compared to the generation of samples that are not normalized.
 %An overview of all models is shown in \rtab{nn_arch_overview} with abbreviations in \rtab{nn_arch_abbreviation}.
 %\input{./4_nn/tables/tab_nn_arch_abbreviation.tex}

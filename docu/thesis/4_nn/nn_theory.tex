@@ -81,7 +81,7 @@ Mathematically one node $i$ performs following calculation:
 with the same notations as described in \req{nn_theory_acti} and an additional bias term $b_i \in \R$.
 For all nodes in a layer this equation of a single node can be summarized to a weight matrix $W \in \R^{m \times n}$ with $m$ as total amount of nodes in that layer, so that an FC layer can be written as:
 \begin{equation}
-  \bm{z} = h(W \, \bm{x} + \bm{b})
+  \bm{z} = h(W \bm{x} + \bm{b})
 \end{equation}
 where $\bm{b} \in \R^m$ are the bias terms of all nodes and $\bm{z} \in \R^m$ the outputs of all nodes in that layer.
 With the matrix representation it is easy to obtain the amount of operations needed for a FC layer.
@@ -89,9 +89,9 @@ The amount of parameters are clearly $m \cdot n$ for $W$ and $m$ for $\bm{b}$, s
 The amount of operations are the matrix vector multiplication with approximated amounts of multiplication and additions, plus the bias terms.
 With the activation function disregarded, the amount of calculations are closely:
 \begin{equation} 
-  \mathcal{T}(W \, \bm{x} + \bm{b}) = 2 (m \cdot n) + m
+  \mathcal{T}(W \bm{x} + \bm{b}) = 2 (m \cdot n) + m
 \end{equation}
-which would give for example with $n = 128$ and $m = 64$ roughly $\mathcal{T}(W \, \bm{x} + \bm{b}) = \SI{16.4}{\kilo\ops}$.
+which would give for example with $n = 128$ and $m = 64$ roughly $\mathcal{T}(W \bm{x} + \bm{b}) = \SI{16.4}{\kilo\ops}$.
 
 
 % --
@@ -158,16 +158,16 @@ For the previous example this would give $\mathcal{T}(k * x) = 2 (12 \cdot 12) (
 \subsection{Loss Functions and Softmax}
 Loss functions also known as cost functions are used to determine the difference between the predicted labels $\hat{y}_i$ for class $i$ compared to the actual or ground truth labels $y$.
 The predicted labels are usually presented by the output nodes in the last layer of a neural network.
-Therefore $\hat{\bm{y}} = [\hat{y_0}, \, \hat{y_1}, \dots, \hat{y_C}]^T$ has the dimension of the number of labels or classes $C$.
-Often it is preferred that $\hat{\bm{y}} \in \R^C$ provides a probability distribution such that:
+Therefore $\hat{\bm{y}} = [\hat{y_0}, \, \hat{y_1}, \dots, \hat{y_L}]^T$ has the dimension of the number of labels or classes $L$.
+Often it is preferred that $\hat{\bm{y}} \in \R^L$ provides a probability distribution such that:
 \begin{equation}
-  \sum_{i=0}^C \hat{y}_i = 1
+  \sum_{i=0}^L \hat{y}_i = 1
 \end{equation}
 which can be achieved with the softmax function:
 \begin{equation}\label{eq:nn_theory_softmax}
-  \hat{y}_i = \frac{\exp{x_i}}{\sum_{j=0}^{C}\exp{x_j}}
+  \hat{y}_i = \frac{\exp{x_i}}{\sum_{j=0}^{L}\exp{x_j}}
 \end{equation}
-where $C$ is the amount of nodes in this layer, if it is the last layer as usual for the softmax, $C$ is the total amount of classes and $\hat{y}_i$ the probability value of the corresponding class $i$.
+where $L$ is the amount of nodes in this layer, if it is the last layer as usual for the softmax, $L$ is the total amount of class labels and $\hat{y}_i$ the probability value of the corresponding class $i$.
 
 There are already plenty of different loss functions available for training neural networks, however in this thesis only one kind of it is used for all neural network architecture, the cross-entropy loss or for two classes the binary cross-entropy loss function.
 Without going too much into the detail of this loss function, it is described in the same way as in the \texttt{Pytorch} framework \cite{Pytorch}.
@@ -181,10 +181,10 @@ This can simply be done for instance with the calculation of the mean of all $l_
 
 The multiclass variant of the cross entropy can be defined by
 \begin{equation}
-  l_i(x_i, y_i) = - x_i[y_i] + \log{\left( \sum_{j=0}^{C} \exp{x_i[j]} \right)}
+  l_i(x_i, y_i) = - x_i[y_i] + \log{\left( \sum_{j=0}^{L} \exp{x_i[j]} \right)}
 \end{equation}
-where $x_i \in \R^{N \times C}$, $y_i \in \{0, 1, \dots, C\}^N$ and a total number of $C$ classes.
-Note that $x_i[y_i]$ is denoted as indexing of $x_i$ of its class dimension $C$. 
+where $x_i \in \R^{N \times L}$, $y_i \in \{0, 1, \dots, L\}^N$ and a total number of $L$ classes.
+Note that $x_i[y_i]$ is denoted as indexing of $x_i$ of its class dimension $L$. 
 
 
 % --
@@ -218,6 +218,7 @@ The interesting elements are therefore only the neural network architecture desi
 % GANs
 
 \subsection{Generative Adversarial Neural Networks Game}
+\thesisStateNew
 Generative Adversarial Neural Networks (GAN) \cite{Goodfellow2014}, as already mentioned in \rsec{prev_nn_adv}, uses two networks: a Generator (G) network for generating fake images and a Discriminator (D) network for discriminating between fake and real images.
 The min-max game both networks are playing is the following:
 \begin{equation}

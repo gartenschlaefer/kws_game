@@ -2,30 +2,34 @@
 % contributions
 
 \section{Contributions}
-The most of the effort is put into evaluating Convolutional Neural Network (CNN) models with low computational footprints, such as in \cite{Sainath2015}.
-Besides low computational footprint, the depth of layers is hold to a minimum, so that it is still possible to get information about feature maps from the trained CNN networks.
-The dataset used for the Key Word Spotting (KWS) task of those networks, was the speech command dataset \cite{Warden2018}.
-The input features of the CNN models are the Mel Frequency Cepstral Coefficients (MFCC).
+\thesisStateNew
+Key Word Spotting (KWS) incorporated in video games require fast response times, therefore it was necessary to reduce the examples from the used speech commands dataset \cite{Warden2018} from \SI{1}{\second} to at least \SI{500}{\milli\second}.
+This reduction was done by determining the onset of the highest energy region within the speech signal.
+By using the first cepstral coefficient of Mel Frequency Cepstral Coefficients (MFCC) it was possible to use a very efficient onset method.
+The focus on the used neural networks were Convolutional Neural Network (CNN) models with low computational footprints, such as shown in \cite{Sainath2015}.
+Besides low computational footprint, the depth of layers is hold to a minimum, so that it is still possible to obtain information about the trained feature maps from the convolutional layers of CNN networks.
+The input features of CNN models were MFCC.
 The amount of MFCC cepstral coefficients was evaluated with either 12 or 32 cepstral coefficients and showed that no accuracy improvements are achieved with 32 cepstral coefficients compared to 12.
 The enhancement of MFCC to 39-feature vectors with 12 cepstral coefficients was also evaluated and showed only small improvements of accuracies, but not significant ones.
 A frame-based normalization was performed on MFCCs to suite them better for visualization and use them for Generative Adversarial Networks (GAN) training.
 Evaluation of the frame-based normalization was done in terms of accuracy, shift and noise invariance on conventional CNN models.
-Frame-based normalization showed significant worse accuracies (about 5 to 10\%), it takes a bit longer for training, but improved in many experiments the noise invariance properties than without.
-From those experiments the 12 cepstral coefficients with frame-based normalization were picked for further experiments.
+Frame-based normalization showed significant worse accuracies (about 5 to 10\%) and took a bit longer for training, but improved the noise invariance properties in many experiments.
+The following experiments were done with 12 cepstral coefficients and frame-based normalization.
 
-Another large evaluation topic was that of GANs. 
-With frame-based normalization the Generator (G) network was able to create convincing fakes to fool the Discriminator (D) network.
-However it was found, when G and D are trained for too long, an equilibrium state where both generate random guesses or fakes might happen and the result is noise samples from G and a discrimination of D with slight changes around $0.5$.
-Therefore a second loss term for G was added to create samples that have some similarity measure to the input data.
-This helped to create better fakes and did not lead into noisy equilibrium states.
+Another large evaluation topic application of Generative Adversarial Networks (GAN) on the MFCC extracted speech commands. 
+With frame-based normalization the Generator (G) network was able to learn more faster to create convincing fakes to fool the Discriminator (D) network.
+However it was found, when G and D are trained for too long, an equilibrium state where both generate random outputs of either fake images or decisions might happen.
+%and the result is noise samples from G and a discrimination of D with slight changes around $0.5$.
+To solve this problem, a second loss term for G was added, that measures the similarity of the generated samples to the input data with the cosine distance.
+This helped to generate better fakes and did not lead into noisy equilibrium states anymore.
 
-From the adversarial training of GAN networks, it was evaluated how their obtained weights through training can contribute in CNN models for KWS of speech commands.
-Transfer learning was used to, transfer the obtained weights from either D or G to the equivalent CNN model.
+From the adversarial training of GAN networks, it was evaluated how their obtained weights through training can contribute in the performance of CNN models for KWS of speech commands.
+Transfer learning was used to transfer the obtained weights from either D or G an equivalent CNN model.
 With this approach it was possible to significantly increase the accuracy performance with about $3\%$ with using weights from G.
 It showed that the obtained weights of G from an adversarial training can be very valuable.
 
 A completely different approach for KWS was the evaluation of a Wavenet \cite{Oord2016} model for classification.
-However with the hope that without feature extraction, a low computational model can be used, turned out to be extremely false.
+However with the hope that without feature extraction, a low computational model can be used, turned out to be extremely wrong.
 Wavenets need a huge amount of operations by processing each sample from the audio files of the dataset.
 Further the performances turned out to be very bad.
-Nevertheless this model is evaluated and results are provided in hope for future research.
+Nevertheless this model with an extension for class predictions was evaluated and results are provided in hope for future research.

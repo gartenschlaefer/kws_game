@@ -264,6 +264,26 @@ def nn_theory():
   plot_activation_function(x, torch.relu(torch.from_numpy(x)), plot_path=plot_path, name='nn_theory_activation_relu', show_plot=True)
 
 
+def noise_wavs_info(cfg):
+  """
+  get infos from provided noise wavs
+  """
+
+  # noise wav path
+  wav_path = '../ignore/dataset/speech_commands_v0.02/_background_noise_/'
+
+  # wav len dict
+  wav_len_dict = {wav.split('/')[-1]: len(librosa.load(wav, sr=cfg['feature_params']['fs'])[0]) for wav in glob(wav_path + '*.wav')}
+
+  # wav len to seconds
+  wav_sec_dict = {k: v / cfg['feature_params']['fs'] for k, v in wav_len_dict.items()}
+
+  # some prints
+  print(wav_len_dict), print(wav_sec_dict)
+  print("sum: {:.2f}s".format(sum(wav_sec_dict.values())))
+  print("shift for 3500 examples: ", (sum(wav_sec_dict.values()) - 1) / 3500)
+
+
 
 if __name__ == '__main__':
   """
@@ -279,7 +299,7 @@ if __name__ == '__main__':
   #mfcc_stuff(cfg, dct_plot=True, show_plot=True)
 
   # showcase wavs
-  showcase_wavs(cfg, raw_plot=False, raw_energy_plot=True, spec_plot=False, mfcc_plot=False, use_mfcc_39=False, show_plot=True)
+  #showcase_wavs(cfg, raw_plot=False, raw_energy_plot=True, spec_plot=False, mfcc_plot=False, use_mfcc_39=False, show_plot=True)
 
   # feature selection tables
   #feature_selection_tables(overwrite=True)
@@ -295,5 +315,8 @@ if __name__ == '__main__':
 
   # theory
   #nn_theory()
+
+  # noise wavs
+  noise_wavs_info(cfg)
 
 

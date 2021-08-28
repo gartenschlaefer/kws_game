@@ -2,28 +2,27 @@
 % training details
 
 \section{Implementation and Experiment Details}\label{sec:exp_details}
-\thesisStateNotReady
-%In this sections, the implementation und parameters for training are described in more detail.
-The implementation describes the software tools used for the experiments on the neural networks, such as the programming language and packages for the code.
-The training details are provided of commonly used sets of parameters applied in the experiments.
-Note that the training details can vary between different experiments and the listing provides merely an overview of all available parameters to choose from and a recommendations of parameters for the speech command dataset.
+\thesisStateReady
+The implementation describes the software tools used for the experiments on the neural networks, such as the programming language and packages for the source code.
+The training details provide commonly used sets of hyperparameters applied to train neural networks.
+Note that the training details can vary between different experiments and the listing gives merely an overview of all available parameters to choose from and a recommendations of parameters for the speech command dataset.
 If parameters are varying in some experiments, they are usually noted, otherwise the parameters listed were used.
-The evaluation of the models is described separately, with scores and a self made test bench that evaluates the trained models upon noise and shift invariance.
+The evaluation of the models is described separately and evaluates the trained models upon accuracy and noise and shift invariance.
 
 
 % --
 % implementation notes
 
 \subsection{Implementation Notes}\label{sec:exp_details_implementation}
-The code for this thesis was entirely done in \texttt{Python} with version $>3.8$ evaluated on a Linux operating system.
+The source code for this thesis was entirely done in \texttt{Python} with version $>3.8$ evaluated on a Linux operating system and is open source available in \cite{KWSGame}.
 The operating system might be important if someone tries to run the python code on a Windows machine, where unexpected errors might occur (especially regarding path variables).
 Also the project does not download the speech command dataset by its own and a path to the dataset has to be specified in the \texttt{config.yaml} file of the project.
-More on information about how to used the actual project is described in the \texttt{README.txt} file.
+More on information about how to run the project is described in the \texttt{README.txt} file.
 The training and implementation of all used neural networks were done with the \texttt{Pytorch} \cite{Pytorch} framework of version $1.7.0$. 
 Usually it should not be a problem if a newer version of \texttt{Pytorch} is used, during the work on the thesis the version changed to $1.9.0$ without any version depending problems.
 The feature extraction of Mel Frequency Cepstral Coefficients (MFCC) was self implemented, but use already existing and efficient code for transforms, such as the Short Time Fourier Transform (STFT) or Discrete Cosine Transform (DCT), with packages from \texttt{Scipy}.
 All matrix-vector computations were done with the well known package \texttt{Numpy} or with \texttt{Pytorch}.
-Several other \texttt{Python} packages were used within the project, but are not named explicitly, they can be looked up in the open source repository of the project if requested.
+Several other \texttt{Python} packages were used within the project, but are not named explicitly, they can be looked up in the open source repository of the project, if requested.
 
 
 % --
@@ -57,9 +56,15 @@ If not other stated, the feature extraction parameters in \rtab{exp_details_para
 % dataset
 
 \subsubsection{Dataset parameters}
-The selected labels are either the 12 labels for comparison to the benchmark networks described in \rsec{prev_kws_benchmark} or 7 labels used for the deployed KWS game are listed as well as the number of examples per label in \rtab{exp_details_params_dataset}.
+The selected labels for training are either the 12 labels (L12) for comparison to the benchmark networks described in \rsec{prev_kws_benchmark} or 7 labels (L7) used for the deployed KWS game are listed as well as the number of examples per label in \rtab{exp_details_params_dataset}.
 \input{./5_exp/tables/tab_exp_details_params_dataset}
-Note that the amount of examples per label for the 12 and 7 labels differs as shown in \rtab{exp_dataset_all_labels} and the minimum amount of examples per label is provided by the key word \enquote{up} with 2948 examples.
+Note that the amount of examples per label for the 12 and 7 labels differs as shown in \rtab{exp_dataset_all_labels} and the maximal amount of examples per label for training is chosen by the minimum examples per selected label for each label and each set.
+This is provided by the validation set of \enquote{go} with \{train: 2948, test: 425, validation: 350 \} with 350 examples per label, considering a 10\% split.
+This gives the maximal amount of 3500 examples
+% provided by the key word \enquote{up} with 2948 examples.
+
+
+
 This is important, because the number of examples per label should not be chosen to higher values than 2948 for training, otherwise the same amount of examples per label is not given.
 
 
@@ -80,11 +85,6 @@ The pre-training parameters describe the training details of the adversarial net
 For instance it describes if the weights are used from the discriminator or generator network or how much epochs were used for the adversarial training, etc.
 \input{./5_exp/tables/tab_exp_details_params_pre_train}
 
-%\input{./5_exp/tables/tab_exp_details_adv.tex}
-%Their selection and references are listed in \rtab{exp_details_train_params}
-%The Abbreviations for training parameters can be specified as listed in \rtab{exp_details_adv}
-%\input{./5_exp/tables/tab_exp_details_train_params.tex}
-
 
 % --
 % evaluation details
@@ -100,7 +100,7 @@ A score function $c(\hat{y}_i, y_i)$ for the accuracy can be defined as:
     0, & \text{otherwise} 
   \end{cases}
 \end{equation}
-where $\hat{y}_i \in [0, \dots, C]$ is the predicted label and $y_i \in [0, \dots, C]$ the actual label of the sample $i$ with a total number of classes $C$.
+where $\hat{y}_i \in \{0, 1, \dots, L\} = \mathcal{L}$ is the predicted label and $y_i \in \mathcal{L}$ the actual label of the sample $i$ with a total number of class labels $L$.
 The accuracy $a \in [0, 1]$ can therefore be written as:
 \begin{equation}
   a = \frac{\sum_{i=0}^n c(\hat{y}_i, y_i)}{n}
@@ -110,19 +110,15 @@ For this one sample from each class label from the self recorded files of the \e
 The length of those audio files is cut, such that by applying a fixed input frame of \SI{500}{\milli\second}, both end positions consists of at least the half of the audio file information, which is especially important for the shift invariance.
 The evaluation results are plotted in figures of correct classification upon shift and noise level changes.
 In the following the shift and noise invariance test is explained in detail.
-%The problem of neural networks is that generalization is difficult to learn and overfitting happens.
 
-%\subsubsection{Test Bench of best Neural Network Architectures}\label{sec:exp_tb}
-%\thesisStateNotReady
-%This section compares the best neural network architectures in terms of noise and shift invariance to fixed self recorded test audio files of the five speech commands with L5 labels.
-%The noise invariance finds the highest energy region, as described in \rsec{signal_raw} and uses this frame for classification.
+
 
 % --
 % shift invariance
 
 \subsubsection{Shift invariance}
 Shift invariance is very important for speech recognition, for instance the classification of a waveform should still be the same regardless of little shifts in time, as long there is enough and valuable information present that is necessary for a correct classification.
-However the restricted frame size of \SI{500}{\milli\second} makes this task very difficult, as it is already known that not all information might fit into the analytic window, like the \enquote{t} in \enquote{left} or \enquote{right} is often missed.
+However the restricted frame size of \SI{500}{\milli\second} might increase the difficulty in this task, not all relevant information of the signal might fit into the analytic window, like the \enquote{t} in \enquote{left} or \enquote{right} is often missed.
 The figures in this section present a correct classification with a colored pixel and an incorrect with a white pixel.
 The examples from the adversarial training section are shown in \rfig{exp_tb_shift_fc3}.
 \begin{figure}[!ht]
