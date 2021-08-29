@@ -34,7 +34,6 @@ class WavenetResBlock(nn.Module):
     self.conv_gate = nn.Conv1d(self.in_channels, self.dilated_channels, kernel_size=2, stride=1, padding=0, dilation=self.dilation, groups=1, bias=False, padding_mode='zeros')
 
     # 1 x 1 convolution for skip connection
-    #self.conv_skip = nn.Conv1d(self.dilated_channels, out_channels=self.skip_channels, kernel_size=1, stride=1, padding=0, dilation=1, groups=1, bias=False, padding_mode='zeros')
     self.conv_skip = nn.Conv1d(self.dilated_channels, out_channels=self.out_channels, kernel_size=1, stride=1, padding=0, dilation=1, groups=1, bias=False, padding_mode='zeros')
     
     # average pooling for class prediction, downsample to 10ms
@@ -133,12 +132,10 @@ class Wavenet(nn.Module, ConvBasics):
 
     # append further blocks
     for i in range(1, self.n_layers): self.wavenet_layers.append(WavenetResBlock(self.out_channels, self.out_channels, dilated_channels=self.dilated_channels, skip_channels=self.skip_channels, pred_channels=self.pred_channels, dilation=2**i))
-    #for i in range(1, self.n_layers): self.wavenet_layers.append(WavenetResBlock(self.in_channels, self.out_channels, dilated_channels=self.dilated_channels, skip_channels=self.skip_channels, pred_channels=self.pred_channels, dilation=2**i))
 
     # conv layer post for skip connection
-    #self.conv_skip1 = nn.Conv1d(in_channels=self.skip_channels, out_channels=16, kernel_size=1, stride=1, padding=0, dilation=1, groups=1, bias=True, padding_mode='zeros')
-    self.conv_skip1 = nn.Conv1d(in_channels=self.out_channels, out_channels=16, kernel_size=1, stride=1, padding=0, dilation=1, groups=1, bias=True, padding_mode='zeros')
-    self.conv_skip2 = nn.Conv1d(in_channels=16, out_channels=self.target_quant_size, kernel_size=1, stride=1, padding=0, dilation=1, groups=1, bias=True, padding_mode='zeros')
+    self.conv_skip1 = nn.Conv1d(in_channels=self.out_channels, out_channels=self.skip_channels, kernel_size=1, stride=1, padding=0, dilation=1, groups=1, bias=True, padding_mode='zeros')
+    self.conv_skip2 = nn.Conv1d(in_channels=self.skip_channels, out_channels=self.target_quant_size, kernel_size=1, stride=1, padding=0, dilation=1, groups=1, bias=True, padding_mode='zeros')
 
     # conv layer predictions
     self.kernel_sizes_pred = [(1,), (1,)]
@@ -233,11 +230,16 @@ class Wavenet(nn.Module, ConvBasics):
     calculate amount of operations
     """
 
-    n_ops = {}
+    # resnet blocks
+    n_ops = {'block{}'.format(i): sum(l.calc_amount_of_operations().values()) for i, l in enumerate(self.wavenet_layers)}
 
-    for i, l in enumerate(self.wavenet_layers):
-
-      n_ops.update({'block{}'.format(i): sum(l.calc_amount_of_operations().values())})
+    # conv layers
+    n_ops.update({
+      'conv_skip1': (self.out_channels * self.skip_channels) * self.n_samples * (2 * 1 + 1),
+      'conv_skip2': (self.skip_channels * self.target_quant_size) * self.n_samples * (2 * 1 + 1),
+      'conv_pred1': (self.pred_channels * self.pred_channels) * 99 * (2 * 1 + 1),
+      'conv_pred2': (self.pred_channels * 1) * 99 * (2 * 1 + 1)
+      })
 
     return n_ops
 

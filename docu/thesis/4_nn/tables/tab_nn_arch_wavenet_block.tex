@@ -6,11 +6,12 @@
  \textbf{layer types} & \textbf{number of feature maps} & \textbf{kernel size} & \textbf{stride} & \textbf{output dimension} & \textbf{number of operations}\\
 \midrule
 input & - & - & - & $1 \times 8000$ & -\\
-conv. gate & 16 & $(1 \times 2)$ & $(1, 1)$ & $16 \times 1 \times 8000 $ & \SI{715.73}{\kilo\ops}\\
-conv. filter & 16 & $(1 \times 2)$ & $(1, 1)$ & $16 \times 1 \times 8000 $ & \SI{715.73}{\kilo\ops}\\
-
+conv. gate & 16 & $(1 \times 2)$ & $(1, 1)$ & $16 \times 1 \times 8000 $ & \SI{640.00}{\kilo\ops}\\
+conv. filter & 16 & $(1 \times 2)$ & $(1, 1)$ & $16 \times 1 \times 8000 $ & \SI{640.00}{\kilo\ops}\\
+conv. skip & 1 & $(1 \times 1)$ & $(1, 1)$ & $1 \times 1 \times 8000 $ & \SI{384.00}{\kilo\ops}\\
+conv. prediction & 1 & $(1 \times 1)$ & $(1, 1)$ & $1 \times 1 \times 8000 $ & \SI{304.13}{\kilo\ops}\\
 \midrule
-\textbf{sum} & - & - & - & - & \textbf{\SI{862.40}{\kilo\ops}} \\ 
+\textbf{sum} & - & - & - & - & \textbf{\SI{1968.13}{\kilo\ops}} \\ 
 \bottomrule
 \label{tab:nn_arch_wavenet_block}
 \end{tabular}
