@@ -46,7 +46,7 @@ class GameHandler():
     self.game_loop_state_dict = {'main_menu_loop': 0, 'game_loop': 1, 'help_menu_loop': 2, 'option_menu_loop': 3, 'exit': 4}
 
     # loop action
-    self.loop_action_dict = {'start_button': 'game_loop', 'help_button': 'help_menu_loop', 'option_button': 'option_menu_loop', 'end_button': 'exit', 'exit': 'exit'}
+    self.loop_action_dict = {'open_option_menu': 'option_menu_loop', 'open_main_menu': 'main_menu_loop', 'escape_game': 'main_menu_loop', 'start_game': 'game_loop', 'open_help_menu': 'help_menu_loop', 'exit': 'exit'}
 
     # start at main menu
     self.game_loop_state = self.game_loop_state_dict['main_menu_loop']
@@ -77,8 +77,10 @@ class GameHandler():
     determine next loop
     """
 
+    print("action: ", action)
+
     # game loop state update
-    self.game_loop_state = self.game_loop_state_dict[self.loop_action_dict[action]] if self.game_loop_state == self.game_loop_state_dict['main_menu_loop'] else self.game_loop_state_dict['main_menu_loop']
+    self.game_loop_state = self.game_loop_state_dict[self.loop_action_dict[action]]
 
 
   def game_loop(self):
@@ -125,6 +127,8 @@ class GameHandler():
 
       # save video plus audio
       self.screen_capturer.save_video(self.mic)
+
+    return 'escape_game' if not game_logic.quit_game else 'exit'
 
 
 if __name__ == '__main__':

@@ -121,10 +121,15 @@ class CanvasHelpMenu(Canvas):
     super().__init__(screen)
 
     # add text
-    text = Text(self.canvas_surf, message='help', position=(0, 0), font_size='small', color=self.color_bag.text_menu)
+    self.interactable_dict.update({'text_menu_info': Text(self.canvas_surf, message='help', position=(0, 0), font_size='small', color=self.color_bag.text_menu)})
+    self.interactable_dict.update({'text_help1': Text(self.canvas_surf, message='Movement: Arrow keys and Space for jump', position=(40, 50 + 30), font_size='tiny_small', color=self.color_bag.text_menu)})
+    self.interactable_dict.update({'text_help2': Text(self.canvas_surf, message='A Microphone is needed to capture speech commands', position=(40, 50 + 60), font_size='tiny_small', color=self.color_bag.text_menu)})
+    self.interactable_dict.update({'text_help3': Text(self.canvas_surf, message='Checkout the option menu for your Mircrophone settings', position=(40, 50 + 90), font_size='tiny_small', color=self.color_bag.text_menu)})
+    self.interactable_dict.update({'text_help4': Text(self.canvas_surf, message='Use speech commands [left, right, up, down, go]', position=(40, 50 + 120), font_size='tiny_small', color=self.color_bag.text_menu)})
+    self.interactable_dict.update({'text_credits': Text(self.canvas_surf, message='Credits: Christian Walter', position=(40, 50 + 200), font_size='tiny_small', color=self.color_bag.text_menu)})
 
-    # update canvas objects
-    self.interactable_dict.update({'text': text, 'end_button': EndButton(self.canvas_surf, position=(30, 375), scale=(3, 3))})
+    # end button
+    self.interactable_dict.update({'end_button': EndButton(self.canvas_surf, position=(30, 375), scale=(3, 3))})
 
 
 
@@ -142,7 +147,7 @@ class CanvasOptionMenu(Canvas):
     self.mic = mic
 
     # add text
-    text = Text(self.canvas_surf, message='option', position=(0, 0), font_size='small', color=self.color_bag.text_menu)
+    text = Text(self.canvas_surf, message='options', position=(0, 0), font_size='small', color=self.color_bag.text_menu)
 
     # mic bar
     mic_bar = MicBar(self.canvas_surf, self.mic, position=(540, 225), bar_size=(30, 150), scale_margin=(50, 40))
@@ -187,14 +192,15 @@ class CanvasCommand(Canvas):
     self.interactable_dict.update({'text_info': Text(self.canvas_surf, message='speech commands: ', position=(0, 0), font_size='small', color=self.color_bag.text_menu)})
     
     # class dict text
-    self.interactable_dict.update({'text_class_dict': Text(self.canvas_surf, message='key words:', position=(20, 40), font_size='tiny', color=self.color_bag.text_menu)})
+    self.interactable_dict.update({'text_model': Text(self.canvas_surf, message='model: {}'.format(self.mic.classifier.nn_arch), position=(20, 40), font_size='tiny', color=self.color_bag.text_menu)})
+    self.interactable_dict.update({'text_class_dict': Text(self.canvas_surf, message='key words:', position=(20, 60), font_size='tiny', color=self.color_bag.text_menu)})
 
     # class text
-    self.interactable_dict.update({'text_class{}'.format(v): Text(self.canvas_surf, message='{}'.format(k), position=(30 + 90 * int(v > 4), 60 + 15 * v - 75 * int(v > 4)), font_size='tiny', color=self.color_bag.text_menu) for (k, v) in self.mic.classifier.class_dict.items()})
+    self.interactable_dict.update({'text_class{}'.format(v): Text(self.canvas_surf, message='{}'.format(k), position=(30 + 90 * int(v > 4), 80 + 15 * v - 75 * int(v > 4)), font_size='tiny', color=self.color_bag.text_menu) for (k, v) in self.mic.classifier.class_dict.items()})
 
     # kws text
-    self.interactable_dict.update({'text_kws': Text(self.canvas_surf, message='key word spotting:', position=(20, 200), font_size='tiny_small', color=self.color_bag.text_menu_active, enabled=False)})    
-    self.interactable_dict.update({'text_cmd{}'.format(i): Text(self.canvas_surf, message='_', position=(50, 230 + 18 * i), font_size='tiny_small', color=self.color_bag.text_menu_active, enabled=False) for i in range(self.num_kws_cmds)})
+    self.interactable_dict.update({'text_kws': Text(self.canvas_surf, message='key word spotting:', position=(20, 210), font_size='tiny_small', color=self.color_bag.text_menu_active, enabled=False)})    
+    self.interactable_dict.update({'text_cmd{}'.format(i): Text(self.canvas_surf, message='_', position=(50, 240 + 18 * i), font_size='tiny_small', color=self.color_bag.text_menu_active, enabled=False) for i in range(self.num_kws_cmds)})
 
 
   def select(self, active):

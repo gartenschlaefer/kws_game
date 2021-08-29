@@ -18,6 +18,7 @@ class GameLogic(Interactable):
     # variables
     self.end_game = False
     self.run_loop = True
+    self.quit_game = False
 
     # add input handler
     self.input_handler = InputKeyHandler(self)
@@ -59,8 +60,7 @@ class GameLogic(Interactable):
     """
 
     # quit game
-    if event.type == pygame.QUIT: 
-      self.run_loop = False
+    if event.type == pygame.QUIT: self.run_loop, self.quit_game = False, True
     
     # input handling
     self.input_handler.handle(event)
