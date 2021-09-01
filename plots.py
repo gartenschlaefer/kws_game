@@ -669,9 +669,10 @@ def plot_train_score(train_score_dict, plot_path, name_ext=''):
     plot_adv_train_loss(train_score_dict, plot_path=plot_path, name='score_loss_adv' + name_ext)
     plot_val_acc(train_score_dict['val_acc'], plot_path=plot_path, name='score_val_acc' + name_ext)
 
-  # wave nets
+  # wavenets
   elif train_score_dict['score_class'] == 'WavenetTrainScore':
     plot_wavenet_train_loss(train_score_dict, plot_path=plot_path, name='score_loss' + name_ext)
+    plot_train_loss(train_score_dict['loss_y'], train_score_dict['val_loss'], plot_path=plot_path, name='score_loss_val' + name_ext)
     plot_val_acc(train_score_dict['val_acc'], plot_path=plot_path, name='score_val_acc' + name_ext)
 
   # other nets, such as cnn

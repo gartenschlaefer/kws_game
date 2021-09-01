@@ -84,10 +84,9 @@ The \texttt{conv-jim} model is shown in \rfig{nn_arch_cnn_conv-jim} with footpri
 % GANs
 
 \subsection{Generative Adversarial Neural Networks}\label{sec:nn_arch_adv}
-Generative Adversarial Neural Networks (GAN), as already mentioned in \rsec{prev_nn_adv} are consisting of two separate neural network architectures, denoted as Discriminator (D) and Generator (G) network.
-The G network is able to produce samples from the data distribution, while the D network has the role of discriminating between fake and real.
-Being able to transfer the obtained weights from the training of the adversarial models, the layers parameters of the target network must coincide with the adversarial network layers.
-The convolutional layer parameters of both D and G can be used, even if G performs a convolutional upsampling (transposed convolution) instead of usual convolution, however it is preferred to use frame-based normalization for the G network.
+Generative Adversarial Neural Networks (GAN), as already mentioned in \rsec{prev_nn_adv} and \rsec{nn_theory_gan} are consisting of two separate neural network architectures, denoted as Discriminator (D) and Generator (G) network.
+Being able to transfer the obtained weights from the training of the adversarial models, the target layer parameters of the receiving network must coincide with the adversarial network layer parameters.
+The convolutional layer parameters of both D and G can be applied for transfering its weights, even if G performs a convolutional upsampling (transposed convolution) instead of a usual convolution, however it is preferred to use frame-based normalization for the G network, otherwise this might not work well.
 
 The major model tested with adversarial pre-training has the same convolutional layer structure as the \texttt{conv-jim} network and is therefore denoted as \texttt{adv-d-jim} shown in \rfig{nn_arch_adv_d_jim} and \texttt{adv-g-jim} in \rfig{nn_arch_adv_g_jim}.
 \begin{figure}[!ht]

@@ -122,8 +122,8 @@ datasets:
 
     # number of examples picked from dataset
     #n_examples: 10
-    #n_examples: 500
-    n_examples: 3500
+    n_examples: 500
+    #n_examples: 3500
 
     # file name for saved feature files
     mfcc_feature_file_name: mfcc_data
@@ -287,13 +287,13 @@ ml:
   #nn_arch: conv-experimental
   #nn_arch: conv-fstride
   #nn_arch: conv-trad
-  nn_arch: conv-jim
+  #nn_arch: conv-jim
   #nn_arch: adv-experimental
   #nn_arch: adv-jim
   #nn_arch: adv-jim-label
   #nn_arch: hyb-jim
   #nn_arch: hyb-jim-g
-  #nn_arch: wavenet
+  nn_arch: wavenet
 
   # params
   train_params:
@@ -314,7 +314,7 @@ ml:
     hyb: {'batch_size': 32, 'num_epochs': 3000, 'lr': 0.0001, 'beta': 0.9, 'lr_d': 0.00001, 'lr_g': 0.00001, 'beta_d': 0.5, 'beta_g': 0.5, 'k_update_d': 2, 'k_update_g': 3}
 
     # wavenet
-    wave: {'batch_size': 32, 'num_epochs': 100, 'lr': 0.001, 'beta': 0.9}
+    wave: {'batch_size': 32, 'num_epochs': 100, 'lr': 0.001, 'lr2': 0.0001, 'beta': 0.9}
 
 
   # adversarial parameters

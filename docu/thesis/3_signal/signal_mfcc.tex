@@ -195,24 +195,23 @@ For one complex addition, two real additions are necessary and equals therefore 
 A general matrix multiplication with a vector $y = Ax$ where $A \in \R^{m \times n}$ and $x \in \R^n$ is composed of $m \cdot n$ multiplications and $m \cdot (n - 1)$ additions, where for simplicity the amount of additions is also assumed to be $m \cdot n$.
 
 The amount of operations, denoted as $\mathcal{T(.)}$, for a trivial DFT transform with operator $\mathcal{F} \in \C^{N \times K}$ with $K$ Fourier coefficients on a windowed signal $x \in \R^N$ with sample length $N$ is:
-% \begin{equation}
-%   \mathcal{O}(x\mathcal{F}) = N \times K
-% \end{equation}
 \begin{equation}
   \mathcal{T}(x^T \mathcal{F}) = 6 (N K) + 2 (N K)
 \end{equation}
 and give for $N = K = 400$ the amount of operations $\mathcal{T}(x\mathcal{F}) = \SI{1.28}{\mega\ops}$ for a single DFT.
-This of course are a lot of operations, luckily a more sophisticated Fourier transform can be applied with the Fast Fourier Transform (FFT) method, which gives a linear complexity and operations are calculated as:
+This of course are a lot of operations, luckily a more sophisticated Fourier transform can be applied with the Fast Fourier Transform (FFT) algorithm \cite{Brigham1967}, which gives a linear complexity and operations are calculated as:
 \begin{equation}
-  \mathcal{T}(x^T \mathcal{F}) = 6 (\mathcal{O}(N \cdot \log N)) + 2 (\mathcal{O}(N \cdot \log N))
+  \mathcal{T}(x^T \mathcal{F}) = 6 (\mathcal{O}(N \cdot \log_2 N)) + 2 (\mathcal{O}(N \cdot \log_2 N))
 \end{equation}
 with $N = K = 400$.
-The FFT has therefore roughly $\mathcal{T}(x^T \mathcal{F}) = \SI{20}{\kilo\ops}$ and is a huge improvement to the trivial method.
-Further the interesting part of a DFT or FFT is only the half-band, because of the mirroring effect, which likewise may decrease the operations by half, so let the calculations be continued with Fourier coefficients of $K = 201$ of a half band and roughly $\SI{10}{\kilo\ops}$ per FFT.
-The DFT is computed $M$ times, where $M$ is the total number of possible shifts calculated in \req{signal_spec_hop}, which gives with the evaluated parameters $M = 98$ frames.
-So for the whole STFT $M$ is multiplied with the number of operations of each DFT, which give approximately $\mathcal{T}(\tilde{X}) = \SI{1}{\mega\ops}$.
+The FFT has therefore roughly $\mathcal{T}(x^T \mathcal{F}) = \SI{27.7}{\kilo\ops}$ and is a huge improvement to the trivial method.
+%Further the interesting part of a DFT or FFT is only the half-band, because of the mirroring effect, which likewise may decrease the operations by half, so let the calculations be continued with Fourier coefficients of $K = 201$ of a half band and roughly $\SI{10}{\kilo\ops}$ per FFT.
+The DFT is computed $M$ times, where $M$ is the total number of possible shifts calculated in \req{signal_spec_hop}, which gives $M = 98$ frames with the evaluated parameters.
+So for the whole STFT the total number of frames $M$ is multiplied with the number of operations of each DFT, which give approximately $\mathcal{T}(\tilde{X}) = \SI{2.71}{\mega\ops}$.
+Note that only the half-band of each individual FFT can be used, because of the mirroring effect at $\frac{f_s}{2} = \SI{8}{\kilo\hertz}$.
+The Fourier coefficients are therefore reduced to $K = 201$.
 
-The computation to the power spectrum and the log scaling are disregarded, so that two matrix multiplications remain:
+The computation of the power spectrum and the log scaling are disregarded, so that two matrix multiplications remain:
 $\abs{\tilde{X}}^2 \, W_m^T$ is a matrix multiplication of $\R^{M \times K}$ and $\R^{K \times B}$ which has $M K B$ real multiplications and approximately $M K B$ real additions, which give about $2 M K B = 2 \cdot 98 \cdot 201 \cdot 32 =  \SI{1.26}{\mega\ops}$.
 The resulting band weighted STFT matrix $\R^{M \times B}$ is further multiplied with the DCT operator representing a matrix of $\R^{B \times C}$, that gives $2 M B C = 2 \cdot 98 \cdot 32 \cdot 12 = \SI{75}{\kilo\ops}$.
 Altogether the matrix multiplications are approximately $\SI{1.26}{\mega\ops} + \SI{75}{\kilo\ops} = \SI{1.34}{\mega\ops}$.

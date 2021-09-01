@@ -1,10 +1,10 @@
 % --
 % adversarial training
 
-\section{Impact of Adversarial Pre-Training}\label{sec:exp_adv}
+\section{Experiments on Adversarial Pre-Training}\label{sec:exp_adv}
 \thesisStateNotReady
-Adversarial pre-training as already described in \rsec{nn_adv} is the transfer of learned weights obtained from adversarial training between a Generator (G) and a Discriminator (D) network.
-The only neural network architecture used for adversarial pre-training is the \texttt{conv-jim} model, described in \rsec{nn_arch_cnn} and its GAN versions the \texttt{adv-d-jim} and \texttt{adv-g-jim}, described in \rsec{nn_arch_adv}.
+Adversarial pre-training as already described in detail in \rsec{nn_adv} is the transfer of learned weights obtained from adversarial training between a Generator (G) and a Discriminator (D) network.
+The target neural network architecture used for adversarial pre-training is the \texttt{conv-jim} model, described in \rsec{nn_arch_cnn}, obtaining pre-trained weights from its GAN versions the \texttt{adv-d-jim} and \texttt{adv-g-jim}, described in \rsec{nn_arch_adv}.
 Note that frame-based normalization was applied, which made the training of GANs considerably more easy and the weights from the Generator network applicable.
 Both adversarial pre-training techniques, the adversarial label and dual train in \rsec{nn_adv} were evaluated.
 % \begin{enumerate}
@@ -19,7 +19,7 @@ Both adversarial pre-training techniques, the adversarial label and dual train i
 % --
 % label train
 
-\subsection{Adversarial Label Train}
+\subsection{Impact of Adversarial Label Train}
 The adv-label-train experiments on the \texttt{conv-jim} architecture with obtained weights from either \texttt{adv-g-jim} or \texttt{adv-d-jim} are shown in \rtab{exp_adv_label_l12}.
 \input{./5_exp/tables/tab_exp_adv_label_l12}
 
@@ -27,7 +27,7 @@ The adv-label-train experiments on the \texttt{conv-jim} architecture with obtai
 % --
 % adv dual train
 
-\subsection{Adversarial Dual Train}
+\subsection{Impact of Adversarial Dual Train}
 The adv-dual-train experiment similar to the adv-label-train experiments but without choosing subsets of labels are presented in \rtab{exp_adv_dual_l12}
 \input{./5_exp/tables/tab_exp_adv_dual_l12}
 

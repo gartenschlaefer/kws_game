@@ -1,14 +1,13 @@
 % --
 % research questions
 
-\section{Problem Formulation for this Thesis}\label{sec:intro_rq}
+\section{Research Questions for this Thesis}\label{sec:intro_rq}
 \thesisStateRevised
 This section lists and formulates relevant research questions regarding Key Word Spotting (KWS) in video games.
 Those research questions can be split into 3 parts:
 \begin{enumerate}[label={Q.\arabic*)}, leftmargin=1.4cm]
   \item Signal processing and feature extraction of speech signals.
   \item Neural network training and classification for KWS.
-  %\item Game were Speech Commands enhance the game experience.
   \item Video games with KWS.
 \end{enumerate}
 Note that the terms \enquote{key word} and \enquote{speech command} are often named interchangeably, because speech commands are used as key words in the KWS system.
@@ -40,9 +39,9 @@ Another approach would be to indicate a speech command for example with the clic
 These methods with more details shall be discussed in further sections.
 
 \textbf{Question \ref{it:q1-b}:} 
-The restriction to processing input data to a feature vector in a certain time interval is essential for the design of the neural network.
+The restriction of the time interval to process input data to feature vectors is essential for the design of a neural network.
 But more importantly it is the restriction of how long a human speaker has time to speak a speech command so that the whole command is captured. 
-If a human speaker prolongs the pronunciation of a word for instance \enquote{left} with a time duration of \SI{1}{\second}, hardly all is captured if the time interval is restricted to merely \SI{500}{\milli\second}. 
+If a human speaker prolongs the pronunciation of a word for instance \enquote{left} with a time duration of \SI{1}{\second}, hardly all is captured if the time interval is restricted to merely \SI{500}{\milli\second}.
 Whether this \SI{500}{\milli\second} is sufficient for a correct classification, must be evaluated.
 In the application of a video game, the user should preferably speak the commands with short time duration, so that the game can respond fast.
 Problems might occur if the speech commands are spoken repeatedly and very hasty, so that the time interval of consecutive commands overlap each other.
@@ -50,22 +49,19 @@ Ideally the time interval to represent a speech command would be flexible, but t
 
 \textbf{Question \ref{it:q1-c}:}
 Usually the presence of low background noise should not be a problem for neural networks trained on a large enough data set. 
-A more difficult problem are the game sounds when turned up loud enough and without the use of headphones during playing. 
+A more difficult problem might be presented by the game sounds, when turned up loud enough and without the use of headphones during playing the video game. 
 Therefore the microphone will not only capture the voice of a speaker, but also a fair amount of unwanted game sounds. 
 This problem seems to be theoretically solvable, as the shape of the nuisance is known and the amount of game sound in the audio stream could therefore be attenuated sufficiently.
 However in practice this might be hard to solve, so that the signal of interest is not critically disturbed.
 A solution to this problem would probably take too much time and effort and is therefore not evaluated in this thesis. 
-However playing a video game without game sound is unsatisfying and if would be great if this problem is tackled in future work.
+However playing a video game without game sound is unsatisfying and it would be great if this problem is tackled in future work.
 
 \textbf{Question \ref{it:q1-d}:} 
 Determination of meaningful features for speech signals is a classical problem in speech recognition.
-%Therefore it is important to know of what a word is essentially composed of.
-The essential composition of a word may help to understand the problematic better
+The essential composition of a word may help to understand the problematic better.
 A word is a sequential combination of either vowels, such as \enquote{a} and \enquote{e}, or consonants \enquote{k}, \enquote{l}, with a certain length. 
 In linguistics for instance, it is possible to distinguish vowels with frequency peaks in a spectrogram, where a spectrogram is the magnitude squared of the frequency response of small time chunks over the time duration of a signal.
-However, due to many different voice generating factors involved in speakers, like age, gender, nationality and physiology of the vocal tract, there is a huge variance in the pronunciation of words from different persons, which increases the difficulty of the problem.
-%However, due to many different factors in voice generation involved in individual speakers (speaker characteristics), like age, gender, nationality and physiology of the vocal tract, there is a huge variance for example in the pronunciation of one and the same words from different persons.
-%Those strong variations of individual speaker characteristics makes speech recognition a very difficult task to solve.
+However, due to many different voice generating factors involved in speakers, such as age, gender, nationality and physiology of the vocal tract, there is a huge variance in the pronunciation of words from different persons, which increases the difficulty of the problem.
 A very common approach is to use Mel Frequency Cepstral Coefficients (MFCC) as features for speech recognition tasks.
 Why MFCCs present good features for speech is described in detail in \rsec{signal_mfcc}.
 
@@ -74,31 +70,23 @@ Why MFCCs present good features for speech is described in detail in \rsec{signa
 % neural networks
 
 \subsection{Neural Network Implementation Research Questions}\label{sec:intro_rq_nn}
-%To deploy a Key Word Spotting system with neural networks into a game, it is crucial to know the neural networks architecture and its in- and output representations.
-%For the deployment of a Key Word Spotting system with neural networks into a video game, it is crucial to know of waht are the inputs to it and what are the possible outputs.
 Neural networks are \emph{trained} on a specific dataset, which is the learning process of all parameters in a certain neural network architecture. 
 The architecture of a neural network describes how the input features are transformed through each layer in the network.
 The feature extraction of the data to an input vector must always follow the same procedure, for instance normalization of audio sample and feature extraction to Mel Frequency Cepstral Coefficients (MFCC) with a certain constellation of coefficients and enhancements.
 This is important for the preparation of new or unseen data samples for inference.
-Inference is the classification of input features to the most probable output class performed in a single forward pass on an already trained network.
-%The number and order of output classes is fixed from the beginning of the training of the neural network and its trained parameters cannot be changed when it is once deployed in a Key Word Spotting (KWS) system for a video game.
+Inference is the classification of input features to the most probable output class, performed in a single forward pass on an already trained network.
 The number and order of output classes is fixed from the beginning of the training of the neural network, which has to be considered in the deployment in a Key Word Spotting (KWS) system for a video game.
 A class dictionary, that describes which output node of the neural network corresponds to which speech command is therefore absolutely necessary and has to be saved in a separate parameter file.
-%Therefore the designer of the network must specify and fix the output classes beforehand.
-%The output classes of the neural network are in this thesis the speech commands representing the actions in a video game.
-%An inference is then done by the neural network, which is the process of classification of an input feature to one output class.
 Further every neural network has to be trained with enough data and some special techniques to enable it to generalize well on unseen data.
 Following Questions can therefore be asked in general:
 
 \begin{enumerate}[label={Q.2.\alph*)}, leftmargin=1.75cm]
   \item What vocabulary of speech commands is used in the game and is there enough training data with sufficient diversity available for the neural network to learn from?\label{it:q2-a}
-
-  \item What happens if an input feature represents a spoken word, which is not in the speech commands vocabulary (Non Key Word) and how should this exception be handled?\label{it:q2-b}
-
+  \item What happens if an input feature represents a spoken word, which is not in the speech commands vocabulary (unknown key word) and how should this exception be handled?\label{it:q2-b}
   \item What is the best neural network architecture so that the classification yields good results and the game is not slowed down during the inference process.\label{it:q2-c}
   \begin{enumerate}[label=(\roman*)]
+    \item Can adversarial networks improve the generalization?
     \item Are Wavenets a solution to this task? 
-    \item Can Adversarial Networks improve the generalization?
   \end{enumerate}
 \end{enumerate}
 \noindent
@@ -111,22 +99,21 @@ Another point is to restrict the amount of speech commands, so that a simpler an
 
 \textbf{Question \ref{it:q2-b}:} Without doubt players will try out words, which are not in the speech commands vocabulary (denoted as \emph{unknown} key words) and observe what happens.
 The ideal response would be that nothing happens or an indication is shown that the word is not present in the vocabulary. 
-However it might happen that the similarity of a unknown key word is too close to a key word, so that a command is triggered in the game. 
-At the same time the neural network should not classify key words as unknown key words, which is even more important, so that the game is not interrupted or disturbed.
-It is better to rely, that players are using key words most of the time, so that they are preferred over unknown key words.
+However it might happen that the similarity of a unknown key word is too close to a key word and a unintended command is triggered in the game. 
+At the same time the neural network should not classify key words as unknown key words, which is even more important in order to not interrupt or disturb the game play.
+It is better to rely on that players are using key words for most of the time, so that they are preferred over unknown key words.
 
 \textbf{Question \ref{it:q2-c}:}
 Several different neural network approaches with a low computational footprint should be tested and compared with each other regarding classification rate and energy efficiency. 
 A video game with online speech input restricts the amount of computation and time for classification by the minimum Frames Per Second (FPS) a game should be played.
 This is because the FPS should not fall under a certain limit (usually 30 FPS in video games), otherwise the fluidity of the game is not guaranteed.
-Further Wavenets and Adversarial Networks shall be evaluated regarding their value in this task.
+Further Generative Adversarial Neural Networks (GAN) and Wavenets shall be evaluated regarding their value in this task.
 
 
 % --
 % video games
 
 \subsection{Video Games with KWS Research Questions}\label{sec:intro_rq_games}
-%Video Games using speech commands as inputs are a very rarely seen curiosity in the gaming industry and therefore it is important to show and discuss its capability.
 Video games that use KWS can create a unique playing experience, but must face certain challenges.
 This rather empirical section asks following important question:
 
@@ -135,12 +122,12 @@ This rather empirical section asks following important question:
   \item What do game developers have to consider, when designing a game with KWS?\label{it:q3-b}
 \end{enumerate}
 \noindent
-\textbf{Question \ref{it:q3-a}:} %The game design is the focus of this question and it should be answered in the player and game developers view.
-In certain video game scenarios, speech commands are very useful, interesting and enhance the gaming experience, in others they might even disturb the game play or even spoil it completely.
+\textbf{Question \ref{it:q3-a}:}
+In certain video game scenarios, speech commands can be useful, interesting and enhancing for the gaming experience, in others they might even disturb the game play or even spoil it completely.
+It cannot be stated generally whether it is worth to deploy a KWS system into a game, this depends on the game it is intended for.
+As already noted in \rsec{intro_games}, KWS might be a great augmented control system for special kind of games to increase the immersion experience, especially for Virtual Reality (VR) applications.
 
 \textbf{Question \ref{it:q3-a}:} It certainly can be stated, that KWS applied in an online system is not always reliable and therefore a main game mechanic solely based on it is not always preferable.
-%Developers might however consider to use KWS as augmented control system
-A game developer has to design a game with KWS with care.
+Further it is important to recognize the amount of time lag speech commands require, for being processed to actual commands within the game.
+Generally it can be statet, that a game developer has to design a game using KWS with care.
 Some game ideas and prototypes should be shown and some existing games discussed.
-
-%\textbf{Question \ref{it:q3-b}} is about the problems and obstacles a game developer meets, when deciding to use speech commands. It is about how

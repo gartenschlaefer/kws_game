@@ -1192,6 +1192,17 @@ class WavenetHandler(NetHandler):
     self.optimizer = torch.optim.Adam(self.models['wav'].parameters(), lr=train_params['lr'], betas=(train_params['beta'], 0.999))
 
 
+  def update_training_params(self, epoch, train_params):
+    """
+    update training params
+    """
+
+    # slower optimizer
+    if epoch == train_params['num_epochs'] // 2 and 'lr2' in train_params.keys():
+      print("\nupdate params!\n")
+      self.optimizer = torch.optim.Adam(self.models['wav'].parameters(), lr=train_params['lr2'], betas=(train_params['beta'], 0.999))
+
+
   def train_nn(self, train_params, batch_archive, callback_f=None, lam=2.0):
     """
     wavenet training

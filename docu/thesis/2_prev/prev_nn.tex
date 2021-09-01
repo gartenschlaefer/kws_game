@@ -55,7 +55,7 @@ Convolutional filters are very commonly applied in image processing tasks, such 
 In audio processing, a classical application of convolutional filters is a simple average filter of the signals energy, to determine onsets like the start of a speech signal.
 
 Still it took relatively long till convolutional filters were a common and a widely used asset in neural network architectures.
-The general concepts of CNNs with feature maps (outputs of applied convolutional filters) and weight sharing through convolutional filters, were examined by LeCun et. al. on handwritten postal codes in 1989 \cite{LeCun1989_Generalization}.
+The general concepts of CNNs with feature maps (outputs of applied convolutional filters) and weight sharing through convolutional filters, were examined by LeCun et al. on handwritten postal codes in 1989 \cite{LeCun1989_Generalization}.
 Further research and experiments on the famous MNIST dataset of handwritten digits, were done in the late 90s \cite{LeCun1998} and asserted the success of CNNs.
 A classical convolutional layer in CNNs usually consists of multiple convolutional filters with trainable weights and an additive bias term (optional) per filter, followed by a non-linear activation function.
 More details about CNNs an its convolutioal layers and how they transform given inputs are presented in \rsec{nn_theory_cnn}.
@@ -77,32 +77,33 @@ This problem can be solved by using so called Long Short Time Memory (LSTM) that
 However the LSTM cell also increases the amount of parameters to be trained for each node and backpropagation over a large amount of time steps is computationally intensive.
 
 Through their design to capture sequential data, RNNs are commonly used in speech recognition tasks.
-However they are not subject in this thesis, the interested reader if referred to a good comprehension in \cite{Staudenmeyer2019} with further references upon RNN works.
+However they are not subject in this thesis, the interested reader is referred to a good comprehension in \cite{Staudenmeyer2019} with further references upon RNN works.
 
 
 % --
 % wavenets
 
 \subsection{Wavenets}\label{sec:prev_nn_wavenet}
-Processing raw audio data as inputs to neural networks seemed to be difficult for a long time.
-This is mainly due to their huge amount of input data. 
+Processing raw audio data as inputs to neural networks seemed to be difficult for a long time, mainly due to the huge amount of input dimensions.
 Consider a \SI{1}{\second} audio file with a sampling rate of \SI{16}{\kilo\hertz} give 16000 samples and therefore a 16000 dimensional input vector.
 Recently neural network architectures emerged with the ability to process raw audio samples.
 One very prominent architecture, originally intended for natural speech generation, is the so called \emph{Wavenets} \cite{Oord2016}.
 
-With the \emph{dilated convolution} and a quantization of the audio sample values, Wavenets can afford to process this huge amount of inputs.
+With the \emph{dilated convolution} and a quantization of the audio sample values, Wavenets can afford to process this huge amount of input dimensions.
 Wavenets are in some sense similar to RNNs, because they also use outputs from previous time steps, but the implementation of wavenets is much more efficient, such as the quote from \cite{Oord2016} states:
 \begin{quote}
   %Recurrent neural networks such as LSTM-RNNs (Hochreiter & Schmidhuber, 1997) have been a key component in these new speech classification pipelines, because they allow for building models with long range contexts. 
   ...With WaveNets we have shown that layers of dilated convolutions allow the receptive field to grow longer in a much cheaper way than using LSTM units...
 \end{quote}
+However it is to mention, that there are not many papers about classification tasks with Wavenets and it is questionable, if the Wavenet is suited for the KWS task of speech commands.
+A classification of musical pieces to corresponding music artists is done by \cite{Zhang2020} with a Wavenet model.
 
 
 % --
 % adversarial nets
 
 \subsection{Generative Adversarial Neural Networks}\label{sec:prev_nn_adv}
-Generative Adversarial Neural Networks (GAN) emerged from Goodfellow in 2014 \cite{Goodfellow2014} and was initially motivated by Game Theory of a two player zero-sum game with the Min-Max-Theorem as solution concept \cite{VonNeumann1944}.
+Generative Adversarial Neural Networks (GAN) emerged from Goodfellow et al. in 2014 \cite{Goodfellow2014} and was initially motivated by Game Theory of a two player zero-sum game with the Min-Max-Theorem as solution concept \cite{VonNeumann1944}.
 The game in terms of GANs is, that two neural networks try to outperform the other in an adversary task, where the task hereby is the generation of fake images by one network, denoted as Generator (G) and the detection or discrimination of real and fake images by the other network, denoted as Discriminator (D).
 In \cite{Radford2016} some practical guidelines for designing and training deep GAN architectures are shown with the Deep Convolutional Generative Adversarial Network (DCGAN) network.
 DCGANs however consider only images and not speech signals, but they were the first starting point for developing GANs in this thesis.

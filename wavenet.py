@@ -15,7 +15,7 @@ class WavenetResBlock(nn.Module):
   wavenet residual block
   """
 
-  def __init__(self, in_channels, out_channels, dilated_channels=1, skip_channels=16, pred_channels=64, dilation=1, n_samples=8000):
+  def __init__(self, in_channels, out_channels, dilated_channels=16, pred_channels=64, dilation=1, n_samples=8000):
 
     # parent init
     super().__init__()
@@ -24,7 +24,6 @@ class WavenetResBlock(nn.Module):
     self.in_channels = in_channels
     self.out_channels = out_channels
     self.dilated_channels = dilated_channels
-    self.skip_channels = skip_channels
     self.pred_channels = pred_channels
     self.dilation = dilation
     self.n_samples = n_samples
@@ -115,7 +114,7 @@ class Wavenet(nn.Module, ConvBasics):
     self.in_channels = 1
     self.out_channels = 1
     self.dilated_channels = 16
-    self.skip_channels = 16
+    self.skip_channels = 2
     self.pred_channels = 64
 
     # n classes
@@ -128,10 +127,10 @@ class Wavenet(nn.Module, ConvBasics):
     self.wavenet_layers = torch.nn.ModuleList()
 
     # first block
-    self.wavenet_layers.append(WavenetResBlock(self.in_channels, self.out_channels, dilated_channels=self.dilated_channels, skip_channels=self.skip_channels, pred_channels=self.pred_channels, dilation=1))
+    self.wavenet_layers.append(WavenetResBlock(self.in_channels, self.out_channels, dilated_channels=self.dilated_channels, pred_channels=self.pred_channels, dilation=1))
 
     # append further blocks
-    for i in range(1, self.n_layers): self.wavenet_layers.append(WavenetResBlock(self.out_channels, self.out_channels, dilated_channels=self.dilated_channels, skip_channels=self.skip_channels, pred_channels=self.pred_channels, dilation=2**i))
+    for i in range(1, self.n_layers): self.wavenet_layers.append(WavenetResBlock(self.out_channels, self.out_channels, dilated_channels=self.dilated_channels, pred_channels=self.pred_channels, dilation=2**i))
 
     # conv layer post for skip connection
     self.conv_skip1 = nn.Conv1d(in_channels=self.out_channels, out_channels=self.skip_channels, kernel_size=1, stride=1, padding=0, dilation=1, groups=1, bias=True, padding_mode='zeros')
@@ -251,7 +250,7 @@ if __name__ == '__main__':
   """
 
   # resnet block
-  res_block = WavenetResBlock(1, 1, dilated_channels=16, skip_channels=16, pred_channels=64, dilation=1)
+  res_block = WavenetResBlock(1, 1, dilated_channels=16, pred_channels=64, dilation=1)
 
   # wavenet
   wavenet = Wavenet(n_classes=5)
@@ -259,13 +258,11 @@ if __name__ == '__main__':
   # next sample
   y = wavenet(torch.randn(1, 1, 8000))
 
-  # count params
-  layer_params = wavenet.count_params()
-
   # prints
-  print("wavenet: ", wavenet)
-  print("layer: {} sum: {}".format(layer_params, sum(layer_params)))
+  #print("wavenet: ", wavenet)
+  print("wavenet layer params: {}".format(wavenet.count_params()))
 
   # operations
   print("res block ops: ", res_block.calc_amount_of_operations())
   print("ops: ", wavenet.calc_amount_of_operations())
+  print("number of params: {}, number of ops: {:,}".format(sum(wavenet.count_params()), sum(wavenet.calc_amount_of_operations().values())))
