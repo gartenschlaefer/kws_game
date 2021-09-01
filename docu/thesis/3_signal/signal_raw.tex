@@ -4,10 +4,9 @@
 \section{Raw Audio Waveforms}\label{sec:signal_raw}
 \thesisStateRevised
 \thesisStateNew
-Physical acoustic waves are recorded by microphones, translating mechanical vibrations to electrical signals. 
+Physical acoustic waves can be recorded by microphones, translating mechanical vibrations to electrical signals. 
 Those electrical signals are further stored in \emph{waveform files} or \emph{audio files} with a specific audio format, for example the \texttt{.wav} format.
 Apart from any compression technique the most important storage details are the bit resolution, for example \SI{24}{\bit} floating point and the sample rate $f_s$. 
-%The sample rate defines, which frequency range of the continuous acoustic waveform is possible to store in a discrete representation.
 The sample rate defines, which frequency range of a continuous acoustic waveform can be stored in a discrete representation.
 This is restricted by the Nyquist-Shannon sampling theorem, where the maximal frequency of the signal $f_{x_{max}}$ should not exceed the half of the sampling frequency: 
 \begin{equation}\label{eq:signal_raw_nyquist}
@@ -27,9 +26,8 @@ with a total number of $n$ samples.
 The recorded audio files provided in the speech command dataset \cite{Warden2018} used for the experiments in \rsec{exp}, are sampled with a sampling rate of \SI{16}{\kilo\hertz}, which is enough for human speech signals.
 Further those recordings usually have a time duration of \SI{1}{\second}, apart from some individual shorter files.
 
-For evaluation and visualization purpose, the author of this thesis recorded his own examples of the speech commands \{\enquote{left}, \enquote{right}, \enquote{up}, \enquote{down}, \enquote{go}\}.
-Those showcase examples represent for instance actions in a video game and need to be feature extracted before they are classified with a neural network.
-The example are shown in \rfig{signal_raw_showcase} in raw audio format.
+For evaluation and visualization purpose, the author of this thesis recorded his own examples of the speech commands \{\enquote{left}, \enquote{right}, \enquote{up}, \enquote{down}, \enquote{go}\} with a simple consumer lavalier microphone.
+Those showcase examples, shown in \rfig{signal_raw_showcase} in raw audio format, will be used to illustrate the whole feature extraction process in the following sections.
 \begin{figure}[!ht]
   \centering
     \subfigure[left]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_raw_showcase_left0}}
@@ -37,12 +35,12 @@ The example are shown in \rfig{signal_raw_showcase} in raw audio format.
     \subfigure[up]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_raw_showcase_up0}}
     \subfigure[down]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_raw_showcase_down0}}
     \subfigure[go]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_raw_showcase_go0}}
-  \caption{Raw audio waveform files, recorded by the author of this thesis with a simple consumer lavalier microphone.}
+  \caption{Self recorded raw audio waveform examples with phoneme onsets marked as vertical dashed lines.}
   \label{fig:signal_raw_showcase}
 \end{figure}
 \FloatBarrier
 \noindent
-From the shown raw audio files, one can estimate how long a speech command may take in terms of duration and see that usually a whole second is too much for a single speech command.
+From the shown raw audio files, it can be estimated how long a speech command may take in terms of duration and observed that usually \SI{1}{\second} is too much for a single speech command.
 The pronunciation of words can of course deviate strongly in duration, but usually when commanding something it is preferred to speak short and well pronounced.
 If a time interval of \SI{500}{\milli\second} is used to capture a speech command (this time interval is used in the feature extraction), it might happen that not every phoneme of the spoken words are captured. 
 Often this might occur for words with glottal stops before consonants, for example the phoneme \enquote{t} in \enquote{left} or \enquote{right}, therefore the input features may only contain information of the first phonemes \enquote{lef} or \enquote{righ}.

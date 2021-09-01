@@ -55,15 +55,20 @@ def get_fontsize(context='none', add_size=0):
 
   # usuals
   if context == 'title': font_size = 14
-  elif context == 'axis_label': font_size = 11
-  elif context == 'axis_tick_major': font_size = 10
-  elif context == 'axis_tick_minor': font_size = 9
+  #elif context == 'axis_label': font_size = 11
+  #elif context == 'axis_tick_major': font_size = 10
+  #elif context == 'axis_tick_minor': font_size = 9
+  elif context == 'axis_label': font_size = 13
+  elif context == 'axis_tick_major': font_size = 12
+  elif context == 'axis_tick_minor': font_size = 11
 
   # special
-  elif context == 'colorbar': font_size = 9
+  #elif context == 'colorbar': font_size = 9
+  elif context == 'colorbar': font_size = 10
   elif context == 'conf_normal': font_size = 10
   elif context == 'conf_small': font_size = 7
-  elif context == 'anno': font_size = 12
+  #elif context == 'anno': font_size = 12
+  elif context == 'anno': font_size = 15
   elif context == 'tb_noise_label': font_size = 10
   elif context == 'tb_shift_label': font_size = 10
   #elif context == 'anno': font_size = 18
@@ -82,9 +87,9 @@ def get_colormap_from_context(context='none'):
   #reds4 = [red_16.mpl_colors[2], red_16.mpl_colors[5], red_16.mpl_colors[8], red_16.mpl_colors[11]]
 
   if context == 'mfcc': return red_16.mpl_colormap
-  elif context == 'spectogram-log': return red_16.mpl_colormap.reversed()
-  #elif context == 'spectogram-log': return red_16.mpl_colormap
-  elif context == 'spectogram': return red_16.mpl_colormap.reversed()
+  #elif context == 'spectrogram-log': return red_16.mpl_colormap.reversed()
+  elif context == 'spectrogram-log': return red_16.mpl_colormap
+  elif context == 'spectrogram': return red_16.mpl_colormap.reversed()
 
   elif context == 'confusion': return ListedColormap(purple_16.mpl_colormap.reversed()(np.linspace(0, 0.8, 25)), name='purpletonian')
   elif context == 'dct-div': return ListedColormap(np.vstack((purple_16.mpl_colormap(np.linspace(0.2, 1, 64)), red_16.mpl_colormap.reversed()(np.linspace(0, 0.8, 64)))), name='rp-div')
@@ -192,7 +197,7 @@ def plot_histogram(x, bins=None, color=None, y_log_scale=False, x_log_scale=Fals
   plt.tight_layout()
 
   # plot save and show
-  if plot_path is not None: plt.savefig(plot_path + name + '.png', dpi=150)
+  if plot_path is not None: plt.savefig(plot_path + name + '.png', dpi=100)
   
   # show plot
   if show_plot: plt.show()
@@ -236,7 +241,7 @@ def plot_test_bench_noise(x, y, snrs, cmap=None, context='tb-noise', title='', p
   plt.tight_layout()
 
   # plot save and show
-  if plot_path is not None: plt.savefig(plot_path + name + '.png', dpi=150)
+  if plot_path is not None: plt.savefig(plot_path + name + '.png', dpi=100)
   if show_plot: plt.show()
   if close_plot: plt.close()
 
@@ -280,7 +285,7 @@ def plot_test_bench_shift(x, y, cmap=None, context='tb-shift', title='', plot_pa
   plt.tight_layout()
 
   # plot save and show
-  if plot_path is not None: plt.savefig(plot_path + name + '.png', dpi=150)
+  if plot_path is not None: plt.savefig(plot_path + name + '.png', dpi=100)
   if show_plot: plt.show()
   if close_plot: plt.close()
 
@@ -349,7 +354,7 @@ def plot_wav_grid(wav_info_dicts, feature_params, grid_size=(8, 8), cmap=None, t
   plt.subplots_adjust(left=0.01, bottom=0.01, right=0.99, top=0.97, wspace=0, hspace=0)
 
   # plot save and show
-  if plot_path is not None: plt.savefig(plot_path + name + '.png', dpi=150)
+  if plot_path is not None: plt.savefig(plot_path + name + '.png', dpi=100)
 
   # show plot
   if show_plot: plt.show()
@@ -396,7 +401,7 @@ def plot_other_grid(x, grid_size=(8, 8), title='grid1', plot_path=None, name='gr
     ax.axis("off")
 
   # plot save and show
-  if plot_path is not None: plt.savefig(plot_path + name + '.png', dpi=150)
+  if plot_path is not None: plt.savefig(plot_path + name + '.png', dpi=100)
 
   # show plot
   if show_plot: plt.show()
@@ -509,7 +514,7 @@ def plot_damaged_file_score(z, plot_path=None, name='z_score', show_plot=False):
   plt.grid()
 
   # plot the fig
-  if plot_path is not None: plt.savefig(plot_path + name + '.png', dpi=150)
+  if plot_path is not None: plt.savefig(plot_path + name + '.png', dpi=100)
 
   # show plot
   if show_plot: plt.show()
@@ -568,7 +573,10 @@ def plot_waveform(x, fs, e_mfcc=None, e_samples=None, anno_file=None, bon_sample
   if len(title): plt.title(title, fontsize=get_fontsize('title'))
 
   # layout
-  plt.legend(), plt.ylabel('magnitude', fontsize=get_fontsize('axis_label')), plt.xlabel('time [s]', fontsize=get_fontsize('axis_label')), plt.grid()
+  plt.ylabel('magnitude', fontsize=get_fontsize('axis_label')), plt.xlabel('time [s]', fontsize=get_fontsize('axis_label')), plt.grid()
+
+  # legend
+  if e_samples is not None or e_mfcc is not None: plt.legend()
 
   if axis_off: plt.axis('off'), ax.axis('off'),
 
@@ -576,7 +584,7 @@ def plot_waveform(x, fs, e_mfcc=None, e_samples=None, anno_file=None, bon_sample
   plt.tight_layout()
 
   # plot, show and close
-  if plot_path is not None: plt.savefig(plot_path + name + '.png', dpi=150)
+  if plot_path is not None: plt.savefig(plot_path + name + '.png', dpi=100)
   if show_plot: plt.show()
   if close_plot: plt.close()
 
@@ -600,7 +608,7 @@ def plot_onsets(x, fs, N, hop, onsets, title='none', plot_path=None, name='None'
 
   # plot the fig
   if plot_path is not None:
-    plt.savefig(plot_path + name + '.png', dpi=150)
+    plt.savefig(plot_path + name + '.png', dpi=100)
     plt.close()
 
 
@@ -650,7 +658,7 @@ def plot_confusion_matrix(cm, classes, cmap=None, plot_path=None, name='None'):
 
   # plot the fig
   if plot_path is not None:
-    plt.savefig(plot_path + name + '.png', dpi=150)
+    plt.savefig(plot_path + name + '.png', dpi=100)
     plt.close()
 
 
@@ -708,7 +716,7 @@ def plot_wavenet_train_loss(train_score_dict, cmap=None, plot_path=None, name='s
 
   # plot the fig
   if plot_path is not None:
-    plt.savefig(plot_path + name + '.png', dpi=150)
+    plt.savefig(plot_path + name + '.png', dpi=100)
     plt.close()
 
   # show plot
@@ -745,7 +753,7 @@ def plot_adv_train_loss(train_score_dict, cmap=None, plot_path=None, name='score
 
   # plot the fig
   if plot_path is not None:
-    plt.savefig(plot_path + name + '.png', dpi=150)
+    plt.savefig(plot_path + name + '.png', dpi=100)
     plt.close()
 
   # show plot
@@ -779,7 +787,7 @@ def plot_hyb_train_loss(train_score_dict, cmap=None, plot_path=None, name='score
   plt.tight_layout()
 
   # plot the fig
-  if plot_path is not None: plt.savefig(plot_path + name + '_class.png', dpi=150)
+  if plot_path is not None: plt.savefig(plot_path + name + '_class.png', dpi=100)
   if show_plot: plt.show()
   if close_plot: plt.close()
 
@@ -814,7 +822,7 @@ def plot_train_loss(train_loss, val_loss, cmap=None, plot_path=None, name='score
 
   # plot the fig
   if plot_path is not None:
-    plt.savefig(plot_path + name + '.png', dpi=150)
+    plt.savefig(plot_path + name + '.png', dpi=100)
     plt.close()
 
   # show plot
@@ -852,7 +860,7 @@ def plot_val_acc(val_acc, cmap=None, plot_path=None, name='score_val', show_plot
 
   # plot the fig
   if plot_path is not None:
-    plt.savefig(plot_path + name + '.png', dpi=150)
+    plt.savefig(plot_path + name + '.png', dpi=100)
     plt.close()
 
   # show plot
@@ -861,7 +869,7 @@ def plot_val_acc(val_acc, cmap=None, plot_path=None, name='score_val', show_plot
   return fig
 
 
-def plot_textGrid_annotation(anno_file, x=None, hop_space=None, plot_text=False, color='k'):
+def plot_textGrid_annotation(anno_file, x=None, hop_space=None, plot_text=False, color='k', add_size=0, p_shift_up=0.0):
   """
   annotation
   """
@@ -876,8 +884,7 @@ def plot_textGrid_annotation(anno_file, x=None, hop_space=None, plot_text=False,
     tier = tg.tierDict[tg.tierNameList[0]]
 
     # calculate height of text
-    if x is not None and plot_text: h = np.min(x)
-    else: h = 0
+    h = -np.max(np.abs(x)) + np.max(np.abs(x)) * p_shift_up if x is not None and plot_text else 0
 
     # go through all entries
     for s, e, l in tier.entryList:
@@ -889,7 +896,7 @@ def plot_textGrid_annotation(anno_file, x=None, hop_space=None, plot_text=False,
       plt.axvline(x=s, dashes=(3, 3), color=color, lw=1)
 
       # plot text
-      if plot_text: plt.text(s + 0.01, h, l, color=color, fontsize=get_fontsize('anno'))
+      if plot_text: plt.text(s + 0.01, h, l, color=color, fontsize=get_fontsize('anno', add_size=add_size))
 
 
 def plot_mfcc_profile(x, fs, N, hop, mfcc, sep_features=True, diff_plot=False, cmap=None, cmap_wav=None, anno_file=None, onsets=None, bon_pos=None, mient=None, minreg=None, frame_size=32, plot_path=None, name='mfcc_profile', close_plot=True, show_plot=False):
@@ -1007,7 +1014,7 @@ def plot_mfcc_profile(x, fs, N, hop, mfcc, sep_features=True, diff_plot=False, c
   plt.subplots_adjust(left=0.1, bottom=0.00, right=0.97, top=0.93, wspace=0, hspace=0) if mfcc.shape[0] == 39 and sep_features else plt.subplots_adjust(left=0.1, bottom=0.00, right=0.94, top=0.90, wspace=0, hspace=0) 
 
   # save
-  if plot_path is not None: plt.savefig(plot_path + name + '.png', dpi=150)
+  if plot_path is not None: plt.savefig(plot_path + name + '.png', dpi=100)
   if show_plot: plt.show()
   if close_plot: plt.close()
 
@@ -1068,7 +1075,7 @@ def plot_mfcc_only(mfcc, fs=16000, hop=160, cmap=None, context='mfcc', plot_path
     add_colorbar(fig, im, cax=ax)
 
   # plot the fig
-  if plot_path is not None: plt.savefig(plot_path + name + '.png', dpi=150)
+  if plot_path is not None: plt.savefig(plot_path + name + '.png', dpi=100)
   if show_plot: plt.show()
   if close_plot: plt.close()
 
@@ -1097,7 +1104,7 @@ def plot_mfcc_plain(mfcc, cmap=None, plot_path=None, name='mfcc_plain', show_plo
   plt.tight_layout()
 
   # plot the fig
-  if plot_path is not None: plt.savefig(plot_path + name + '.png', dpi=150)
+  if plot_path is not None: plt.savefig(plot_path + name + '.png', dpi=100)
   if show_plot: plt.show()
   if close_plot: plt.close()
 
@@ -1144,7 +1151,7 @@ def plot_mfcc_equal_aspect(mfcc, fs=16000, hop=160, cmap=None, context='mfcc', p
 
   # plot the fig
   if plot_path is not None:
-    plt.savefig(plot_path + name + '.png', dpi=150)
+    plt.savefig(plot_path + name + '.png', dpi=100)
     plt.close()
 
   elif show_plot:
@@ -1179,7 +1186,7 @@ def plot_mel_band_weights(w_f, w_mel, f, m, cmap=None, plot_path=None, name='mel
   plt.tight_layout()
 
   # save plot
-  if plot_path is not None: plt.savefig(plot_path + name + '_f' + '.png', dpi=150)
+  if plot_path is not None: plt.savefig(plot_path + name + '_f' + '.png', dpi=100)
 
   # plot mel bands
   fig2 = plt.figure(figsize=get_figsize(context='score'))
@@ -1201,7 +1208,7 @@ def plot_mel_band_weights(w_f, w_mel, f, m, cmap=None, plot_path=None, name='mel
   plt.tight_layout()
 
   # save plot
-  if plot_path is not None: plt.savefig(plot_path + name + '_mel' '.png', dpi=150)
+  if plot_path is not None: plt.savefig(plot_path + name + '_mel' '.png', dpi=100)
 
   # show plot
   if show_plot: plt.show()
@@ -1243,7 +1250,7 @@ def plot_mel_scale(cmap=None, plot_path=None, name='mel', show_plot=False):
   plt.tight_layout()
 
   # save plot
-  if plot_path is not None: plt.savefig(plot_path + name + '.png', dpi=150)
+  if plot_path is not None: plt.savefig(plot_path + name + '.png', dpi=100)
 
   # show plot
   if show_plot: plt.show()
@@ -1312,7 +1319,7 @@ def plot_dct(h, cmap=None, context='dct', plot_path=None, name='dct', show_plot=
   plt.tight_layout()
 
   # save plot
-  if plot_path is not None: plt.savefig(plot_path + name + '.png', dpi=150)
+  if plot_path is not None: plt.savefig(plot_path + name + '.png', dpi=100)
   
   # show plot
   if show_plot: plt.show()
@@ -1320,11 +1327,11 @@ def plot_dct(h, cmap=None, context='dct', plot_path=None, name='dct', show_plot=
 
 def plot_spec_profile(x, x_spec, fs, N, hop, log_scale=False, cmap=None, cmap_wav=None, anno_file=None, bon_pos=None, frame_size=50, plot_path=None, title='', name='spec', show_plot=True):
   """
-  spectogram with waveform
+  spectrogram with waveform
   """
 
   # get cmap
-  if cmap is None: cmap = get_colormap_from_context(context='spectogram') if not log_scale else get_colormap_from_context(context='spectogram-log')
+  if cmap is None: cmap = get_colormap_from_context(context='spectrogram') if not log_scale else get_colormap_from_context(context='spectrogram-log')
   if cmap_wav is None: cmap_wav = get_colormap_from_context(context='wav')
 
   # time vectors
@@ -1356,10 +1363,10 @@ def plot_spec_profile(x, x_spec, fs, N, hop, log_scale=False, cmap=None, cmap_wa
   # care about labels
   ax.set_xticks(t[::1600])
   ax.set_xticklabels(['{:.1f}'.format(ti) for ti in t[::1600]])
-  ax.tick_params(axis='both', which='major', labelsize=get_fontsize('axis_tick_major')), ax.tick_params(axis='both', which='minor', labelsize=get_fontsize('axis_tick_minor'))
+  ax.tick_params(axis='both', which='major', labelsize=get_fontsize('axis_tick_major', add_size=-2)), ax.tick_params(axis='both', which='minor', labelsize=get_fontsize('axis_tick_minor', add_size=-2))
 
   # annotation
-  plot_textGrid_annotation(anno_file, x, plot_text=True)
+  plot_textGrid_annotation(anno_file, x, plot_text=True, add_size=-1, p_shift_up = 0.1)
 
   # best onset mark
   if bon_pos is not None:
@@ -1414,7 +1421,7 @@ def plot_spec_profile(x, x_spec, fs, N, hop, log_scale=False, cmap=None, cmap_wa
   plt.subplots_adjust(left=0.1, bottom=0.00, right=0.95, top=0.93, wspace=0, hspace=0)
 
   # plot and close
-  if plot_path is not None: plt.savefig(plot_path + name + '.png', dpi=150)
+  if plot_path is not None: plt.savefig(plot_path + name + '.png', dpi=100)
 
   # show plot
   if show_plot: plt.show()

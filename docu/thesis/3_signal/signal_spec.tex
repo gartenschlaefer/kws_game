@@ -16,6 +16,7 @@ Both time parameters $t_N$ and $t_h$ can also be presented in samples through a 
     h &= t_h \, f_s.
   \end{split}
 \end{equation}
+Note that by shifting an analytic window of size $N$ with hop size $h$ will create a new resolution on the time axis, denoted as \emph{frames}.
 The audio samples contained by the analytic window of size $N$, are transformed with the Discrete Fourier Transform (DFT):
 % --
 % DTFT
@@ -23,15 +24,15 @@ The audio samples contained by the analytic window of size $N$, are transformed 
   \hat{x}[k] = \sum_{n=0}^{N-1} x[n] \, e^{-j\frac{2 \pi n}{N}k}
 \end{equation}
 into the frequency space $\hat{x}[k] \in \C$ with frequency index $k$ and discrete audio samples $x[n]$ with sample index $n$.
-More conveniently, \req{signal_spec_dtft} can be written in matrix notation with the DFT operator denoted as $\mathcal{F} \in \C^{N \times K}$ with a total number of $N$ samples of the input signal $\bm{x} \in \R^N$ and $K$ Fourier coefficients:
+More conveniently, \req{signal_spec_dtft} can be written in matrix notation with the DFT operator denoted as $\mathcal{F} \in \C^{K \times N}$ with a total number of $N$ samples of the input signal $\bm{x} \in \R^N$ and $K$ Fourier coefficients:
 %--
 % DFT matrix
 \begin{equation}\label{eq:signal_spec_dtft_matrix}
-  \hat{\bm{x}} = \bm{x}^T \, \mathcal{F} \quad \mathrm{with} 
-  \quad \mathcal{F}[n, k] = e^{-j\frac{2 \pi n}{N} k},
-  \quad n,\, k = (0, 1, \dots N-1),\, (0, 1 \dots K-1)
+  \hat{\bm{x}} = \mathcal{F} \bm{x} \quad \mathrm{with} 
+  \quad \mathcal{F}[k, n] = e^{-j\frac{2 \pi n}{N} k},
+  \quad n,\, k = (0, 1, \dots, N-1),\, (0, 1 \dots, K-1)
 \end{equation}
-where $n$ and $k$ are row and column indices in the matrix $\mathcal{F}$, which gives an output dimension of the DFT $\hat{\bm{x}} \in \C^K$.
+where $k$ and $n$ are row and column indices in the transformation matrix $\mathcal{F}$, which gives an output dimension of the DFT transformed signal $\hat{\bm{x}} \in \C^K$.
 
 The length of the analytic window in samples $N$ is crucial for the frequency resolution and the lowest frequency that can be represented.
 For example, the periodic time of a sound with $f=\SI{20}{\hertz}$ is $t=\frac{1}{f} = \SI{50}{\milli\second}$.
@@ -39,49 +40,51 @@ To represent a waveform it is necessary to have at least a quarter of its wavele
 Within this thesis, the length of the analytic window is selected to \SI{25}{\milli\second}, which is enough for speech signals.
 
 The \emph{hop size} $h$ in samples of the hop time $t_h$, by which the analytical window is shifted on the time axis, indicates the resolution in time and is especially important for sequential changes within the audio data.
-In applications like speech processing, the hop time should be selected so that the fastest pronounced phone and its transitions to other phones is captured with sufficient resolution.
+In applications like speech processing the hop time should be selected, so that the fastest pronounced phone and its transitions to other phones is captured with sufficient resolution.
 Usually a hop time of $t_{h}=\SI{10}{\milli\second}$ is chosen for speech recognition tasks (also used within this thesis), but it could be extended to $t_{h}=\SI{20}{\milli\second}$, applied in \cite{Peter2020} to save computations.
 
 With the hop size $h$ in samples and $N$ the length of the analytical window, the Short-Time Fourier Transform (STFT) for discrete time signals, can be computed as:
 % --
 % stft
 \begin{equation}\label{eq:signal_spec_stft}
-    \tilde{X}[m, k] = \sum_{n=0}^{N-1} x[n + m] \, w[n] \, e^{-j\frac{2 \pi n}{N}k}, \qquad m = 0 h, \, 1 h, \, \dots, \, M h 
+    \tilde{X}[m, k] = \sum_{n=0}^{N-1} x[n + m h] \, w[n] \, e^{-j\frac{2 \pi n}{N}k}, \qquad m = 0, 1, \dots, M
 \end{equation}
-so that $\tilde{X}[m, k] \in \C$ is the STFT coefficient of frame $m$ and DFT coefficient $k$, where $n$ is denoted here as summation index, $w$ as a window function, such as the \emph{Hanning} window, $m$ indicates the frame index shifted by the hop size $h$ and $M$ is the maximum number of possible hops until the end of the signal is reached by shifting the analytical window of size $N$ by the hop size on the discrete time axis.
-The maximum number of hops $M$ can therefore be computed as:
+so that $\tilde{X}[m, k] \in \C$ is the STFT coefficient of frame $m$ and DFT coefficient $k$, where $n$ is denoted here as summation index, $w$ as a window function, such as the \emph{Hanning} window, $m$ indicates the frame index shifted by the hop size $h$ and $M$ is the maximum number of frames.
+% until the end of the signal is reached by shifting the analytical window of size $N$ by the hop size on the discrete time axis.
+The maximum number of frames $M$ is the total number of shifts of an analytical window of size $N$ by the hop size $h$ and can therefore be computed as:
 % --
 % hop
 \begin{equation}\label{eq:signal_spec_hop}
   M = \ceil*{\frac{n-N}{h}}
 \end{equation}
-where $n$ is here the length of the discrete time signal $x$.
+where $n$ is here the length of the discrete time signal $x \in \R^n$.
 The calculation of the STFT can be written in matrix notation if the input chunks from the shifting of the analytic window is denoted as vector:
 \begin{equation}
-  \bar{\bm{x}}_i = [\, x_{i \cdot h}, \dots, x_{i \cdot h+N}]^T
+  \bm{x}_m = [\, x_{m h}, \dots, x_{m h+N}]^T
 \end{equation}
-where each individual $\bar{\bm{x}}_i \in \R^N$ can be concatenated in a matrix $X \in \R^{M \times N}$ denoted as:
+where each individual $\bm{x}_m \in \R^N$ can be concatenated in a matrix $X \in \R^{N \times M}$ denoted as:
 \begin{equation}
-  X = 
-  \begin{bmatrix}
-    \bar{x}_1^T \\
-    \vdots\\
-    \bar{x}_M^T \\
-  \end{bmatrix}
+  X = [\bm{x}_0,\, \bm{x}_1,\, \dots,\, \bm{x}_M]
+  % X = 
+  % \begin{bmatrix}
+  %   \bar{x}_1^T \\
+  %   \vdots\\
+  %   \bar{x}_M^T \\
+  % \end{bmatrix}
 \end{equation}
-so that the STFT $\tilde{X} \in \C^{M \times K}$ can be conveniently written as:
+so that the STFT $\tilde{X} \in \C^{K \times M}$ can be conveniently written as:
 % --
 % stft matrix
 \begin{equation}\label{eq:signal_spec_stft_matrix}
-  \tilde{X} = X \, \diag{\bm{w}} \, \mathcal{F}
+  \tilde{X} = \mathcal{F} \, \diag{\bm{w}} \, X
 \end{equation}
 where $\diag{\bm{w}}$ is a diagonal matrix of weight vectors with a realization of a window function $\bm{w} \in \R^N$ in vector notation.
-The matrix $\tilde{X} \in \C^{M \times K}$ represents the whole STFT where the rows are the shifts of the analytical window on the time axis and the columns are the Fourier coefficients of each DFT.
+The matrix $\tilde{X} \in \C^{K \times M}$ represents the whole STFT where the rows represent the shifts of the analytical window on the time axis and the columns the Fourier coefficients of each DFT.
 The used STFT parameters for this thesis are shown in \rtab{signal_spec_stft}.
 % --
 % stft params
 \input{./3_signal/tables/tab_signal_spec_stft.tex}
-A spectrogram $P \in \R^{M \times K}$ is simply the power spectrum of the STFT $\tilde{X} \in \C^{M \times K}$ computed as:
+A spectrogram $P \in \R^{K \times M}$ is simply the power spectrum of the STFT $\tilde{X} \in \C^{K \times M}$ computed as:
 % --
 % spec
 \begin{equation}\label{eq:signal_spec_spec}
@@ -107,7 +110,7 @@ It can be observed, that most of the signals energy is in the lower frequency re
 \begin{equation}\label{eq:signal_spec_log}
   P_{DB} = 10 \cdot \log{P}
 \end{equation}
-so that small energies are more emphasized with $P_{DB} \in \R^{M \times K}$. 
+so that small energies are more emphasized with $P_{DB} \in \R^{K \times M}$. 
 The same examples with log scaling in the value space visualized with log scaling of the frequency space in the plots are shown in \rfig{signal_spec_log_showcase}.
 \begin{figure}[!ht]
   \centering

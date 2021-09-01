@@ -109,7 +109,6 @@ def showcase_wavs(cfg, raw_plot=True, raw_energy_plot=True, spec_plot=True, mfcc
   feature_extractor = FeatureExtractor(feature_params)
 
   # wav, anno dir
-  #wav_dir, anno_dir = '../ignore/my_recordings/showcase_wavs/', '../ignore/my_recordings/showcase_wavs/annotation/'
   wav_dir, anno_dir = '../docu/showcase_wavs/', '../docu/showcase_wavs/annotation/'
 
   # analyze some wavs
@@ -142,7 +141,7 @@ def showcase_wavs(cfg, raw_plot=True, raw_energy_plot=True, spec_plot=True, mfcc
       # plot
       plot_waveform(x, feature_params['fs'], e_samples=e_win, e_mfcc=e_win_mfcc, bon_mfcc=[bon_pos_mfcc, bon_pos_mfcc + feature_extractor.frame_size], bon_samples=[bon_pos, bon_pos + feature_extractor.raw_frame_size], y_ax_balance=False, anno_file=anno, hop=feature_extractor.hop, plot_path=plot_path, name='signal_onset_showcase_' + wav.split('/')[-1].split('.')[0], show_plot=show_plot)
 
-    # spectogram
+    # spectrogram
     if spec_plot:
       plot_spec_profile(x, feature_extractor.calc_spectogram(x).T, feature_params['fs'], feature_extractor.N, feature_extractor.hop, anno_file=anno, plot_path=plot_path, name='signal_spec-lin_showcase_' + wav.split('/')[-1].split('.')[0], show_plot=show_plot)
       plot_spec_profile(x, feature_extractor.calc_spectogram(x).T, feature_params['fs'], feature_extractor.N, feature_extractor.hop, log_scale=True, anno_file=anno, plot_path=plot_path, name='signal_spec-log_showcase_' + wav.split('/')[-1].split('.')[0], show_plot=show_plot)
@@ -299,7 +298,7 @@ if __name__ == '__main__':
   #mfcc_stuff(cfg, dct_plot=True, show_plot=True)
 
   # showcase wavs
-  #showcase_wavs(cfg, raw_plot=False, raw_energy_plot=True, spec_plot=False, mfcc_plot=False, use_mfcc_39=False, show_plot=True)
+  showcase_wavs(cfg, raw_plot=False, raw_energy_plot=False, spec_plot=True, mfcc_plot=False, use_mfcc_39=False, show_plot=True)
 
   # feature selection tables
   #feature_selection_tables(overwrite=True)
@@ -317,6 +316,6 @@ if __name__ == '__main__':
   #nn_theory()
 
   # noise wavs
-  noise_wavs_info(cfg)
+  #noise_wavs_info(cfg)
 
 

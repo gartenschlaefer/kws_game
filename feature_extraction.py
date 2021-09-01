@@ -218,7 +218,7 @@ class FeatureExtractor():
 
   def calc_spectogram(self, x):
     """
-    spectogram (power spectrum)
+    spectrogram (power spectrum)
     """
 
     # pre processing

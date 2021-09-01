@@ -2,10 +2,12 @@
 % signal processing
 
 \chapter{Signal Processing and Feature Extraction}\label{sec:signal}
+\thesisStateNew
 This section describes how raw waveforms from audio files are processed and meaningful features for speech recognition extracted.
 The feature extraction compresses and reduces the dimension of input data and therefore computational effort for neural networks.
 Either raw audio samples are used directly as features for Wavenets, or Mel Frequency Cepstral Coefficients (MFCC) features are extracted for Convolutional Neural Networks (CNN).
-The extraction of MFCC features is described in detail as well as enhancements with deltas and energy features and a suitable visual representation.
+The extraction of MFCC features is described in detail as well as enhancements with deltas and energy features and a suitable visual representation for them.
+Further an efficient onset method is described to restrict the time interval of spoken key words. 
 
 \input{./3_signal/signal_raw.tex}
 \input{./3_signal/signal_spec.tex}
