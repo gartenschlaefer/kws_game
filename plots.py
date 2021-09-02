@@ -41,6 +41,7 @@ def get_figsize(context='none'):
   #elif context == 'tb_shift': return (8, 1.5)
   elif context == 'tb_shift': return (10, 2)
   elif context == 'tb_noise': return (4, 2)
+  elif context == 'dct': return (4, 3)
 
   return (6, 6)
 
@@ -941,10 +942,10 @@ def plot_mfcc_profile(x, fs, N, hop, mfcc, sep_features=True, diff_plot=False, c
   # care about labels
   ax.set_xticks(t[::1600])
   ax.set_xticklabels(['{:.1f}'.format(ti) for ti in t[::1600]])
-  ax.tick_params(axis='both', which='major', labelsize=get_fontsize('axis_tick_major')), ax.tick_params(axis='both', which='minor', labelsize=get_fontsize('axis_tick_minor'))
+  ax.tick_params(axis='both', which='major', labelsize=get_fontsize('axis_tick_major', add_size=-2)), ax.tick_params(axis='both', which='minor', labelsize=get_fontsize('axis_tick_minor', add_size=-2))
 
   # annotation
-  plot_textGrid_annotation(anno_file, x, plot_text=True)
+  plot_textGrid_annotation(anno_file, x, plot_text=True, add_size=-1, p_shift_up = 0.1)
 
   # min energy time and region
   if mient is not None: plt.axvline(x=mient, dashes=(5, 5), color='r', lw=2)
@@ -1225,7 +1226,7 @@ def plot_mel_scale(cmap=None, plot_path=None, name='mel', show_plot=False):
   if cmap is None: cmap = get_colormap_from_context(context='mel')
 
   # frequency
-  f = np.arange(0, 16000, 1)
+  f = np.arange(0, 8000, 1)
 
   # mel
   m = f_to_mel(f)
@@ -1238,7 +1239,7 @@ def plot_mel_scale(cmap=None, plot_path=None, name='mel', show_plot=False):
   if cmap is not None: ax.set_prop_cycle('color', cmap)
 
   # plot
-  ax.plot(f, m)
+  ax.plot(f, m, lw=2)
 
   # tick size
   ax.tick_params(axis='both', which='major', labelsize=get_fontsize('axis_tick_major', add_size=2)), ax.tick_params(axis='both', which='minor', labelsize=get_fontsize('axis_tick_minor', add_size=2))
@@ -1301,7 +1302,7 @@ def plot_dct(h, cmap=None, context='dct', plot_path=None, name='dct', show_plot=
   if cmap is None: cmap = get_colormap_from_context(context=context)
 
   # init
-  fig = plt.figure(figsize=get_figsize(context='square_small'))
+  fig = plt.figure(figsize=get_figsize(context='dct'))
 
   # axis
   ax = plt.axes()

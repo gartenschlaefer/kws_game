@@ -8,8 +8,8 @@ The reduction of input features always means a reduction of computations and is 
 Unfortunately it is not always clear, which feature are contributing to good classification scores and which do not or even worsen them.
 In this section only Mel Frequency Cepstral Coefficients (MFCC) and their enhancements, as described in \rsec{signal_mfcc}, are the focus of the experiments.
 A feature selection for raw audio samples, used in the Wavenet architecture, would not make much sense, because each sample is an feature itself on the time axis.
-Another important aspect in the feature selection experiments is the evaluation of the proposed frame based normalization \req{signal_mfcc_norm} originally applied to improve the visualization of MFCCs and making Generative Adversarial Neural Networks (GANs) more easy and faster to train.
-However frame based normalization might be critical, because it is a normalization done only on the frame (time) scale and disregards the frequency dimension.
+Another important aspect in the feature selection experiments is the evaluation of the proposed frame-based normalization \req{signal_mfcc_norm} originally applied to improve the visualization of MFCCs and making Generative Adversarial Neural Networks (GANs) more easy and faster to train.
+However frame-based normalization might be critical, because it is a normalization done only on the frame (time) scale and disregards the frequency dimension.
 
 Two experiments are done to shade some light into MFCC feature selection:
 \begin{enumerate}
@@ -27,7 +27,7 @@ The scores obtained from those iterations for each set parameters are presented 
 
 \subsection{Impact on the Amount of Cepstral Coefficients}
 The cepstral coefficients are selected to either 12 or 32, where 12 is the common selection of coefficients in many papers.
-Also the experiments are done once with and once without frame based normalization.
+Also the experiments are done once with and once without frame-based normalization.
 The training parameters for the experiment are listed in \rsec{exp_details_training}.
 The experiment is shown in \rtab{exp_fs_cepstral_l12}.
 \input{./5_exp/tables/tab_exp_fs_cepstral_l12.tex}
@@ -38,42 +38,6 @@ The experiment is shown in \rtab{exp_fs_cepstral_l12}.
 % enhancements
 
 \subsection{Impact on the enhancements of MFCCs}\label{sec:exp_fs_mfcc}
-In this experiment the cepstral coefficients were selected to 12, but enhanced with deltas, double deltas and energy frames.
-The frame based normalization was applied in this experiment
+In this experiment the cepstral coefficients were selected to 12 and enhanced with deltas, double deltas and energy frames.
+The frame-based normalization was applied in this experiment, shown in \rtab{exp_fs_mfcc_l12}.
 \input{./5_exp/tables/tab_exp_fs_mfcc_l12.tex}
-
-
-
-
-% These enhancements (deltas and energy features) are formed in groups for evaluation to see the impact on the choice and hopefully to reduce the input feature size to a minimum.
-% %Now that the neural network architectures are described in \rsec{nn_arch} and basic knowledge about MFCCs is given in \rsec{features} it is important to evaluate the impact of the selection of certain MFCC feature constellations to the accuracy of the Test sets.
-% Beside it is good to get a general overview on what accuracies can be expected from different neural network architectures.
-% The evaluation is done on 5 classes and 30 classes with different training parameters to observe the impact on a easy and a very hard classification task.
-% In detail it is shown how models are trained with features consisting of following MFCC groups:
-% \begin{enumerate}
-%     \item Cepstral Coefficients (usual MFCCs)
-%     \item Deltas (frame difference of MFCCs)
-%     \item Double Deltas (frame difference of Deltas)
-%     \item Energy Vector (added to each of the upper features)
-% \end{enumerate}
-% Another crucial point is to evaluate whether a frame based normalization of these features hurt the training and the accuracy of the models.
-% Therefore additional columns are presented in the following tables marked with \enquote{norm}.
-% Note that all these experiments have been done with n-500 a number of 500 examples per class, so that computations are minimized but still enough data is drawn.
-
-% \subsection{Feature Selection on Conv Encoder}
-% The feature selection evaluation on the conv-encoder-fc1 architecture with 5 labels is listed in \rtab{exp_fs_fc1_it500_c5}.
-% % \input{5_exp/tables/b1_feature_selection/ml_it500_c5_features_fc1}
-% % \input{5_exp/tables/b1_feature_selection/ml_it1000_c30_features_fc1}
-% % \input{5_exp/tables/b1_feature_selection/ml_it2000_c30_features_fc3}
-% \input{./5_exp/tables/tab_exp_fs_fc1_it500_c5.tex}
-% \input{./5_exp/tables/tab_exp_fs_fc1_it1000_c30.tex}
-% \input{./5_exp/tables/tab_exp_fs_fc3_it2000_c30.tex}
-
-% \subsection{Feature Selection on fstride}
-% fstride
-% \input{./5_exp/tables/tab_exp_fs_fstride_it1000_c5.tex}
-
-% \subsection{Feature Selection on trad}
-% trad
-% \input{./5_exp/tables/tab_exp_fs_trad_it1000_c5.tex}
-

@@ -58,7 +58,7 @@ The energy of a recorded file provides information about a recordings amplificat
 In the first version of the speech command dataset (\texttt{v0.01}) too silent files were a problem, this had been fixed in the second version by rejecting those silent files, therefore \texttt{v0.01} is a bit more unclean than \texttt{v0.02}.
 The energy value $e \in \R$ can be computed as:
 \begin{equation}\label{eq:exp_dataset_energy}
-  e = \frac{1}{n} \left( \bm{x}^T\, \bm{x} \right)
+  e = \frac{1}{n} \left( \bm{x}^T \bm{x} \right)
 \end{equation}
 where $\bm{x} \in \R^n$ are all samples from a single recorded file with a total number of samples $n$.
 The division through the sample length $n$ of each individual audio recording is necessary, because not every file has a duration of \SI{1}{\second} corresponding to 16000 samples.
@@ -141,7 +141,7 @@ The testing and validation file lists are applied in this thesis and the separat
 \subsubsection{Samples from the Feature Extraction}
 The feature extraction of the dataset with specified parameters are stored to separate files before using them for training.
 This has the practicability that features do not have to be extracted each time a new training instance of a neural network is performed.
-Samples from the extracted Mel Frequency Cepstral Coefficients (MFCC) with frame based normalization as explained in \rsec{signal_mfcc} are shown in \rfig{exp_dataset_speech_cmd_mfcc}.
+Samples from the extracted Mel Frequency Cepstral Coefficients (MFCC) with frame-based normalization as explained in \rsec{signal_mfcc} are shown in \rfig{exp_dataset_speech_cmd_mfcc}.
 \begin{figure}[!ht]
   \centering
     \subfigure[left]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_dataset_speech_cmd_mfcc_left}}
@@ -196,7 +196,7 @@ It is difficult to examine why exactly this one example is classified wrong.
 The neural network architectures are trained with supervised learning, that means a class label $y_i \in \{0, 1, \dots, L\}$ correspondence to each data example $x_i \in \R^{\mathcal{X}}$ must exist, where $L$ is the total number of classes and $\mathcal{X}$ is the dimension of the data example.
 Some selected examples and their labels form a dataset $S$ for example for training or testing and can be written as:
 \begin{equation}\label{eq:exp_dataset}
-  S = \{ (\,x_i, \, y_i\,) \, | \, i = 0, 1, \dots, n \}
+  S = \{ (x_i, y_i) \mid i = 0, 1, \dots, n \}
 \end{equation}
 where $n$ is the total number of examples within the dataset.
 Class labels $y_i$ are usually translated to integer numbers that are referencing to indices in a class dictionary, for instance $y_1 = 0$ of example $i=1$ refers to the label \enquote{left} in the dictionary \{0: \enquote{left}, 1: \enquote{right}\}.
@@ -209,7 +209,7 @@ This was done by zero-padding the signals to the desired length of 16000 samples
 Further dither noise was added, so that neural networks are not confused when operating with pure zeros emerging from the data examples.
 The dithering was done by Gaussian additive noise with:
 \begin{equation}\label{eq:exp_dither}
-  \bm{x} = \bm{\tilde{x}} + \bm{v}, \quad \bm{v} \sim \mathcal{N}(\mu=0, \, \sigma=0.5) \cdot \tilde{x}_{quant}%, \quad \mu, \sigma = 0, 0.5
+  \bm{x} = \bm{\tilde{x}} + \bm{v}, \quad \bm{v} \sim \mathcal{N}(\mu=0, \sigma=0.5) \cdot \tilde{x}_{quant}
 \end{equation}
 with fixed sample length of $n = 16000$, $\mathcal{N}$ is the normal distribution and $\bm{v} \in \R^n$ is sampled from this distribution multiplied with the quantization error $\tilde{x}_{quant} \in \R$, $\bm{\tilde{x}} \in \R^n$ is the zero-padded signal (only if the total sample number is less than 16000).
 The quantization error $\tilde{x}_{quant}$ corresponds to the minimum of all absolute values from the samples of $\bm{\tilde{x}}$, except the pure zero entries, that were added through the zero-padding.

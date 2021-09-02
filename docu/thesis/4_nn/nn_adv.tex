@@ -15,11 +15,23 @@ The transfering techniques of the whole network is denoted as adversarial dual t
 % training GANs
 
 \subsection{Training Generative Adversarial Neural Networks}
-The interesting part in Generative Adversarial Neural Networks is how the Generator (G) and Discriminator (D) models are updated and which loss functions were used.
-In \req{nn_theory_gan} the game is notated as min-max game, from which the loss of D can be described as:
+The interesting part in training Generative Adversarial Neural Networks is how the Generator (G) and Discriminator (D) models are updated and which loss functions were used.
+In \req{nn_theory_gan} the game is notated as min-max game, from which the loss of D $l_D$ can be described for one specific example $i$ in a batch as:
 \begin{equation}
-  l_D(x_i, G) = l_c(D(x_i), y_r) + l_c(D(G(z)), y_f)
+  l_D(x_i, z_i, G) = l_c(D(x_i), y_r) + l_c(D(G(z_i)), y_f)
 \end{equation}
+where $D: \mathcal{X} \to [0, 1]$ and $G: \mathcal{Z} \to \mathcal{X}$, $x_i \in \R^{\mathcal{X}}$ is the data example, $z_i \in \R^\mathcal{Z}$ is a randomly sampled latent variable, $y_r = 1$ is the real label and $y_f = 0$ the fake label for that specific example $i$.
+In contrast to Generators loss $l_G$ as:
+\begin{equation}
+  l_G(z_i, D) =  l_c(D(G(z_i)), y_r)
+\end{equation}
+with $y_r$ as real label to perform maximization of $\log D(G(\bm{z}))$ as described in \rsec{nn_theory_gan}.
+A extended approach so that G produces samples specifically similar to the data distribution and does not drift of into creating unrealistic fakes of noisy samples to fake D, is to incorporate a similarity term with the \emph{cosine similarity}:
+\begin{equation}
+  l_s(\bm{x_1}, \bm{x_2}) = \frac{\bm{x_1}^T \bm{x_2}}{\norm{\bm{x_1}}_2 \cdot \norm{\bm{x_2}}_2 + \epsilon} 
+\end{equation}
+where $\bm{x_1}$ and $\bm{x_2}$ are two vectors for similarity measure and $\epsilon$ is a small number, such that no divisions by zeros occur.
+
 
 
 % --

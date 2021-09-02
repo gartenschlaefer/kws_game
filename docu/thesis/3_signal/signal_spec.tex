@@ -12,14 +12,14 @@ Both time parameters $t_N$ and $t_h$ can also be presented in samples through a 
 % samples
 \begin{equation}
   \begin{split}
-    N &= t_N \, f_s, \\
-    h &= t_h \, f_s.
+    N &= t_N f_s, \\
+    h &= t_h f_s.
   \end{split}
 \end{equation}
 Note that by shifting an analytic window of size $N$ with hop size $h$ will create a new resolution on the time axis, denoted as \emph{frames}.
 The audio samples contained by the analytic window of size $N$, are transformed with the Discrete Fourier Transform (DFT):
 % --
-% DTFT
+% DFT
 \begin{equation}\label{eq:signal_spec_dtft}
   \hat{x}[k] = \sum_{n=0}^{N-1} x[n] \, e^{-j\frac{2 \pi n}{N}k}
 \end{equation}
@@ -30,7 +30,7 @@ More conveniently, \req{signal_spec_dtft} can be written in matrix notation with
 \begin{equation}\label{eq:signal_spec_dtft_matrix}
   \hat{\bm{x}} = \mathcal{F} \bm{x} \quad \mathrm{with} 
   \quad \mathcal{F}[k, n] = e^{-j\frac{2 \pi n}{N} k},
-  \quad n,\, k = (0, 1, \dots, N-1),\, (0, 1 \dots, K-1)
+  \quad k, n = (0, 1, \dots, K-1), (0, 1 \dots, N-1)
 \end{equation}
 where $k$ and $n$ are row and column indices in the transformation matrix $\mathcal{F}$, which gives an output dimension of the DFT transformed signal $\hat{\bm{x}} \in \C^K$.
 
@@ -47,24 +47,23 @@ With the hop size $h$ in samples and $N$ the length of the analytical window, th
 % --
 % stft
 \begin{equation}\label{eq:signal_spec_stft}
-    \tilde{X}[m, k] = \sum_{n=0}^{N-1} x[n + m h] \, w[n] \, e^{-j\frac{2 \pi n}{N}k}, \qquad m = 0, 1, \dots, M
+    \tilde{X}[k, m] = \sum_{n=0}^{N-1} x[n + m h] \, w[n] \, e^{-j\frac{2 \pi n}{N}k}, \qquad m = 0, 1, \dots, M
 \end{equation}
-so that $\tilde{X}[m, k] \in \C$ is the STFT coefficient of frame $m$ and DFT coefficient $k$, where $n$ is denoted here as summation index, $w$ as a window function, such as the \emph{Hanning} window, $m$ indicates the frame index shifted by the hop size $h$ and $M$ is the maximum number of frames.
-% until the end of the signal is reached by shifting the analytical window of size $N$ by the hop size on the discrete time axis.
+so that $\tilde{X}[k, m] \in \C$ is the STFT coefficient of frame $m$ and DFT coefficient $k$, where $n$ is denoted here as summation index, $w$ as a window function, such as the \emph{Hanning} window, $m$ indicates the frame index shifted by the hop size $h$ and $M$ is the maximum number of frames.
 The maximum number of frames $M$ is the total number of shifts of an analytical window of size $N$ by the hop size $h$ and can therefore be computed as:
 % --
 % hop
 \begin{equation}\label{eq:signal_spec_hop}
-  M = \ceil*{\frac{n-N}{h}}
+  M = \ceil*{\frac{\norm{\bm{x}}_0-N}{h}}
 \end{equation}
-where $n$ is here the length of the discrete time signal $x \in \R^n$.
+where $\norm{\bm{x}}_0$ is denoted as length of the signal vector $\bm{x}$.
 The calculation of the STFT can be written in matrix notation if the input chunks from the shifting of the analytic window is denoted as vector:
 \begin{equation}
-  \bm{x}_m = [\, x_{m h}, \dots, x_{m h+N}]^T
+  \bm{x}_m = [x_{m h}, \dots, x_{m h+N}]^T
 \end{equation}
 where each individual $\bm{x}_m \in \R^N$ can be concatenated in a matrix $X \in \R^{N \times M}$ denoted as:
 \begin{equation}
-  X = [\bm{x}_0,\, \bm{x}_1,\, \dots,\, \bm{x}_M]
+  X = [\bm{x}_0, \bm{x}_1, \dots, \bm{x}_M]
   % X = 
   % \begin{bmatrix}
   %   \bar{x}_1^T \\
@@ -76,10 +75,10 @@ so that the STFT $\tilde{X} \in \C^{K \times M}$ can be conveniently written as:
 % --
 % stft matrix
 \begin{equation}\label{eq:signal_spec_stft_matrix}
-  \tilde{X} = \mathcal{F} \, \diag{\bm{w}} \, X
+  \tilde{X} = \mathcal{F} \diag{\bm{w}} X
 \end{equation}
 where $\diag{\bm{w}}$ is a diagonal matrix of weight vectors with a realization of a window function $\bm{w} \in \R^N$ in vector notation.
-The matrix $\tilde{X} \in \C^{K \times M}$ represents the whole STFT where the rows represent the shifts of the analytical window on the time axis and the columns the Fourier coefficients of each DFT.
+The matrix $\tilde{X} \in \C^{K \times M}$ represents the whole STFT, where the rows represent the shifts of the analytical window on the time axis (frames) and the columns the Fourier coefficients of each DFT.
 The used STFT parameters for this thesis are shown in \rtab{signal_spec_stft}.
 % --
 % stft params
@@ -125,4 +124,4 @@ The same examples with log scaling in the value space visualized with log scalin
 \FloatBarrier
 \noindent
 It is now possible to observe some interesting structures and movements in certain frequency bands over time.
-A compression scheme, such as the Mel Frequency Cepstral Coefficients (MFCC) explained in the next section, reduces the high dimensional frequency feature vectors of the STFT to more compact feature vectors and further improves the visualization of the spoken command words.
+A compression scheme, such as the Mel Frequency Cepstral Coefficients (MFCC), explained in the next section, reduces the high dimensional frequency feature vectors of the STFT to more compact feature vectors.

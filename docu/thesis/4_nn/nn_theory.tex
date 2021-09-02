@@ -23,7 +23,7 @@ A loss function computes the difference between the predicted and the actual cla
 \subsection{Activation Functions}\label{sec:nn_theory_acti}
 Activation functions for neural networks of a node in a current layer are non-linear functions that usually maps the sum of the weighted inputs from nodes in a previous layer to a single output value $z \in \R$ as following:
 \begin{equation}\label{eq:nn_theory_acti}
-  z = h(\bm{w}^T \, \bm{x})
+  z = h(\bm{w}^T \bm{x})
 \end{equation}
 where $h$ is the activation function, $\bm{w} \in \R^n$ is an weight vector and $\bm{x} \in \R^n$ an input vector for one specific node receiving connections from a total number of $n$ nodes in the previous layer.
 The output of each node in a current layer is further connected to other nodes in the next layer and builds up the neural network.
@@ -76,7 +76,7 @@ A simple FC layer is illustrated in \rfig{nn_theory_fc} with 3 nodes.
 \noindent
 Mathematically one node $i$ performs following calculation:
 \begin{equation}
-  z_i = h(\bm{w_i}^T \, \bm{x} + b_i)
+  z_i = h(\bm{w_i}^T \bm{x} + b_i)
 \end{equation}
 with the same notations as described in \req{nn_theory_acti} and an additional bias term $b_i \in \R$.
 For all nodes in a layer this equation of a single node can be summarized to a weight matrix $W \in \R^{m \times n}$ with $m$ as total amount of nodes in that layer, so that an FC layer can be written as:
@@ -158,7 +158,7 @@ For the previous example this would give $\mathcal{T}(k * x) = 2 (12 \cdot 12) (
 \subsection{Loss Functions and Softmax}
 Loss functions also known as cost functions are used to determine the difference between the predicted labels $\hat{y}_i$ for class $i$ compared to the actual or ground truth labels $y$.
 The predicted labels are usually presented by the output nodes in the last layer of a neural network.
-Therefore $\hat{\bm{y}} = [\hat{y_0}, \, \hat{y_1}, \dots, \hat{y_L}]^T$ has the dimension of the number of labels or classes $L$.
+Therefore $\hat{\bm{y}} = [\hat{y_0}, \hat{y_1}, \dots, \hat{y_L}]^T$ has the dimension of the number of labels or classes $L$.
 Often it is preferred that $\hat{\bm{y}} \in \R^L$ provides a probability distribution such that:
 \begin{equation}
   \sum_{i=0}^L \hat{y}_i = 1
@@ -169,7 +169,7 @@ which can be achieved with the softmax function:
 \end{equation}
 where $L$ is the amount of nodes in this layer, if it is the last layer as usual for the softmax, $L$ is the total amount of class labels and $\hat{y}_i$ the probability value of the corresponding class $i$.
 
-There are already plenty of different loss functions available for training neural networks, however in this thesis only one kind of it is used for all neural network architecture, the cross-entropy loss or for two classes the binary cross-entropy loss function.
+There are already plenty of different loss functions available for training neural networks, such as described in \cite{LeCun2006}, however in this thesis only one kind of it is used for all neural network architecture, the cross-entropy loss or for two classes the binary cross-entropy loss function.
 Without going too much into the detail of this loss function, it is described in the same way as in the \texttt{Pytorch} framework \cite{Pytorch}.
 The binary cross entropy is implemented as:
 \begin{equation}

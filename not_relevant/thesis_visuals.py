@@ -79,8 +79,8 @@ def mfcc_stuff(cfg, dct_plot=False, mel_scale_plot=False, mel_band_plot=False, s
 
   # plot dct
   if dct_plot:
-    plot_dct(custom_dct_matrix(N=32, C=12), plot_path=plot_path, name='signal_mfcc_dct12', show_plot=show_plot)
-    plot_dct(custom_dct_matrix(N=32, C=12), plot_path=plot_path, context='dct-div', name='signal_mfcc_dct12-div', show_plot=show_plot)
+    plot_dct(custom_dct_matrix(N=32, C=32).T, plot_path=plot_path, name='signal_mfcc_dct', show_plot=show_plot)
+    plot_dct(custom_dct_matrix(N=32, C=32).T, plot_path=plot_path, context='dct-div', name='signal_mfcc_dct-div', show_plot=show_plot)
 
   # mel scale
   if mel_scale_plot: plot_mel_scale(plot_path=plot_path, name='signal_mfcc_mel_scale', show_plot=show_plot)
@@ -150,7 +150,7 @@ def showcase_wavs(cfg, raw_plot=True, raw_energy_plot=True, spec_plot=True, mfcc
     if mfcc_plot:
       mfcc, bon_pos = feature_extractor.extract_mfcc(x, reduce_to_best_onset=False)
       name = 'signal_mfcc_showcase_mfcc32_' + wav.split('/')[-1].split('.')[0] if not use_mfcc_39 else 'signal_mfcc_showcase_mfcc39_' + wav.split('/')[-1].split('.')[0]
-      plot_mfcc_plain(mfcc, plot_path='../docu/showcase_wavs/ignore/', name=name + '_plain', show_plot=show_plot)
+      #plot_mfcc_plain(mfcc, plot_path='../docu/showcase_wavs/ignore/', name=name + '_plain', show_plot=show_plot)
       plot_mfcc_profile(x, cfg['feature_params']['fs'], feature_extractor.N, feature_extractor.hop, mfcc, anno_file=anno, sep_features=False, bon_pos=bon_pos, frame_size=cfg['feature_params']['frame_size'], plot_path=plot_path, name=name, close_plot=False, show_plot=show_plot)
 
 
@@ -295,10 +295,10 @@ if __name__ == '__main__':
   cfg = yaml.safe_load(open("../config.yaml"))
 
   # mfcc stuff
-  #mfcc_stuff(cfg, dct_plot=True, show_plot=True)
+  #mfcc_stuff(cfg, dct_plot=True, mel_scale_plot=True, mel_band_plot=True, show_plot=True)
 
   # showcase wavs
-  showcase_wavs(cfg, raw_plot=False, raw_energy_plot=False, spec_plot=True, mfcc_plot=False, use_mfcc_39=False, show_plot=True)
+  showcase_wavs(cfg, raw_plot=False, raw_energy_plot=False, spec_plot=False, mfcc_plot=True, use_mfcc_39=True, show_plot=True)
 
   # feature selection tables
   #feature_selection_tables(overwrite=True)
