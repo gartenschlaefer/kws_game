@@ -1,0 +1,20 @@
+\begin{table}[ht!]
+\begin{center}
+\caption{Experiment on whole dataset with 3500 examples per label, with 12 MFCC coefficients and frame-based normalization.}
+\begin{tabular}{ M{3cm}  M{2cm}  M{2.5cm}  M{2.5cm} }
+\toprule
+\textbf{arch} & \textbf{pre-train} & \textbf{acc test} & \textbf{acc my} \\
+\midrule
+conv-trad & - & $83.79 $ & $88.00 $ \\
+conv-fstride & - & $78.71 $ & $92.00 $ \\
+conv-jim & - & $82.36 $ & $88.00 $ \\
+\midrule
+conv-jim & adv-label-100 & $84.62 $ & $92.00 $ \\
+\bottomrule
+\label{tab:exp_final_l12}
+\end{tabular}
+\end{center}
+\vspace{-4mm}
+\end{table}
+\FloatBarrier
+\noindent

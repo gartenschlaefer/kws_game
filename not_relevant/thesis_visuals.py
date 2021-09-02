@@ -16,7 +16,7 @@ from audio_dataset import AudioDataset
 from feature_extraction import FeatureExtractor, custom_dct_matrix
 from batch_archive import SpeechCommandsBatchArchive
 from plots import plot_mel_band_weights, plot_mfcc_profile, plot_waveform, plot_dct, plot_wav_grid, plot_spec_profile, plot_mel_scale, plot_grid_images, plot_mfcc_plain, plot_activation_function
-from latex_table_maker import LatexTableMakerMFCC, LatexTableMakerAudiosetLabels, LatexTableMakerCepstral, LatexTableMakerAdv
+from latex_table_maker import LatexTableMakerMFCC, LatexTableMakerAudiosetLabels, LatexTableMakerCepstral, LatexTableMakerAdv, LatexTableMakerFinal
 from skimage.util.shape import view_as_windows
 
 
@@ -242,7 +242,10 @@ def training_logs(cfg):
   #LatexTableMakerAdv(in_file=log_path + 'log_exp_adv_label_l12.log', out_file=plot_path_tab + 'tab_exp_adv_label_l12.tex', caption='Experiment with adversarial label pre-training, using either Generator \enquote{g} or Discriminator \enquote{d} weights.', label='tab:exp_adv_label_l12')
   
   # adv dual
-  LatexTableMakerAdv(in_file=log_path + 'log_exp_adv_dual_l12.log', out_file=plot_path_tab + 'tab_exp_adv_dual_l12.tex', caption='Experiment with adversarial dual pre-training, using either Generator \enquote{g} or Discriminator \enquote{d} weights.', label='tab:exp_adv_dual_l12')
+  #LatexTableMakerAdv(in_file=log_path + 'log_exp_adv_dual_l12.log', out_file=plot_path_tab + 'tab_exp_adv_dual_l12.tex', caption='Experiment with adversarial dual pre-training, using either Generator \enquote{g} or Discriminator \enquote{d} weights.', label='tab:exp_adv_dual_l12')
+  
+  # final
+  LatexTableMakerFinal(in_file=log_path + 'log_exp_final_l12.log', out_file=plot_path_tab + 'tab_exp_final_l12.tex', caption='Experiment on whole dataset with 3500 examples per label.', label='tab:exp_final_l12')
 
 
 def nn_theory():
@@ -298,7 +301,7 @@ if __name__ == '__main__':
   #mfcc_stuff(cfg, dct_plot=True, mel_scale_plot=True, mel_band_plot=True, show_plot=True)
 
   # showcase wavs
-  showcase_wavs(cfg, raw_plot=False, raw_energy_plot=False, spec_plot=False, mfcc_plot=True, use_mfcc_39=True, show_plot=True)
+  #showcase_wavs(cfg, raw_plot=False, raw_energy_plot=False, spec_plot=False, mfcc_plot=True, use_mfcc_39=True, show_plot=True)
 
   # feature selection tables
   #feature_selection_tables(overwrite=True)
@@ -310,7 +313,7 @@ if __name__ == '__main__':
   #batch_archive_grid_examples(cfg, show_plot=True)
 
   # logs
-  #training_logs(cfg)
+  training_logs(cfg)
 
   # theory
   #nn_theory()

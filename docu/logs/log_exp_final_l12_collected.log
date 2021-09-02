@@ -1,0 +1,6 @@
+% experiments with 3500 examples
+
+2021-08-29 01:43:27,634 Training on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-3500_r1-5_mfcc32-12_c1d0d0e0_norm1_f-1x12x50/], param_string: [bs-32_it-2000_lr-0p0001] train_params: {'batch_size': 32, 'num_epochs': 2000, 'lr': 0.0001, 'beta': 0.9}, device: [cpu], time: [01:41:36]
+2021-08-29 01:43:28,402 Eval test on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-3500_r1-5_mfcc32-12_c1d0d0e0_norm1_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 2000, 'lr': 0.0001, 'beta': 0.9}, correct: [3512 / 4200] acc: [83.6190] with loss: [1496.8839]
+2021-08-29 01:43:28,909 Eval my on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-3500_r1-5_mfcc32-12_c1d0d0e0_norm1_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 2000, 'lr': 0.0001, 'beta': 0.9}, correct: [20 / 25] acc: [80.0000] with loss: [45.0682]
+2021-08-29 01:43:29,352 
