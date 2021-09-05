@@ -21,21 +21,21 @@ A loss function computes the difference between the predicted and the actual cla
 % activation functions
 
 \subsection{Activation Functions}\label{sec:nn_theory_acti}
-Activation functions for neural networks of a node in a current layer are non-linear functions that usually maps the sum of the weighted inputs from nodes in a previous layer to a single output value $z \in \R$ as following:
+Activation functions for neural networks of a node in a current layer, are non-linear functions that usually maps the sum of the weighted inputs from nodes in a previous layer to a single output value $z \in \R$ as following:
 \begin{equation}\label{eq:nn_theory_acti}
   z = h(\bm{w}^T \bm{x})
 \end{equation}
-where $h$ is the activation function, $\bm{w} \in \R^n$ is an weight vector and $\bm{x} \in \R^n$ an input vector for one specific node receiving connections from a total number of $n$ nodes in the previous layer.
+where $h$ is the activation function, $\bm{w} \in \R^n$ is a weight vector and $\bm{x} \in \R^n$ an input vector for one specific node receiving connections from a total number of $n$ nodes in the previous layer.
 The output of each node in a current layer is further connected to other nodes in the next layer and builds up the neural network.
-The constraint of an activation function is, that an easy computable derivative of this function exist, in order to backpropagate gradients.
+The constraint of an activation function is, that an easy computable derivative of this function exist in order to backpropagate gradients.
 
-The most famous activation function nowadays is the RELU function:
+The most famous activation function nowadays is the Rectified Linear Unit (ReLU) \cite{Zeiler2013} function:
 \begin{equation}\label{eq:nn_theory_relu}
   h(a) = \max{(0, a)}
 \end{equation}
 with $a \in \R$ as input to the activation function.
-The big advantage is that this function and its sub-gradients are very easy and fast to compute.
-The other two activation functions that are used in Wavenets are the sigmoid function:
+The big advantage of the ReLU function is, that its sub-gradients are very easy and fast to compute.
+Further two other well known activation functions, that are used in Wavenets for example, are the sigmoid function:
 \begin{equation}\label{eq:nn_theory_sigmoid}
   h(a) = \frac{1}{1 + \exp{-a}}
 \end{equation}
@@ -62,8 +62,8 @@ The mentioned activation functions are shown in \rfig{nn_theory_activation}.
 
 \subsection{Fully Connected Layer}
 A fully connected (FC) layer is one of the simplest and most commonly used layer types in neural network architectures.
-Each node from the previous layer is forwardly connected to all nodes in the current FC layer and each node in the current FC layer is connected to all nodes in the next layer.
-Further every connection has one trainable weight and every node has a bias term.
+Each node from a previous layer is forwardly connected to all nodes in a current FC layer and each node in that current FC layer is connected to all nodes in the next layer.
+Further every connection consist of one trainable weight and each node incorporates an additive bias term.
 A simple FC layer is illustrated in \rfig{nn_theory_fc} with 3 nodes.
 % fc
 \begin{figure}[!ht]
@@ -79,14 +79,14 @@ Mathematically one node $i$ performs following calculation:
   z_i = h(\bm{w_i}^T \bm{x} + b_i)
 \end{equation}
 with the same notations as described in \req{nn_theory_acti} and an additional bias term $b_i \in \R$.
-For all nodes in a layer this equation of a single node can be summarized to a weight matrix $W \in \R^{m \times n}$ with $m$ as total amount of nodes in that layer, so that an FC layer can be written as:
+For all nodes in a current layer this equation of a single node can be summarized to a weight matrix $W \in \R^{m \times n}$ with $m$ as total amount of nodes in the current layer and a total number of $n$ nodes from the previous layer, so that an FC layer can be written as:
 \begin{equation}
   \bm{z} = h(W \bm{x} + \bm{b})
 \end{equation}
-where $\bm{b} \in \R^m$ are the bias terms of all nodes and $\bm{z} \in \R^m$ the outputs of all nodes in that layer.
-With the matrix representation it is easy to obtain the amount of operations needed for a FC layer.
+where $\bm{b} \in \R^m$ are the bias terms and $\bm{z} \in \R^m$ the outputs of all nodes in the current layer $m$.
+With the matrix representation it is easy to obtain the number of training parameters and amount of operations needed for a FC layer.
 The amount of parameters are clearly $m \cdot n$ for $W$ and $m$ for $\bm{b}$, so in total this gives $m \cdot n + m$ parameters.
-The amount of operations are the matrix vector multiplication with approximated amounts of multiplication and additions, plus the bias terms.
+The amount of operations are the matrix vector multiplication with approximated amounts of multiplication and additions, plus the additive bias terms.
 With the activation function disregarded, the amount of calculations are closely:
 \begin{equation} 
   \mathcal{T}(W \bm{x} + \bm{b}) = 2 (m \cdot n) + m
@@ -99,40 +99,40 @@ which would give for example with $n = 128$ and $m = 64$ roughly $\mathcal{T}(W 
 
 \subsection{Convolutional Layers}\label{sec:nn_theory_cnn}
 Convolutional layers are the fundamental building block of every Covolutional Neural Networks (CNN), as already discussed in \rsec{prev_nn_cnn}.
-Convolutional filters are applied on small areas of the input data, so that spatial information can be retrieved.
-Those convolutional filters are also called kernels, denoted as $k$ and illustrated in case of images as rectangles in 2D space with kernel width $d_{k_w}$ and height $d_{k_h}$.
-The kernel is shifted over its input map in each dimensional axis with an operation called \emph{stride}, denoted as $s$, and produce an output map through the convolution operation, mathematically denoted with a star $*$.
-The output length $d_{o_z}$ of an image in dimension $z$ convoluted from an input length $d_{x_z}$ with a kernel $k$ striding along axis $i$ with $s_z$ and kernel size for that axis $d_{k_z}$ can be computed as following:
+Convolutional filters are applied on small areas of the input data to retrieve spatial information, where the input data can consist of multiple channels or input maps.
+Those convolutional filters are also called kernels, denoted as $k$ and in case of 2 dimensional input maps illustrated as images with kernel width $d_{k_w}$ and height $d_{k_h}$.
+The kernels are shifted over each input map in each dimensional axis with an operation called \emph{stride}, denoted as $s$, and produce an output map corresponding to each kernel and input map through the convolution operation, mathematically denoted with a star $\ast$.
+The output length $d_{o_z}$ of an image in any dimension $z$, where $z \in \{w, h\}$ with $w$ as width and $h$ as height for images, convoluted from an input map of length $d_{x_z}$ with a kernel $k$ striding along axis $z$ with $s_z$ and kernel size for that axis $d_{k_z}$ can be computed as following:
 \begin{equation}\label{eq:nn_theory_cnn_}
   d_{o_z} = \floor*{\frac{d_{x_z} + p_z - d_{k_z}}{s_z} + 1}
 \end{equation}
 where $p_z$ is an additional \emph{padding} term in dimension $z$, for instance zero-padding adds zeros on both sides of the selected axis.
 For example if a $16 \times 16$ image is convoluted by a $5 \times 5$ kernel with stride $1$ in each direction and no padding is done, the output image is a $12 \times 12$ image.
 The padding operation has usually the purpose to keep the same output and input dimension.
-This is for instance necessary in residual neural networks, where the input to a residual block with several convolutional layers is bypassed and added to the output of this block again.
+For instance, this is necessary in residual neural networks, where the input to a residual block with several convolutional layers is bypassed and added to the output of the same residual block again.
 Being able to compute the addition operation from input and output of the residual block, their dimensions must coincide.
-However in most convolutional network applications without residual blocks, it is preferred not to pad the image, so that dimensions are reduced hence parameters and multiplications saved.
-Further some types of sub-sampling layers exist, such as a Max-Pooling layer, especially designed to reduce the dimensions of the output image and save computations.
+However in most convolutional network applications without residual blocks, it is preferred not to pad the image, so that dimensions are reduced hence parameters and multiplications saved for further consecutive layers.
+Further some special types of sub-sampling layers exist, such as a Max-Pooling layer, designed to reduce the dimensions of the output image.
 
-A convolutional layer is defined by the amount of input and output channels (feature maps), the kernel size, the stride of the kernel and some other specialties like dilation.
+A convolutional layer is defined by the amount of input maps and output channels (feature maps), the kernel size, the stride of the kernel and some other specialties like padding and dilation.
 However it is not immediately clear from those parameter, how many convolutional filters are applied and how the output feature maps are calculated exactly.
-The amount of convolutional filters $k$ is in most practical examples always:
+The number of convolutional filters $\#k$ is in most practical examples always:
 \begin{equation}\label{eq:nn_theory_n_filters}
   \#k = i \cdot j
 \end{equation}
 where $i$ and $j$ is the amount of input and output channels respectively.
 Each kernel produces an output map, but the idea is to constraint the number of output maps $\#k$ to the defined output channels $j$.
-This is usually done by summing up all output maps of input channels $i$ for one output channel $j$:
+This is usually done by summing up all feature maps obtained from all input channels $i$ convoluted with kernel $k_{i, j}$ for one output channel $j$:
 \begin{equation}
-  o_j = \sum_{i} k_{i, j} * x_i
+  o_j = \sum_{i} k_{i, j} \ast x_i
 \end{equation}
-where $o_j$ is the j-th feature map, $k_{i, j}$ the kernel of $i$ and $j$ and $x_i$ the i-th input channel.
+where $o_j$ is the resulting j-th feature map or output channel and $x_i$ the i-th input channel.
 A graphical example of this procedure is shown in \rfig{nn_theory_cnn_basics}.
 % cnn basics
 \begin{figure}[!ht]
   \centering
     \includegraphics[width=0.6\textwidth]{./4_nn/figs/nn_theory_cnn_basics.eps}
-  \caption{Basic CNN layer with a $16 \times 16$ input image, decomposed in 3 channels (CYM) and 4 output feature maps. Kernel size is $5 \times 5$ and the stride is $1$.}
+  \caption{Basic convolutional layer with a $16 \times 16$ input image, decomposed in 3 channels (CYM) and processed to 4 output feature maps. The kernel size is $5 \times 5$ and the stride is $1$ in both dimensions.}
   \label{fig:nn_theory_cnn_basics}
 \end{figure}
 \FloatBarrier
@@ -140,7 +140,7 @@ A graphical example of this procedure is shown in \rfig{nn_theory_cnn_basics}.
 
 The amount of parameters are all weights in the convolutional filters (kernels) and their bias terms, however the bias terms for each filter can be ignored, in this thesis no bias terms were used for the convolutional layers.
 Therefore the amount of parameters are $\#k \cdot d_{k_w} \cdot d_{k_h}$ for a two dimensional convolutional layer, which makes $3 \cdot 4 \cdot 5 \cdot 5 = 300$ parameters for the example in \rfig{nn_theory_cnn_basics}.
-The amount of operations are therefore each convolution operation for each filter and the summation to $j$ output channels.
+The amount of operations are all convolution operations for each filter and the summation to $j$ output channels.
 One convolution with a single two dimensional kernel $k$ and one input channel $x$ has an approximate number of multiplication and addition operations:
 \begin{equation}
   \mathcal{T}(k * x) = 2(d_{k_w} \cdot d_{k_h}) (d_{o_w} \cdot d_{o_h})
@@ -156,7 +156,7 @@ For the previous example this would give $\mathcal{T}(k * x) = 2 (12 \cdot 12) (
 % loss functions
 
 \subsection{Loss Functions and Softmax}
-Loss functions also known as cost functions are used to determine the difference between the predicted labels $\hat{y}_i$ for class $i$ compared to the actual or ground truth labels $y$.
+Loss functions also known as cost functions, are used to determine the difference between the predicted label $\hat{y}_i$ for class $i$ compared to the actual or ground truth label $y$ of one specific training data example.
 The predicted labels are usually presented by the output nodes in the last layer of a neural network.
 Therefore $\hat{\bm{y}} = [\hat{y_0}, \hat{y_1}, \dots, \hat{y_L}]^T$ has the dimension of the number of labels or classes $L$.
 Often it is preferred that $\hat{\bm{y}} \in \R^L$ provides a probability distribution such that:
@@ -173,7 +173,7 @@ There are already plenty of different loss functions available for training neur
 Without going too much into the detail of this loss function, it is described in the same way as in the \texttt{Pytorch} framework \cite{Pytorch}.
 The binary cross entropy is implemented as:
 \begin{equation}
-  l_i(x_i, y_i) = y_i \cdot \log x_i + (1 - y_i) \cdot \log (1 - x_i)
+  l(x_i, y_i) = y_i \cdot \log x_i + (1 - y_i) \cdot \log (1 - x_i)
 \end{equation}
 with the training pair $(x_i, y_i)$, where $x_i \in \R^{N \times 1}$ as feature input and $y_i \in \{0, 1\}^N$ as corresponding label for the two label classification problem.
 During the training procedure a whole batch of sample size $N$ is used for one update step, however the loss function should provide only a single value, therefore all $l_i$ with $i = 0, \dots, N$ must be concatenated.
@@ -181,7 +181,7 @@ This can simply be done for instance with the calculation of the mean of all $l_
 
 The multiclass variant of the cross entropy can be defined by
 \begin{equation}
-  l_i(x_i, y_i) = - x_i[y_i] + \log{\left( \sum_{j=0}^{L} \exp{x_i[j]} \right)}
+  l(x_i, y_i) = - x_i[y_i] + \log{\left( \sum_{j=0}^{L} \exp{x_i[j]} \right)}
 \end{equation}
 where $x_i \in \R^{N \times L}$, $y_i \in \{0, 1, \dots, L\}^N$ and a total number of $L$ classes.
 Note that $x_i[y_i]$ is denoted as indexing of $x_i$ of its class dimension $L$. 
@@ -211,7 +211,7 @@ The run over all batches of a dataset is defined as \emph{epoch}.
 Note that the training of neural networks may take over thousands of epochs until convergence is reached.
 The general training techniques for neural networks and further details are not described here, because of many existing books and papers \cite{LeCun2006}, \cite{Goodfellow2016}, \cite{DeepLearning} that are already presenting this topic very well. 
 Further it does not add any value to this thesis as the algorithms are well examined and run in the background of all neural network frameworks.
-The interesting elements are therefore only the neural network architecture design, the training parameters and the used loss functions.
+The interesting elements are therefore only the neural network architecture design, the hyperparameters for training and the used loss functions.
 
 
 % --

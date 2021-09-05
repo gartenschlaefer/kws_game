@@ -185,23 +185,23 @@ The computation of 39 MFCCs are shown in \rfig{signal_mfcc_showcase_mfcc39}
 The computational complexity is evaluated on the total amount of operations needed for a specific computation task, such as the feature extraction of MFCCs.
 The energy consumption is related to the computational complexity, but it is much harder to define and depends on many parameters and actual hardware implementations, which is especially important for handheld devices.
 The count of operations is sufficient for this thesis and provides a comparison to the benchmark models mentioned in \rsec{prev_kws_benchmark}.
-The computational complexity for the extraction of MFCC features are the amount of operations needed to process a \SI{1}{\second} time signal sampled with $f_s = \SI{16}{\kilo\hertz}$.
+The computational complexity for the extraction of MFCC features is the amount of operations needed to process a \SI{1}{\second} time signal sampled with $f_s = \SI{16}{\kilo\hertz}$.
 All MFCC specific extraction details are collected in \rtab{signal_mfcc_extraction_params}.
 \input{./3_signal/tables/tab_signal_mfcc_extraction_params}
 The amount of operations are the total number of additions and multiplications necessary to fulfill the process.
 The major components of the MFCC are, as described in \rsec{signal_mfcc_pipeline} and summarized in \req{signal_mfcc_mfcc}, the transformation to the STFT, the weighting with the filter bands and the DCT transform.
-The most costly component is of course the STFT, which again is composed of DFTs.
+The most costly component is of course the STFT, which again is composed of Discrete Fourier Transforms (DFT).
 Note that the DFT uses complex multiplications and additions.
 One complex multiplication equals to 4 real multiplication and 2 additions, so one complex multiplication consists of 6 operations.
 For one complex addition, two real additions are necessary and equals therefore to 2 operations.
-A general matrix multiplication with a vector $y = A \bm{x}$ where $A \in \R^{m \times n}$ and $\bm{x} \in \R^n$ is composed of $m \cdot n$ multiplications and $m \cdot (n - 1)$ additions, where for simplicity the amount of additions is also assumed to be $m \cdot n$.
+A general matrix multiplication with a vector $y = A \bm{x}$, where $A \in \R^{m \times n}$ and $\bm{x} \in \R^n$ is composed of $m \cdot n$ multiplications and $m \cdot (n - 1)$ additions, where for simplicity the amount of additions is also assumed to be $m \cdot n$.
 
 The amount of operations, denoted as $\mathcal{T(.)}$, for a trivial DFT transform with operator $\mathcal{F} \in \C^{K \times N}$ and $K$ Fourier coefficients on a windowed signal $\bm{x} \in \R^N$ with a total sample number of $N$ is:
 \begin{equation}
   \mathcal{T}(\mathcal{F} \bm{x}) = 6 (N K) + 2 (N K)
 \end{equation}
 and give for $N = K = 400$ the amount of operations $\mathcal{T}(\mathcal{F} \bm{x}) = \SI{1.28}{\mega\ops}$ for a single DFT.
-This of course are a lot of operations, luckily a more sophisticated Fourier transform can be applied with the Fast Fourier Transform (FFT) algorithm \cite{Brigham1967}, which gives a linear complexity and operations are calculated as:
+This of course are too many operations for a real time system, luckily a more sophisticated Fourier transform can be applied with the Fast Fourier Transform (FFT) algorithm \cite{Brigham1967}, which gives a linear complexity and operations are calculated as:
 \begin{equation}
   \mathcal{T}(\mathcal{F} \bm{x}) = 6 (\mathcal{O}(N \cdot \log_2 N)) + 2 (\mathcal{O}(N \cdot \log_2 N))
 \end{equation}
@@ -215,7 +215,7 @@ The Fourier coefficients are therefore reduced to $K = 201$.
 
 The computation of the power spectrum and the log scaling are disregarded, so that two matrix multiplications remain:
 $W_m P$ is a matrix multiplication of $\R^{B \times K}$ and $\R^{K \times M}$, which has $B K M$ real multiplications and approximately $B K M$ real additions, which give about $2 B K M = 2 \cdot 32 \cdot 201 \cdot 98 =  \SI{1.26}{\mega\ops}$.
-The resulting band weighted power spectrum $\R^{B \times M}$ is further multiplied with the DCT operator representing a matrix of $\R^{C \times B}$, that gives $2 C B M = 2 \cdot 12 \cdot 32 \cdot 98 = \SI{75}{\kilo\ops}$.
+The resulting band weighted power spectrum $\R^{B \times M}$ is further multiplied with the DCT operator, representing a matrix of $\R^{C \times B}$, that gives $2 C B M = 2 \cdot 12 \cdot 32 \cdot 98 = \SI{75}{\kilo\ops}$.
 Altogether the matrix multiplications are approximately $\SI{1.26}{\mega\ops} + \SI{75}{\kilo\ops} = \SI{1.34}{\mega\ops}$.
 
 The summary of the estimated operations are listed in \rtab{signal_mfcc_operations}.
@@ -230,5 +230,5 @@ The summary of the estimated operations are listed in \rtab{signal_mfcc_operatio
 MFCC are widely used for speech recognition tasks and perform very well, however the processing pipeline of MFCC has some disadvantages.
 One disadvantage is, as already mentioned, that MFCCs are not intended for visualization, because of their broad value space of individual MFCC coefficients.
 Another disadvantage is, that MFCC are not directly invertible to raw audio samples, because of the computation of the spectrogram.
-Some inversion techniques exist \cite{Boucheron2008}, but it is still a rough approximation.
+Inversion techniques for MFCCs exist, such as described in \cite{Boucheron2008}, but it is still a rough approximation.
 The inversion of MFCC would have been very interesting, when applied to generative neural networks, such as Generative Adversarial Neural Networks (GAN).

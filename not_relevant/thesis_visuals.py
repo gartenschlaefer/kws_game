@@ -301,7 +301,7 @@ if __name__ == '__main__':
   #mfcc_stuff(cfg, dct_plot=True, mel_scale_plot=True, mel_band_plot=True, show_plot=True)
 
   # showcase wavs
-  #showcase_wavs(cfg, raw_plot=False, raw_energy_plot=False, spec_plot=False, mfcc_plot=True, use_mfcc_39=True, show_plot=True)
+  showcase_wavs(cfg, raw_plot=False, raw_energy_plot=True, spec_plot=False, mfcc_plot=False, use_mfcc_39=False, show_plot=True)
 
   # feature selection tables
   #feature_selection_tables(overwrite=True)
@@ -313,7 +313,7 @@ if __name__ == '__main__':
   #batch_archive_grid_examples(cfg, show_plot=True)
 
   # logs
-  training_logs(cfg)
+  #training_logs(cfg)
 
   # theory
   #nn_theory()

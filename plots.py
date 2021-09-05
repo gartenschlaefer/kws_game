@@ -543,15 +543,15 @@ def plot_waveform(x, fs, e_mfcc=None, e_samples=None, anno_file=None, bon_sample
   ax.plot(t, x)
 
   # energy plots
-  if e_samples is not None: ax.plot(t[0:len(e_samples)], e_samples / np.max(e_samples), lw=1.5, linestyle='dashed', color=get_colormap_from_context(context='wav-hline'), label='sample energy')
-  if e_mfcc is not None: ax.plot(np.arange(0, len(x)/fs, 1/fs * hop)[0:len(e_mfcc)], e_mfcc / np.max(e_mfcc), lw=1.5, linestyle='dashdot', color=get_colormap_from_context(context='wav-hline2'), label='mfcc0 energy')
+  if e_samples is not None: ax.plot(t[0:len(e_samples)], e_samples / np.max(e_samples), lw=2, linestyle='dashed', color=get_colormap_from_context(context='wav-hline'), label='sample energy')
+  if e_mfcc is not None: ax.plot(np.arange(0, len(x)/fs, 1/fs * hop)[0:len(e_mfcc)], e_mfcc / np.max(e_mfcc), lw=2, linestyle='dashdot', color=get_colormap_from_context(context='wav-hline2'), label='mfcc0 energy')
 
   # draw onsets
   [plt.axvline(x=float(frames_to_time(o, fs, hop)), dashes=(5, 1), color='k') for o in onset_frames]
 
   # draw bon samples  
-  [plt.axvline(x=float(b)/fs, lw=2, linestyle='dashed', color=get_colormap_from_context(context='wav-hline')) for b in bon_samples]
-  [plt.axvline(x=float(b)*hop/fs, lw=2, linestyle='dashdot', color=get_colormap_from_context(context='wav-hline2')) for b in bon_mfcc]
+  [plt.axvline(x=float(b)/fs, lw=3, linestyle='dashed', color=get_colormap_from_context(context='wav-hline')) for b in bon_samples]
+  [plt.axvline(x=float(b)*hop/fs, lw=3, linestyle='dashdot', color=get_colormap_from_context(context='wav-hline2')) for b in bon_mfcc]
 
   # lims
   if xlim is not None: plt.xlim(xlim)
@@ -577,7 +577,7 @@ def plot_waveform(x, fs, e_mfcc=None, e_samples=None, anno_file=None, bon_sample
   plt.ylabel('magnitude', fontsize=get_fontsize('axis_label')), plt.xlabel('time [s]', fontsize=get_fontsize('axis_label')), plt.grid()
 
   # legend
-  if e_samples is not None or e_mfcc is not None: plt.legend()
+  if e_samples is not None or e_mfcc is not None: plt.legend(fontsize=get_fontsize('axis_label'))
 
   if axis_off: plt.axis('off'), ax.axis('off'),
 
