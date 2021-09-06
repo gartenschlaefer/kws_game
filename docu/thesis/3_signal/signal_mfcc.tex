@@ -107,7 +107,7 @@ The differences in the value space leads to a problem in the visualization with 
 A solution to this problem is to normalize the feature vectors over each frame dimension with the infinity norm as:
 % frame-based normalization
 \begin{equation}\label{eq:signal_mfcc_norm}
-  U[c, m] \gets \frac{U[c, m]}{\norm{\bm{u}_c}_\infty} \quad \forall \, c, m = (0, 1, \dots, C - 1), (0, 1, \dots, M - 1)
+  U[c, m] \gets \frac{U[c, m] + \vert \underset{m \in \mathcal{M}}{\min} \bm{u}_c \vert}{\norm{\bm{u}_c + \vert \underset{m \in \mathcal{M}}{\min} \bm{u}_c \vert}_\infty} \quad \forall \, c, m = (0, 1, \dots, C - 1), (0, 1, \dots, M - 1)
 \end{equation}
 where $c$ is the individual MFCC coefficient, $m$ the frame (time) index and $\bm{u}_c \in \R^M$ the individual MFCC coefficient vector over all frames $M$.
 This equation gives a value space between $[0, 1]$ for each feature vector $\bm{u}_c$.

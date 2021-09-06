@@ -102,22 +102,51 @@ class FeatureExtractor():
     mfcc_all = self.mfcc_feature_stacking(mfcc_all, mfcc, deltas, double_deltas, e_mfcc, e_deltas, e_double_deltas)
 
     # norm -> [0, 1]
-    if self.feature_params['norm_features']:
+    if self.feature_params['norm_features']: mfcc_all = self.frame_based_normalization(mfcc_all)
+    #if self.feature_params['norm_features']: mfcc_all = self.feature_based_normalization(mfcc_all)
 
-      # for each channel
-      for ch in range(self.channel_size):
-
-        # determine minimums of all feature vectors
-        m_abs_min = np.abs(np.min(mfcc_all[ch, :], axis=1))
-
-        # normalize mfcc
-        mfcc_all[ch, :] = [(m + m_abs_min[i]) / np.linalg.norm(m + m_abs_min[i], ord=np.infty) for i, m in enumerate(mfcc_all[ch, :])]
-      
     # find best onset
     bon_pos = self.find_max_energy_region(mfcc[self.energy_feature_pos, :], window_size=self.frame_size, rand_best_onset=rand_best_onset, rand_delta_percs=rand_delta_percs)
 
     # return mfcc and best onset
     return (mfcc_all[:, :, bon_pos:bon_pos+self.frame_size], bon_pos) if reduce_to_best_onset else (mfcc_all, bon_pos)
+
+
+  def frame_based_normalization(self, mfcc_all):
+    """
+    apply frame-based normalization
+    """
+
+    # for each channel
+    for ch in range(self.channel_size):
+
+      # determine minimums of all feature vectors
+      m_abs_min = np.abs(np.min(mfcc_all[ch, :], axis=1))
+
+      # normalize mfcc
+      mfcc_all[ch, :] = [(m + m_abs_min[i]) / np.linalg.norm(m + m_abs_min[i], ord=np.infty) for i, m in enumerate(mfcc_all[ch, :])]
+    
+    return mfcc_all
+
+
+  def feature_based_normalization(self, mfcc_all):
+    """
+    apply feature-based normalization
+    """
+
+    # select coeffs
+    mfcc_all = mfcc_all[:, 1:-1, :]
+
+    # for each channel
+    for ch in range(self.channel_size):
+
+      # determine minimums of all feature vectors
+      m_abs_min = np.abs(np.min(mfcc_all[ch, :], axis=0))
+
+      # normalize
+      mfcc_all[ch, :] = np.array([(m + m_abs_min[i]) / np.linalg.norm(m + m_abs_min[i], ord=np.infty) for i, m in enumerate(mfcc_all[ch, :].T)]).T
+
+    return mfcc_all
 
 
   def mfcc_feature_stacking(self, mfcc_all, mfcc, deltas, double_deltas, e_mfcc, e_deltas, e_double_deltas):
@@ -734,11 +763,10 @@ if __name__ == '__main__':
   feature_extractor = FeatureExtractor(cfg['feature_params'])
 
   # wav dir
-  wav_dir = './ignore/my_recordings/showcase_wavs/'
-  #wav_dir = './' + cfg['datasets']['speech_commands']['plot_paths']['damaged_files']
+  wav_dir = './docu/showcase_wavs/'
 
   # annotation dir
-  anno_dir = './ignore/my_recordings/showcase_wavs/annotation/'
+  anno_dir = './docu/showcase_wavs/annotation/'
 
   # analyze some wavs
   for wav, anno in zip(glob(wav_dir + '*.wav'), glob(anno_dir + '*.TextGrid')):
@@ -755,15 +783,14 @@ if __name__ == '__main__':
     print("mfcc: ", mfcc.shape)
     
     # invert mfcc
-    x_hat = feature_extractor.invert_mfcc(np.squeeze(mfcc))
+    #x_hat = feature_extractor.invert_mfcc(np.squeeze(mfcc))
+    #print("x_hat: ", x_hat.shape)
 
     # save invert mfcc
-    soundfile.write(wav.split('.wav')[0] + '_inv_mfcc.wav', x_hat, 16000, subtype=None, endian=None, format=None, closefd=True)
+    #soundfile.write(wav.split('.wav')[0] + '_inv_mfcc.wav', x_hat, 16000, subtype=None, endian=None, format=None, closefd=True)
 
-    print("x_hat: ", x_hat.shape)
-
-    plot_mfcc_profile(x, 16000, feature_extractor.N, feature_extractor.hop, mfcc, anno_file=anno, sep_features=True, diff_plot=False, bon_pos=bon_pos, frame_size=cfg['feature_params']['frame_size'], plot_path=wav_dir, name=wav.split('/')[-1].split('.')[0], show_plot=False, close_plot=False)
-    plot_waveform(x, 16000, anno_file=anno, hop=feature_extractor.hop, title=wav.split('/')[-1].split('.')[0]+'_my', plot_path=wav_dir, name=wav.split('/')[-1].split('.')[0], show_plot=False)
+    plot_mfcc_profile(x, 16000, feature_extractor.N, feature_extractor.hop, mfcc, anno_file=anno, sep_features=True, diff_plot=False, bon_pos=bon_pos, frame_size=cfg['feature_params']['frame_size'], name=wav.split('/')[-1].split('.')[0], show_plot=True)
+    #plot_waveform(x, 16000, anno_file=anno, hop=feature_extractor.hop, title=wav.split('/')[-1].split('.')[0]+'_my', name=wav.split('/')[-1].split('.')[0], show_plot=True)
     
   # random
   x = np.random.randn(16000)

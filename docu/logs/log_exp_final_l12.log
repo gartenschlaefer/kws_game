@@ -1,5 +1,7 @@
 % experiments on full dataset
 
+% norm
+
 2021-09-01 20:54:49,464 Training on arch: [conv-trad], audio set param string: [v5_c12n1m1_n-3500_r1-5_mfcc32-12_c1d0d0e0_norm1_f-1x12x50/], param_string: [bs-32_it-2000_lr-0p0001] train_params: {'batch_size': 32, 'num_epochs': 2000, 'lr': 0.0001, 'beta': 0.9}, device: [cuda:0], time: [07:23:48]
 2021-09-01 20:54:51,691 Eval test on arch: [conv-trad], audio set param string: [v5_c12n1m1_n-3500_r1-5_mfcc32-12_c1d0d0e0_norm1_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 2000, 'lr': 0.0001, 'beta': 0.9}, correct: [3519 / 4200] acc: [83.7857] with loss: [1495.7418]
 2021-09-01 20:54:52,547 Eval my on arch: [conv-trad], audio set param string: [v5_c12n1m1_n-3500_r1-5_mfcc32-12_c1d0d0e0_norm1_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 2000, 'lr': 0.0001, 'beta': 0.9}, correct: [22 / 25] acc: [88.0000] with loss: [43.4434]
@@ -19,3 +21,21 @@
 2021-09-02 17:45:43,940 Eval test on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-3500_r1-5_mfcc32-12_c1d0d0e0_norm1_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 2000, 'lr': 0.0001, 'beta': 0.9}, correct: [3554 / 4200] acc: [84.6190] with loss: [1488.5798]
 2021-09-02 17:45:44,643 Eval my on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-3500_r1-5_mfcc32-12_c1d0d0e0_norm1_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 2000, 'lr': 0.0001, 'beta': 0.9}, correct: [23 / 25] acc: [92.0000] with loss: [42.3019]
 2021-09-02 17:45:45,265 
+
+
+% no norm
+
+2021-09-05 02:18:39,188 Training on arch: [conv-trad], audio set param string: [v5_c12n1m1_n-3500_r1-5_mfcc32-12_c1d0d0e0_norm0_f-1x12x50/], param_string: [bs-32_it-2000_lr-0p0001] train_params: {'batch_size': 32, 'num_epochs': 2000, 'lr': 0.0001, 'beta': 0.9}, device: [cpu], time: [02:46:43]
+2021-09-05 02:18:39,960 Eval test on arch: [conv-trad], audio set param string: [v5_c12n1m1_n-3500_r1-5_mfcc32-12_c1d0d0e0_norm0_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 2000, 'lr': 0.0001, 'beta': 0.9}, correct: [3550 / 4200] acc: [84.5238] with loss: [1489.7437]
+2021-09-05 02:18:40,432 Eval my on arch: [conv-trad], audio set param string: [v5_c12n1m1_n-3500_r1-5_mfcc32-12_c1d0d0e0_norm0_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 2000, 'lr': 0.0001, 'beta': 0.9}, correct: [23 / 25] acc: [92.0000] with loss: [42.4682]
+2021-09-05 02:18:40,822 
+
+2021-09-05 03:31:39,173 Training on arch: [conv-fstride], audio set param string: [v5_c12n1m1_n-3500_r1-5_mfcc32-12_c1d0d0e0_norm0_f-1x12x50/], param_string: [bs-32_it-2000_lr-0p0001] train_params: {'batch_size': 32, 'num_epochs': 2000, 'lr': 0.0001, 'beta': 0.9}, device: [cpu], time: [01:12:56]
+2021-09-05 03:31:39,783 Eval test on arch: [conv-fstride], audio set param string: [v5_c12n1m1_n-3500_r1-5_mfcc32-12_c1d0d0e0_norm0_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 2000, 'lr': 0.0001, 'beta': 0.9}, correct: [3350 / 4200] acc: [79.7619] with loss: [1529.7212]
+2021-09-05 03:31:40,250 Eval my on arch: [conv-fstride], audio set param string: [v5_c12n1m1_n-3500_r1-5_mfcc32-12_c1d0d0e0_norm0_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 2000, 'lr': 0.0001, 'beta': 0.9}, correct: [20 / 25] acc: [80.0000] with loss: [45.4682]
+2021-09-05 03:31:40,643 
+
+2021-09-05 05:05:45,167 Training on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-3500_r1-5_mfcc32-12_c1d0d0e0_norm0_f-1x12x50/], param_string: [bs-32_it-2000_lr-0p0001] train_params: {'batch_size': 32, 'num_epochs': 2000, 'lr': 0.0001, 'beta': 0.9}, device: [cpu], time: [01:34:02]
+2021-09-05 05:05:45,811 Eval test on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-3500_r1-5_mfcc32-12_c1d0d0e0_norm0_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 2000, 'lr': 0.0001, 'beta': 0.9}, correct: [3660 / 4200] acc: [87.1429] with loss: [1467.8022]
+2021-09-05 05:05:46,225 Eval my on arch: [conv-jim], audio set param string: [v5_c12n1m1_n-3500_r1-5_mfcc32-12_c1d0d0e0_norm0_f-1x12x50/], train_params: {'batch_size': 32, 'num_epochs': 2000, 'lr': 0.0001, 'beta': 0.9}, correct: [22 / 25] acc: [88.0000] with loss: [43.4682]
+2021-09-05 05:05:46,666 

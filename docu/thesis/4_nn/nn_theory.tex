@@ -171,15 +171,15 @@ where $L$ is the amount of nodes in this layer, if it is the last layer as usual
 
 There are already plenty of different loss functions available for training neural networks, such as described in \cite{LeCun2006}, however in this thesis only one kind of it is used for all neural network architecture, the cross-entropy loss or for two classes the binary cross-entropy loss function.
 Without going too much into the detail of this loss function, it is described in the same way as in the \texttt{Pytorch} framework \cite{Pytorch}.
-The binary cross entropy is implemented as:
-\begin{equation}
+The binary cross-entropy is implemented as:
+\begin{equation}\label{eq:nn_theory_binary_cross_entropy}
   l(x_i, y_i) = y_i \cdot \log x_i + (1 - y_i) \cdot \log (1 - x_i)
 \end{equation}
 with the training pair $(x_i, y_i)$, where $x_i \in \R^{N \times 1}$ as feature input and $y_i \in \{0, 1\}^N$ as corresponding label for the two label classification problem.
 During the training procedure a whole batch of sample size $N$ is used for one update step, however the loss function should provide only a single value, therefore all $l_i$ with $i = 0, \dots, N$ must be concatenated.
 This can simply be done for instance with the calculation of the mean of all $l_i$.
 
-The multiclass variant of the cross entropy can be defined by
+The multiclass variant of the cross-entropy can be defined by
 \begin{equation}
   l(x_i, y_i) = - x_i[y_i] + \log{\left( \sum_{j=0}^{L} \exp{x_i[j]} \right)}
 \end{equation}
@@ -225,6 +225,6 @@ The min-max game both networks are playing is the following:
   \underset{G}{\min} \, \underset{D}{\max} \, V(D, G) = \E_{\bm{x} \sim p_{data}(\bm{x})}\left[ \log D(\bm{x}) \right] + 
     \E_{\bm{z} \sim p_{\bm{z}}(\bm{z})}\left[ \log (1 - D(G(\bm{z}))) \right]
 \end{equation}
-where $\bm{x} \in \R^\mathcal{X}$ are samples from the data distribution $p_{data}$, $\bm{z} \in \R^\mathcal{Z}$ is a latent variable sampled from $p_{\bm{z}}$, $D: \mathcal{X} \to [0, 1]$ is the discriminator network and $G: \mathcal{Z} \to \mathcal{X}$ the generator network.
+where $\bm{x} \in \R^\mathcal{X}$ are samples from the data distribution $p_{data}$, $\bm{z} \in \R^\mathcal{Z}$ is a latent variable sampled from $p_{\bm{z}}$, $D: \mathcal{X} \mapsto [0, 1]$ is the discriminator network and $G: \mathcal{Z} \mapsto \mathcal{X}$ the generator network.
 The advise from the original paper is not to minimize G, such as $\log (1 - D(G(\bm{z})))$, but to maximize $\log D(G(\bm{z}))$ instead.
 The training algorithm can be read from \cite{Goodfellow2014} in detail.

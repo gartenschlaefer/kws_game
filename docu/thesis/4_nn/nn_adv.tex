@@ -5,7 +5,7 @@
 \thesisStateNotReady
 In adversarial neural network training, two separate neural networks are competing against each other in an adversary task.
 This competition of the two networks motivates them to improve their performance and beat the other network.
-The application of Generative Adversarial Neural Networks (GAN), as already explained in \rsec{prev_nn_adv} and \rsec{nn_theory_gan}, is yet another interesting subject of research and the questions if the obtained weights from training a Generator (G) and Discriminator (D) network can contribute to better the performances in equivalent models, is a reasonable one.
+The application of Generative Adversarial Neural Networks (GAN), as already explained in \rsec{prev_nn_adv} and \rsec{nn_theory_gan}, is an interesting subject in research and the questions if the obtained weights from the training of the Generator (G) and Discriminator (D) network can contribute to better the performances in equivalent models, arises.
 In the follwing the training algorithms are explained in more detail, such as the loss functions used for G and D.
 The transfer of weights can be done for small subsets of trained labels or the whole network.
 The transfering techniques of the whole network is denoted as adversarial dual train and the training of separate labels is named adversarial label train.
@@ -18,20 +18,33 @@ The transfering techniques of the whole network is denoted as adversarial dual t
 The interesting part in training Generative Adversarial Neural Networks is how the Generator (G) and Discriminator (D) models are updated and which loss functions were used.
 In \req{nn_theory_gan} the game is notated as min-max game, from which the loss of D $l_D$ can be described for one specific example $i$ in a batch as:
 \begin{equation}
-  l_D(x_i, z_i, G) = l_c(D(x_i), y_r) + l_c(D(G(z_i)), y_f)
+  l_D(x_i, z_i, G) = l(D(x_i), y_r) + l(D(G(z_i)), y_f)
 \end{equation}
-where $D: \mathcal{X} \to [0, 1]$ and $G: \mathcal{Z} \to \mathcal{X}$, $x_i \in \R^{\mathcal{X}}$ is the data example, $z_i \in \R^\mathcal{Z}$ is a randomly sampled latent variable, $y_r = 1$ is the real label and $y_f = 0$ the fake label for that specific example $i$.
+where $l$ is the binary cross-entropy loss described in \req{nn_theory_binary_cross_entropy}, $D: \mathcal{X} \mapsto [0, 1]$ and $G: \mathcal{Z} \mapsto \mathcal{X}$, $x_i \in \R^{\mathcal{X}}$ is the data example, $z_i \in \R^\mathcal{Z}$ is a randomly sampled latent variable, $y_r = 1$ is the real label and $y_f = 0$ the fake label for that specific example $i$.
 In contrast to Generators loss $l_G$ as:
 \begin{equation}
-  l_G(z_i, D) =  l_c(D(G(z_i)), y_r)
+  l_G(z_i, D) =  l(D(G(z_i)), y_r)
 \end{equation}
 with $y_r$ as real label to perform maximization of $\log D(G(\bm{z}))$ as described in \rsec{nn_theory_gan}.
 A extended approach so that G produces samples specifically similar to the data distribution and does not drift of into creating unrealistic fakes of noisy samples to fake D, is to incorporate a similarity term with the \emph{cosine similarity}:
 \begin{equation}
-  l_s(\bm{x_1}, \bm{x_2}) = \frac{\bm{x_1}^T \bm{x_2}}{\norm{\bm{x_1}}_2 \cdot \norm{\bm{x_2}}_2 + \epsilon} 
+  s(\bm{x_1}, \bm{x_2}) = \frac{\bm{x_1}^T \bm{x_2}}{\norm{\bm{x_1}}_2 \cdot \norm{\bm{x_2}}_2 + \epsilon} 
 \end{equation}
-where $\bm{x_1}$ and $\bm{x_2}$ are two vectors for similarity measure and $\epsilon$ is a small number, such that no divisions by zeros occur.
+where $s : (\mathcal{X}, \mathcal{X}) \mapsto [0, 1]$ is the cosine similarity function, $\bm{x_1}$ and $\bm{x_2}$ are two vectors for similarity measure and $\epsilon$ is a small number, such that no division by zero is possible.
+With the similarity loss incorporated, $l_G$ gets:
+\begin{equation}
+  %l_G(x_i, z_i, D) =  l(D(G(z_i)), y_r) + \lambda (1 - \E \left[ s(x_i \bm{e}, G(z_i)) \right])
+  l_G(x_i, z_i, D) =  l(D(G(z_i)), y_r) + \lambda \left(1 - \frac{1}{C} \sum_{c=0}^{C} s(\bm{e}_c^T x_i , \bm{e}_c^T G(z_i)) \right)
+\end{equation}
+where $\bm{e}_c \in \{1, 0\}^C$ is a unit vector, representing one ceptral coefficient of the MFCC data $x_i \in \mathcal{X} = \R^{C \times M}$
+with a total number of $C$ MFCC coefficients and $M$ frames.
+Further $\lambda$ is a trade-off factor between data similarity and fake loss from D.
 
+The update of D and G can be done for each training step by backpropagating the obtained losses.
+However it is more interesting if D is updated for a certain numbers of training steps with no update of G and then the other way around.
+This will give either D or G some update steps to improve in their specific adversarial task of either discriminating or generating.
+In this thesis the training steps for updating either D or G was selected to two epochs.
+Note that an epoch consists of several training steps depending on the batch size and amount of data.
 
 
 % --
