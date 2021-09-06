@@ -2,15 +2,25 @@
 % conclusion
 
 \chapter{Conclusion}\label{sec:conclusion}
-The conclusions concerns with the research questions asked in \rsec{intro_rq}.
-
+%The conclusions concerns with the research questions asked in \rsec{intro_rq}.
+The conclusions of the Key Word Spotting (KWS) task in video games were separated into its disciplines.
+The feature extraction of Mel Frequency Cepstral Coefficients (MFCC) an its onset detection.
+The evaluated low computational Convolutional Neural Networks (CNN) with pre training on Generative Adversarial Neural Network (GAN) weights.
+The KWS video game and its fast responses to speech signals.
+At last the future work is presented.
 
 % --
 % featues
 
-\section{Featues}
+\section{Features}
 \thesisStateNotReady
-t.b.d
+From the experiments it was shown that Mel Frequency Cepstral Coefficients (MFCC) provide excellent features for speech signals.
+It was observed that 12 cepstral coefficients are performing better than 32 cepstral coefficients for the evaluated models and therefore the a lower amount of cepstral coefficients is preferred.
+The enhancement of the MFCC features with deltas and energy vectors were not increasing the classification accuracy much and therefore were left out.
+The frame-based normalization yielded in worse accuracy scores of the test and validation set, but increased the noise invariance upon the test signals.
+Further it enabled Generative Adversarial Neural Networks (GAN) to be trained faster and the use of valuable weights of convolutional layers from the Generator network as pre-trained weights for a conventional Convolutional Neural Network (CNN).
+
+The onset detection with the first cepstral coefficient of the MFCC features worked extremely well with a minimum of computational effort and is an excellent choice for accurate detection of key word onsets.
 
 
 % --
@@ -19,16 +29,26 @@ t.b.d
 \section{Neural Networks}
 \thesisStateNotReady
 % conclusions about best neural networks for video games
-t.b.d
+The use of low computational CNN models with few layers is a good evaluation topic, but brings less great accuracy achievements than sophisticated Deep Neural Networks (DNNs).
+Still the models are sufficient for playing a video game and the processing time of available speech commands is reduced strongly, so that it does not slow down the frame rate of a video game.
+The preferred CNN model was the \texttt{conv-jim} model striding only in the frame dimension. It was a good trade-off between accuracy and computational footprint.
+The traditional model achieved the best accuracy scores but was ...
+
+It was showed that Generative Adversarial Neural Networks (GAN) could be useful for obtaining initial pre-trained weights for equivalent classifier networks with same convolutional layers.
+The weights from the Generator (G) network were useful, even though an up-convolution was performed instead of a usual one.
+The trade-off is that a normalization such as the frame-based normalization has to be applied in order that the weights from G are applicable.
+Nevertheless with the pre-trained weights from G the accuracies increased slightly.
+
+In comparison to the benchmark models listed in \rtab{prev_kws_benchmark} the obtained accuracies on the test sets were significantly lower with much headroom of about \SI{10}{\percent}.
+But considering a lower amount of computations and a restricted time interval for the speech commands, the accuracy was not that bad, though a better score on the \enquote{my dataset} would have been great.
 
 
 % --
-% featues
+% game
 
 \section{KWS Game}
 \thesisStateNotReady
-% conclusion about own experience in video games with kws
-t.b.d
+The restriction of the time interval for a key word is a great contribution for the fast responsiveness in playing a KWS video game
 
 
 % --
@@ -36,4 +56,10 @@ t.b.d
 
 \section{Future Work}
 \thesisStateNotReady
-t.b.d
+The most future work has to be done on creating a Wavenet architecture, which is computationaly leight-weight with good classification accuracies, if that is even possible on raw audio samples.
+Another interesting work can be done on the obtained weights from the Generator models of a GAN training. 
+An adversarial training scheme as presented in \cite{Oezdenizci2020} with the same convolutional layer parameters of a Generator (G) model and a classical CNN model would be extremely interesting, however one problem is the up-convolution done by the G so that weight sharing is a bit difficult to implement.
+
+For KWS games it would be interesting to create a flexible time span for the pronounciation of key words.
+
+Another left over evaluation is the influence of the game sounds during playing the video game

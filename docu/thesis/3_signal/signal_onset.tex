@@ -75,7 +75,7 @@ For raw audio extraction, applied in Wavenets, the sample energy method is appli
 % --
 % key word onset detection
 
-\subsection{Online Onset Detection}
+\subsection{Online Onset Detection}\label{sec:signal_onset_online}
 The onset detection of online speech signals received from a microphone input stream, is processed by evaluating consecutive input chunks, that are stored in an input buffer.
 From those input chunks the energy level can be computed and compared with an energy threshold, that should indicate the presence of an onset.
 It is not the purpose to detect key word onsets by its correct starting time, but to signalize that a signal with enough energy is available for a potential key word classification.

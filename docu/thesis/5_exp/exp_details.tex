@@ -61,29 +61,28 @@ The selected labels for training are either the 12 labels (L12) for comparison t
 Note that the amount of examples per label for the 12 and 7 labels differs as shown in \rtab{exp_dataset_all_labels} and the maximal amount of examples per label for training is chosen by the minimum examples per selected label for each label and each set.
 This is provided by the validation set of \enquote{go} with \{train: 2948, test: 425, validation: 350 \} with 350 examples per label, considering a 10\% split.
 This gives the maximal amount of 3500 examples
-% provided by the key word \enquote{up} with 2948 examples.
-
-
-
 This is important, because the number of examples per label should not be chosen to higher values than 2948 for training, otherwise the same amount of examples per label is not given.
 
 
 % --
 % training parameters
 
-\subsubsection{Training parameters}
-The training parameters for the CNNs can be found in ...
+\subsubsection{Training hyperparameters}
+The hyperparameters for training of the CNNs models described in \rsec{nn_arch} are shown in \rtab{exp_details_params_train}.
 \input{./5_exp/tables/tab_exp_details_params_train}
+From the experiments in \rsec{exp} it is shown, that epochs of 2000 yield into some small overfitting effects, but it was important to oberserve when these effects are present.
+The batch size of 32 is slected to a low number, because it worked well and the amount of classes are at maximum 12.
+Note that the batch size influences the selection of the learning rate for updating the parameters of the neural network models.
 
 
 % --
 % training parameters
 
 \subsubsection{Pre-Training details}
-
-The pre-training parameters describe the training details of the adversarial networks used for the  described in \rsec{nn_arch_cnn}.
-For instance it describes if the weights are used from the discriminator or generator network or how much epochs were used for the adversarial training, etc.
+The pre-training parameters describe the training of the Generative Adversarial Neural Networks (GAN), as shown in \rsec{nn_arch_adv} and \rsec{nn_adv}.
+The hyperparameters shown in \rtab{exp_details_params_pre_train} are the same as for usual model training, but the Discriminator (D) and Generator (G) network can have different values for the hyperparameters.
 \input{./5_exp/tables/tab_exp_details_params_pre_train}
+It is important that the epochs for 
 
 
 % --
@@ -106,10 +105,11 @@ The accuracy $a \in [0, 1]$ can therefore be written as:
   a = \frac{\sum_{i=0}^n c(\hat{y}_i, y_i)}{n}
 \end{equation}
 Another more unconventional evaluation technique used, is the evaluation on noise and shift invariance.
-For this one sample from each class label from the self recorded files of the \enquote{my dataset} is used as test targets.
+For this one sample from each class label from the self recorded files of the \enquote{my dataset} is used as test signals.
 The length of those audio files is cut, such that by applying a fixed input frame of \SI{500}{\milli\second}, both end positions consists of at least the half of the audio file information, which is especially important for the shift invariance.
 The evaluation results are plotted in figures of correct classification upon shift and noise level changes.
-In the following the shift and noise invariance test is explained in detail.
+Note that the noise and shift invariance are tested on only 5 test signals and therefore this is not a reliable measure for the trained models, but it is interesting to see how different models perform upon this check.
+In the following the shift and noise invariance tests are explained in detail.
 
 
 
@@ -117,8 +117,8 @@ In the following the shift and noise invariance test is explained in detail.
 % shift invariance
 
 \subsubsection{Shift invariance}
-Shift invariance is very important for speech recognition, for instance the classification of a waveform should still be the same regardless of little shifts in time, as long there is enough and valuable information present that is necessary for a correct classification.
-However the restricted frame size of \SI{500}{\milli\second} might increase the difficulty in this task, not all relevant information of the signal might fit into the analytic window, like the \enquote{t} in \enquote{left} or \enquote{right} is often missed.
+Shift invariance is a very important property for speech recognition, for instance the classification of a waveform should still be the same regardless of little shifts in time, as long there is enough and valuable information present that is necessary for a correct classification.
+However the restricted frame size of \SI{500}{\milli\second} might increase the difficulty in this task, not all relevant information of the speech signal can be captured by the analytic window, like the \enquote{t} in \enquote{left} or \enquote{right} is often missed.
 The figures in this section present a correct classification with a colored pixel and an incorrect with a white pixel.
 The examples from the adversarial training section are shown in \rfig{exp_tb_shift_fc3}.
 \begin{figure}[!ht]
@@ -137,11 +137,20 @@ The examples from the adversarial training section are shown in \rfig{exp_tb_shi
 
 \subsubsection{Noise invariance}
 The classification of speech signals often requires noise invariance, because a significant amount of noise can be added from the use of bad microphones or recording set ups and therefore might disturb the classification accuracy.
-To create a test upon noise invariance, artificial normal noise is added to the test audio files.
-In the plots this is indicated in the x-axis of the plots as Signal to Noise Ration (SNR).
-A SNR level of zero means there is equal energy of noise and signal, therefore this signal is already strong disturbed with noise.
+To create a test upon noise invariance, artificial normal noise is added to the test signal $\bm{x} \in \R^n$ by
+\begin{equation}
+  \bm{\tilde{x}} = \bm{x} + \bm{v}, \quad \bm{v} \sim \mathcal{N}(\mu, \sigma)
+\end{equation}
+where $\bm{v} \in \R^n$ is the additive normal noise sampled from $\mathcal{N}(\mu, \sigma)$ with mean $\mu = 0$ and standard deviation $\sigma$.
+The additive noise is parametrized with the standard deviation $\sigma$ to create a certain Signal to Noise Ratios (SNR) $S$.
+The standard deviation is therefore obtained with:
+\begin{equation}
+  \sigma = \sqrt{\frac{\frac{1}{n}\bm{x}^T \bm{x}}{10^{\frac{S}{10}}}}
+\end{equation}
+where $S$ is the SNR in decibel (dB). 
+A SNR level of zero means there is equal energy of the added noise $\bm{v}$ and the test signal $\bm{x}$, therefore the resulting signal is already strong disturbed with noise.
+In the plots the added noise is indicated in the x-axis with Signal to Noise Ratio (SNR).
 \rfig{exp_tb_noise_fc3} shows the noise invariance from the example in the adversarial training section.
-
 \begin{figure}[!ht]
   \centering
     \subfigure[adv init]{\includegraphics[width=0.40\textwidth]{./5_exp/figs/exp_tb_noise_fc3_adv}}
