@@ -28,6 +28,9 @@ class ConvBasics():
     # extract input size [channel x features x frames]
     self.n_channels, self.n_features, self.n_frames = self.data_size
 
+    # bias
+    self.use_conv_bias = True
+
 
   def get_conv_layer_dimensions(self, input_dim, kernel_sizes, strides, padding):
     """
@@ -68,7 +71,7 @@ class ConvBasics():
     """
 
     # convolution parameters
-    n_params = {'conv{}'.format(i): np.prod(f) * np.prod(k) for i, (f, k) in enumerate(zip(self.n_feature_maps, self.kernel_sizes))}
+    n_params = {'conv{}'.format(i): np.prod(f) * np.prod(k) + (f[1] if self.use_conv_bias else 0) for i, (f, k) in enumerate(zip(self.n_feature_maps, self.kernel_sizes))}
 
     # fully connected parameters
     n_params.update({'fc{}'.format(i): m * n + n for i, (m, n) in enumerate(self.fc_layer_dims)})
@@ -361,6 +364,9 @@ class ConvJim(nn.Module, ConvBasics):
     super().__init__()
     ConvBasics.__init__(self, n_classes, data_size)
 
+    # bias
+    self.use_conv_bias = False
+
     # conv params
     self.n_feature_maps = [(self.n_channels, 48), (48, 8)]
     self.kernel_sizes = [(self.n_features, 20), (1, 5)]
@@ -373,8 +379,8 @@ class ConvJim(nn.Module, ConvBasics):
     self.conv_out_dim = ((self.n_feature_maps[-1][1],) + self.conv_layer_dim[-1])
 
     # conv layer
-    self.conv_layer0 = nn.Conv2d(self.n_feature_maps[0][0], self.n_feature_maps[0][1], kernel_size=self.kernel_sizes[0], stride=self.strides[0], bias=False)
-    self.conv_layer1 = nn.Conv2d(self.n_feature_maps[1][0], self.n_feature_maps[1][1], kernel_size=self.kernel_sizes[1], stride=self.strides[1], bias=False)
+    self.conv_layer0 = nn.Conv2d(self.n_feature_maps[0][0], self.n_feature_maps[0][1], kernel_size=self.kernel_sizes[0], stride=self.strides[0], bias=self.use_conv_bias)
+    self.conv_layer1 = nn.Conv2d(self.n_feature_maps[1][0], self.n_feature_maps[1][1], kernel_size=self.kernel_sizes[1], stride=self.strides[1], bias=self.use_conv_bias)
 
     # classifier net
     self.classifier_net = ClassifierNetFc3(np.prod(self.conv_out_dim), n_classes)
@@ -411,8 +417,8 @@ if __name__ == '__main__':
   x = torch.randn((1, 1, 12, 50))
 
   # create net
-  #model = ConvNetFstride4(n_classes=12, data_size=x.shape[1:])
   #model = ConvNetTrad(n_classes=12, data_size=x.shape[1:])
+  #model = ConvNetFstride4(n_classes=12, data_size=x.shape[1:])
   model = ConvJim(n_classes=12, data_size=x.shape[1:])
 
   # test net
@@ -427,8 +433,8 @@ if __name__ == '__main__':
   print("\nx: ", x.shape), print("model: ", model), print("o: ", o)
 
   # print amount of operations and number of params
-  print("dim: {}".format(model.conv_layer_dim))
+  print("\ndim: {}".format(model.conv_layer_dim))
   print("conv out dim: {} flatten: {}".format(model.conv_out_dim, np.prod(model.conv_out_dim)))
-  print("all params: ", model.count_params())
-  print("params: {}, sum: {:,}".format(n_params, np.sum(list(n_params.values()))))
-  print("operations: {}, sum: {:,}".format(n_ops, np.sum(list(n_ops.values()))))
+  print("\nall params: ", model.count_params())
+  print("\nparams: {}, sum: {:,}".format(n_params, np.sum(list(n_params.values()))))
+  print("\noperations: {}, sum: {:,}".format(n_ops, np.sum(list(n_ops.values()))))

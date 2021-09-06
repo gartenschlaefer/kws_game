@@ -12,7 +12,7 @@ All weights and bias terms are forming the parameters of a network and can be tr
 The output of a node is a scalar computed from all inputs and mapped with a non-linear function denoted as activation function.
 A neural network can consist of thousand of nodes in each possible constellation of connections.
 The structure of a neural network is defined by its layers, where a layer is a set of nodes with specific connection properties, that receive inputs from the previous layer and output connections to the next layer.
-For example, a neural network consists of one convolutional layer followed by three fully connected layers.
+For example, a neural network consists of one convolutional layer followed by three fully-connected layers.
 The last layer of a neural network usually represents the class labels of a classification tasks.
 A loss function computes the difference between the predicted and the actual class label during training and is essential for the backpropagation algorithm, that updates each parameter in the network through the gradients of the obtained error.
 
@@ -58,10 +58,10 @@ The mentioned activation functions are shown in \rfig{nn_theory_activation}.
 
 
 % --
-% fully connected
+% fully-connected
 
 \subsection{Fully Connected Layer}
-A fully connected (FC) layer is one of the simplest and most commonly used layer types in neural network architectures.
+A fully-connected (FC) layer is one of the simplest and most commonly used layer types in neural network architectures.
 Each node from a previous layer is forwardly connected to all nodes in a current FC layer and each node in that current FC layer is connected to all nodes in the next layer.
 Further every connection consist of one trainable weight and each node incorporates an additive bias term.
 A simple FC layer is illustrated in \rfig{nn_theory_fc} with 3 nodes.
@@ -69,7 +69,7 @@ A simple FC layer is illustrated in \rfig{nn_theory_fc} with 3 nodes.
 \begin{figure}[!ht]
   \centering
     \includegraphics[width=0.30\textwidth]{./4_nn/figs/nn_theory_fc.eps}
-  \caption{Basic fully connected layer with 3 nodes, receiving connections from 2 input nodes and outputting connections to 2 output nodes.}
+  \caption{Basic fully-connected layer with 3 nodes, receiving connections from 2 input nodes and outputting connections to 2 output nodes.}
   \label{fig:nn_theory_fc}
 \end{figure}
 \FloatBarrier
@@ -225,6 +225,6 @@ The min-max game both networks are playing is the following:
   \underset{G}{\min} \, \underset{D}{\max} \, V(D, G) = \E_{\bm{x} \sim p_{data}(\bm{x})}\left[ \log D(\bm{x}) \right] + 
     \E_{\bm{z} \sim p_{\bm{z}}(\bm{z})}\left[ \log (1 - D(G(\bm{z}))) \right]
 \end{equation}
-where $\bm{x} \in \R^\mathcal{X}$ are samples from the data distribution $p_{data}$, $\bm{z} \in \R^\mathcal{Z}$ is a latent variable sampled from $p_{\bm{z}}$, $D: \mathcal{X} \mapsto [0, 1]$ is the discriminator network and $G: \mathcal{Z} \mapsto \mathcal{X}$ the generator network.
-The advise from the original paper is not to minimize G, such as $\log (1 - D(G(\bm{z})))$, but to maximize $\log D(G(\bm{z}))$ instead.
+where $\bm{x} \in \mathcal{X}$ are samples from the training data $p_{data}$, $\bm{z} \in \mathcal{Z}$ is a latent variable sampled from $p_{\bm{z}}$, $D: \mathcal{X} \mapsto [0, 1]$ is the discriminator network and $G: \mathcal{Z} \mapsto \mathcal{X}$ the generator network.
+The advise from the original paper is not to minimize G with $\log (1 - D(G(\bm{z})))$, but to maximize $\log D(G(\bm{z}))$ instead.
 The training algorithm can be read from \cite{Goodfellow2014} in detail.

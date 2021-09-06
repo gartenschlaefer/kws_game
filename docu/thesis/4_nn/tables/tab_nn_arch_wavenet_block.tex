@@ -1,17 +1,21 @@
 \begin{table}[ht!]
+\small
 \begin{center}
 \caption{Residual block of a Wavenet architecture with extension of class predictions and input sample length of 8000.}
-\begin{tabular}{ M{2cm} M{1.5cm} M{1.4cm} M{1.4cm} M{2cm} M{2.5cm} M{2.5cm} }
+% \begin{tabular}{ M{2cm} M{1.5cm} M{1.4cm} M{1.4cm} M{2cm} M{2.5cm} M{2.5cm} }
+% \toprule
+%  \textbf{layer types} & \textbf{number of feature maps} & \textbf{kernel size} & \textbf{stride} & \textbf{output dimension} & \textbf{number of operations}\\
+\begin{tabular}{ M{2cm} M{1.5cm} M{1.2cm} M{1.2cm} M{2cm} M{1.5cm} M{2.3cm} }
 \toprule
- \textbf{layer types} & \textbf{number of feature maps} & \textbf{kernel size} & \textbf{stride} & \textbf{output dimension} & \textbf{number of operations}\\
+ \textbf{layer types} & \textbf{number of feature maps} & \textbf{kernel size} & \textbf{stride} & \textbf{output dimension} & \textbf{number of parameters} & \textbf{number of operations}\\
 \midrule
-input & - & - & - & $1 \times 8000$ & -\\
-conv. gate & 16 & $(1 \times 2)$ & $(1, 1)$ & $16 \times 1 \times 8000 $ & \SI{640.00}{\kilo\ops}\\
-conv. filter & 16 & $(1 \times 2)$ & $(1, 1)$ & $16 \times 1 \times 8000 $ & \SI{640.00}{\kilo\ops}\\
-conv. skip & 1 & $(1 \times 1)$ & $(1, 1)$ & $1 \times 1 \times 8000 $ & \SI{384.00}{\kilo\ops}\\
-conv. prediction & 1 & $(1 \times 1)$ & $(1, 1)$ & $1 \times 1 \times 8000 $ & \SI{304.13}{\kilo\ops}\\
+input & - & - & - & $1 \times 8000$ & - & -\\
+conv. gate & 16 & $(1 \times 2)$ & $(1, 1)$ & $16 \times 1 \times 8000$ & 48 & \SI{640.00}{\kilo\ops}\\
+conv. filter & 16 & $(1 \times 2)$ & $(1, 1)$ & $16 \times 1 \times 8000$ & 48 & \SI{640.00}{\kilo\ops}\\
+conv. skip & 1 & $(1 \times 1)$ & $(1, 1)$ & $1 \times 1 \times 8000$ & 17 & \SI{384.00}{\kilo\ops}\\
+conv. class & 1 & $(1 \times 1)$ & $(1, 1)$ & $1 \times 1 \times 49$ & 1088 & \SI{304.13}{\kilo\ops}\\
 \midrule
-\textbf{sum} & - & - & - & - & \textbf{\SI{1968.13}{\kilo\ops}} \\ 
+\textbf{sum} & - & - & - & - & \textbf{1104} & \textbf{\SI{1968.13}{\kilo\ops}} \\ 
 \bottomrule
 \label{tab:nn_arch_wavenet_block}
 \end{tabular}

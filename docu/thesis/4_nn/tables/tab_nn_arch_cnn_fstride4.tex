@@ -1,19 +1,21 @@
 \begin{table}[ht!]
+\small
 \begin{center}
 \caption{Network footprint of \texttt{conv-fstride4} with 12 output labels.}
-\begin{tabular}{ M{1.5cm} M{1.5cm} M{1.4cm} M{1.4cm} M{2cm} M{2.5cm} M{2.5cm} }
+%\begin{tabular}{ M{1.5cm} M{1.5cm} M{1.4cm} M{1.4cm} M{2cm} M{2.5cm} M{2.5cm} }
+\begin{tabular}{ M{1.5cm} M{1.5cm} M{1.2cm} M{1.2cm} M{2cm} M{2cm} M{2.3cm} }
 \toprule
- \textbf{layer types} & \textbf{number of feature maps} & \textbf{kernel size} & \textbf{stride} & \textbf{output dimension} & \textbf{number of operations}\\
+ \textbf{layer types} & \textbf{number of feature maps} & \textbf{kernel size} & \textbf{stride} & \textbf{output dimension} & \textbf{number of parameters} & \textbf{number of operations}\\
 \midrule
-input & - & - & - & $1 \times 12 \times 50$ & -\\
-conv. & 54 & $(8 \times 50)$ & $(4, 1)$ & $54 \times 2 \times 1 $ & \SI{86.51}{\kilo\ops}\\
-flatten & - & - & - & $1 \times 108$ & - \\
-fc & - & - & - & $1 \times 32$ & \SI{6.94}{\kilo\ops} \\
-fc & - & - & - & $1 \times 128$ & \SI{8.32}{\kilo\ops} \\
-fc & - & - & - & $1 \times 128$ & \SI{32.90}{\kilo\ops} \\
-fc & - & - & - & $1 \times 12$ & \SI{3.08}{\kilo\ops} \\
+input & - & - & - & $1 \times 12 \times 50$ & - & -\\
+conv. & 54 & $(8 \times 50)$ & $(4, 1)$ & $54 \times 2 \times 1 $ & \SI{21.65}{\kilo\noUnit} & \SI{86.51}{\kilo\ops}\\
+flatten & - & - & - & $1 \times 108$ & - & - \\
+fc & - & - & - & $1 \times 32$& \SI{3.49}{\kilo\noUnit} & \SI{6.94}{\kilo\ops} \\
+fc & - & - & - & $1 \times 128$& \SI{4.22}{\kilo\noUnit} & \SI{8.32}{\kilo\ops} \\
+fc & - & - & - & $1 \times 128$& \SI{16.51}{\kilo\noUnit} & \SI{32.90}{\kilo\ops} \\
+fc & - & - & - & $1 \times 12$& \SI{1.55}{\kilo\noUnit} & \SI{3.08}{\kilo\ops} \\
 \midrule
-\textbf{sum} & - & - & - & - & \textbf{\SI{137.75}{\kilo\ops}} \\ 
+\textbf{sum} & - & - & - & - & \textbf{\SI{47.43}{\kilo\noUnit}} & \textbf{\SI{137.75}{\kilo\ops}} \\ 
 \bottomrule
 \label{tab:nn_arch_cnn_fstride4}
 \end{tabular}

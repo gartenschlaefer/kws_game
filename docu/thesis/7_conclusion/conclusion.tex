@@ -48,7 +48,7 @@ But considering a lower amount of computations and a restricted time interval fo
 
 \section{KWS Game}
 \thesisStateNotReady
-The restriction of the time interval for a key word is a great contribution for the fast responsiveness in playing a KWS video game
+The restriction of the time interval to \SI{500}{\milli\second} for a key word is a great contribution for the fast responsiveness in playing a KWS video game. 
 
 
 % --
@@ -56,7 +56,13 @@ The restriction of the time interval for a key word is a great contribution for 
 
 \section{Future Work}
 \thesisStateNotReady
+The goal in finding the most energy efficient model with good accuracies for the Key Word Spotting (KWS) task is still a topic in future research, even though \cite{Zhang2017} and \cite{Peter2020} provided excellent solutions to this problem.
+It is absolutely worth to evaluate the performance when using a hop time of \SI{20}{\milli\second} like in \cite{Peter2020} instead of the used \SI{10}{\milli\second}, this would reduce the computations approximately by half.
+
+Further it would be interesting to evaluate decrease the time intervall of a key word even further below \SI{500}{\milli\second} for a really fast paced gaming experience.
+
 The most future work has to be done on creating a Wavenet architecture, which is computationaly leight-weight with good classification accuracies, if that is even possible on raw audio samples.
+
 Another interesting work can be done on the obtained weights from the Generator models of a GAN training. 
 An adversarial training scheme as presented in \cite{Oezdenizci2020} with the same convolutional layer parameters of a Generator (G) model and a classical CNN model would be extremely interesting, however one problem is the up-convolution done by the G so that weight sharing is a bit difficult to implement.
 

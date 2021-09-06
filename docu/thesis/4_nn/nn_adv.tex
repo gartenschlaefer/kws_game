@@ -20,7 +20,7 @@ In \req{nn_theory_gan} the game is notated as min-max game, from which the loss 
 \begin{equation}
   l_D(x_i, z_i, G) = l(D(x_i), y_r) + l(D(G(z_i)), y_f)
 \end{equation}
-where $l$ is the binary cross-entropy loss described in \req{nn_theory_binary_cross_entropy}, $D: \mathcal{X} \mapsto [0, 1]$ and $G: \mathcal{Z} \mapsto \mathcal{X}$, $x_i \in \R^{\mathcal{X}}$ is the data example, $z_i \in \R^\mathcal{Z}$ is a randomly sampled latent variable, $y_r = 1$ is the real label and $y_f = 0$ the fake label for that specific example $i$.
+where $l$ is the binary cross-entropy loss described in \req{nn_theory_binary_cross_entropy}, $D: \mathcal{X} \mapsto [0, 1]$ and $G: \mathcal{Z} \mapsto \mathcal{X}$, $x_i \in \mathcal{X}$ is the data example, $z_i \in \mathcal{Z}$ is a randomly sampled latent variable, $y_r = 1$ is the real label and $y_f = 0$ the fake label for that specific example $i$.
 In contrast to Generators loss $l_G$ as:
 \begin{equation}
   l_G(z_i, D) =  l(D(G(z_i)), y_r)

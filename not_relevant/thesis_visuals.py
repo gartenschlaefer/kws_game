@@ -122,8 +122,8 @@ def showcase_wavs(cfg, raw_plot=True, raw_energy_plot=True, spec_plot=True, mfcc
 
     # raw waveform
     if raw_plot: 
-      #plot_waveform(x, feature_params['fs'], fig_size=(4, 1), anno_file=anno, hop=feature_extractor.hop, plot_path='../docu/showcase_wavs/ignore/', name='signal_raw_showcase_' + wav.split('/')[-1].split('.')[0], axis_off=True, show_plot=show_plot)
-      plot_waveform(x, feature_params['fs'], anno_file=anno, hop=feature_extractor.hop, plot_path=plot_path, name='signal_raw_showcase_' + wav.split('/')[-1].split('.')[0], show_plot=show_plot)
+      plot_waveform(x, feature_params['fs'], fig_size=(8, 1), anno_file=anno, hop=feature_extractor.hop, plot_path='../docu/showcase_wavs/ignore/', name='signal_raw_showcase_' + wav.split('/')[-1].split('.')[0], axis_off=True, show_plot=show_plot)
+      #plot_waveform(x, feature_params['fs'], anno_file=anno, hop=feature_extractor.hop, plot_path=plot_path, name='signal_raw_showcase_' + wav.split('/')[-1].split('.')[0], show_plot=show_plot)
     
     # raw energy plot
     if raw_energy_plot:
@@ -301,7 +301,7 @@ if __name__ == '__main__':
   #mfcc_stuff(cfg, dct_plot=True, mel_scale_plot=True, mel_band_plot=True, show_plot=True)
 
   # showcase wavs
-  showcase_wavs(cfg, raw_plot=False, raw_energy_plot=True, spec_plot=False, mfcc_plot=False, use_mfcc_39=False, show_plot=True)
+  showcase_wavs(cfg, raw_plot=True, raw_energy_plot=False, spec_plot=False, mfcc_plot=False, use_mfcc_39=False, show_plot=True)
 
   # feature selection tables
   #feature_selection_tables(overwrite=True)
