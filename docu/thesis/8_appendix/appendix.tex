@@ -17,3 +17,8 @@
 
 \chapter{Appendix: Experiments}
 \input{./8_appendix/tables/tab_exp_dataset_all_labels.tex}
+
+The results of not randomizing the frame onsets are shown in \rtab{exp_fs_rand_frames_l12} trained with 2000 epochs.
+\input{./8_appendix/tables/tab_exp_fs_rand_frames_l12.tex}
+It can be seen that the results slightly worse in the accuracies, compared to the results in \rtab{exp_fs_cepstral_l12},
+however the \texttt{conv-jim} network performed best on the randomization of the frames, probably due to its striding properties in the frame dimension.

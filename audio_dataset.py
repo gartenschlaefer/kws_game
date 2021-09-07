@@ -287,7 +287,7 @@ class AudioDataset():
     return x_raw, wav_is_useless
 
 
-  def analyze_dataset_extraction(self, calculate_overall_stats=False):
+  def analyze_dataset_extraction(self, plot_path=None, file_pre='', calculate_overall_stats=False, plot_hist=True, plot_damaged=True):
     """
     analyze damaged files
     """
@@ -296,7 +296,7 @@ class AudioDataset():
     print("\n--analyze dataset extraction from ", self.__class__.__name__)
 
     # plot statistics if available
-    if any(self.stats_dict.keys()): self.plot_statistics(file_ext='_extracted_n-{}'.format(self.cfg_dataset['n_examples']))
+    if any(self.stats_dict.keys()): self.plot_statistics(plot_path=plot_path, file_pre=file_pre, file_ext='_extracted_n-{}'.format(self.cfg_dataset['n_examples']), plot_hist=plot_hist, plot_damaged=plot_damaged)
 
     # get speaker infos
     all_speakers_files, all_speakers = self.get_speaker_infos(self.stats_dict['all_extracted_wavs'])
@@ -327,7 +327,7 @@ class AudioDataset():
     for wav in all_wavs: self.wav_pre_processing(wav)
 
     # plot overall stats
-    self.plot_statistics(file_ext='_overall')
+    self.plot_statistics(plot_path=plot_path, file_pre=file_pre, file_ext='_overall', plot_hist=plot_hist, plot_damaged=plot_damaged)
 
 
   def get_speaker_infos(self, wavs):
@@ -347,7 +347,7 @@ class AudioDataset():
     return all_speakers_files, all_speakers
 
 
-  def plot_statistics(self, plot_path=None, file_ext=''):
+  def plot_statistics(self, plot_path=None, file_pre='', file_ext='', plot_hist=True, plot_damaged=True):
     """
     plot statistics
     """
@@ -356,30 +356,33 @@ class AudioDataset():
 
     # histogram
     #if len(self.stats_dict['energy']): plot_histogram(self.stats_dict['energy'], bins=np.logspace(np.log10(0.0001),np.log10(10000), 50), y_log_scale=True, x_log_scale=True, x_label='energy values', y_label='counts', plot_path=plot_path, name='energy_hist' + file_ext)
-    if len(self.stats_dict['energy']): plot_histogram(self.stats_dict['energy'], bins=np.logspace(np.log10(1e-6),np.log10(1), 50), y_log_scale=True, x_log_scale=True, x_label='energy values', y_label='counts', plot_path=plot_path, name='energy_hist' + file_ext)
-    if len(self.stats_dict['sample_num']): plot_histogram(self.stats_dict['sample_num'], bins=50, y_log_scale=True, x_label='sample numbers', y_label='counts', plot_path=plot_path, name='num_sample_hist' + file_ext)
-    if len(self.stats_dict['damaged_score']): plot_histogram(self.stats_dict['damaged_score'], bins=50, y_log_scale=True, x_label='damaged score', y_label='counts', plot_path=plot_path, name='damaged_score_hist' + file_ext)
+    if len(self.stats_dict['energy']) and plot_hist: plot_histogram(self.stats_dict['energy'], bins=np.logspace(np.log10(1e-6),np.log10(1), 50), y_log_scale=True, x_log_scale=True, x_label='energy values', y_label='counts', plot_path=plot_path, name=file_pre + 'hist_energy' + file_ext)
+    if len(self.stats_dict['sample_num']) and plot_hist: plot_histogram(self.stats_dict['sample_num'], bins=50, y_log_scale=True, x_label='sample numbers', y_label='counts', plot_path=plot_path, name=file_pre + 'hist_sample' + file_ext)
+    if len(self.stats_dict['damaged_score']) and plot_damaged: plot_histogram(self.stats_dict['damaged_score'], bins=50, y_log_scale=True, x_label='damaged score', y_label='counts', plot_path=plot_path, name='damaged_score_hist' + file_ext)
 
     # damaged file score 2d plot
-    if len(self.stats_dict['damaged_score']): plot_damaged_file_score(self.stats_dict['damaged_score'], plot_path=self.plot_paths['stats'], name='damaged_score_hist' + file_ext)
+    if len(self.stats_dict['damaged_score']) and plot_damaged: plot_damaged_file_score(self.stats_dict['damaged_score'], plot_path=self.plot_paths['stats'], name='damaged_score_hist' + file_ext)
 
-    # print info
-    print("too short files num: {}".format(len(self.info_file_dict['short']))), print("too weak files num: {}".format(len(self.info_file_dict['weak']))), print("damaged files num: {}".format(len(self.info_file_dict['damaged'])))
+    # damaged files
+    if plot_damaged:
 
-    # save damaged files
-    for wav, score in self.info_file_dict['damaged']: copyfile(wav, self.plot_paths['damaged_files'] + wav.split('/')[-1])
+      # print info
+      print("too short files num: {}".format(len(self.info_file_dict['short']))), print("too weak files num: {}".format(len(self.info_file_dict['weak']))), print("damaged files num: {}".format(len(self.info_file_dict['damaged'])))
 
-    # save info files
-    for k, info_list in self.info_file_dict.items():
+      # save damaged files
+      for wav, score in self.info_file_dict['damaged']: copyfile(wav, self.plot_paths['damaged_files'] + wav.split('/')[-1])
 
-      # skip if empty
-      if not len(info_list): continue
+      # save info files
+      for k, info_list in self.info_file_dict.items():
 
-      # file name
-      file_name = plot_path + 'info_file_list_{}{}.txt'.format(k, file_ext)
+        # skip if empty
+        if not len(info_list): continue
 
-      # write file
-      with open(file_name, 'w') as f: [print(i, file=f) for i in info_list]
+        # file name
+        file_name = plot_path + 'info_file_list_{}{}.txt'.format(k, file_ext)
+
+        # write file
+        with open(file_name, 'w') as f: [print(i, file=f) for i in info_list]
 
 
   def file_naming_extraction(self, audio_file, file_ext='.wav'):

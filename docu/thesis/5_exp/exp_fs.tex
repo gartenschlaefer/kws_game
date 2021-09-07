@@ -18,8 +18,10 @@ Two experiments are done to shade some light into MFCC feature selection:
 \end{enumerate}
 For saving training time and computations, those experiments were done on a smaller subset of the whole speech commands dataset, described in \rsec{exp_dataset_speech_cmd}, using 500 samples of each one of the L12 labels.
 The filter bands of the MFCCs are fixed to a total number of 32 bands for all experiments.
-The training of one set of parameters was done with 5 consecutive iterations to create better statistics of the scores.
+The training of one set of selected parameters was done with 5 consecutive iterations to create better statistics of the scores.
 The scores obtained from those iterations for each set parameters are presented with a mean value and the standard deviation (square root of the variance).
+
+Note that the experiments in this sections are not meant for comparison to the benchmark networks in \rsec{prev_kws_benchmark}, because not the whole dataset is used.
 
 
 % --
@@ -31,7 +33,8 @@ Also the experiments are done once with and once without frame-based normalizati
 The training parameters for the experiment are listed in \rsec{exp_details_training}.
 The experiment is shown in \rtab{exp_fs_cepstral_l12}.
 \input{./5_exp/tables/tab_exp_fs_cepstral_l12.tex}
-%\input{./5_exp/tables/tab_exp_fs_rand_frames_l12.tex}
+
+
 
 
 % --

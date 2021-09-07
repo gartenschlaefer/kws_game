@@ -172,7 +172,8 @@ def audio_set_wavs(cfg, statistics_plot=True, wav_grid_plot=False, label_table_p
   audio_set2.get_audiofiles()
 
   # statistics (saves them in dataset folder)
-  if statistics_plot: audio_set1.analyze_dataset_extraction(calculate_overall_stats=True)
+  #if statistics_plot: audio_set1.analyze_dataset_extraction(calculate_overall_stats=True)
+  if statistics_plot: audio_set1.analyze_dataset_extraction(plot_path=plot_path, file_pre='exp_dataset_', calculate_overall_stats=True, plot_hist=True, plot_damaged=False)
 
   # label table
   if label_table_plot: LatexTableMakerAudiosetLabels(audio_set1.all_label_file_dict, caption='all labels', label='tab:exp_dataset_all_labels', out_file=plot_path_tab + 'tab_exp_dataset_all_labels__not_released.tex')
@@ -230,7 +231,7 @@ def training_logs(cfg):
   #LatexTableMakerCepstral(in_file=log_path + 'log_cepstral.log', out_file=plot_path_tab + 'tab_exp_fs_cepstral.tex', caption='Experiment on the impact of the amount of cepstral coefficient of MFCC features. Frame based normalization was evaluated additionally.', label='tab:exp_fs_cepstral')
   
   # cepstral table l12
-  #LatexTableMakerCepstral(in_file=log_path + 'log_exp_cepstral_l12.log', out_file=plot_path_tab + 'tab_exp_fs_cepstral_l12.tex', caption='Experiment on the impact of the amount of cepstral coefficient of MFCC features with additional frame based normalization evaluation.', label='tab:exp_fs_cepstral_l12')
+  #LatexTableMakerCepstral(in_file=log_path + 'log_exp_cepstral_l12_2000.log', out_file=plot_path_tab + 'tab_exp_fs_cepstral_l12_2000.tex', caption='Experiment on the impact of the amount of cepstral coefficient of MFCC features with additional frame-based normalization evaluation, trained with 2000 epochs.', label='tab:exp_fs_cepstral_l12')
   
   # randomize frames
   #LatexTableMakerCepstral(in_file=log_path + 'log_exp_rand_frames_l12.log', out_file=plot_path_tab + 'tab_exp_fs_rand_frames_l12.tex', caption='Experiment of not randomizing frame positions.', label='tab:exp_fs_rand_frames_l12')
@@ -245,7 +246,7 @@ def training_logs(cfg):
   #LatexTableMakerAdv(in_file=log_path + 'log_exp_adv_dual_l12.log', out_file=plot_path_tab + 'tab_exp_adv_dual_l12.tex', caption='Experiment with adversarial dual pre-training, using either Generator \enquote{g} or Discriminator \enquote{d} weights.', label='tab:exp_adv_dual_l12')
   
   # final
-  LatexTableMakerFinal(in_file=log_path + 'log_exp_final_l12.log', out_file=plot_path_tab + 'tab_exp_final_l12.tex', caption='Experiment on whole dataset with 3500 examples per label.', label='tab:exp_final_l12')
+  LatexTableMakerFinal(in_file=log_path + 'log_exp_final_l12.log', out_file=plot_path_tab + 'tab_exp_final_l12.tex', caption='Experiment on whole dataset with 3500 examples per label, with 12 MFCC coefficients and frame-based normalization, trained with 2000 epochs.', label='tab:exp_final_l12')
 
 
 def nn_theory():
@@ -301,13 +302,13 @@ if __name__ == '__main__':
   #mfcc_stuff(cfg, dct_plot=True, mel_scale_plot=True, mel_band_plot=True, show_plot=True)
 
   # showcase wavs
-  showcase_wavs(cfg, raw_plot=True, raw_energy_plot=False, spec_plot=False, mfcc_plot=False, use_mfcc_39=False, show_plot=True)
+  #showcase_wavs(cfg, raw_plot=True, raw_energy_plot=False, spec_plot=False, mfcc_plot=False, use_mfcc_39=False, show_plot=True)
 
   # feature selection tables
   #feature_selection_tables(overwrite=True)
 
   # audio set wavs
-  #audio_set_wavs(cfg, statistics_plot=True, wav_grid_plot=False, label_table_plot=False)
+  audio_set_wavs(cfg, statistics_plot=True, wav_grid_plot=False, label_table_plot=False)
 
   # batch archive
   #batch_archive_grid_examples(cfg, show_plot=True)

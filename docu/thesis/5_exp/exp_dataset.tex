@@ -22,12 +22,12 @@ The first version was published in 2017 with a total number of 30 key words and 
 
 In this thesis, the experiments are solely performed on the second version \texttt{v0.02} of the dataset with hard-facts listed in \rtab{exp_dataset_hard_facts}.
 \input{./5_exp/tables/tab_exp_dataset_hard_facts.tex}
-All speech command key words with their separation in training, test and validation set are shown in \rtab{exp_dataset_all_labels} loacated in the appendix.
+All speech command key words with their separation in training, test and validation set are shown in \rtab{exp_dataset_all_labels} located in the appendix.
 Some key words have a significantly higher number of examples per class than others.
 %In \rtab{exp_dataset_all_labels} it can be observed, that some labels are occurring significantly more often than others.
 This inconsistency of examples per classes, emerged from the recording settings as described in \cite{Warden2018}, where the more important words were recorded with a higher number of iterations from the same speaker, for instance the speaker has to create five samples of \enquote{go} and two of \enquote{marvin}.
-This makes the key words separable into into \emph{core key words} and \emph{auxiliary key words}.
-The core key words are the main classification objective and each core key word should corresponds to one class label, therefore the core key words have the higher count of samples with about 3000 to 4000 examples each.
+This makes the key words separable into \emph{core key words} and \emph{auxiliary key words}.
+The core key words are the main classification objective and each core key word should corresponds to one class label, therefore the core key words have the higher count of samples with about 3700 to 4000 examples each.
 In detail the core key words are \{\enquote{yes}, \enquote{no}, \enquote{up}, \enquote{down}, \enquote{left}, \enquote{right}, \enquote{on}, \enquote{off}, \enquote{stop}, \enquote{go}, \enquote{zero}, \enquote{one}, ..., \enquote{nine} \}.
 
 The auxiliary key words have the purpose to disturb the classification of the core key words, therefore the auxiliary key words should be represented by a single class label.
@@ -38,7 +38,7 @@ In the creation of the examples for the \enquote{\_mixed} label, it is preferabl
 This had been done by placing all unused core key words and auxiliary words into a separate folder and reading them into a list, which is ordered so that one example per key word is placed consecutive to the next for each key word, then it starts over again filling up all examples.
 The number of examples picked for training is then simply the entries from index 0 to the number of examples in training. 
 
-To examine the recorded examples, one example per label from the speech command dataset in raw audio format is shown in \rfig{exp_dataset_speech_cmd_wav_grid}.
+To examine the recorded examples from the speech command dataset, one example of all labels is shown in \rfig{exp_dataset_speech_cmd_wav_grid} in raw audio format, with vertical lines indicating the onset detection and end of a \SI{500}{\milli\second} window.
 \begin{figure}[!ht]
   \centering
     \includegraphics[width=0.65\textwidth]{./5_exp/figs/exp_dataset_speech_cmd_wav_grid}
@@ -105,11 +105,11 @@ The personal experiments made, when listening to the examples in the dataset, we
 
 Due to data privacy issues the information of individual speakers is not displayed.
 Further it is not clear if there are equal amounts of male and female speakers and if there are any children speakers included.
-The last would be especially interesting for a video games suited for kids.
+The last would be especially interesting for a video games intended for kids.
 
 In many recordings the background noise is imminent, such as traffic noise, chattering people, office sounds, etc.
 A quality check of the recorded files in the dataset had been done beforehand, to ensure that bad samples were rejected.
-However there are still some existing flaws such as extremely loud or silent recordings, examples with inconsistent sample numbers, recordings that are including too much noise or in the worst case, noise only (very rarely) and cut off samples where only half of a word had been captured.
+However there are still some existing flaws such as extremely loud or silent recordings, examples with inconsistent sample numbers, recordings that are including too much noise or in the worst case noise only (very rarely) and cut off samples, where only half of a word had been captured.
 Those quality issues in the dataset can for most cases be neglected or fixed, such as inconsistent sample numbers. 
 Other more problematic cases, for instance noise-only examples, should actually be filtered out, but since their occurrence is very rare, it is not worth the effort.
 Usually it is not a problem for neural networks to cope with noisy datasets. 
@@ -123,7 +123,7 @@ Finally it has to be acknowledged that the dataset is under the creative common 
 
 \subsubsection{Dataset Structure}\label{sec:exp_dataset_structure}
 The speech command examples are stored in separate folders named after each individual key word, in the \texttt{.wav} format.
-The folder named as \texttt{\_background\_noise\_} contains six different background noise files, such as \texttt{white\_noise.wav} or \texttt{doing\_the\_dishes.wav}, with a duration of more than one minute each and altogehter summing up to a duration of about \SI{400}{s}.
+The folder named as \texttt{\_background\_noise\_} contains six different background noise files, such as \texttt{white\_noise.wav} or \texttt{doing\_the\_dishes.wav}, with a duration of more than one minute each and altogether summing up to a duration of about \SI{400}{s}.
 To extract noise examples from those files with a sufficient number of examples of over 3500, those noise files have to be extracted by a striding window of \SI{1}{\second} length shifted by \SI{0.110}{\second}.
 The noise examples were assigned to the label \enquote{\_noise}.
 
@@ -139,7 +139,7 @@ The testing and validation file lists are applied in this thesis and the separat
 % extracted examples
 
 \subsubsection{Samples from the Feature Extraction}
-The feature extraction of the dataset with specified parameters are stored to separate files before using them for training.
+The feature extracted data examples are stored to separate files before using them for training.
 This has the practicability that features do not have to be extracted each time a new training instance of a neural network is performed.
 Samples from the extracted Mel Frequency Cepstral Coefficients (MFCC) with frame-based normalization as explained in \rsec{signal_mfcc} are shown in \rfig{exp_dataset_speech_cmd_mfcc}.
 \begin{figure}[!ht]
@@ -193,7 +193,7 @@ It is difficult to examine why exactly this one example is classified wrong.
 % preparation for neural networks
 
 \subsection{Data preparation for neural networks}\label{sec:exp_data_prep}
-The neural network architectures are trained with supervised learning, that means a class label $y_i \in \{0, 1, \dots, L\}$ correspondence to each data example $x_i \in \R^{\mathcal{X}}$ must exist, where $L$ is the total number of classes and $\mathcal{X}$ is the dimension of the data example.
+The neural network architectures are trained with supervised learning, that means a class label $y_i \in \{0, 1, \dots, L\}$ correspondence to each data example $x_i \in \mathcal{X}$ must exist, where $L$ is the total number of classes and $\mathcal{X}$ is the input space of the data example, for example $\mathcal{X} = \R^{C \times M}$ for Mel Frequency Cepstral Coefficients (MFCC) with $C$ MFCC coefficients and $M$ frames.
 Some selected examples and their labels form a dataset $S$ for example for training or testing and can be written as:
 \begin{equation}\label{eq:exp_dataset}
   S = \{ (x_i, y_i) \mid i = 0, 1, \dots, n \}

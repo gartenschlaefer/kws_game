@@ -16,7 +16,7 @@ class LatexTableFunctions():
     """
 
     # begin table
-    header_str = '\\begin{table}[ht!]\n\\begin{center}\n'
+    header_str = '\\begin{table}[ht!]\n\\small\n\\begin{center}\n'
 
     # add top caption
     if len(caption): header_str += self.table_caption(caption)
@@ -316,23 +316,23 @@ class LatexTableMakerFinal(LatexTableFunctions, LogExtractor):
     super().__init__()
 
     # vars
-    titles = ['arch', 'pre-train', 'acc test', 'acc my']
-    col_spaces_cm = [3, 2, 2.5, 2.5]
+    titles = ['arch', 'norm', 'pre-train', 'acc test', 'acc my']
+    col_spaces_cm = [3, 1, 2, 2.5, 2.5]
 
     # get training instances
     train_instances_dict = self.get_train_instance_infos(in_file)
 
     # separators used to get training instances
-    sep_combi = {'arch': ['conv-trad', 'conv-fstride', 'conv-jim'], 'adv-it': [None, '100']}
+    sep_combi = {'norm': ['0', '1'], 'arch': ['conv-trad', 'conv-fstride', 'conv-jim'], 'adv-it': [None, '100']}
 
     # all combinations
-    separators = [(a, it) for a in sep_combi['arch'] for it in sep_combi['adv-it']]
+    separators = [(n, a, it) for n in sep_combi['norm'] for a in sep_combi['arch'] for it in sep_combi['adv-it']]
 
     # separation
-    train_instances_sep = [[ti for ti in train_instances_dict if ti['arch'] == a and ti['adv-it'] == it] for a, it in separators]
+    train_instances_sep = [[ti for ti in train_instances_dict if ti['norm'] == n and ti['arch'] == a and ti['adv-it'] == it] for n, a, it in separators]
 
     # row entries
-    row_entries = [[tis[0]['arch'], '-' if tis[0]['adv-it'] is None else tis[0]['adv-it'], '${:.2f} \\pm {:.2f}$'.format(np.mean(np.array([ti['acc'][0] for ti in tis]).astype(float)), np.sqrt(np.var(np.array([ti['acc'][0] for ti in tis]).astype(float)))), '${:.2f} \\pm {:.2f}$'.format(np.mean(np.array([ti['acc'][1] for ti in tis]).astype(float)), np.sqrt(np.var(np.array([ti['acc'][1] for ti in tis]).astype(float))))] for tis in train_instances_sep if len(tis)]
+    row_entries = [[tis[0]['arch'], tis[0]['norm'], '-' if tis[0]['adv-it'] is None else tis[0]['adv-it'], '${:.2f} \\pm {:.2f}$'.format(np.mean(np.array([ti['acc'][0] for ti in tis]).astype(float)), np.sqrt(np.var(np.array([ti['acc'][0] for ti in tis]).astype(float)))), '${:.2f} \\pm {:.2f}$'.format(np.mean(np.array([ti['acc'][1] for ti in tis]).astype(float)), np.sqrt(np.var(np.array([ti['acc'][1] for ti in tis]).astype(float))))] for tis in train_instances_sep if len(tis)]
     
     # header
     table_str = self.table_header(col_spaces_cm=col_spaces_cm, sep=[], caption=caption)

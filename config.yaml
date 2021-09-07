@@ -314,7 +314,7 @@ ml:
     hyb: {'batch_size': 32, 'num_epochs': 3000, 'lr': 0.0001, 'beta': 0.9, 'lr_d': 0.00001, 'lr_g': 0.00001, 'beta_d': 0.5, 'beta_g': 0.5, 'k_update_d': 2, 'k_update_g': 3}
 
     # wavenet
-    wave: {'batch_size': 32, 'num_epochs': 100, 'lr': 0.001, 'lr2': 0.0001, 'beta': 0.9}
+    wave: {'batch_size': 32, 'num_epochs': 100, 'lr': 0.0001, 'lr2': 0.0001, 'beta': 0.9}
 
 
   # adversarial parameters
@@ -401,11 +401,11 @@ test_bench:
 
   # test wavs
   test_wavs:
-    - ignore/dataset/my_recordings/clean_records/left.wav
-    - ignore/dataset/my_recordings/clean_records/right.wav
-    - ignore/dataset/my_recordings/clean_records/up.wav
-    - ignore/dataset/my_recordings/clean_records/down.wav
-    - ignore/dataset/my_recordings/clean_records/go.wav
+    - test_bench/left.wav
+    - test_bench/right.wav
+    - test_bench/up.wav
+    - test_bench/down.wav
+    - test_bench/go.wav
 
   # file names
   model_file_names: ['cnn_model.pth', 'g_model.pth', 'd_model.pth', 'hyb_model.pth', 'wav_model.pth']

@@ -2,8 +2,10 @@
 % Experiments on whole dataset
 
 \section{Experiments on whole dataset}\label{sec:exp_final}
-The final experiments were performed on the whole dataset with 3500 examples per labels.
+The final experiments were performed on the whole dataset with 3500 examples per labels and are therefore used for comparison to the benchmark models shown in \rsec{prev_kws_benchmark}.
 All Convolutional Neural Network (CNN) architectures were evaluated with 12 MFCC coefficients and frame-based normalization.
-Pre-training was done only for the \texttt{conv-jim} model in a separate run.
+A single run with 2000 epochs was performed for all experiments.
+The evaluation on the adversarial pre-training as described in \rsec{exp_adv} was done only for the \texttt{conv-jim} model in a separate run.
 The results of the experiments are shown in \rtab{exp_final_l12}
-\input{./5_exp/tables/tab_exp_final_l12.tex} 
+\input{./5_exp/tables/tab_exp_final_l12.tex}
+From the results it is observed that...

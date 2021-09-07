@@ -42,6 +42,7 @@ def get_figsize(context='none'):
   elif context == 'tb_shift': return (10, 2)
   elif context == 'tb_noise': return (4, 2)
   elif context == 'dct': return (4, 3)
+  elif context == 'hist': return (6, 5)
 
   return (6, 6)
 
@@ -175,7 +176,7 @@ def plot_histogram(x, bins=None, color=None, y_log_scale=False, x_log_scale=Fals
   if color is None: color = get_colormap_from_context(context='hist')
 
   # init figure
-  fig = plt.figure(figsize=get_figsize(context='square_big'))
+  fig = plt.figure(figsize=get_figsize(context='hist'))
 
   # image
   ax = plt.axes()
@@ -184,7 +185,7 @@ def plot_histogram(x, bins=None, color=None, y_log_scale=False, x_log_scale=Fals
   im = ax.hist(x, bins=bins, color=color)
 
   # layout
-  plt.title(title, fontsize=get_fontsize('title', add_size=2)), plt.xlabel(x_label, fontsize=get_fontsize('axis_label', add_size=2)), plt.ylabel(y_label, fontsize=get_fontsize('axis_label', add_size=2))
+  plt.title(title, fontsize=get_fontsize('title', add_size=1)), plt.xlabel(x_label, fontsize=get_fontsize('axis_label', add_size=1)), plt.ylabel(y_label, fontsize=get_fontsize('axis_label', add_size=1))
   plt.grid()
 
   # log scaling
@@ -192,7 +193,7 @@ def plot_histogram(x, bins=None, color=None, y_log_scale=False, x_log_scale=Fals
   if x_log_scale: plt.xscale('log')
 
   # tick size
-  ax.tick_params(axis='both', which='major', labelsize=get_fontsize('axis_tick_major', add_size=2)), ax.tick_params(axis='both', which='minor', labelsize=get_fontsize('axis_tick_minor', add_size=2))
+  ax.tick_params(axis='both', which='major', labelsize=get_fontsize('axis_tick_major', add_size=1)), ax.tick_params(axis='both', which='minor', labelsize=get_fontsize('axis_tick_minor', add_size=1))
 
   # tight plot
   plt.tight_layout()

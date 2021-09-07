@@ -29,25 +29,25 @@ class WavenetResBlock(nn.Module):
     self.n_samples = n_samples
 
     # average pooling
-    self.av_pool_size = 320
-    self.av_pool_stride = 160
+    self.av_pool_size = 160
+    self.av_pool_stride = 80
 
     # sub sampling
-    self.av_pool_sub = int(self.n_samples / 160 -1)
+    self.av_pool_sub = int(self.n_samples / self.av_pool_stride - 1)
 
     # use bias
-    self.use_conv_bias = True
+    self.use_conv_bias = False
 
     # dilated convolution filter and gate
-    self.conv_filter = nn.Conv1d(self.in_channels, self.dilated_channels, kernel_size=2, stride=1, padding=0, dilation=self.dilation, groups=1, bias=self.use_conv_bias, padding_mode='zeros')
-    self.conv_gate = nn.Conv1d(self.in_channels, self.dilated_channels, kernel_size=2, stride=1, padding=0, dilation=self.dilation, groups=1, bias=self.use_conv_bias, padding_mode='zeros')
+    self.conv_filter = nn.Conv1d(self.in_channels, self.dilated_channels, kernel_size=2, stride=1, padding=0, dilation=self.dilation, groups=1, bias=False, padding_mode='zeros')
+    self.conv_gate = nn.Conv1d(self.in_channels, self.dilated_channels, kernel_size=2, stride=1, padding=0, dilation=self.dilation, groups=1, bias=False, padding_mode='zeros')
 
     # 1 x 1 convolution for skip connection
     self.conv_skip = nn.Conv1d(self.dilated_channels, out_channels=self.out_channels, kernel_size=1, stride=1, padding=0, dilation=1, groups=1, bias=self.use_conv_bias, padding_mode='zeros')
     
     # average pooling for class prediction, downsample to 10ms
-    #self.av_pool = nn.AvgPool1d(kernel_size=160, stride=80)
-    self.av_pool = nn.AvgPool1d(kernel_size=self.av_pool_size, stride=self.av_pool_stride)
+    #self.av_pool = nn.AvgPool1d(kernel_size=self.av_pool_size, stride=self.av_pool_stride)
+    self.av_pool = nn.Conv1d(self.dilated_channels, out_channels=self.dilated_channels, kernel_size=160, stride=80, padding=0, dilation=1, groups=1, bias=False, padding_mode='zeros')
 
     # conv prediction
     self.conv_pred1 = nn.Conv1d(self.dilated_channels, out_channels=self.pred_channels, kernel_size=1, stride=1, padding=0, dilation=1, groups=1, bias=self.use_conv_bias, padding_mode='zeros')
@@ -133,14 +133,14 @@ class Wavenet(nn.Module, ConvBasics):
     self.out_channels = 1
     self.dilated_channels = 16
     self.skip_channels = 2
-    self.pred_channels = 64
+    self.pred_channels = 128
 
     # average pooling
-    self.av_pool_size = 320
-    self.av_pool_stride = 160
+    self.av_pool_size = 160
+    self.av_pool_stride = 80
 
     # sub sampling
-    self.av_pool_sub = int(self.n_samples / 160 -1)
+    self.av_pool_sub = int(self.n_samples / self.av_pool_stride - 1)
 
     # use bias
     self.use_conv_bias = True
@@ -170,7 +170,6 @@ class Wavenet(nn.Module, ConvBasics):
     self.padding_pred = [(0,), (0,)]
 
     # conv dimensions of predictions
-    #self.conv_dim_pred = self.get_conv_layer_dimensions((99,), self.kernel_sizes_pred, self.strides_pred, self.padding_pred)
     self.conv_dim_pred = self.get_conv_layer_dimensions((self.av_pool_sub,), self.kernel_sizes_pred, self.strides_pred, self.padding_pred)
 
     # conv layer post for class prediction
