@@ -664,34 +664,34 @@ def plot_confusion_matrix(cm, classes, cmap=None, plot_path=None, name='None'):
     plt.close()
 
 
-def plot_train_score(train_score_dict, plot_path, name_ext=''):
+def plot_train_score(train_score_dict, plot_path, name_ext='', show_plot=False):
   """
   plot train scores
   """
 
   # adversarial nets
   if train_score_dict['score_class'] == 'AdversarialTrainScore': 
-    plot_adv_train_loss(train_score_dict, plot_path=plot_path, name='score_loss' + name_ext)
+    plot_adv_train_loss(train_score_dict, plot_path=plot_path, name='score_loss' + name_ext, show_plot=show_plot)
 
   # hybrid nets
   elif train_score_dict['score_class'] == 'HybridTrainScore':
-    plot_hyb_train_loss(train_score_dict, plot_path=plot_path, name='score_loss' + name_ext)
-    plot_adv_train_loss(train_score_dict, plot_path=plot_path, name='score_loss_adv' + name_ext)
-    plot_val_acc(train_score_dict['val_acc'], plot_path=plot_path, name='score_val_acc' + name_ext)
+    plot_hyb_train_loss(train_score_dict, plot_path=plot_path, name='score_loss' + name_ext, show_plot=show_plot)
+    plot_adv_train_loss(train_score_dict, plot_path=plot_path, name='score_loss_adv' + name_ext, show_plot=show_plot)
+    plot_val_acc(train_score_dict['val_acc'], plot_path=plot_path, name='score_val_acc' + name_ext, show_plot=show_plot)
 
   # wavenets
   elif train_score_dict['score_class'] == 'WavenetTrainScore':
-    plot_wavenet_train_loss(train_score_dict, plot_path=plot_path, name='score_loss' + name_ext)
-    plot_train_loss(train_score_dict['loss_y'], train_score_dict['val_loss'], plot_path=plot_path, name='score_loss_val' + name_ext)
-    plot_val_acc(train_score_dict['val_acc'], plot_path=plot_path, name='score_val_acc' + name_ext)
+    plot_wavenet_train_loss(train_score_dict, plot_path=plot_path, name='score_loss' + name_ext, show_plot=show_plot)
+    plot_train_loss(train_score_dict['loss_y'], train_score_dict['val_loss'], plot_path=plot_path, name='score_loss_val' + name_ext, show_plot=show_plot)
+    plot_val_acc(train_score_dict['val_acc'], plot_path=plot_path, name='score_val_acc' + name_ext, show_plot=show_plot)
 
   # other nets, such as cnn
   else:
-    plot_train_loss(train_score_dict['train_loss'], train_score_dict['val_loss'], plot_path=plot_path, name='train_loss' + name_ext)
-    plot_val_acc(train_score_dict['val_acc'], plot_path=plot_path, name='score_val_acc' + name_ext)
+    plot_train_loss(train_score_dict['train_loss'], train_score_dict['val_loss'], plot_path=plot_path, name='train_loss' + name_ext, show_plot=show_plot)
+    plot_val_acc(train_score_dict['val_acc'], plot_path=plot_path, name='score_val_acc' + name_ext, show_plot=show_plot)
     
 
-def plot_wavenet_train_loss(train_score_dict, cmap=None, plot_path=None, name='score_loss', show_plot=False):
+def plot_wavenet_train_loss(train_score_dict, cmap=None, plot_path=None, name='score_loss', show_plot=False, close_plot=True):
   """
   wavenet train loss
   """
@@ -717,16 +717,14 @@ def plot_wavenet_train_loss(train_score_dict, cmap=None, plot_path=None, name='s
   plt.tight_layout()
 
   # plot the fig
-  if plot_path is not None:
-    plt.savefig(plot_path + name + '.png', dpi=100)
-    plt.close()
-
-  # show plot
+  if plot_path is not None: plt.savefig(plot_path + name + '.png', dpi=100)
   if show_plot: plt.show()
+  if close_plot:plt.close()
+
   return fig
 
 
-def plot_adv_train_loss(train_score_dict, cmap=None, plot_path=None, name='score_loss', show_plot=False):
+def plot_adv_train_loss(train_score_dict, cmap=None, plot_path=None, name='score_loss', show_plot=False, close_plot=True):
   """
   adversarial train loss
   """
@@ -754,16 +752,14 @@ def plot_adv_train_loss(train_score_dict, cmap=None, plot_path=None, name='score
   plt.tight_layout()
 
   # plot the fig
-  if plot_path is not None:
-    plt.savefig(plot_path + name + '.png', dpi=100)
-    plt.close()
-
-  # show plot
+  if plot_path is not None: plt.savefig(plot_path + name + '.png', dpi=100)
   if show_plot: plt.show()
+  if close_plot:plt.close()
+
   return fig
 
 
-def plot_hyb_train_loss(train_score_dict, cmap=None, plot_path=None, name='score_loss', close_plot=True, show_plot=False):
+def plot_hyb_train_loss(train_score_dict, cmap=None, plot_path=None, name='score_loss', close_plot=True, show_plot=True):
   """
   adversarial train loss
   """
@@ -794,7 +790,7 @@ def plot_hyb_train_loss(train_score_dict, cmap=None, plot_path=None, name='score
   if close_plot: plt.close()
 
 
-def plot_train_loss(train_loss, val_loss, cmap=None, plot_path=None, name='score_loss', show_plot=False):
+def plot_train_loss(train_loss, val_loss, cmap=None, plot_path=None, name='score_loss', show_plot=False, close_plot=True):
   """
   plot train vs. validation loss
   """
@@ -823,17 +819,14 @@ def plot_train_loss(train_loss, val_loss, cmap=None, plot_path=None, name='score
   plt.tight_layout()
 
   # plot the fig
-  if plot_path is not None:
-    plt.savefig(plot_path + name + '.png', dpi=100)
-    plt.close()
-
-  # show plot
+  if plot_path is not None: plt.savefig(plot_path + name + '.png', dpi=100)
   if show_plot: plt.show()
+  if close_plot:plt.close()
 
   return fig
 
 
-def plot_val_acc(val_acc, cmap=None, plot_path=None, name='score_val', show_plot=False):
+def plot_val_acc(val_acc, cmap=None, plot_path=None, name='score_val', show_plot=False, close_plot=True):
   """
   plot train vs. validation loss
   """
@@ -861,12 +854,9 @@ def plot_val_acc(val_acc, cmap=None, plot_path=None, name='score_val', show_plot
   plt.tight_layout()
 
   # plot the fig
-  if plot_path is not None:
-    plt.savefig(plot_path + name + '.png', dpi=100)
-    plt.close()
-
-  # show plot
+  if plot_path is not None: plt.savefig(plot_path + name + '.png', dpi=100)
   if show_plot: plt.show()
+  if close_plot:plt.close()
 
   return fig
 
