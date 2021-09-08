@@ -46,8 +46,8 @@ class WavenetResBlock(nn.Module):
     self.conv_skip = nn.Conv1d(self.dilated_channels, out_channels=self.out_channels, kernel_size=1, stride=1, padding=0, dilation=1, groups=1, bias=self.use_conv_bias, padding_mode='zeros')
     
     # average pooling for class prediction, downsample to 10ms
-    #self.av_pool = nn.AvgPool1d(kernel_size=self.av_pool_size, stride=self.av_pool_stride)
-    self.av_pool = nn.Conv1d(self.dilated_channels, out_channels=self.dilated_channels, kernel_size=160, stride=80, padding=0, dilation=1, groups=1, bias=False, padding_mode='zeros')
+    self.av_pool = nn.AvgPool1d(kernel_size=self.av_pool_size, stride=self.av_pool_stride)
+    #self.av_pool = nn.Conv1d(self.dilated_channels, out_channels=self.dilated_channels, kernel_size=160, stride=80, padding=0, dilation=1, groups=1, bias=False, padding_mode='zeros')
 
     # conv prediction
     self.conv_pred1 = nn.Conv1d(self.dilated_channels, out_channels=self.pred_channels, kernel_size=1, stride=1, padding=0, dilation=1, groups=1, bias=self.use_conv_bias, padding_mode='zeros')
