@@ -74,10 +74,15 @@ class TestBench():
     self.net_handler.set_eval_mode()
 
 
-  def test_invariances(self):
+  def test_invariances(self, plot_path=None, name_pre='', name_post='', plot_prob=True):
     """
     test all invariances
     """
+
+    # plot path
+    plot_path = self.test_model_path if plot_path is None else plot_path
+    name_shift = name_pre + 'tb_shift' + name_post
+    name_noise = name_pre + 'tb_noise' + name_post
 
     # init lists
     all_labels, all_corrects_shift, all_corrects_noise, all_probs_shift, all_probs_noise = [], [], [], [], []
@@ -117,11 +122,11 @@ class TestBench():
     if self.cfg_tb['enable_info_prints']: print("\nall_corrects_shift:\n", all_corrects_shift), print("\nall_corrects_noise:\n", all_corrects_noise), print("\nall labels: ", all_labels)
 
     # plots
-    plot_test_bench_shift(x=all_corrects_shift, y=all_labels, context='tb-shift-2', plot_path=self.test_model_path, name='test_bench_shift', show_plot=False)
-    plot_test_bench_shift(x=all_probs_shift, y=all_labels, context='tb-shift', plot_path=self.test_model_path, name='test_bench_shift-prob', show_plot=False)
+    plot_test_bench_shift(x=all_corrects_shift, y=all_labels, context='tb-shift-2', plot_path=plot_path, name=name_shift, show_plot=False)
+    if plot_prob: plot_test_bench_shift(x=all_probs_shift, y=all_labels, context='tb-shift', plot_path=plot_path, name=name_shift + 'p', show_plot=False)
 
-    plot_test_bench_noise(x=all_corrects_noise, y=all_labels, snrs=self.cfg_tb['snrs'], context='tb-noise-2', plot_path=self.test_model_path, name='test_bench_noise', show_plot=False)
-    plot_test_bench_noise(x=all_probs_noise, y=all_labels, snrs=self.cfg_tb['snrs'], context='tb-noise', plot_path=self.test_model_path, name='test_bench_noise-prob', show_plot=False)
+    plot_test_bench_noise(x=all_corrects_noise, y=all_labels, snrs=self.cfg_tb['snrs'], context='tb-noise-2', plot_path=plot_path, name=name_noise, show_plot=False)
+    if plot_prob: plot_test_bench_noise(x=all_probs_noise, y=all_labels, snrs=self.cfg_tb['snrs'], context='tb-noise', plot_path=plot_path, name=name_noise + 'p', show_plot=False)
 
 
   def test_noise_invariance(self, x_wav, actual_label, mu=0):

@@ -28,12 +28,36 @@ Note that the experiments in this sections are not meant for comparison to the b
 % cepstral
 
 \subsection{Impact on the Amount of Cepstral Coefficients}
-The cepstral coefficients are selected to either 12 or 32, where 12 is the common selection of coefficients in many papers.
-Also the experiments are done once with and once without frame-based normalization.
-The training parameters for the experiment are listed in \rsec{exp_details_training}.
-The experiment is shown in \rtab{exp_fs_cepstral_l12}.
+The number of cepstral coefficients is selected to either 12 or 32, where a number 12 coefficients is commonly applied in many papers.
+The experiments are done once with and once without frame-based normalization to observe its impact on the classification accuracy, the noise and shift invariance.
+The standard set of training hyperparameters was used as listed in \rsec{exp_details_training}.
+The obtained accuracies on the test set after a training of 2000 epochs are shown in \rtab{exp_fs_cepstral_l12}.
 \input{./5_exp/tables/tab_exp_fs_cepstral_l12.tex}
+Note that no early stopping meachanism was applied and the model parameters from the last epoch were used.
+In \rfig{exp_fs_cepstral_acc} the accuracies on the validation set of the best performing training instances for each model are shown, where the accuracies are smoothened by a striding average filter with a length of 10 epochs for better visualization.
+\begin{figure}[!ht]
+  \centering
+  \subfigure[conv-trad]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_fs_cepstral_acc_conv-trad}}
+  \subfigure[conv-fstride]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_fs_cepstral_acc_conv-fstride}}
+  \subfigure[conv-jim]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_fs_cepstral_acc_conv-jim}}
+  \caption{Accuracies on the validation set of all three CNN models, with different amounts of cepstral coefficients and with and without frame-based normalization.}
+  \label{fig:exp_fs_cepstral_acc}
+\end{figure}
+\FloatBarrier
+\noindent
 
+Noise invariance:
+\begin{figure}[!ht]
+  \centering
+  \subfigure[mfcc12, norm0]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_noise_conv-trad_mfcc12_norm0}}
+  \subfigure[mfcc12, norm1]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_noise_conv-trad_mfcc12_norm1}}
+  \subfigure[mfcc32, norm0]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_noise_conv-trad_mfcc32_norm0}}
+  \subfigure[mfcc32, norm1]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_noise_conv-trad_mfcc32_norm1}}
+  \caption{Noise invariance of the \texttt{conv-trad} model, with different amounts of cepstral coefficients and with and without frame-based normalization.}
+  \label{fig:exp_fs_cepstral_tb_noise_conv-trad}
+\end{figure}
+\FloatBarrier
+\noindent
 
 
 

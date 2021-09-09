@@ -39,7 +39,7 @@ def get_figsize(context='none'):
   elif context == 'half': return (8, 4)
   elif context == 'waveform': return (8, 3)
   #elif context == 'tb_shift': return (8, 1.5)
-  elif context == 'tb_shift': return (10, 2)
+  elif context == 'tb_shift': return (10, 1.5)
   elif context == 'tb_noise': return (4, 2)
   elif context == 'dct': return (4, 3)
   elif context == 'hist': return (6, 5)
@@ -67,8 +67,10 @@ def get_fontsize(context='none', add_size=0):
   # special
   #elif context == 'colorbar': font_size = 9
   elif context == 'colorbar': font_size = 10
-  elif context == 'conf_normal': font_size = 10
-  elif context == 'conf_small': font_size = 7
+  #elif context == 'conf_normal': font_size = 10
+  elif context == 'conf_normal': font_size = 11
+  #elif context == 'conf_small': font_size = 7
+  elif context == 'conf_small': font_size = 8
   #elif context == 'anno': font_size = 12
   elif context == 'anno': font_size = 15
   elif context == 'tb_noise_label': font_size = 10
@@ -120,6 +122,7 @@ def get_colormap_from_context(context='none'):
   elif context == 'adv-loss': return [red_16.mpl_colors[3], red_16.mpl_colors[5], red_16.mpl_colors[7], red_16.mpl_colors[10]]
   #elif context == 'adv-loss': return Prism_8.mpl_colors[:2] + Prism_8.mpl_colors[6:]
   elif context == 'acc': return Prism_8.mpl_colors[5:]
+  elif context == 'acc-multi': return Antique_4.mpl_colors#[1:]
   #elif context == 'acc': return Prism_8.mpl_colors[5:]
   elif context == 'mel': return Antique_4.mpl_colors[3:]
 
@@ -207,7 +210,7 @@ def plot_histogram(x, bins=None, color=None, y_log_scale=False, x_log_scale=Fals
   return fig
 
 
-def plot_test_bench_noise(x, y, snrs, cmap=None, context='tb-noise', title='', plot_path=None, name='test_bench_noise', show_plot=False, close_plot=False):
+def plot_test_bench_noise(x, y, snrs, cmap=None, context='tb-noise', title='', plot_path=None, name='test_bench_noise', show_plot=False, close_plot=True):
   """
   shiftinvariant test
   """
@@ -250,7 +253,7 @@ def plot_test_bench_noise(x, y, snrs, cmap=None, context='tb-noise', title='', p
   return fig
 
 
-def plot_test_bench_shift(x, y, cmap=None, context='tb-shift', title='', plot_path=None, name='test_bench_shift', show_plot=False, close_plot=False):
+def plot_test_bench_shift(x, y, cmap=None, context='tb-shift', title='', plot_path=None, name='test_bench_shift', show_plot=False, close_plot=True):
   """
   shiftinvariant test
   """
@@ -476,7 +479,8 @@ def plot_grid_images(x, padding=1, num_cols=8, cmap=None, context='none', color_
 
   # plot init
   m, n = all_grid_img.shape
-  fig = plt.figure(figsize=(8, np.clip(m / n * 8, 1, 8))) if m < n else plt.figure(figsize=(np.clip(n / m * 8, 2, 8), 8))
+  #fig = plt.figure(figsize=(8, np.clip(m / n * 8, 1, 8))) if m < n else plt.figure(figsize=(np.clip(n / m * 8, 2, 8), 8))
+  fig = plt.figure(figsize=(10, np.clip(m / n * 8, 1, 8))) if m < n else plt.figure(figsize=(np.clip(n / m * 8, 2, 8), 7))
   #if m < n: fig = plt.figure(figsize=(8, np.clip(m / n * 8, 1, 8)))
   #else: fig = plt.figure(figsize=(np.clip(n / m * 8, 2, 8), 8))
 
@@ -492,7 +496,8 @@ def plot_grid_images(x, padding=1, num_cols=8, cmap=None, context='none', color_
   add_colorbar(fig, im)
 
   # tight plot
-  plt.subplots_adjust(left=0.10, bottom=0.02, right=0.90, top=0.90, wspace=0, hspace=0)
+  #plt.subplots_adjust(left=0.10, bottom=0.02, right=0.90, top=0.90, wspace=0, hspace=0)
+  plt.subplots_adjust(left=0.10, bottom=0.0, right=0.90, top=1.0, wspace=0, hspace=0)
   #plt.subplots_adjust(left=0.01, bottom=0.01, right=0.99, top=0.97, wspace=0, hspace=0)
 
   # plot save and show
@@ -522,7 +527,7 @@ def plot_damaged_file_score(z, plot_path=None, name='z_score', show_plot=False):
   if show_plot: plt.show()
 
 
-def plot_waveform(x, fs, e_mfcc=None, e_samples=None, anno_file=None, bon_samples=[], bon_mfcc=[], hop=None, onset_frames=[], fig_size=None, y_ax_balance=True, cmap=None, title='', xlim=None, ylim=None, axis_off=False, plot_path=None, name='None', show_plot=False, close_plot=False):
+def plot_waveform(x, fs, e_mfcc=None, e_samples=None, anno_file=None, bon_samples=[], bon_mfcc=[], hop=None, onset_frames=[], fig_size=None, y_ax_balance=True, cmap=None, title='', xlim=None, ylim=None, axis_off=False, plot_path=None, name='None', show_plot=False, close_plot=True):
   """
   just a simple waveform
   """
@@ -614,7 +619,7 @@ def plot_onsets(x, fs, N, hop, onsets, title='none', plot_path=None, name='None'
     plt.close()
 
 
-def plot_confusion_matrix(cm, classes, cmap=None, plot_path=None, name='None'):
+def plot_confusion_matrix(cm, classes, cmap=None, plot_path=None, name='None', show_plot=False, close_plot=True):
   """
   plot confusion matrix
   """
@@ -625,6 +630,9 @@ def plot_confusion_matrix(cm, classes, cmap=None, plot_path=None, name='None'):
   # get cmap
   if cmap is None: cmap = get_colormap_from_context(context='confusion')
 
+  # max value
+  max_value = np.max(np.sum(cm, axis=1))
+
   # init plot
   fig = plt.figure(figsize=get_figsize(context='square_big'))
 
@@ -632,14 +640,14 @@ def plot_confusion_matrix(cm, classes, cmap=None, plot_path=None, name='None'):
   ax = plt.axes()
 
   # image
-  im = ax.imshow(cm, cmap=cmap, interpolation='none', vmin=0, vmax=np.max(np.sum(cm, axis=1)))
+  im = ax.imshow(cm, cmap=cmap, interpolation='none', vmin=0, vmax=max_value)
 
   # text handling
   for y_pred_pos in range(len(classes)):
     for y_true_pos in range(len(classes)):
 
       # font color and size
-      font_color = 'black' if y_pred_pos != y_true_pos else 'white'
+      font_color = 'black' if y_pred_pos != y_true_pos else ('black' if cm[y_pred_pos, y_true_pos] < 0.1 * max_value else 'white')
       fontsize = get_fontsize('conf_small') if len(classes) > 10 else get_fontsize('conf_normal')
 
       # write numbers inside
@@ -650,7 +658,7 @@ def plot_confusion_matrix(cm, classes, cmap=None, plot_path=None, name='None'):
   ax.set_xticklabels(classes), ax.set_yticklabels(classes)
 
   plt.xticks(fontsize=get_fontsize('axis_tick_major'), rotation=90), plt.yticks(fontsize=get_fontsize('axis_tick_major'), rotation=0)
-  plt.xlabel('predicted labels'), plt.ylabel('true labels')
+  plt.xlabel('predicted labels', fontsize=get_fontsize('axis_label')), plt.ylabel('true labels', fontsize=get_fontsize('axis_label'))
 
   # colorbar
   add_colorbar(fig, im)
@@ -659,9 +667,9 @@ def plot_confusion_matrix(cm, classes, cmap=None, plot_path=None, name='None'):
   plt.tight_layout()
 
   # plot the fig
-  if plot_path is not None:
-    plt.savefig(plot_path + name + '.png', dpi=100)
-    plt.close()
+  if plot_path is not None: plt.savefig(plot_path + name + '.png', dpi=100)
+  if show_plot: plt.show()
+  if close_plot: plt.close()
 
 
 def plot_train_score(train_score_dict, plot_path, name_ext='', show_plot=False):
@@ -849,6 +857,47 @@ def plot_val_acc(val_acc, cmap=None, plot_path=None, name='score_val', show_plot
 
   # layout
   plt.ylabel("accuracy"), plt.xlabel("iterations"), plt.ylim(0, 100), plt.legend(), plt.grid()
+
+  # tight plot
+  plt.tight_layout()
+
+  # plot the fig
+  if plot_path is not None: plt.savefig(plot_path + name + '.png', dpi=100)
+  if show_plot: plt.show()
+  if close_plot:plt.close()
+
+  return fig
+
+
+def plot_val_acc_multiple(val_accs_dict, cmap=None, plot_path=None, name='score_val', show_plot=False, close_plot=True):
+  """
+  plot train vs. validation loss
+  """
+
+  # get cmap
+  if cmap is None: cmap = get_colormap_from_context(context='acc-multi')
+
+  # setup figure
+  fig = plt.figure(figsize=get_figsize(context='score'))
+
+  # create axis
+  ax = plt.axes()
+  if cmap is not None: ax.set_prop_cycle('color', cmap)
+
+  linestyles = ['solid', 'dotted', 'dashed', 'dashdot']
+
+  # plot
+  [ax.plot(val_acc, linestyle=linestyle, lw=2, label='{}'.format(label)) for (label, val_acc), linestyle in zip(val_accs_dict.items(), linestyles)]
+
+  # ticks
+  ax.yaxis.set_major_locator(MultipleLocator(10))
+
+  # layout
+  plt.ylabel("accuracy", fontsize=get_fontsize('axis_label')), plt.xlabel("iterations", fontsize=get_fontsize('axis_label')), plt.ylim(0, 100), 
+  plt.legend(fontsize=get_fontsize('axis_label')), plt.grid()
+
+  # tick size
+  ax.tick_params(axis='both', which='major', labelsize=get_fontsize('axis_tick_major', add_size=0)), ax.tick_params(axis='both', which='minor', labelsize=get_fontsize('axis_tick_minor', add_size=0))
 
   # tight plot
   plt.tight_layout()
@@ -1248,7 +1297,7 @@ def plot_mel_scale(cmap=None, plot_path=None, name='mel', show_plot=False):
   if show_plot: plt.show()
 
 
-def plot_activation_function(x, y, cmap=None, plot_path=None, name='mel', show_plot=False, close_plot=False):
+def plot_activation_function(x, y, cmap=None, plot_path=None, name='mel', show_plot=False, close_plot=True):
   """
   activation function plot
   """
