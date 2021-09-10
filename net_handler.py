@@ -83,7 +83,7 @@ class NetHandler():
     self.num_print_per_epoch = 2
 
     # set device
-    self.device = torch.device("cuda:0" if (torch.cuda.is_available() and not self.use_cpu) else "cpu")
+    self.device = torch.device('cuda:0' if (torch.cuda.is_available() and not self.use_cpu) else 'cpu')
 
     # print device
     print("\nnet handler device: {}\ngpu: {}".format(self.device, torch.cuda.get_device_name(self.device))) if torch.cuda.is_available() and not self.use_cpu else print("\nnet handler device: {}".format(self.device))
@@ -151,7 +151,7 @@ class NetHandler():
     f_model_name_dict = legacy_model_file_naming(f_model_name_dict)
 
     # load models
-    [[(print("\nload model: {}\nnet handler model: {}".format(f_model, model_name)), model.load_state_dict(torch.load(f_model))) for f_model_name, f_model in f_model_name_dict.items() if f_model_name == model_name] for model_name, model in self.models.items()]
+    [[(print("\nload model: {}\nnet handler model: {}".format(f_model, model_name)), model.load_state_dict(torch.load(f_model, map_location=self.device))) for f_model_name, f_model in f_model_name_dict.items() if f_model_name == model_name] for model_name, model in self.models.items()]
 
 
   def save_models(self, model_files):
