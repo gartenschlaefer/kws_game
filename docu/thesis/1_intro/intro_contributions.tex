@@ -13,7 +13,7 @@ The amount of MFCC cepstral coefficients was evaluated with either 12 or 32 ceps
 The enhancement of MFCC to 39-feature vectors with 12 cepstral coefficients was evaluated likewise and showed only small improvements of accuracies, but no significant ones, which lead to the decision to use less feature vectors and continue the experiments with 12 MFCC coefficients without enhancement.
 A frame-based normalization was introduced and performed on MFCCs to suite them better for visualization and use them for Generative Adversarial Networks (GAN) training.
 Evaluation of the frame-based normalization was done in terms of accuracy, shift and noise invariance on conventional CNN models.
-Frame-based normalization showed significant worse accuracies (about 5 to 10\%) and took a bit longer for training, but improved the noise invariance properties in many experiments.
+Frame-based normalization showed significant worse accuracies (about 5 to \SI{10}{\percent}) and took a bit longer for training, but improved the noise invariance properties in many experiments.
 The following experiments were done with 12 cepstral coefficients and frame-based normalization.
 
 Another large evaluation topic was the application of Generative Adversarial Networks (GAN) on the MFCC extracted speech commands. 
@@ -24,7 +24,7 @@ This helped to generate better fakes and did not lead into noisy equilibrium sta
 
 From the adversarial training of GAN networks, it was examined how their obtained weights through training can contribute in the performance of an equivalent CNN models, with same convolutional layer structures.
 The transfer of the obtained weights (transfer learning) from either D or G were done, to initialize the weights of a separate training instance of an equivalent CNN model for the KWS task.
-With this approach it was possible to significantly increase the accuracy performance of about $3\%$ by using weights from G.
+With this approach it was possible to significantly increase the accuracy performance of about \SI{3}{\percent} by using weights from G.
 It showed that the obtained weights of G from an adversarial training can be very valuable if frame-based normalization was applied.
 
 A completely different approach for KWS was the evaluation of a Wavenet \cite{Oord2016} model for classification.

@@ -56,6 +56,19 @@ class MetricsRevisit():
       'feature_sel': re.sub(r'[_]', '', re.findall(r'_c[01]d[01]d[01]e[01]_', self.model_path)[0]),
       }
 
+    # check if adversarial pre training is in the training instance
+    if self.model_path.find('adv-pre') != -1:
+
+      # get adv params
+      adv_params = re.findall(r'adv-pre[\w_\-0-9]+/', self.model_path)[0]
+
+      #print(adv_params)
+      self.param_dict.update({
+        'adv-it': re.sub(r'[it\-_]', '', re.findall(r'it-[0-9]+_', adv_params)[0]),
+        'adv-model': re.sub(r'model-', '', re.findall(r'model-[gd]', adv_params)[0]),
+        'adv-train': re.sub(r'[_]', '', re.findall(r'(_label_)|(_dual_)', adv_params)[0][0] + re.findall(r'(_label_)|(_dual_)', adv_params)[0][1]),
+        })
+
     print("params: ", self.param_dict)
 
 
@@ -71,6 +84,13 @@ class MetricsRevisit():
     get labels for mfcc norm
     """
     return '{}'.format(self.param_dict['feature_sel'])
+
+
+  def get_adv_labels(self, underline=False):
+    """
+    get labels for mfcc norm
+    """
+    return '{}-{}'.format(self.param_dict['adv-model'], self.param_dict['adv-it'])
 
 
   def run_test_bench(self, plot_path=None, name_pre='', name_post=''):
@@ -245,7 +265,27 @@ class MetricsCollector():
     [[mr.run_all() for mr in self.metrics_revisit_dict[model]] for model in self.model_sel]
 
 
-  def accuracy_plot_cepstral(self, plot_path):
+  def accuracy_revisit(self, plot_path):
+    """
+    accuracy plot
+    """
+    pass
+
+
+  def test_bench_revisit(self, plot_path):
+    """
+    test bench for mfcc feature selection
+    """
+    [[mr.run_test_bench(plot_path=plot_path, name_pre='exp_fs_mfcc_', name_post='_{}_{}'.format(model, mr.get_mfcc_labels())) for mr in self.metrics_revisit_dict[model]] for model in self.model_sel]
+
+
+
+class MetricsCollectorCepstral(MetricsCollector):
+  """
+  collects metric revisiter
+  """
+
+  def accuracy_revisit(self, plot_path):
     """
     accuracy plot
     """
@@ -256,10 +296,16 @@ class MetricsCollector():
       val_accs_dict = {mr.get_cepstral_labels(): mr.get_train_score_dict(average_acc=True)['val_acc'] for mr in self.metrics_revisit_dict[model]}
 
       # plot all
-      plot_val_acc_multiple(val_accs_dict, plot_path=plot_path, name='exp_fs_mfcc_acc_{}'.format(model), show_plot=True, close_plot=True)
+      plot_val_acc_multiple(val_accs_dict, plot_path=plot_path, name='exp_fs_cepstral_acc_{}'.format(model), show_plot=True, close_plot=True)
 
 
-  def accuracy_plot_mfcc(self, plot_path):
+
+class MetricsCollectorMFCC(MetricsCollector):
+  """
+  collects metric revisiter
+  """
+
+  def accuracy_revisit(self, plot_path):
     """
     accuracy plot
     """
@@ -273,11 +319,39 @@ class MetricsCollector():
       plot_val_acc_multiple(val_accs_dict, plot_path=plot_path, name='exp_fs_mfcc_acc_{}'.format(model), show_plot=True, close_plot=True)
 
 
-  def test_bench_plot_mfcc(self, plot_path):
+  def test_bench_revisit(self, plot_path):
     """
     test bench for mfcc feature selection
     """
     [[mr.run_test_bench(plot_path=plot_path, name_pre='exp_fs_mfcc_', name_post='_{}_{}'.format(model, mr.get_mfcc_labels())) for mr in self.metrics_revisit_dict[model]] for model in self.model_sel]
+
+
+
+class MetricsCollectorAdvLabel(MetricsCollector):
+  """
+  collects metric revisiter
+  """
+
+  def accuracy_revisit(self, plot_path):
+    """
+    accuracy plot
+    """
+
+    for model in self.model_sel:
+
+      # create acc dicts
+      val_accs_dict = {mr.get_adv_labels(): mr.get_train_score_dict(average_acc=True)['val_acc'] for mr in self.metrics_revisit_dict[model] if mr.param_dict['adv-train'] == 'label'}
+
+      # plot all
+      plot_val_acc_multiple(val_accs_dict, plot_path=plot_path, name='exp_adv_label_acc_{}'.format(model), show_plot=True, close_plot=True)
+
+
+  def test_bench_revisit(self, plot_path):
+    """
+    test bench for mfcc feature selection
+    """
+    [[mr.run_test_bench(plot_path=plot_path, name_pre='exp_adv_{}_'.format(mr.param_dict['adv-train']), name_post='_{}_{}'.format(model, mr.get_adv_labels())) for mr in self.metrics_revisit_dict[model] if mr.param_dict['adv-train'] == 'label'] for model in self.model_sel]
+
 
 
 if __name__ == '__main__':
@@ -313,22 +387,18 @@ if __name__ == '__main__':
 
 
   # cepstral
-  #metrics_collector = MetricsCollector(cfg=cfg, model_path='../docu/best_models/ignore/exp_cepstral/', model_sel=['conv-fstride', 'conv-jim', 'conv-trad'])
-
-  # accuracy plot
-  #metrics_collector.accuracy_plot_cepstral(plot_path=plot_path, name='exp_fs_cepstral_acc_{}'.format(model))
-
-  # run all metrics
-  #metrics_collector.run_all_metrics()
-
+  #metrics_collector = MetricsCollectorCepstral(cfg=cfg, model_path='../docu/best_models/ignore/exp_cepstral/', model_sel=['conv-fstride', 'conv-jim', 'conv-trad'])
 
   # mfcc
-  metrics_collector = MetricsCollector(cfg=cfg, model_path='../docu/best_models/ignore/exp_mfcc/', model_sel=['conv-jim'])
+  #metrics_collector = MetricsCollectorMFCC(cfg=cfg, model_path='../docu/best_models/ignore/exp_mfcc/', model_sel=['conv-jim'])
+
+  # adv
+  metrics_collector = MetricsCollectorAdvLabel(cfg=cfg, model_path='../docu/best_models/ignore/exp_adv/', model_sel=['conv-jim'])
 
   # run all metrics
   #metrics_collector.run_all_metrics()
 
-  # accuracy plot
-  #metrics_collector.accuracy_plot_mfcc(plot_path=plot_path)
-  metrics_collector.test_bench_plot_mfcc(plot_path=plot_path)
+  # run revisits
+  #metrics_collector.accuracy_revisit(plot_path=plot_path)
+  metrics_collector.test_bench_revisit(plot_path=plot_path)
 

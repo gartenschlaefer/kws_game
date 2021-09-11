@@ -136,6 +136,14 @@ The frame-based normalization was applied with results listed in \rtab{exp_fs_mf
 The best two feature enhancements were used for examining the noise and shift invaiance, those enhancements were the full MFCC-39 features and the (c, d, e) features.
 
 acc:
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_fs_mfcc_acc_conv-jim}
+  \caption{Accuracies of the \texttt{conv-jim} model, with different feature enhancements and frame-based normalization.}
+  \label{fig:exp_fs_mfcc_tb_acc_conv-jim}
+\end{figure}
+\FloatBarrier
+\noindent
 
 
 Noise invariance:
@@ -155,7 +163,7 @@ Shift invariance:
   \subfigure[mfcc-39]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_fs_mfcc_tb_shift_conv-jim_c1d1d1e1}}
   \subfigure[c, d, e]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_fs_mfcc_tb_shift_conv-jim_c1d1d0e1}}
   \caption{Shift invariance of the \texttt{conv-jim} model with different feature enhancements and frame-based normalization.}
-  \label{fig:exp_fs_mfcc_tb_noise_conv-jim}
+  \label{fig:exp_fs_mfcc_tb_shift_conv-jim}
 \end{figure}
 \FloatBarrier
 \noindent

@@ -6,26 +6,62 @@
 Adversarial pre-training as already described in detail in \rsec{nn_adv} is the transfer of learned weights obtained from adversarial training between a Generator (G) and a Discriminator (D) network.
 The target neural network architecture used for adversarial pre-training is the \texttt{conv-jim} model, described in \rsec{nn_arch_cnn}, obtaining pre-trained weights from its GAN versions the \texttt{adv-d-jim} and \texttt{adv-g-jim}, described in \rsec{nn_arch_adv}.
 Note that frame-based normalization was applied, which made the training of GANs considerably more easy and the weights from the Generator network applicable.
-Both adversarial pre-training techniques, the adversarial label and dual train in \rsec{nn_adv} were evaluated.
+Both adversarial pre-training techniques, the adversarial label and dual train explained in \rsec{nn_adv} were evaluated.
 
-Note that the experiments in this section, like in the previous section, not meant for comparison to the benchmark networks, because of a usage of 500 examples per label instead of the whole dataset.
+Note that the experiments in this section, like in the previous section, are not meant for comparison to the benchmark networks, because of a usage of 500 examples per label instead of the whole dataset.
 
 
 % --
 % label train
 
-\subsection{Impact of Adversarial Label Train}
+\subsection{Impact of Adversarial Label Train}\label{sec:exp_adv_label}
 The adv-label-train experiments on the \texttt{conv-jim} architecture with obtained weights from either \texttt{adv-g-jim} or \texttt{adv-d-jim} are shown in \rtab{exp_adv_label_l12}.
 \input{./5_exp/tables/tab_exp_adv_label_l12}
+It can be observed that the weights from the Generator network achieves better performances that the weights from the Discriminator network.
+The best models from the experiments concatenated in one accuracy plot can be seen in \rfig{exp_adv_label_acc_conv-jim}.
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_adv_label_acc_conv-jim}
+  \caption{Accuracies of the \texttt{conv-jim} model, with different feature enhancements and frame-based normalization.}
+  \label{fig:exp_adv_label_acc_conv-jim}
+\end{figure}
+\FloatBarrier
+\noindent
+
+Noise invariance:
+\begin{figure}[!ht]
+  \centering
+  \subfigure[D]{\includegraphics[width=0.4\textwidth]{./5_exp/figs/exp_adv_label_tb_noise_conv-jim_d-100}}
+  \subfigure[G]{\includegraphics[width=0.4\textwidth]{./5_exp/figs/exp_adv_label_tb_noise_conv-jim_g-100}}
+  \caption{Noise invariance of the \texttt{conv-jim} model,  model with adv-label-train of 100 epochs pre-training and using either the Generator (G) or Discriminator (D) weights.}
+  \label{fig:exp_adv_label_tb_noise_conv-jim}
+\end{figure}
+\FloatBarrier
+\noindent
+
+Shift invariance:
+\begin{figure}[!ht]
+  \centering
+  \subfigure[D]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_adv_label_tb_shift_conv-jim_d-100}}
+  \subfigure[G]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_adv_label_tb_shift_conv-jim_g-100}}
+  \caption{Shift invariance of the \texttt{conv-jim} model with adv-label-train of 100 epochs pre-training and using either the Generator (G) or Discriminator (D) weights.}
+  \label{fig:exp_adv_label_tb_shift_conv-jim}
+\end{figure}
+\FloatBarrier
+\noindent
 
 
 % --
 % adv dual train
 
 \subsection{Impact of Adversarial Dual Train}
-The adv-dual-train experiment similar to the adv-label-train experiments but without choosing subsets of labels are presented in \rtab{exp_adv_dual_l12}
+The adv-dual-train experiments were similar to the adv-label-train, but without choosing subsets of labels and simply using the same convolutional layer structure for the Generator and Discriminator model like the CNN network.
+The experiments are presented in \rtab{exp_adv_dual_l12}.
 \input{./5_exp/tables/tab_exp_adv_dual_l12}
-
+The dual experiments achieved worse accuracies for the transfer of Discriminator weights, when trained for too long, compared to the initializing of the target model with random weights.
+The Generator weights however, could increase the average accuracy by at least \SI{1}{\percent}.
+The dual training is not further evaluated regarding shift and noise invariance, because the adv-label-train performed better.
 
 % % old
 % \subsection{old renew this}

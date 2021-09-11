@@ -29,7 +29,7 @@ where $h$ is the activation function, $\bm{w} \in \R^n$ is a weight vector and $
 The output of each node in a current layer is further connected to other nodes in the next layer and builds up the neural network.
 The constraint of an activation function is, that an easy computable derivative of this function exist in order to backpropagate gradients.
 
-The most famous activation function nowadays is the Rectified Linear Unit (ReLU) \cite{Zeiler2013} function:
+The most famous activation function nowadays is the Rectified Linear Unit (ReLU) \cite{Zeiler2013_relu} function:
 \begin{equation}\label{eq:nn_theory_relu}
   h(a) = \max{(0, a)}
 \end{equation}
@@ -194,7 +194,7 @@ Note that $x_i[y_i]$ is denoted as indexing of $x_i$ of its class dimension $L$.
 Dropout \cite{Hinton2012} is a method to improve generalization and training of neural networks.
 The idea is to set the output of randomly selected nodes within a layer for one training step to zero, so that only the other nodes are updated.
 This can be done by multiplying all outputs of a current layer with a vector containing a specified number of zeros and ones places at random positions within the vector.
-The amount of zeros compared to ones can be sampled from a Bernoulli distribution set by a probability value, for instance $p=0.2$ means that there are 20\% zeros and 80\% ones randomly placed within the vector.
+The amount of zeros compared to ones can be sampled from a Bernoulli distribution set by a probability value, for instance $p=0.2$ means that there are \SI{20}{\percent} zeros and \SI{80}{\percent} ones randomly placed within the vector.
 
 
 % --
