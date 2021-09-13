@@ -39,7 +39,7 @@ Since the Mel Frequency Cepstral Coefficients (MFCC) are extracted to obtain fea
 The first cepstral coefficient $\bm{u}_0 \in \R^M$ of the MFCCs is actually an energy value, that is the sum of all equidistant mel filter bands.
 The equivalent of \req{e_win} for MFCCs in the cepstral and frame space is therefore:
 \begin{equation}
-  e[m] = \sum_{i=0}^{N-1} \bm{u}_0[m + i]
+  e[m] = \sum_{i=0}^{N-1} u_0[m + i]
 \end{equation}
 where $m$ and $N$ are in the frame space instead of the sample space.
 A conversion from sample to frame space can simply be done by dividing the sample variable with the hop size $h$ in samples and rounding it to an integer number.

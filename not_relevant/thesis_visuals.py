@@ -251,7 +251,7 @@ def training_logs(cfg):
 
 def nn_theory():
   """
-  neural network theury
+  neural network theory
   """
 
   # plot path
@@ -308,7 +308,7 @@ if __name__ == '__main__':
   #feature_selection_tables(overwrite=True)
 
   # audio set wavs
-  audio_set_wavs(cfg, statistics_plot=True, wav_grid_plot=False, label_table_plot=False)
+  #audio_set_wavs(cfg, statistics_plot=True, wav_grid_plot=False, label_table_plot=False)
 
   # batch archive
   #batch_archive_grid_examples(cfg, show_plot=True)
@@ -317,7 +317,7 @@ if __name__ == '__main__':
   #training_logs(cfg)
 
   # theory
-  #nn_theory()
+  nn_theory()
 
   # noise wavs
   #noise_wavs_info(cfg)

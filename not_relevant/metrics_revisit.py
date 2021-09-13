@@ -16,7 +16,7 @@ from audio_dataset import AudioDataset, SpeechCommandsDataset, MyRecordingsDatas
 from batch_archive import SpeechCommandsBatchArchive
 from test_bench import TestBench
 from legacy import legacy_adjustments_net_params
-from plots import plot_train_score, plot_confusion_matrix, plot_mfcc_only, plot_grid_images, plot_mfcc_anim, plot_val_acc_multiple
+from plots import plot_train_score, plot_train_loss, plot_confusion_matrix, plot_mfcc_only, plot_grid_images, plot_mfcc_anim, plot_val_acc_multiple
 
 
 class MetricsRevisit():
@@ -54,6 +54,9 @@ class MetricsRevisit():
       'mfcc': re.sub(r'([_])|(32-)', '', re.findall(r'_mfcc[0-9]+-[0-9]+_', self.model_path)[0]),
       'norm': re.sub('norm', '', re.findall(r'norm[01]', self.model_path)[0]),
       'feature_sel': re.sub(r'[_]', '', re.findall(r'_c[01]d[01]d[01]e[01]_', self.model_path)[0]),
+      'adv-it': '',
+      'adv-model': '',
+      'adv-train': '',
       }
 
     # check if adversarial pre training is in the training instance
@@ -105,7 +108,7 @@ class MetricsRevisit():
     self.test_bench.test_invariances(plot_path=plot_path, name_pre=name_pre, name_post=name_post, plot_prob=False)
 
 
-  def run_score(self, use_average=False):
+  def run_score(self, use_average=False, name_ext='_revisit'):
     """
     score plots
     """
@@ -114,7 +117,19 @@ class MetricsRevisit():
     train_score_dict = self.get_train_score_dict(average_acc=use_average)
 
     # plot train score
-    plot_train_score(train_score_dict, plot_path=self.model_path, name_ext='_revisit', show_plot=self.show_plot)
+    plot_train_score(train_score_dict, plot_path=self.model_path, name_ext=name_ext, show_plot=self.show_plot)
+
+
+  def run_train_loss(self, plot_path=None, name='train_loss'):
+    """
+    train loss
+    """
+
+    # train score dict
+    train_score_dict = self.get_train_score_dict()
+
+    # train loss
+    plot_train_loss(train_score_dict['train_loss'], train_score_dict['val_loss'], plot_path=plot_path, name=name, show_plot=False)
 
 
   def get_train_score_dict(self, average_acc=False):
@@ -126,7 +141,7 @@ class MetricsRevisit():
     metrics = np.load(self.metrics_file, allow_pickle=True)
 
     # see whats in data
-    print(metrics.files)
+    print("\nmetrics file: ", self.metrics_file)
 
     # get train score
     train_score_dict = metrics['train_score_dict'][()]
@@ -194,8 +209,6 @@ class MetricsRevisit():
     # create batches
     self.batch_archive.create_batches()
 
-    print(self.batch_archive.x_set_dict.keys())
-    #stop
     print("\n--Evaluation on Test Set:")
 
     # evaluation of model
@@ -279,6 +292,13 @@ class MetricsCollector():
     [[mr.run_test_bench(plot_path=plot_path, name_pre='exp_fs_mfcc_', name_post='_{}_{}'.format(model, mr.get_mfcc_labels())) for mr in self.metrics_revisit_dict[model]] for model in self.model_sel]
 
 
+  def run_special(self, plot_path):
+    """
+    special experimetns savings
+    """
+    pass
+
+
 
 class MetricsCollectorCepstral(MetricsCollector):
   """
@@ -295,7 +315,7 @@ class MetricsCollectorCepstral(MetricsCollector):
       # create acc dicts
       val_accs_dict = {mr.get_cepstral_labels(): mr.get_train_score_dict(average_acc=True)['val_acc'] for mr in self.metrics_revisit_dict[model]}
 
-      # plot all
+      # plot acc
       plot_val_acc_multiple(val_accs_dict, plot_path=plot_path, name='exp_fs_cepstral_acc_{}'.format(model), show_plot=True, close_plot=True)
 
 
@@ -315,7 +335,7 @@ class MetricsCollectorMFCC(MetricsCollector):
       # create acc dicts
       val_accs_dict = {mr.get_mfcc_labels(): mr.get_train_score_dict(average_acc=True)['val_acc'] for mr in self.metrics_revisit_dict[model]}
 
-      # plot all
+      # plot acc
       plot_val_acc_multiple(val_accs_dict, plot_path=plot_path, name='exp_fs_mfcc_acc_{}'.format(model), show_plot=True, close_plot=True)
 
 
@@ -342,7 +362,7 @@ class MetricsCollectorAdvLabel(MetricsCollector):
       # create acc dicts
       val_accs_dict = {mr.get_adv_labels(): mr.get_train_score_dict(average_acc=True)['val_acc'] for mr in self.metrics_revisit_dict[model] if mr.param_dict['adv-train'] == 'label'}
 
-      # plot all
+      # plot acc
       plot_val_acc_multiple(val_accs_dict, plot_path=plot_path, name='exp_adv_label_acc_{}'.format(model), show_plot=True, close_plot=True)
 
 
@@ -351,6 +371,54 @@ class MetricsCollectorAdvLabel(MetricsCollector):
     test bench for mfcc feature selection
     """
     [[mr.run_test_bench(plot_path=plot_path, name_pre='exp_adv_{}_'.format(mr.param_dict['adv-train']), name_post='_{}_{}'.format(model, mr.get_adv_labels())) for mr in self.metrics_revisit_dict[model] if mr.param_dict['adv-train'] == 'label'] for model in self.model_sel]
+
+
+
+class MetricsCollectorFinal(MetricsCollector):
+  """
+  collects metric revisiter
+  """
+
+  def __init__(self, cfg, model_path, model_sel, norm=False):
+
+    # Parent init
+    super().__init__(cfg, model_path, model_sel)
+
+    # arguments
+    self.norm = norm
+
+
+  def accuracy_revisit(self, plot_path):
+    """
+    accuracy plot
+    """
+
+    val_accs_dict = {}
+
+    # for norm zero
+    for model in self.model_sel:
+
+      # create acc dicts
+      val_accs_dict.update({'{}-norm{}{}'.format(model, int(self.norm), '' if not len(mr.param_dict['adv-train']) else ', adv-{}-{}-{}'.format(mr.param_dict['adv-train'], mr.param_dict['adv-model'], mr.param_dict['adv-it'])): mr.get_train_score_dict(average_acc=True)['val_acc'] for mr in self.metrics_revisit_dict[model] if mr.param_dict['norm'] == str(int(self.norm))})
+
+    # plot acc
+    plot_val_acc_multiple(val_accs_dict, plot_path=plot_path, name='exp_final_acc_norm{}'.format(int(self.norm)), show_plot=True, close_plot=True)
+
+
+  def test_bench_revisit(self, plot_path):
+    """
+    test bench for mfcc feature selection
+    """
+    [[mr.run_test_bench(plot_path=plot_path, name_pre='exp_adv_{}_'.format(mr.param_dict['adv-train']), name_post='_{}_{}'.format(model, mr.get_adv_labels())) for mr in self.metrics_revisit_dict[model] if mr.param_dict['adv-train'] == 'label'] for model in self.model_sel]
+
+
+  def run_special(self, plot_path):
+    """
+    special run
+    """
+
+    # run train score
+    [(print(mr.param_dict), mr.run_train_loss(plot_path=plot_path, name='exp_final_loss_norm{}_conv-trad'.format(mr.param_dict['norm']))) for mr in self.metrics_revisit_dict['conv-trad']]
 
 
 
@@ -386,19 +454,18 @@ if __name__ == '__main__':
   #metrics_revisit.run_all()
 
 
-  # cepstral
+  # metric collectors
   #metrics_collector = MetricsCollectorCepstral(cfg=cfg, model_path='../docu/best_models/ignore/exp_cepstral/', model_sel=['conv-fstride', 'conv-jim', 'conv-trad'])
-
-  # mfcc
   #metrics_collector = MetricsCollectorMFCC(cfg=cfg, model_path='../docu/best_models/ignore/exp_mfcc/', model_sel=['conv-jim'])
-
-  # adv
-  metrics_collector = MetricsCollectorAdvLabel(cfg=cfg, model_path='../docu/best_models/ignore/exp_adv/', model_sel=['conv-jim'])
+  #metrics_collector = MetricsCollectorAdvLabel(cfg=cfg, model_path='../docu/best_models/ignore/exp_adv/', model_sel=['conv-jim'])
+  metrics_collector = MetricsCollectorFinal(cfg=cfg, model_path='../docu/best_models/ignore/exp_final/', model_sel=['conv-fstride', 'conv-jim', 'conv-trad'], norm=False)
+  #metrics_collector = MetricsCollectorFinal(cfg=cfg, model_path='../docu/best_models/ignore/exp_final/', model_sel=['conv-fstride', 'conv-jim', 'conv-trad'], norm=True)
 
   # run all metrics
   #metrics_collector.run_all_metrics()
 
   # run revisits
-  #metrics_collector.accuracy_revisit(plot_path=plot_path)
-  metrics_collector.test_bench_revisit(plot_path=plot_path)
+  metrics_collector.accuracy_revisit(plot_path=plot_path)
+  #metrics_collector.test_bench_revisit(plot_path=plot_path)
+  #metrics_collector.run_special(plot_path=plot_path)
 

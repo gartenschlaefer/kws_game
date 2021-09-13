@@ -34,6 +34,7 @@ def get_figsize(context='none'):
   elif context == 'square_mini': return (3, 3)
 
   # special
+  elif context == 'activation': return (4, 3)
   elif context == 'score': return (8, 5)
   elif context == 'mel': return (8, 5)
   elif context == 'half': return (8, 4)
@@ -719,7 +720,10 @@ def plot_wavenet_train_loss(train_score_dict, cmap=None, plot_path=None, name='s
   ax.plot(train_score_dict['loss_y'], label='class loss')
 
   # layout
-  plt.ylabel("loss"), plt.xlabel("iterations"), plt.legend(), plt.grid()
+  plt.ylabel("loss"), plt.xlabel("iterations"), plt.legend(fontsize=get_fontsize('axis_label')), plt.grid()
+
+  # tick size
+  ax.tick_params(axis='both', which='major', labelsize=get_fontsize('axis_tick_major', add_size=0)), ax.tick_params(axis='both', which='minor', labelsize=get_fontsize('axis_tick_minor', add_size=0))
 
   # tight plot
   plt.tight_layout()
@@ -754,7 +758,10 @@ def plot_adv_train_loss(train_score_dict, cmap=None, plot_path=None, name='score
   ax.plot(train_score_dict['d_loss_real'], label='d_loss_real')
 
   # layout
-  plt.ylabel("loss"), plt.xlabel("iterations"), plt.legend(), plt.grid()
+  plt.ylabel("loss", fontsize=get_fontsize('axis_label')), plt.xlabel("iterations", fontsize=get_fontsize('axis_label')), plt.legend(fontsize=get_fontsize('axis_label')), plt.grid()
+
+  # tick size
+  ax.tick_params(axis='both', which='major', labelsize=get_fontsize('axis_tick_major', add_size=0)), ax.tick_params(axis='both', which='minor', labelsize=get_fontsize('axis_tick_minor', add_size=0))
 
   # tight plot
   plt.tight_layout()
@@ -787,7 +794,10 @@ def plot_hyb_train_loss(train_score_dict, cmap=None, plot_path=None, name='score
   ax.plot(train_score_dict['val_loss'] / np.linalg.norm(train_score_dict['val_loss'], ord=np.infty), label='val loss')
 
   # layout
-  plt.ylabel("loss"), plt.xlabel("iterations"), plt.legend(), plt.grid()
+  plt.ylabel("loss", fontsize=get_fontsize('axis_label')), plt.xlabel("iterations", fontsize=get_fontsize('axis_label')), plt.legend(fontsize=get_fontsize('axis_label')), plt.grid()
+
+  # tick size
+  ax.tick_params(axis='both', which='major', labelsize=get_fontsize('axis_tick_major', add_size=0)), ax.tick_params(axis='both', which='minor', labelsize=get_fontsize('axis_tick_minor', add_size=0))
 
   # tight plot
   plt.tight_layout()
@@ -821,7 +831,10 @@ def plot_train_loss(train_loss, val_loss, cmap=None, plot_path=None, name='score
   ax.plot(train_loss, label='train loss'), ax.plot(val_loss, label='val loss')
 
   # layout
-  plt.ylabel("normalized loss"), plt.xlabel("iterations"), plt.legend(), plt.grid()
+  plt.ylabel("normalized loss", fontsize=get_fontsize('axis_label')), plt.xlabel("iterations", fontsize=get_fontsize('axis_label')), plt.legend(fontsize=get_fontsize('axis_label')), plt.grid()
+
+  # tick size
+  ax.tick_params(axis='both', which='major', labelsize=get_fontsize('axis_tick_major', add_size=0)), ax.tick_params(axis='both', which='minor', labelsize=get_fontsize('axis_tick_minor', add_size=0))
 
   # tight plot
   plt.tight_layout()
@@ -856,7 +869,10 @@ def plot_val_acc(val_acc, cmap=None, plot_path=None, name='score_val', show_plot
   ax.yaxis.set_major_locator(MultipleLocator(10))
 
   # layout
-  plt.ylabel("accuracy"), plt.xlabel("iterations"), plt.ylim(0, 100), plt.legend(), plt.grid()
+  plt.ylabel("accuracy", fontsize=get_fontsize('axis_label')), plt.xlabel("iterations", fontsize=get_fontsize('axis_label')), plt.ylim(0, 100), plt.legend(fontsize=get_fontsize('axis_label')), plt.grid()
+
+  # tick size
+  ax.tick_params(axis='both', which='major', labelsize=get_fontsize('axis_tick_major', add_size=0)), ax.tick_params(axis='both', which='minor', labelsize=get_fontsize('axis_tick_minor', add_size=0))
 
   # tight plot
   plt.tight_layout()
@@ -1306,7 +1322,7 @@ def plot_activation_function(x, y, cmap=None, plot_path=None, name='mel', show_p
   if cmap is None: cmap = get_colormap_from_context(context='mel')
 
   # plot mel bands
-  fig = plt.figure(figsize=get_figsize(context='square_small'))
+  fig = plt.figure(figsize=get_figsize(context='activation'))
 
   # create axis
   ax = plt.axes()
@@ -1315,14 +1331,14 @@ def plot_activation_function(x, y, cmap=None, plot_path=None, name='mel', show_p
   # plot
   ax.plot(x, y, lw=2)
 
-  # tick size
-  ax.tick_params(axis='both', which='major', labelsize=get_fontsize('axis_tick_major', add_size=2)), ax.tick_params(axis='both', which='minor', labelsize=get_fontsize('axis_tick_minor', add_size=2))
-
   # lim
   ax.set_xlim([np.min(x), np.max(x)])
 
   # layout
   plt.ylabel('h(a)', fontsize=get_fontsize('axis_label', add_size=2)), plt.xlabel('a', fontsize=get_fontsize('axis_label', add_size=2)), plt.grid()
+
+  # tick size
+  ax.tick_params(axis='both', which='major', labelsize=get_fontsize('axis_tick_major', add_size=2)), ax.tick_params(axis='both', which='minor', labelsize=get_fontsize('axis_tick_minor', add_size=2))
 
   # tight plot
   plt.tight_layout()
