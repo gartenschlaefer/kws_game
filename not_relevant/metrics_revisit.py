@@ -77,8 +77,6 @@ class MetricsRevisit():
         'adv-train': re.sub(r'[_]', '', re.findall(r'(_label_)|(_dual_)', adv_params)[0][0] + re.findall(r'(_label_)|(_dual_)', adv_params)[0][1]),
         })
 
-    print("params: ", self.param_dict)
-
 
   def get_cepstral_labels(self, underline=False):
     """
@@ -242,6 +240,28 @@ class MetricsRevisit():
 
     # plot confusion matrix
     plot_confusion_matrix(eval_score.cm, self.batch_archive.class_dict.keys(), plot_path=self.model_path, name='confusion_my', show_plot=self.show_plot)
+
+
+  def run_confusion_test(self, plot_path, name):
+    """
+    run confusion matrix of test
+    """
+
+    # audio sets
+    self.audio_dataset = AudioDataset(self.cfg['datasets']['speech_commands'], self.feature_params, root_path='../')
+    self.audio_dataset_my = AudioDataset(self.cfg['datasets']['my_recordings'], self.feature_params, root_path='../')
+
+    # create batch archive
+    self.batch_archive = SpeechCommandsBatchArchive(feature_file_dict={**self.audio_dataset.feature_file_dict, **self.audio_dataset_my.feature_file_dict}, batch_size_dict={'train': 32, 'test': 5, 'validation': 5, 'my': 1}, shuffle=True) if self.audio_dataset_my is not None else SpeechCommandsBatchArchive(feature_file_dict=self.audio_dataset.feature_file_dict, batch_size_dict={'train': 32, 'test': 5, 'validation': 5, 'my': 1}, shuffle=True)
+
+    # create batches
+    self.batch_archive.create_batches()
+
+    # evaluation of model
+    eval_score = self.net_handler.eval_nn('test', batch_archive=self.batch_archive, collect_things=True, verbose=False)
+
+    # plot confusion matrix
+    plot_confusion_matrix(eval_score.cm, self.batch_archive.class_dict.keys(), plot_path=plot_path, name=name, show_plot=self.show_plot)
 
 
   def run_all(self):
@@ -409,7 +429,7 @@ class MetricsCollectorWavenet(MetricsCollector):
       val_accs_dict = {'wavenet': mr.get_train_score_dict(average_acc=False)['val_acc'] for mr in self.metrics_revisit_dict[model]}
 
       # plot acc
-      plot_val_acc_multiple(val_accs_dict, plot_path=plot_path, name='exp_wavenet_acc_{}'.format(model), show_plot=True, close_plot=True)
+      plot_val_acc_multiple(val_accs_dict, plot_path=plot_path, name='exp_wavenet_acc', show_plot=True, close_plot=True)
 
 
   def test_bench_revisit(self, plot_path):
@@ -418,6 +438,15 @@ class MetricsCollectorWavenet(MetricsCollector):
     """
     #[[mr.run_test_bench(plot_path=plot_path, name_pre='exp_wavenet_', name_post='') for mr in self.metrics_revisit_dict[model]] for model in self.model_sel]
     pass
+
+
+  def run_special(self, plot_path):
+    """
+    special run
+    """
+
+    # run train score
+    [mr.run_confusion_test(plot_path=plot_path, name='exp_wavenet_confusion_test') for mr in self.metrics_revisit_dict['wavenet']]
 
 
 
@@ -514,7 +543,7 @@ if __name__ == '__main__':
   #metrics_collector.run_all_metrics()
 
   # run revisits
-  metrics_collector.accuracy_revisit(plot_path=plot_path)
-  metrics_collector.test_bench_revisit(plot_path=plot_path)
+  #metrics_collector.accuracy_revisit(plot_path=plot_path)
+  #metrics_collector.test_bench_revisit(plot_path=plot_path)
   metrics_collector.run_special(plot_path=plot_path)
 

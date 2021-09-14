@@ -648,7 +648,7 @@ def plot_confusion_matrix(cm, classes, cmap=None, plot_path=None, name='None', s
     for y_true_pos in range(len(classes)):
 
       # font color and size
-      font_color = 'black' if y_pred_pos != y_true_pos else ('black' if cm[y_pred_pos, y_true_pos] < 0.1 * max_value else 'white')
+      font_color = 'black' if y_pred_pos != y_true_pos else ('black' if cm[y_pred_pos, y_true_pos] < 0.15 * max_value else 'white')
       fontsize = get_fontsize('conf_small') if len(classes) > 10 else get_fontsize('conf_normal')
 
       # write numbers inside
@@ -909,8 +909,10 @@ def plot_val_acc_multiple(val_accs_dict, cmap=None, plot_path=None, name='score_
   ax.yaxis.set_major_locator(MultipleLocator(10))
 
   # layout
-  plt.ylabel("accuracy", fontsize=get_fontsize('axis_label')), plt.xlabel("iterations", fontsize=get_fontsize('axis_label')), plt.ylim(0, 100), 
-  plt.legend(fontsize=get_fontsize('axis_label')), plt.grid()
+  plt.ylabel("accuracy", fontsize=get_fontsize('axis_label')), plt.xlabel("iterations", fontsize=get_fontsize('axis_label')), plt.ylim(0, 100), plt.grid()
+  
+  # legend
+  if len(val_accs_dict) > 1 : plt.legend(fontsize=get_fontsize('axis_label'))
 
   # tick size
   ax.tick_params(axis='both', which='major', labelsize=get_fontsize('axis_tick_major', add_size=0)), ax.tick_params(axis='both', which='minor', labelsize=get_fontsize('axis_tick_minor', add_size=0))
