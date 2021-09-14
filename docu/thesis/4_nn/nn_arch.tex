@@ -133,11 +133,12 @@ A Wavenet residual block with an extension for class prediction is illustrated i
 \end{figure}
 \FloatBarrier
 \noindent
-One residual block incorporates few parameters, but a huge amount of operations, which are listed in \rtab{nn_arch_wavenet_block}
+It is important to note, that the convolutional layers in the residual blocks should not use a bias term, because of bad training results.
+One residual block incorporates few parameters, but a huge amount of operations, which are listed in \rtab{nn_arch_wavenet_block}.
 \input{./4_nn/tables/tab_nn_arch_wavenet_block}
 Note that the dilated convolutional filters have a filter size of two with adjustable dilation parameter and that strides are merely done in the time dimension, because the input is a one-dimensional time signal.
-The $1 \times 1$ convolutions are a special form of convolutional filters, that work the same way as usual convolutions, just with a filter size of one. 
-The whole Wavenet architecture is composed of several consecutive Wavenet residual blocks with increasing dilation parameters for the first tow convolutional layers (filter and gate).
+The $1 \times 1$ convolutions are a special type of convolutional filters, that work in the same manner as usual convolutions, just with a filter size of one. 
+The whole Wavenet architecture is composed of several consecutive Wavenet residual blocks with increasing dilation parameters for the first two convolutional layers (filter and gate).
 The whole Wavenet architecture adaption with class prediction is shown in \rfig{nn_arch_wavenet_all}.
 \begin{figure}[!ht]
   \centering

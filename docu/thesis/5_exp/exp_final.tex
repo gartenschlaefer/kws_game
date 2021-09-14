@@ -9,6 +9,7 @@ The evaluation on the adversarial pre-training as described in \rsec{exp_adv} wa
 The results of the experiments are shown in \rtab{exp_final_l12}.
 \input{./5_exp/tables/tab_exp_final_l12.tex}
 Note that there might be some overfitting effects happening, especially showing up in the not normalized training of the \texttt{conv-trad} model in \rtab{exp_final_loss_conv-trad}.
+It is therefore useful to use some kind of \emph{early-stopping} technique to obtain the model parameters at the best performing training epoch evaluated on the validation set.
 \begin{figure}[!ht]
   \centering
   \subfigure[norm0]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_final_loss_norm0_conv-trad}}
@@ -18,14 +19,16 @@ Note that there might be some overfitting effects happening, especially showing 
 \end{figure}
 \FloatBarrier
 \noindent
-It is therefore useful to use some kind of \emph{early-stopping} technique to obtain the model parameters at the best training epoch evaluated on the validation set.
-The accuracy performance on the validation set of all models during training is shown in \rtab{exp_final_acc}.
+The training of models with frame-based normalization usually has less problems with overfitting compared to when using no normalization.
+The accuracy performance on the validation set of all models with and without frame-based normalization is shown in \rtab{exp_final_acc}.
 \begin{figure}[!ht]
   \centering
   \subfigure[norm0]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_final_acc_norm0}}
   \subfigure[norm1]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_final_acc_norm1}}
-  \caption{Training accuracies on the whole dataset.}
+  \caption{Training accuracies of all models with and without frame-based normalization performed on the whole dataset, averaged over 10 epochs for better visualization.}
   \label{fig:exp_final_acc}
 \end{figure}
 \FloatBarrier
 \noindent
+Note that the the accuracy score over the epochs are not that smooth and as mentioned before it is strongly recommended to use early-stopping.
+That is why the \texttt{conv-trad} without frame-based normalization got a worse score than it would have achieved with early-stopping.

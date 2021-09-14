@@ -49,15 +49,20 @@ class MetricsRevisit():
     # show plot
     self.show_plot = True
 
-    # param dict
-    self.param_dict = {
-      'mfcc': re.sub(r'([_])|(32-)', '', re.findall(r'_mfcc[0-9]+-[0-9]+_', self.model_path)[0]),
-      'norm': re.sub('norm', '', re.findall(r'norm[01]', self.model_path)[0]),
-      'feature_sel': re.sub(r'[_]', '', re.findall(r'_c[01]d[01]d[01]e[01]_', self.model_path)[0]),
-      'adv-it': '',
-      'adv-model': '',
-      'adv-train': '',
-      }
+    
+    if not self.model_path.find('_raw') != -1:
+
+      # param dict
+      self.param_dict = {
+        'mfcc': re.sub(r'([_])|(32-)', '', re.findall(r'_mfcc[0-9]+-[0-9]+_', self.model_path)[0]),
+        'norm': re.sub('norm', '', re.findall(r'norm[01]', self.model_path)[0]),
+        'feature_sel': re.sub(r'[_]', '', re.findall(r'_c[01]d[01]d[01]e[01]_', self.model_path)[0]),
+        'adv-it': '',
+        'adv-model': '',
+        'adv-train': '',
+        }
+
+    else: self.param_dict = {}
 
     # check if adversarial pre training is in the training instance
     if self.model_path.find('adv-pre') != -1:
@@ -374,6 +379,48 @@ class MetricsCollectorAdvLabel(MetricsCollector):
 
 
 
+class MetricsCollectorWavenet(MetricsCollector):
+  """
+  collects metric revisiter
+  """
+
+  def __init__(self, cfg, model_path, model_sel):
+
+    # arguments
+    self.cfg = cfg
+    self.model_path = model_path
+    self.model_sel = model_sel
+
+    # model dictionary
+    self.model_path_dict = {'{}'.format(ms): [{'model_path': str(m).split('wav_model.pth')[0], 'model': str(m), 'params': str(p), 'metrics': str(me)} for i, (m, p, me) in enumerate(zip(Path(model_path).rglob('wav_model.pth'), Path(model_path).rglob('params.npz'), Path(model_path).rglob('metrics.npz'))) if str(m).find(ms) != -1] for ms in model_sel}
+
+    # metric revisiters
+    self.metrics_revisit_dict = {model: [MetricsRevisit(self.cfg, model_path_dict=m) for m in self.model_path_dict[model]] for model in self.model_sel}
+
+
+  def accuracy_revisit(self, plot_path):
+    """
+    accuracy plot
+    """
+
+    for model in self.model_sel:
+
+      # create acc dicts
+      val_accs_dict = {'wavenet': mr.get_train_score_dict(average_acc=False)['val_acc'] for mr in self.metrics_revisit_dict[model]}
+
+      # plot acc
+      plot_val_acc_multiple(val_accs_dict, plot_path=plot_path, name='exp_wavenet_acc_{}'.format(model), show_plot=True, close_plot=True)
+
+
+  def test_bench_revisit(self, plot_path):
+    """
+    test bench for mfcc feature selection
+    """
+    #[[mr.run_test_bench(plot_path=plot_path, name_pre='exp_wavenet_', name_post='') for mr in self.metrics_revisit_dict[model]] for model in self.model_sel]
+    pass
+
+
+
 class MetricsCollectorFinal(MetricsCollector):
   """
   collects metric revisiter
@@ -458,14 +505,16 @@ if __name__ == '__main__':
   #metrics_collector = MetricsCollectorCepstral(cfg=cfg, model_path='../docu/best_models/ignore/exp_cepstral/', model_sel=['conv-fstride', 'conv-jim', 'conv-trad'])
   #metrics_collector = MetricsCollectorMFCC(cfg=cfg, model_path='../docu/best_models/ignore/exp_mfcc/', model_sel=['conv-jim'])
   #metrics_collector = MetricsCollectorAdvLabel(cfg=cfg, model_path='../docu/best_models/ignore/exp_adv/', model_sel=['conv-jim'])
-  metrics_collector = MetricsCollectorFinal(cfg=cfg, model_path='../docu/best_models/ignore/exp_final/', model_sel=['conv-fstride', 'conv-jim', 'conv-trad'], norm=False)
+  metrics_collector = MetricsCollectorWavenet(cfg=cfg, model_path='../docu/best_models/ignore/exp_wavenet/', model_sel=['wavenet'])
+  #metrics_collector = MetricsCollectorFinal(cfg=cfg, model_path='../docu/best_models/ignore/exp_final/', model_sel=['conv-fstride', 'conv-jim', 'conv-trad'], norm=False)
   #metrics_collector = MetricsCollectorFinal(cfg=cfg, model_path='../docu/best_models/ignore/exp_final/', model_sel=['conv-fstride', 'conv-jim', 'conv-trad'], norm=True)
+
 
   # run all metrics
   #metrics_collector.run_all_metrics()
 
   # run revisits
   metrics_collector.accuracy_revisit(plot_path=plot_path)
-  #metrics_collector.test_bench_revisit(plot_path=plot_path)
-  #metrics_collector.run_special(plot_path=plot_path)
+  metrics_collector.test_bench_revisit(plot_path=plot_path)
+  metrics_collector.run_special(plot_path=plot_path)
 

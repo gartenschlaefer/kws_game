@@ -1,20 +1,20 @@
 \begin{table}[ht!]
 \small
 \begin{center}
-\caption{Whole Wavenet architecture with extension of class predictions and input sample length of 8000.}
+\caption{Whole Wavenet architecture with extension of a class predictions of 12 output labels and input sample length of \num{8000}.}
 \begin{tabular}{ M{2cm} M{1.5cm} M{1.2cm} M{1.2cm} M{2cm} M{1.5cm} M{2.3cm} }
 \toprule
  \textbf{layer types} & \textbf{number of feature maps} & \textbf{kernel size} & \textbf{stride} & \textbf{output dimension} & \textbf{number of parameters} & \textbf{number of operations}\\
 \midrule
 input & - & - & - & $1 \times 8000$ & - & -\\
-7 residual blocks & - & - & - & - & $7 \times 1104$ & $7 \times \SI{1968.13}{\kilo\ops}$\\
-conv. skip1 & 1 & $(1 \times 1)$ & $(1, 1)$ & $1 \times 1 \times 8000$ & 4 & \SI{48.00}{\kilo\ops} \\
-conv. skip2 & 256 & $(1 \times 1)$ & $(1, 1)$ & $256 \times 1 \times 8000$ & 768 & \SI{12288}{\kilo\ops} \\
-conv. class1 & 2 & $(1 \times 1)$ & $(1, 1)$ & $2 \times 1 \times 49$ & 4 & \SI{48.00}{\kilo\ops} \\
-conv. class2 & 1 & $(1 \times 1)$ & $(1, 1)$ & $1 \times 1 \times 49$ & 4 & \SI{48.00}{\kilo\ops} \\
-fc class & - & - & - & $1 \times 12$ & ? & ? \\
+7 residual blocks & - & - & - & - & \num{14896} & \SI{19453.98}{\kilo\ops}\\
+conv. skip1 & 2 & $(1 \times 1)$ & $(1, 1)$ & $1 \times 1 \times 8000$ & \num{4} & \SI{48.00}{\kilo\ops} \\
+conv. skip2 & 256 & $(1 \times 1)$ & $(1, 1)$ & $256 \times 1 \times 8000$ & \num{768} & \SI{12288.00}{\kilo\ops} \\
+conv. class1 & 128 & $(1 \times 1)$ & $(1, 1)$ & $1 \times 1 \times 99$ & \num{16512} & \SI{4866.05}{\kilo\ops} \\
+conv. class2 & 1 & $(1 \times 1)$ & $(1, 1)$ & $1 \times 1 \times 99$ & \num{129} & \SI{38.02}{\kilo\ops} \\
+fc class & - & - & - & $1 \times 12$ & \num{1200} & \SI{2.39}{\kilo\ops} \\
 \midrule
-\textbf{sum} & - & - & - & - & ?? & \textbf{\SI{1111}{\kilo\ops}} \\
+\textbf{sum} & - & - & - & - & \textbf{\num{33509}} & \textbf{\SI{36695.02}{\kilo\ops}} \\
 \bottomrule
 \label{tab:nn_arch_wavenet_whole}
 \end{tabular}

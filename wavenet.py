@@ -108,6 +108,7 @@ class WavenetResBlock(nn.Module):
       'conv_filter': (self.in_channels * self.dilated_channels) * self.n_samples * (2 * 2 + 1), 
       'conv_gate': (self.in_channels * self.dilated_channels) * self.n_samples * (2 * 2 + 1),
       'conv_skip': (self.dilated_channels * self.out_channels) * self.n_samples * (2 * 1 + 1),
+      'av_pool': (self.dilated_channels * self.av_pool_size) * self.av_pool_sub *  2,
       'conv_pred': (self.dilated_channels * self.pred_channels) * self.av_pool_sub * (2 * 1 + 1)
       }
 
@@ -278,16 +279,17 @@ if __name__ == '__main__':
   """
 
   # resnet block
-  res_block = WavenetResBlock(1, 1, dilated_channels=16, pred_channels=64, dilation=1)
+  res_block = WavenetResBlock(1, 1, dilated_channels=16, pred_channels=128, dilation=1)
 
   # wavenet
-  wavenet = Wavenet(n_classes=5)
+  wavenet = Wavenet(n_classes=12)
 
   # next sample
   y = wavenet(torch.randn(1, 1, 8000))
 
   # prints
   #print("wavenet: ", wavenet)
+  print("resnet sub: {}".format(res_block.av_pool_sub))
   print("wavenet layer params: {}".format(wavenet.count_params()))
 
   # operations

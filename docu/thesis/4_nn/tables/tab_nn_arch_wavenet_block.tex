@@ -10,12 +10,13 @@
  \textbf{layer types} & \textbf{number of feature maps} & \textbf{kernel size} & \textbf{stride} & \textbf{output dimension} & \textbf{number of parameters} & \textbf{number of operations}\\
 \midrule
 input & - & - & - & $1 \times 8000$ & - & -\\
-conv. gate & 16 & $(1 \times 2)$ & $(1, 1)$ & $16 \times 1 \times 8000$ & 48 & \SI{640.00}{\kilo\ops}\\
-conv. filter & 16 & $(1 \times 2)$ & $(1, 1)$ & $16 \times 1 \times 8000$ & 48 & \SI{640.00}{\kilo\ops}\\
-conv. skip & 1 & $(1 \times 1)$ & $(1, 1)$ & $1 \times 1 \times 8000$ & 17 & \SI{384.00}{\kilo\ops}\\
-conv. class & 1 & $(1 \times 1)$ & $(1, 1)$ & $1 \times 1 \times 49$ & 1088 & \SI{304.13}{\kilo\ops}\\
+conv. gate & 16 & $(1 \times 2)$ & $(1, 1)$ & $16 \times 1 \times 8000$ & 32 & \SI{640.00}{\kilo\ops}\\
+conv. filter & 16 & $(1 \times 2)$ & $(1, 1)$ & $16 \times 1 \times 8000$ & 32 & \SI{640.00}{\kilo\ops}\\
+conv. skip & 1 & $ (1 \times 1)$ & $(1, 1)$ & $1 \times 1 \times 8000$ & 16 & \SI{384.00}{\kilo\ops}\\
+av. pool & - & $(1 \times 160)$ & $(1, 80)$ & $16 \times 1 \times 99 $ & - & \SI{506.88}{\kilo\ops}\\ 
+conv. class & 128 & $(1 \times 1)$ & $(1, 1)$ & $1 \times 1 \times 99$ & 2048 & \SI{304.13}{\kilo\ops}\\
 \midrule
-\textbf{sum} & - & - & - & - & \textbf{1104} & \textbf{\SI{1968.13}{\kilo\ops}} \\ 
+\textbf{sum} & - & - & - & - & \textbf{2128} & \textbf{\SI{2779.14}{\kilo\ops}} \\ 
 \bottomrule
 \label{tab:nn_arch_wavenet_block}
 \end{tabular}
