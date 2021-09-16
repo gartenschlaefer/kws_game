@@ -12,6 +12,7 @@ from glob import glob
 import sys
 sys.path.append("../")
 
+from test_bench import TestBench
 from audio_dataset import AudioDataset
 from feature_extraction import FeatureExtractor, custom_dct_matrix
 from batch_archive import SpeechCommandsBatchArchive
@@ -287,6 +288,18 @@ def noise_wavs_info(cfg):
   print("shift for 3500 examples: ", (sum(wav_sec_dict.values()) - 1) / 3500)
 
 
+def test_bench_stuff(cfg):
+  """
+  test bench stuff
+  """
+
+  # create test bench
+  test_bench = TestBench(cfg['test_bench'], test_model_path='../docu/best_models/ignore/exp_final/conv-jim/v5_c12n1m1_n-3500_r1-5_mfcc32-12_c1d0d0e0_norm1_f-1x12x50/bs-32_it-2000_lr-0p0001_adv-pre_bs-32_it-100_lr-d-0p0001_lr-g-0p0001_label_model-g/', root_path='../')
+
+  # shift invariance test
+  test_bench.test_invariances()
+
+
 
 if __name__ == '__main__':
   """
@@ -317,9 +330,11 @@ if __name__ == '__main__':
   #training_logs(cfg)
 
   # theory
-  nn_theory()
+  #nn_theory()
 
   # noise wavs
   #noise_wavs_info(cfg)
 
+  # test bench
+  test_bench_stuff(cfg)
 

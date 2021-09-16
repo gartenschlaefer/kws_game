@@ -528,7 +528,7 @@ def plot_damaged_file_score(z, plot_path=None, name='z_score', show_plot=False):
   if show_plot: plt.show()
 
 
-def plot_waveform(x, fs, e_mfcc=None, e_samples=None, anno_file=None, bon_samples=[], bon_mfcc=[], hop=None, onset_frames=[], fig_size=None, y_ax_balance=True, cmap=None, title='', xlim=None, ylim=None, axis_off=False, plot_path=None, name='None', show_plot=False, close_plot=True):
+def plot_waveform(x, fs, e_mfcc=None, e_samples=None, anno_file=None, bon_samples=[], bon_mfcc=[], hop=None, onset_frames=[], fig_size=None, y_ax_balance=True, x_max=None, cmap=None, title='', xlim=None, x_ax_time_lim=True, ylim=None, axis_off=False, plot_path=None, name='None', show_plot=False, close_plot=True):
   """
   just a simple waveform
   """
@@ -565,9 +565,10 @@ def plot_waveform(x, fs, e_mfcc=None, e_samples=None, anno_file=None, bon_sample
   if ylim is not None: plt.ylim(ylim)
 
   if y_ax_balance:
-    v = np.max(np.abs(x))
-    ax.set_xlim([0, 1])
+    v = np.max(np.abs(x)) if x_max is None else x_max
     ax.set_ylim([-v - 0.1 * v, v + 0.1 * v])
+    
+  if x_ax_time_lim: ax.set_xlim([0, 1])
 
   # annotation
   if anno_file is not None: plot_textGrid_annotation(anno_file, x=x, plot_text=True)

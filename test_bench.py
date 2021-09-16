@@ -212,7 +212,7 @@ class TestBench():
       time_e = frames_to_sample(i * self.cfg_tb['shift_frame_step'] + self.feature_params['frame_size'], self.feature_params['fs'], self.feature_extractor.hop)
 
       # plot waveform
-      if self.cfg_tb['enable_plot']: plot_waveform(x_wav[time_s:time_e], self.feature_params['fs'], title='frame{} actual: [{}] pred: [{}]'.format(i, actual_label, pred_label), plot_path=self.paths['shift_wavs'], name='{}_frame{}'.format(actual_label, i))
+      if self.cfg_tb['enable_plot']: plot_waveform(x_wav[time_s:time_e], self.feature_params['fs'], title='shifted frame{}: actual: [{}] pred: [{}]'.format(i, actual_label, pred_label), plot_path=self.paths['shift_wavs'], name='{}_frame{}'.format(actual_label, i), x_ax_time_lim=False, x_max=np.max(np.abs(x_wav)))
 
     # correct list
     corrects = [int(actual_label == l) for l in pred_label_list]
@@ -252,7 +252,7 @@ if __name__ == '__main__':
   cfg = yaml.safe_load(open("./config.yaml"))
 
   # create test bench
-  test_bench = TestBench(cfg['test_bench'], test_model_path='./ignore/test_bench/test_models/conv-fstride/')
+  test_bench = TestBench(cfg['test_bench'], test_model_path='./models/conv-fstride/v3_c-5_n-2000/bs-32_it-1000_lr-1e-05/')
 
   # shift invariance test
   test_bench.test_invariances()
