@@ -2,51 +2,52 @@
 % feature selection
 
 \section{Experiments on MFCC Feature Selection}\label{sec:exp_fs}
-\thesisStateNotReady
+\thesisStateReady
 Feature selection is a very important step prior to neural network training.
-The reduction of input features always means a reduction of computations and is therefore a crucial point to evaulate.
+A reduction of input features always means a reduction of computations, hence it is a crucial point to evaulate for finding energy efficient models.
 Unfortunately it is not always clear, which feature are contributing to good classification scores and which do not or even worsen them.
 In this section only Mel Frequency Cepstral Coefficients (MFCC) and their enhancements, as described in \rsec{signal_mfcc}, are the focus of the experiments.
-A feature selection for raw audio samples, used in the Wavenet architecture, would not make much sense, because each sample is an feature itself on the time axis.
-Another important aspect in the feature selection experiments is the evaluation of the proposed frame-based normalization \req{signal_mfcc_norm} originally applied to improve the visualization of MFCCs and making Generative Adversarial Neural Networks (GANs) more easy and faster to train.
-However frame-based normalization might be critical, because it is a normalization done only on the frame (time) scale and disregards the frequency dimension.
+A feature selection for raw audio samples, such as used in the Wavenet architecture, would not make any sense, because each sample is a feature itself.
+Another important aspect in the feature selection experiments is the evaluation of the proposed frame-based normalization \req{signal_mfcc_norm} originally intended to improve the visualization of MFCCs and making Generative Adversarial Neural Networks (GANs) more easy and faster to train.
+However frame-based normalization might be critical, because it is a normalization applieds only on the frame (time) dimension and disregards the frequency dimension.
 
-Two experiments are done to shade some light into MFCC feature selection:
+Two experiments were performed on the MFCC feature selection:
 \begin{enumerate}
     \item Impact on the amount of cepstral coefficients
     \item Impact on the enhancements of MFCCs
 \end{enumerate}
 For saving training time and computations, those experiments were done on a smaller subset of the whole speech commands dataset, described in \rsec{exp_dataset_speech_cmd}, using 500 samples of each one of the L12 labels.
-The filter bands of the MFCCs are fixed to a total number of 32 bands for all experiments.
-The training of one set of selected parameters was done with 5 consecutive iterations to create better statistics of the scores.
-The scores obtained from those iterations for each set parameters are presented with a mean value and the standard deviation (square root of the variance).
-
-Note that the experiments in this sections are not meant for comparison to the benchmark networks in \rsec{prev_kws_benchmark}, because not the whole dataset is used.
+The filter bands of the MFCCs were fixed for all experiments to a total number of 32 bands.
+The training of one set of selected parameters was done with 5 consecutive training instances on the same model to create better statistics for the evaluation scores.
+The statistics of the scores are presented with a mean value and the standard deviation (square root of the variance).
+No early stopping mechanism was applied in the experiments and the model parameters from the last epoch were used for evaluation.
+Note that the experiments in this sections are not meant for comparison to the benchmark networks described in \rsec{prev_kws_benchmark}, because not the whole dataset is used.
 
 
 % --
 % cepstral
 
 \subsection{Impact on the Amount of Cepstral Coefficients}
-The number of cepstral coefficients is selected to either 12 or 32, where a number 12 coefficients is commonly applied in many papers.
-The experiments are done once with and once without frame-based normalization to observe its impact on the classification accuracy, the noise and shift invariance.
+The number of cepstral coefficients is selected to either 12 or 32, where a number of 12 coefficients with enhancements is commonly applied in many papers.
+The experiments are done once with and once without frame-based normalization to observe its impact on the classification accuracy, as well as on the noise and shift invariance.
 The standard set of training hyperparameters was used as listed in \rsec{exp_details_training}.
 The obtained accuracies on the test set after a training of 2000 epochs are shown in \rtab{exp_fs_cepstral_l12}.
 \input{./5_exp/tables/tab_exp_fs_cepstral_l12.tex}
-Note that no early stopping meachanism was applied and the model parameters from the last epoch were used.
-In \rfig{exp_fs_cepstral_acc} the accuracies on the validation set of the best performing training instances for each model are shown, where the accuracies are smoothened by a striding average filter with a length of 10 epochs for better visualization.
+In \rfig{exp_fs_cepstral_acc} the accuracies on the validation set of the best performing training instances for each model are shown, where the accuracies are smoothed by a striding average filter with a length of 10 epochs for better visualization.
 \begin{figure}[!ht]
   \centering
   \subfigure[conv-trad]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_fs_cepstral_acc_conv-trad}}
   \subfigure[conv-fstride]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_fs_cepstral_acc_conv-fstride}}
   \subfigure[conv-jim]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_fs_cepstral_acc_conv-jim}}
-  \caption{Accuracies on the validation set of all three CNN models, with different amounts of cepstral coefficients and with and without frame-based normalization.}
+  \caption{Accuracies on the validation set of all three CNN models of their best training instance, with different amounts of cepstral coefficients and with and without frame-based normalization. Applied smoothing with a 10 epoch average filter.}
   \label{fig:exp_fs_cepstral_acc}
 \end{figure}
 \FloatBarrier
 \noindent
-
-Noise invariance:
+From the accuracies it can be observed that the usage of 32 cepstral coefficients does not improve the accuracies compared to the 12 coefficients, also the overfitting effects are more prominent with 32 coefficients.
+Further they show, that frame-based normalization usually achieves less accuracy and take longer for training.
+In the following the shift and noise invariance of each model is evaluated.
+The noise and shift invariance of the \texttt{conv-trad} model is shown in \rfig{exp_fs_cepstral_tb_noise_conv-trad} and \rfig{exp_fs_cepstral_tb_shift_conv-trad} respectively.
 \begin{figure}[!ht]
   \centering
   \subfigure[mfcc12, norm0]{\includegraphics[width=0.35\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_noise_conv-trad_mfcc12_norm0}}
@@ -58,8 +59,6 @@ Noise invariance:
 \end{figure}
 \FloatBarrier
 \noindent
-
-Shift invariance:
 \begin{figure}[!ht]
   \centering
   \subfigure[mfcc12, norm0]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_shift_conv-trad_mfcc12_norm0}}
@@ -67,12 +66,11 @@ Shift invariance:
   \subfigure[mfcc32, norm0]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_shift_conv-trad_mfcc32_norm0}}
   \subfigure[mfcc32, norm1]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_shift_conv-trad_mfcc32_norm1}}
   \caption{Shift invariance of the \texttt{conv-trad} model, with different amounts of cepstral coefficients and with and without frame-based normalization.}
-  \label{fig:exp_fs_cepstral_tb_noise_conv-trad}
+  \label{fig:exp_fs_cepstral_tb_shift_conv-trad}
 \end{figure}
 \FloatBarrier
 \noindent
-
-Noise invariance:
+The noise and shift invariance of the \texttt{conv-fstride} model is shown in \rfig{exp_fs_cepstral_tb_noise_conv-fstride} and \rfig{exp_fs_cepstral_tb_shift_conv-fstride} respectively.
 \begin{figure}[!ht]
   \centering
   \subfigure[mfcc12, norm0]{\includegraphics[width=0.35\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_noise_conv-fstride_mfcc12_norm0}}
@@ -84,8 +82,6 @@ Noise invariance:
 \end{figure}
 \FloatBarrier
 \noindent
-
-Shift invariance:
 \begin{figure}[!ht]
   \centering
   \subfigure[mfcc12, norm0]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_shift_conv-fstride_mfcc12_norm0}}
@@ -93,12 +89,11 @@ Shift invariance:
   \subfigure[mfcc32, norm0]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_shift_conv-fstride_mfcc32_norm0}}
   \subfigure[mfcc32, norm1]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_shift_conv-fstride_mfcc32_norm1}}
   \caption{Shift invariance of the \texttt{conv-fstride} model, with different amounts of cepstral coefficients and with and without frame-based normalization.}
-  \label{fig:exp_fs_cepstral_tb_noise_conv-fstride}
+  \label{fig:exp_fs_cepstral_tb_shift_conv-fstride}
 \end{figure}
 \FloatBarrier
 \noindent
-
-Noise invariance:
+The noise and shift invariance of the \texttt{conv-jim} model is shown in \rfig{exp_fs_cepstral_tb_noise_conv-jim} and \rfig{exp_fs_cepstral_tb_shift_conv-jim} respectively.
 \begin{figure}[!ht]
   \centering
   \subfigure[mfcc12, norm0]{\includegraphics[width=0.35\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_noise_conv-jim_mfcc12_norm0}}
@@ -110,8 +105,6 @@ Noise invariance:
 \end{figure}
 \FloatBarrier
 \noindent
-
-Shift invariance:
 \begin{figure}[!ht]
   \centering
   \subfigure[mfcc12, norm0]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_shift_conv-jim_mfcc12_norm0}}
@@ -119,11 +112,16 @@ Shift invariance:
   \subfigure[mfcc32, norm0]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_shift_conv-jim_mfcc32_norm0}}
   \subfigure[mfcc32, norm1]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_shift_conv-jim_mfcc32_norm1}}
   \caption{Shift invariance of the \texttt{conv-jim} model, with different amounts of cepstral coefficients and with and without frame-based normalization.}
-  \label{fig:exp_fs_cepstral_tb_noise_conv-jim}
+  \label{fig:exp_fs_cepstral_tb_shift_conv-jim}
 \end{figure}
 \FloatBarrier
 \noindent
-
+While the invariance tests are not expressive for a general conclusion, following patterns can be observed regardless:
+The frame-based normalization does certainly increase the invariance in noise, which is logically because the model has to focus more on learning patterns of the individual key words and is less prone to overfitting.
+The \texttt{conv-fstride} model does unexpectedly well upon the shift invariance test, even if its strides are performed merely on the frequency axis, 
+however usually it does not achieve that good invariances against shift compared to the other models and often incorporates holed in the classification.
+The \texttt{conv-trad} performs the best on all tests, but also requires a higher computational footprint, so that the preferred model is \texttt{conv-jim} with a good trade-off between computational footprint and classification results. 
+The usage of 32 MFCC coefficients does not much improve the invariance against shift or noise and often worsen the results.
 
 
 % --
@@ -131,11 +129,10 @@ Shift invariance:
 
 \subsection{Impact on the enhancements of MFCCs}\label{sec:exp_fs_mfcc}
 In this experiment the cepstral coefficients were selected to 12 and enhanced with deltas (d), double deltas (dd) and energy vectors (e) as described in \rsec{signal_mfcc_enhancement}.
-The frame-based normalization was applied with results listed in \rtab{exp_fs_mfcc_l12}.
+The frame-based normalization was applied and the results of the experiments is listed in \rtab{exp_fs_mfcc_l12}.
 \input{./5_exp/tables/tab_exp_fs_mfcc_l12.tex}
-The best two feature enhancements were used for examining the noise and shift invaiance, those enhancements were the full MFCC-39 features and the (c, d, e) features.
-
-acc:
+The best two feature enhancements were the full MFCC-39 features (c1d1d1e1) and the (c1d1d0e1) features without double deltas.
+Those were used for examining the accuracy on the validation set during training shown in \rfig{exp_fs_mfcc_tb_acc_conv-jim} and the noise and shift invaiance in \rfig{exp_fs_mfcc_tb_noise_conv-jim} and \rfig{exp_fs_mfcc_tb_shift_conv-jim}.
 \begin{figure}[!ht]
   \centering
   \includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_fs_mfcc_acc_conv-jim}
@@ -144,26 +141,22 @@ acc:
 \end{figure}
 \FloatBarrier
 \noindent
-
-
-Noise invariance:
 \begin{figure}[!ht]
   \centering
-  \subfigure[mfcc-39]{\includegraphics[width=0.35\textwidth]{./5_exp/figs/exp_fs_mfcc_tb_noise_conv-jim_c1d1d1e1}}
-  \subfigure[c, d, e]{\includegraphics[width=0.35\textwidth]{./5_exp/figs/exp_fs_mfcc_tb_noise_conv-jim_c1d1d0e1}}
+  \subfigure[c1d1d1e1]{\includegraphics[width=0.35\textwidth]{./5_exp/figs/exp_fs_mfcc_tb_noise_conv-jim_c1d1d1e1}}
+  \subfigure[c1d1d0e1]{\includegraphics[width=0.35\textwidth]{./5_exp/figs/exp_fs_mfcc_tb_noise_conv-jim_c1d1d0e1}}
   \caption{Noise invariance of the \texttt{conv-jim} model, with different feature enhancements and frame-based normalization.}
   \label{fig:exp_fs_mfcc_tb_noise_conv-jim}
 \end{figure}
 \FloatBarrier
 \noindent
-
-Shift invariance:
 \begin{figure}[!ht]
   \centering
-  \subfigure[mfcc-39]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_fs_mfcc_tb_shift_conv-jim_c1d1d1e1}}
-  \subfigure[c, d, e]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_fs_mfcc_tb_shift_conv-jim_c1d1d0e1}}
+  \subfigure[c1d1d1e1]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_fs_mfcc_tb_shift_conv-jim_c1d1d1e1}}
+  \subfigure[c1d1d0e1]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_fs_mfcc_tb_shift_conv-jim_c1d1d0e1}}
   \caption{Shift invariance of the \texttt{conv-jim} model with different feature enhancements and frame-based normalization.}
   \label{fig:exp_fs_mfcc_tb_shift_conv-jim}
 \end{figure}
 \FloatBarrier
 \noindent
+From the experiments it was shown that the enhancements of the MFCC features can improve the classification results significantly, but it also increased the amount of computations for each model.

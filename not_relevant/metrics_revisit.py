@@ -496,6 +496,9 @@ class MetricsCollectorFinal(MetricsCollector):
     # run train score
     [(print(mr.param_dict), mr.run_train_loss(plot_path=plot_path, name='exp_final_loss_norm{}_conv-trad'.format(mr.param_dict['norm']))) for mr in self.metrics_revisit_dict['conv-trad']]
 
+    # confusion
+    [mr.run_confusion_test(plot_path=plot_path, name='exp_final_confusion') for mr in self.metrics_revisit_dict['conv-jim'] if len(mr.param_dict['adv-train'])]
+
 
 
 if __name__ == '__main__':
@@ -534,9 +537,9 @@ if __name__ == '__main__':
   #metrics_collector = MetricsCollectorCepstral(cfg=cfg, model_path='../docu/best_models/ignore/exp_cepstral/', model_sel=['conv-fstride', 'conv-jim', 'conv-trad'])
   #metrics_collector = MetricsCollectorMFCC(cfg=cfg, model_path='../docu/best_models/ignore/exp_mfcc/', model_sel=['conv-jim'])
   #metrics_collector = MetricsCollectorAdvLabel(cfg=cfg, model_path='../docu/best_models/ignore/exp_adv/', model_sel=['conv-jim'])
-  metrics_collector = MetricsCollectorWavenet(cfg=cfg, model_path='../docu/best_models/ignore/exp_wavenet/', model_sel=['wavenet'])
+  #metrics_collector = MetricsCollectorWavenet(cfg=cfg, model_path='../docu/best_models/ignore/exp_wavenet/', model_sel=['wavenet'])
   #metrics_collector = MetricsCollectorFinal(cfg=cfg, model_path='../docu/best_models/ignore/exp_final/', model_sel=['conv-fstride', 'conv-jim', 'conv-trad'], norm=False)
-  #metrics_collector = MetricsCollectorFinal(cfg=cfg, model_path='../docu/best_models/ignore/exp_final/', model_sel=['conv-fstride', 'conv-jim', 'conv-trad'], norm=True)
+  metrics_collector = MetricsCollectorFinal(cfg=cfg, model_path='../docu/best_models/ignore/exp_final/', model_sel=['conv-fstride', 'conv-jim', 'conv-trad'], norm=True)
 
 
   # run all metrics
