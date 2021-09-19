@@ -160,10 +160,14 @@ class MetricsRevisit():
     return train_score_dict
 
 
-  def run_weights(self):
+  def run_weights(self, plot_path=None, name=None):
     """
     weights
     """
+
+    # plot path and name
+    plot_path = self.model_path if plot_path is None else plot_path
+    name = '' if name is None else name
 
     # analyze weights
     for model_name, model in self.net_handler.models.items():
@@ -174,27 +178,18 @@ class MetricsRevisit():
         # convolutional layers
         if k.find('conv') != -1 and not k.__contains__('bias'):
 
-          # context for color map
-          if k.find('layers.0.weight') != -1: context = 'weight0'
-          elif k.find('layers.1.weight') != -1: context = 'weight1'
-          else: context = 'weight0'
+          print(k)
+          context = 'weight0'
 
           # detach weights
           x = v.detach().cpu().numpy()
 
-          # number of columns
-          #num_cols = np.clip(x.shape[0], 1, 8)
-          num_cols = 3
+          # set column numbers
+          num_cols = 8 if self.net_handler.nn_arch == 'conv-jim' else (3 if self.net_handler.nn_arch == 'conv-fstride' else 8) 
 
           # plot images
-          plot_grid_images(x, context=context, color_balance=True, padding=1, num_cols=num_cols, plot_path=self.model_path, name=k, show_plot=self.show_plot)
-          plot_grid_images(x, context=context+'-div', color_balance=True, padding=1, num_cols=num_cols, plot_path=self.model_path, name='div_' + k)
-
-    # generate samples from trained model (only for adversarial)
-    fakes = self.net_handler.generate_samples(num_samples=30, to_np=True)
-    if fakes is not None:
-      plot_grid_images(x=fakes, context='mfcc', padding=1, num_cols=5, plot_path=self.model_path, name='generated_samples_grid')
-      plot_mfcc_only(fakes[0, 0], fs=16000, hop=160, plot_path=self.model_path, name='generated_sample')
+          plot_grid_images(x, context=context, color_balance=True, padding=1, num_cols=num_cols, plot_path=plot_path, name=name + '_' + k.split('.')[0], show_plot=self.show_plot)
+          plot_grid_images(x, context=context+'-div', color_balance=True, padding=1, num_cols=num_cols, plot_path=plot_path, name=name + '_div_' + k.split('.')[0])
 
 
   def run_eval(self):
@@ -295,6 +290,9 @@ class MetricsCollector():
     # metric revisiters
     self.metrics_revisit_dict = {model: [MetricsRevisit(self.cfg, model_path_dict=m) for m in self.model_path_dict[model]] for model in self.model_sel}
 
+    # name prefix
+    self.name_prefix = ''
+
 
   def run_all_metrics(self):
     """
@@ -315,6 +313,13 @@ class MetricsCollector():
     test bench for mfcc feature selection
     """
     [[mr.run_test_bench(plot_path=plot_path, name_pre='exp_fs_mfcc_', name_post='_{}_{}'.format(model, mr.get_mfcc_labels())) for mr in self.metrics_revisit_dict[model]] for model in self.model_sel]
+
+
+  def weights_revisit(self, plot_path):
+    """
+    revisit weights
+    """
+    [[mr.run_weights(plot_path=plot_path, name='{}_{}'.format(self.name_prefix, model)) for mr in self.metrics_revisit_dict[model]] for model in self.model_sel]
 
 
   def run_special(self, plot_path):
@@ -436,7 +441,6 @@ class MetricsCollectorWavenet(MetricsCollector):
     """
     test bench for mfcc feature selection
     """
-    #[[mr.run_test_bench(plot_path=plot_path, name_pre='exp_wavenet_', name_post='') for mr in self.metrics_revisit_dict[model]] for model in self.model_sel]
     pass
 
 
@@ -462,6 +466,9 @@ class MetricsCollectorFinal(MetricsCollector):
 
     # arguments
     self.norm = norm
+
+    # name prefix
+    self.name_prefix = 'exp_final'
 
 
   def accuracy_revisit(self, plot_path):
@@ -499,6 +506,12 @@ class MetricsCollectorFinal(MetricsCollector):
     # confusion
     [mr.run_confusion_test(plot_path=plot_path, name='exp_final_confusion') for mr in self.metrics_revisit_dict['conv-jim'] if len(mr.param_dict['adv-train'])]
 
+
+  def weights_revisit(self, plot_path):
+    """
+    revisit weights
+    """
+    [[mr.run_weights(plot_path=plot_path, name='{}_weights_{}_norm{}{}'.format(self.name_prefix, model, mr.param_dict['norm'], '' if not len(mr.param_dict['adv-train']) else '_adv-{}-{}-{}'.format(mr.param_dict['adv-train'], mr.param_dict['adv-model'], mr.param_dict['adv-it']))) for mr in self.metrics_revisit_dict[model]] for model in self.model_sel]
 
 
 if __name__ == '__main__':
@@ -548,5 +561,6 @@ if __name__ == '__main__':
   # run revisits
   #metrics_collector.accuracy_revisit(plot_path=plot_path)
   #metrics_collector.test_bench_revisit(plot_path=plot_path)
-  metrics_collector.run_special(plot_path=plot_path)
+  #metrics_collector.run_special(plot_path=plot_path)
+  metrics_collector.weights_revisit(plot_path=plot_path)
 

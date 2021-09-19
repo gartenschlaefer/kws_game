@@ -16,9 +16,63 @@
 % appendix experiments
 
 \chapter{Appendix: Experiments}
-\input{./8_appendix/tables/tab_exp_dataset_all_labels.tex}
 
+\section{Dataset}
+
+\subsection{Not Randomizing Onsets}
+Since a smaller time interval of \SI{500}{\milli\second} was used for a key word, an onset detection was required.
+The onsets were determined as described in \rsec{signal_onset}, however it seemed to be advantageous to randomize the onset position a little bit to create more generalization upon shift invariance.
+All experiments in \rsec{exp} used randomized onsets, but to see the difference an own experiment was done without randomized onset positions. 
 The results of not randomizing the frame onsets are shown in \rtab{exp_fs_rand_frames_l12} trained with 2000 epochs.
 \input{./8_appendix/tables/tab_exp_fs_rand_frames_l12.tex}
-It can be seen that the results slightly worse in the accuracies, compared to the results in \rtab{exp_fs_cepstral_l12},
-however the \texttt{conv-jim} network performed best on the randomization of the frames, probably due to its striding properties in the frame dimension.
+By not randomizing frames, the results of the \texttt{conv-trad} and the \texttt{conv-fstride} model improved slightly and the performance of the \texttt{conv-jim} was not much affected, probably because of the striding in the frame dimension.
+
+\subsection{All Labels and Dataset Splits}
+All labels and datasets splits of the speech commands dataset \cite{Warden2018} used for training and evaluation, are shown in \rtab{exp_dataset_all_labels}.
+\input{./8_appendix/tables/tab_exp_dataset_all_labels.tex}
+
+
+
+
+% --
+% weights
+
+\section{Trained weights from the final experiments}\label{sec:appendix_weights}
+The trained weights from the final experiments in \rsec{exp_final} are shown in \rfig{exp_final_weights_conv-trad}, \rfig{exp_final_weights_conv-fstride} and \rfig{exp_final_weights_conv-jim} for each model separately
+\begin{figure}[!ht]
+  \centering
+  \subfigure[norm0]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_final_weights_conv-trad_norm0_conv1}}
+  \subfigure[norm0, div. color]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_final_weights_conv-trad_norm0_div_conv1}}
+  \subfigure[norm1]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_final_weights_conv-trad_norm1_conv1}}
+  \subfigure[norm1, div. color]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_final_weights_conv-trad_norm1_div_conv1}}
+  \caption{Weights of the first convolutional layer of the \texttt{conv-trad} model from the final experiments showed in \rsec{exp_final} visualized with a continuous and diverging color scheme.}
+  \label{fig:exp_final_weights_conv-trad}
+\end{figure}
+\FloatBarrier
+\noindent
+
+\begin{figure}[!ht]
+  \centering
+  \subfigure[norm0]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_final_weights_conv-fstride_norm0_conv}}
+  \subfigure[norm0, div. color]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_final_weights_conv-fstride_norm0_div_conv}}
+  \subfigure[norm1]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_final_weights_conv-fstride_norm1_conv}}
+  \subfigure[norm1, div. color]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_final_weights_conv-fstride_norm1_div_conv}}
+  \caption{Weights of the first convolutional layer of the \texttt{conv-fstride} model from the final experiments showed in \rsec{exp_final} visualized with a continuous and diverging color scheme.}
+  \label{fig:exp_final_weights_conv-fstride}
+\end{figure}
+\FloatBarrier
+\noindent
+
+\begin{figure}[!ht]
+  \centering
+  \subfigure[norm0]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_final_weights_conv-jim_norm0_conv_layer0}}
+  \subfigure[norm0, div. color]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_final_weights_conv-jim_norm0_div_conv_layer0}}
+  \subfigure[norm1]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_final_weights_conv-jim_norm1_conv_layer0}}
+  \subfigure[norm1, div. color]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_final_weights_conv-jim_norm1_div_conv_layer0}}
+  \subfigure[norm1, adv-label-g-100]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_final_weights_conv-jim_norm1_adv-label-g-100_conv_layer0}}
+  \subfigure[norm1, adv-label-g-100, div. color]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_final_weights_conv-jim_norm1_adv-label-g-100_div_conv_layer0}}
+  \caption{Weights of the first convolutional layer of the \texttt{conv-jim} model from the final experiments showed in \rsec{exp_final} visualized with a continuous and diverging color scheme.}
+  \label{fig:exp_final_weights_conv-jim}
+\end{figure}
+\FloatBarrier
+\noindent

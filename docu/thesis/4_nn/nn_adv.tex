@@ -34,9 +34,9 @@ where $s : (\mathcal{X}, \mathcal{X}) \mapsto [0, 1]$ is the cosine similarity f
 With the similarity loss incorporated, $l_G$ gets:
 \begin{equation}
   %l_G(x_i, z_i, D) =  l(D(G(z_i)), y_r) + \lambda (1 - \E \left[ s(x_i \bm{e}, G(z_i)) \right])
-  l_G(x_i, z_i, D) =  l(D(G(z_i)), y_r) + \lambda \left(1 - \frac{1}{C} \sum_{c=0}^{C} s(\bm{e}_c^T x_i , \bm{e}_c^T G(z_i)) \right)
+  l_G(x_i, z_i, D) =  l(D(G(z_i)), y_r) + \lambda \left(1 - \frac{1}{C} \sum_{c=0}^{C} s(\hat{\bm{e}}_c^T x_i , \hat{\bm{e}}_c^T G(z_i)) \right)
 \end{equation}
-where $\bm{e}_c \in \{1, 0\}^C$ is a unit vector, representing one ceptral coefficient of the MFCC data $x_i \in \mathcal{X} = \R^{C \times M}$
+where $\hat{\bm{e}}_c \in \{1, 0\}^C$ is a unit vector, representing one ceptral coefficient of the MFCC data $x_i \in \mathcal{X} = \R^{C \times M}$
 with a total number of $C$ MFCC coefficients and $M$ frames.
 Further $\lambda$ is a trade-off factor between data similarity and fake loss from D.
 

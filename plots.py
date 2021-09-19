@@ -481,7 +481,7 @@ def plot_grid_images(x, padding=1, num_cols=8, cmap=None, context='none', color_
   # plot init
   m, n = all_grid_img.shape
   #fig = plt.figure(figsize=(8, np.clip(m / n * 8, 1, 8))) if m < n else plt.figure(figsize=(np.clip(n / m * 8, 2, 8), 8))
-  fig = plt.figure(figsize=(10, np.clip(m / n * 8, 1, 8))) if m < n else plt.figure(figsize=(np.clip(n / m * 8, 2, 8), 7))
+  fig = plt.figure(figsize=(8, np.clip(m / n * 8, 1, 8))) if m < n else plt.figure(figsize=(np.clip(n / m * 8, 2, 8), 7))
   #if m < n: fig = plt.figure(figsize=(8, np.clip(m / n * 8, 1, 8)))
   #else: fig = plt.figure(figsize=(np.clip(n / m * 8, 2, 8), 8))
 
@@ -498,7 +498,7 @@ def plot_grid_images(x, padding=1, num_cols=8, cmap=None, context='none', color_
 
   # tight plot
   #plt.subplots_adjust(left=0.10, bottom=0.02, right=0.90, top=0.90, wspace=0, hspace=0)
-  plt.subplots_adjust(left=0.10, bottom=0.0, right=0.90, top=1.0, wspace=0, hspace=0)
+  plt.subplots_adjust(left=0.07, bottom=0.0, right=0.90, top=1.0, wspace=0, hspace=0)
   #plt.subplots_adjust(left=0.01, bottom=0.01, right=0.99, top=0.97, wspace=0, hspace=0)
 
   # plot save and show
