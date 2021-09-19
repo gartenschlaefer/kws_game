@@ -6,9 +6,9 @@
 In adversarial neural network training, two separate neural networks are competing against each other in an adversary task.
 This competition of the two networks motivates them to improve their performance and beat the other network.
 The application of Generative Adversarial Neural Networks (GAN), as already explained in \rsec{prev_nn_adv} and \rsec{nn_theory_gan}, is an interesting subject in research and the questions if the obtained weights from the training of the Generator (G) and Discriminator (D) network can contribute to better the performances in equivalent models, arises.
-In the follwing the training algorithms are explained in more detail, such as the loss functions used for G and D.
+In the following the training algorithms are explained in more detail, such as the loss functions used for G and D.
 The transfer of weights can be done for small subsets of trained labels or the whole network.
-The transfering techniques of the whole network is denoted as adversarial dual train and the training of separate labels is named adversarial label train.
+The transferring techniques of the whole network is denoted as adversarial dual train and the training of separate labels is named adversarial label train.
 
 
 % --
@@ -51,17 +51,39 @@ Note that an epoch consists of several training steps depending on the batch siz
 % label train
 
 \subsection{Adversarial Label Train}
-Adversarial label train, is the transfer of weights from feature maps trained on multiple GAN training instances on subsets of the labels.
-
+Adversarial label train, is the transfer of weights from feature maps trained on multiple GAN training instances on subsets of all labels.
+For instance if the total labels are \{\enquote{left}, \enquote{right}\} an own training instance can focus on the label \enquote{left} and another on the label \enquote{right}.
+It is important to assign a specific number of feature maps to each label train instance, for example each label train gets 8 feature maps.
+The label train scheme is illustrated in \rfig{nn_adv_label_scheme} and applies 6 label train instances as used for the experiments in \rsec{exp_adv}.
 \begin{figure}[!ht]
   \centering
     \includegraphics[width=0.7\textwidth]{./4_nn/figs/nn_adv_label_scheme}
-  \caption{Label training scheme, trained with 100 epochs for each label subset.}
+  \caption{Label train scheme of 6 training instances, trained with 100 epochs for each label subset.}
   \label{fig:nn_adv_label_scheme}
 \end{figure}
 \FloatBarrier
 \noindent
-
+An actual training GAN training for the labels \enquote{left} and \enquote{go} is shown in \rfig{nn_adv_loss_label}.
+Note that the update of either the Discriminator (D) or Generator (G) model is done alternating for 2 training epochs.
+\begin{figure}[!ht]
+  \centering
+  \subfigure[it-100]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/nn_adv_loss_label_it-100}}
+  \subfigure[it-1000]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/nn_adv_loss_label_it-1000}}
+  \caption{Adversarial training loss of the labels \enquote{left} and \enquote{go} with 8 feature maps.}
+  \label{fig:nn_adv_loss_label}
+\end{figure}
+\FloatBarrier
+\noindent
+The creation of fake images from G is shown in \rfig{nn_adv_fakes_label} of the same training instances.
+\begin{figure}[!ht]
+  \centering
+  \subfigure[it-100]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/nn_adv_fakes_label_it-100}}
+  \subfigure[it-1000]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/nn_adv_fakes_label_it-1000}}
+  \caption{Generation of fake images of the labels \enquote{left} and \enquote{go} with 8 feature maps for the GAN training.}
+  \label{fig:nn_adv_fakes_label}
+\end{figure}
+\FloatBarrier
+\noindent
 
 % \subsection{Questions that arise}
 % There are several questions that arise regarding Adversarial Training:

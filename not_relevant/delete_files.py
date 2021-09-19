@@ -15,7 +15,10 @@ if __name__ == '__main__':
   # path to delete
   #model_path = '../docu/best_models/exp_cepstral/'
   #model_path = '../docu/best_models/exp_mfcc/'
-  model_path = '../docu/best_models/exp_adv_label/'
+  #model_path = '../docu/best_models/exp_adv_label/'
+  model_path = '../docu/best_models/exp_adv_train/'
+  #model_path = '../docu/best_models/exp_wavenet/'
+  #model_path = '../docu/best_models/exp_adv_label/'
 
   # get all png
   pngs = Path(model_path).rglob('*.png')

@@ -16,7 +16,7 @@ from audio_dataset import AudioDataset, SpeechCommandsDataset, MyRecordingsDatas
 from batch_archive import SpeechCommandsBatchArchive
 from test_bench import TestBench
 from legacy import legacy_adjustments_net_params
-from plots import plot_train_score, plot_train_loss, plot_confusion_matrix, plot_mfcc_only, plot_grid_images, plot_mfcc_anim, plot_val_acc_multiple
+from plots import plot_train_score, plot_train_loss, plot_confusion_matrix, plot_mfcc_only, plot_grid_images, plot_mfcc_anim, plot_val_acc_multiple, plot_adv_train_loss
 
 
 class MetricsRevisit():
@@ -49,7 +49,7 @@ class MetricsRevisit():
     # show plot
     self.show_plot = True
 
-    
+    # wavenet check
     if not self.model_path.find('_raw') != -1:
 
       # param dict
@@ -269,6 +269,143 @@ class MetricsRevisit():
     self.run_score()
     self.run_weights()
     self.run_eval()
+
+
+
+class MetricsAdvRevisit():
+  """
+  revisit metrics
+  """
+
+  def __init__(self, cfg, model_path, root_path='./'):
+
+    # arguments
+    self.cfg = cfg
+    self.model_path = model_path
+    self.root_path = root_path
+
+    # variables
+    self.params_file = self.model_path + self.cfg['ml']['params_file_name']
+    self.metrics_file = self.model_path + self.cfg['ml']['metrics_file_name']
+
+    # test bench
+    self.test_bench = TestBench(self.cfg['test_bench'], test_model_path=self.model_path, root_path='../')
+
+    # net handler
+    self.net_handler = self.test_bench.net_handler
+    self.feature_params = self.test_bench.feature_params
+
+    # show plot
+    self.show_plot = True
+
+    # param dict
+    self.param_dict = {
+      'mfcc': re.sub(r'([_])|(32-)', '', re.findall(r'_mfcc[0-9]+-[0-9]+_', self.model_path)[0]),
+      'norm': re.sub('norm', '', re.findall(r'norm[01]', self.model_path)[0]),
+      'feature_sel': re.sub(r'[_]', '', re.findall(r'_c[01]d[01]d[01]e[01]_', self.model_path)[0]),
+      'adv-it': re.sub(r'[it_-]', '', re.findall(r'_it-[0-9]+_', self.model_path)[0]),
+      'adv-train': re.sub(r'lr-g-[p0-9]+_', '', re.findall(r'lr-g-[0-9p]+_\w+', self.model_path)[0]),
+      }
+
+    # name identifier
+    self.name_id = '{}_it-{}'.format(self.param_dict['adv-train'], self.param_dict['adv-it'])
+
+
+  def get_train_score_dict(self, average_acc=False):
+    """
+    get train score dict
+    """
+
+    # load metrics
+    metrics = np.load(self.metrics_file, allow_pickle=True)
+
+    # see whats in data
+    print("\nmetrics file: ", self.metrics_file)
+
+    # get train score
+    train_score_dict = metrics['train_score_dict'][()]
+
+    if average_acc:
+
+      # average pool
+      av_pool = torch.nn.AvgPool1d(kernel_size=10, stride=1)
+
+      # adapt train score
+      train_score_dict['val_acc'] = np.squeeze(av_pool(torch.unsqueeze(torch.unsqueeze(torch.from_numpy(train_score_dict['val_acc']), dim=0), dim=0)).numpy())
+
+    return train_score_dict
+
+
+  def run_score(self, use_average=False, name_ext='_revisit'):
+    """
+    score plots
+    """
+
+    # train score dict
+    train_score_dict = self.get_train_score_dict(average_acc=use_average)
+
+    # plot train score
+    plot_train_score(train_score_dict, plot_path=self.model_path, name_ext=name_ext, show_plot=self.show_plot)
+
+
+  def run_adv_loss(self, plot_path=None, name=None, use_average=False):
+    """
+    adv loss
+    """
+
+    # train score
+    train_score_dict = self.get_train_score_dict(average_acc=use_average)
+
+    # plot adv loss
+    plot_adv_train_loss(train_score_dict, plot_path=plot_path, name=name, show_plot=self.show_plot)
+
+
+  def run_create_fakes(self, plot_path=None, name=None):
+    """
+    create fakes
+    """
+
+    fakes = self.net_handler.generate_samples(num_samples=28, to_np=True)
+    plot_grid_images(x=fakes, context='mfcc', padding=1, num_cols=4, plot_path=plot_path, name=name, show_plot=self.show_plot)
+    
+
+  def run_weights(self, plot_path=None, name=None):
+    """
+    weights
+    """
+
+    # plot path and name
+    plot_path = self.model_path if plot_path is None else plot_path
+    name = '' if name is None else name
+
+    # analyze weights
+    for model_name, model in self.net_handler.models.items():
+
+      # go through each weight
+      for k, v in model.state_dict().items():
+
+        # convolutional layers
+        if k.find('conv') != -1 and not k.__contains__('bias'):
+
+          print(k)
+          context = 'weight0'
+
+          # detach weights
+          x = v.detach().cpu().numpy()
+
+          # set column numbers
+          num_cols = 8 if self.net_handler.nn_arch == 'conv-jim' else (3 if self.net_handler.nn_arch == 'conv-fstride' else 8) 
+
+          # plot images
+          plot_grid_images(x, context=context, color_balance=True, padding=1, num_cols=num_cols, plot_path=plot_path, name=name + '_' + k.split('.')[0], show_plot=self.show_plot)
+          plot_grid_images(x, context=context+'-div', color_balance=True, padding=1, num_cols=num_cols, plot_path=plot_path, name=name + '_div_' + k.split('.')[0])
+
+
+  def run_all(self):
+    """
+    run all
+    """
+    pass
 
 
 
@@ -552,7 +689,7 @@ if __name__ == '__main__':
   #metrics_collector = MetricsCollectorAdvLabel(cfg=cfg, model_path='../docu/best_models/ignore/exp_adv/', model_sel=['conv-jim'])
   #metrics_collector = MetricsCollectorWavenet(cfg=cfg, model_path='../docu/best_models/ignore/exp_wavenet/', model_sel=['wavenet'])
   #metrics_collector = MetricsCollectorFinal(cfg=cfg, model_path='../docu/best_models/ignore/exp_final/', model_sel=['conv-fstride', 'conv-jim', 'conv-trad'], norm=False)
-  metrics_collector = MetricsCollectorFinal(cfg=cfg, model_path='../docu/best_models/ignore/exp_final/', model_sel=['conv-fstride', 'conv-jim', 'conv-trad'], norm=True)
+  #metrics_collector = MetricsCollectorFinal(cfg=cfg, model_path='../docu/best_models/ignore/exp_final/', model_sel=['conv-fstride', 'conv-jim', 'conv-trad'], norm=True)
 
 
   # run all metrics
@@ -562,5 +699,20 @@ if __name__ == '__main__':
   #metrics_collector.accuracy_revisit(plot_path=plot_path)
   #metrics_collector.test_bench_revisit(plot_path=plot_path)
   #metrics_collector.run_special(plot_path=plot_path)
-  metrics_collector.weights_revisit(plot_path=plot_path)
+  #metrics_collector.weights_revisit(plot_path=plot_path)
 
+
+  # model paths
+  model_paths = [str(m).split('d_model.pth')[0] for m in Path('../docu/best_models/ignore/exp_adv_train/').rglob('d_model.pth')]
+
+  print("model paths: ", model_paths)
+  #stop
+
+  # adv revisit
+  metrics_revisits = [MetricsAdvRevisit(cfg=cfg, model_path=m, root_path='../') for m in model_paths if m.find('left_go') != -1]
+
+  # run scores
+  #[mr.run_adv_loss(plot_path=plot_path, name='nn_adv_loss_{}'.format(mr.name_id)) for mr in metrics_revisits]
+
+  # fakes
+  [mr.run_create_fakes(plot_path=plot_path, name='nn_adv_fakes_{}'.format(mr.name_id)) for mr in metrics_revisits]

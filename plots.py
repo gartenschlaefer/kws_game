@@ -752,11 +752,20 @@ def plot_adv_train_loss(train_score_dict, cmap=None, plot_path=None, name='score
   ax = plt.axes()
   if cmap is not None: ax.set_prop_cycle('color', cmap)
 
-  # plots
-  ax.plot(train_score_dict['g_loss_fake'], label='g_loss_fake')
-  ax.plot(train_score_dict['g_loss_sim'], label='g_loss_sim')
-  ax.plot(train_score_dict['d_loss_fake'], label='d_loss_fake')
-  ax.plot(train_score_dict['d_loss_real'], label='d_loss_real')
+  # linestyles
+  linestyles = ['solid', 'dotted', 'dashed', 'dashdot']
+
+  # adv score label dict
+  adv_score_label_dict = {
+    'g loss fake': train_score_dict['g_loss_fake'], 
+    'g loss sim': train_score_dict['g_loss_sim'], 
+    'd loss fake': train_score_dict['d_loss_fake'], 
+    'd loss real': train_score_dict['d_loss_real']
+    }
+
+  # plot
+  [ax.plot(score, linestyle=linestyle, lw=2, label='{}'.format(label)) for (label, score), linestyle in zip(adv_score_label_dict.items(), linestyles)]
+
 
   # layout
   plt.ylabel("loss", fontsize=get_fontsize('axis_label')), plt.xlabel("iterations", fontsize=get_fontsize('axis_label')), plt.legend(fontsize=get_fontsize('axis_label')), plt.grid()
@@ -901,6 +910,7 @@ def plot_val_acc_multiple(val_accs_dict, cmap=None, plot_path=None, name='score_
   ax = plt.axes()
   if cmap is not None: ax.set_prop_cycle('color', cmap)
 
+  # linestyles
   linestyles = ['solid', 'dotted', 'dashed', 'dashdot']
 
   # plot
