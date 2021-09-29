@@ -8,7 +8,7 @@ The theory provided in this section, merely focuses on the used neural network a
 The most basic element in neural networks is denoted as node, an abstract element, that defines input and output connections from and to other nodes within the network.
 The edges of the connections from and to a node represents a multiplication with a scalar value, denoted as weight.
 Each node usually incorporates an additive term, denoted as bias term.
-All weights and bias terms are forming the parameters of a network and can be trained through back-propagation.
+All weights and bias terms are forming the parameters of a network and can be trained through backpropagation.
 The output of a node is a scalar computed from all inputs and mapped with a non-linear function denoted as activation function.
 A neural network can consist of thousand of nodes in each possible constellation of connections.
 The structure of a neural network is defined by its layers, where a layer is a set of nodes with specific connection properties, that receive inputs from the previous layer and output connections to the next layer.
@@ -27,7 +27,7 @@ Activation functions for neural networks of a node in a current layer, are non-l
 \end{equation}
 where $h$ is the activation function, $\bm{w} \in \R^n$ is a weight vector and $\bm{x} \in \R^n$ an input vector for one specific node receiving connections from a total number of $n$ nodes in the previous layer.
 The output of each node in a current layer is further connected to other nodes in the next layer and builds up the neural network.
-The constraint of an activation function is, that an easy computable derivative of this function exist in order to backpropagate gradients.
+The constraint of an activation function is, that an easy computable derivative of this function must exist in order to backpropagate its gradients.
 
 The most famous activation function nowadays is the Rectified Linear Unit (ReLU) \cite{Zeiler2013_relu} function:
 \begin{equation}\label{eq:nn_theory_relu}
@@ -98,7 +98,7 @@ which would give for example with $n = 128$ and $m = 64$ roughly $\mathcal{T}(W 
 % cnn
 
 \subsection{Convolutional Layers}\label{sec:nn_theory_cnn}
-Convolutional layers are the fundamental building block of every Covolutional Neural Networks (CNN), as already discussed in \rsec{prev_nn_cnn}.
+Convolutional layers are the fundamental building block of every CNN, as already discussed in \rsec{prev_nn_cnn}.
 Convolutional filters are applied on small areas of the input data to retrieve spatial information, where the input data can consist of multiple channels or input maps.
 Those convolutional filters are also called kernels, denoted as $k$ and in case of 2 dimensional input maps illustrated as images with kernel width $d_{k_w}$ and height $d_{k_h}$.
 The kernels are shifted over each input map in each dimensional axis with an operation called \emph{stride}, denoted as $s$, and produce an output map corresponding to each kernel and input map through the convolution operation, mathematically denoted with a star $\ast$.
@@ -219,7 +219,7 @@ The interesting elements are therefore only the neural network architecture desi
 
 \subsection{Generative Adversarial Neural Networks Game}\label{sec:nn_theory_gan}
 \thesisStateNew
-Generative Adversarial Neural Networks (GAN) \cite{Goodfellow2014}, as already mentioned in \rsec{prev_nn_adv}, uses two networks: a Generator (G) network for generating fake images and a Discriminator (D) network for discriminating between fake and real images.
+GANs \cite{Goodfellow2014}, as already mentioned in \rsec{prev_nn_adv} are deploying two neural networks: a Generator (G) network for generating fake images and a Discriminator (D) network for discriminating between fake and real images.
 The min-max game both networks are playing is the following:
 \begin{equation}\label{eq:nn_theory_gan}
   \underset{G}{\min} \, \underset{D}{\max} \, V(D, G) = \E_{\bm{x} \sim p_{data}(\bm{x})}\left[ \log D(\bm{x}) \right] + 

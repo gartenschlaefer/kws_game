@@ -41,7 +41,7 @@ Deep Learning was the new key to success, with network architecture consisting o
 Also in audio and language processing tasks, such as Automatic Speech Recognition (ASR) and Natural Language Processing (NLP), the famous Hidden Markov Models (HMM) and other statistical methods get more and more replaced by neural networks.
 
 With this remarks the short review on neural network history is closed and readers may forgive that not more details are presented and more papers referenced.
-The interested reader is recommended to look through the references of the above mentioned papers for finding more detailed informations about its rich history.
+The interested reader is recommended to look through the references of the above mentioned papers for finding more detailed information about its rich history.
 
 
 % --
@@ -58,7 +58,7 @@ Still it took relatively long till convolutional filters were a common and a wid
 The general concepts of CNNs with feature maps (outputs of applied convolutional filters) and weight sharing through convolutional filters, were examined by LeCun et al. on handwritten postal codes in 1989 \cite{LeCun1989_Generalization}.
 Further research and experiments on the famous MNIST dataset of handwritten digits, were done in the late 90s \cite{LeCun1998} and asserted the success of CNNs.
 A classical convolutional layer in CNNs usually consists of multiple convolutional filters with trainable weights and an additive bias term (optional) per filter, followed by a non-linear activation function.
-More details about CNNs an its convolutioal layers and how they transform given inputs are presented in \rsec{nn_theory_cnn}.
+More details about CNNs an its convolutional layers and how they transform given inputs are presented in \rsec{nn_theory_cnn}.
 
 % best quote ever
 %It is trivial to design a machine that learns very quickly, does not generalize, and requires an enormous amount of hardware. 
@@ -90,7 +90,7 @@ Recently neural network architectures emerged with the ability to process raw au
 One very prominent architecture, originally intended for natural speech generation, is the so called \emph{Wavenets} \cite{Oord2016}.
 
 With the \emph{dilated convolution} and a quantization of the audio sample values, Wavenets can afford to process this huge amount of input dimensions.
-Wavenets are in some sense similar to RNNs, because they also use outputs from previous time steps, but the implementation of wavenets is much more efficient, such as the quote from \cite{Oord2016} states:
+Wavenets are in some sense similar to RNNs, because they also use outputs from previous time steps, but the implementation of Wavenets is much more efficient, such as the quote from \cite{Oord2016} states:
 \begin{quote}
   %Recurrent neural networks such as LSTM-RNNs (Hochreiter & Schmidhuber, 1997) have been a key component in these new speech classification pipelines, because they allow for building models with long range contexts. 
   ...With WaveNets we have shown that layers of dilated convolutions allow the receptive field to grow longer in a much cheaper way than using LSTM units...
@@ -103,12 +103,12 @@ A classification of musical pieces to corresponding music artists is done by \ci
 % adversarial nets
 
 \subsection{Generative Adversarial Neural Networks}\label{sec:prev_nn_adv}
-Generative Adversarial Neural Networks (GAN) emerged from Goodfellow et al. in 2014 \cite{Goodfellow2014} and was initially motivated by Game Theory of a two player zero-sum game with the Min-Max-Theorem as solution concept \cite{VonNeumann1944}.
+GANs emerged from Goodfellow et al. in 2014 \cite{Goodfellow2014} and was initially motivated by Game Theory of a two player zero-sum game with the Min-Max-Theorem as solution concept \cite{VonNeumann1944}.
 The game in terms of GANs is, that two neural networks try to outperform the other in an adversary task, where the task hereby is the generation of fake images by one network, denoted as Generator (G) and the detection or discrimination of real and fake images by the other network, denoted as Discriminator (D).
 In \cite{Radford2016} some practical guidelines for designing and training deep GAN architectures are shown with the Deep Convolutional Generative Adversarial Network (DCGAN) network.
 DCGANs however consider only images and not speech signals, but they were the first starting point for developing GANs in this thesis.
 
-The G network, has to perform so called \emph{transposed convolution}, \emph{up-convolution} or \emph{de-convolution} for up-sampling the low-dimensional image to the desired output dimensions of the real sample images from a dataset.
+The G network, has to perform so called \emph{transposed convolution}, \emph{up-convolution} or \emph{de-convolution} for upsampling the low-dimensional image to the desired output dimensions of the real sample images from a dataset.
 The transposed convolution and some problems regarding GANs are described in \cite{Durall2020}.
 
 GANs are not the only application of adversarial neural networks, in \cite{Oezdenizci2020} it is shown how an adversarial network improves generalization over invariance of subject specific samples from Electroencephalogram (EEG) data.

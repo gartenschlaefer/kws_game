@@ -32,7 +32,7 @@ In detail the core key words are \{\enquote{yes}, \enquote{no}, \enquote{up}, \e
 
 The auxiliary key words have the purpose to disturb the classification of the core key words, therefore the auxiliary key words should be represented by a single class label.
 In many papers those auxiliary key words are labeled with \enquote{unknown}, but in this thesis it is referred as \enquote{\_mixed} label, since it is a mixture of all auxiliary key words and the core words that were not used for classification.
-The \enquote{\_mixed} key words should represent all unknown words that a user might speak and are therefore a very important element in the Key Word Spotting (KWS) task for the identification of words that are not in the class dictionary.
+The \enquote{\_mixed} key words should represent all unknown words that a user might speak and are therefore a very important element in the KWS task for the identification of words that are not in the class dictionary.
 Note that the \enquote{\_mixed} label makes the classification task much more challenging, because the network has to be more accurate in modeling each core key words against the other core key words and additionally to the auxiliary key words.
 In the creation of the examples for the \enquote{\_mixed} label, it is preferable to have an equal number of examples per individual auxiliary key word and unused core key words.
 This had been done by placing all unused core key words and auxiliary words into a separate folder and reading them into a list, which is ordered so that one example per key word is placed consecutive to the next for each key word, then it starts over again filling up all examples.
@@ -78,7 +78,7 @@ The histograms of all available examples in the dataset are shown in \rfig{exp_d
 The energy histogram has one main lobe, which is good, so it means that there are no clusters of extremely silent or loud files.
 For comparison, if silent files were extracted from for instance the given background files, the energy of some of those is in range of $10^{-7} \dots 10^{-6}$. Therefore it seems that most of the files are okay.
 The sample length histogram shows, that most of the files have a duration of \SI{1}{\second}, but many other have less sample numbers. 
-This is important and has to be regarded in the pre-processing of audio files, because inputs to neural networks must often be prepared to fixed size inputs if no sequential neural networks are deployed, such as Recurrent Neural Networks (RNN).
+This is important and has to be regarded in the pre-processing of audio files, because inputs to neural networks must often be prepared to fixed size inputs if no sequential neural networks are deployed, such as RNNs.
 
 
 % --
@@ -95,7 +95,7 @@ The recording devices of the speakers, who contributed examples to the dataset, 
 
 The personal experiments made, when listening to the examples in the dataset, were as follows:
 \begin{itemize}
-  \item The quality of the examples in the dataset are ranging from really good and understandable to very bad, noisy, unrecognizable and cut off, though most of the examples are good.
+  \item The quality of the examples in the dataset are ranging from good and understandable to very bad, noisy, unrecognizable and cut off, though most of the examples are provided with good quality.
 
   \item Different accents had been perceived, that suggests that people from several nationalities were involved. 
   However the bias was laid on American English, as noted in the paper.
@@ -141,7 +141,7 @@ The testing and validation file lists are applied in this thesis and the separat
 \subsubsection{Samples from the Feature Extraction}
 The feature extracted data examples are stored to separate files before using them for training.
 This has the practicability that features do not have to be extracted each time a new training instance of a neural network is performed.
-Samples from the extracted Mel Frequency Cepstral Coefficients (MFCC) with frame-based normalization as explained in \rsec{signal_mfcc} are shown in \rfig{exp_dataset_speech_cmd_mfcc}.
+Samples from the extracted MFCCs with frame-based normalization as explained in \rsec{signal_mfcc} are shown in \rfig{exp_dataset_speech_cmd_mfcc}.
 \begin{figure}[!ht]
   \centering
     \subfigure[left]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_dataset_speech_cmd_mfcc_left}}
@@ -193,7 +193,7 @@ It is difficult to examine why exactly this one example is classified wrong.
 % preparation for neural networks
 
 \subsection{Data preparation for neural networks}\label{sec:exp_data_prep}
-The neural network architectures are trained with supervised learning, that means a class label $y_i \in \{0, 1, \dots, L\}$ correspondence to each data example $x_i \in \mathcal{X}$ must exist, where $L$ is the total number of classes and $\mathcal{X}$ is the input space of the data example, for example $\mathcal{X} = \R^{C \times M}$ for Mel Frequency Cepstral Coefficients (MFCC) with $C$ MFCC coefficients and $M$ frames.
+The neural network architectures are trained with supervised learning, that means a class label $y_i \in \{0, 1, \dots, L\}$ correspondence to each data example $x_i \in \mathcal{X}$ must exist, where $L$ is the total number of classes and $\mathcal{X}$ is the input space of the data example, for example $\mathcal{X} = \R^{C \times M}$ for MFCCs with $C$ cepstral coefficients and $M$ frames.
 Some selected examples and their labels form a dataset $S$ for example for training or testing and can be written as:
 \begin{equation}\label{eq:exp_dataset}
   S = \{ (x_i, y_i) \mid i = 0, 1, \dots, n \}

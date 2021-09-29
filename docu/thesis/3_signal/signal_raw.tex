@@ -3,7 +3,6 @@
 
 \section{Raw Audio Waveforms}\label{sec:signal_raw}
 \thesisStateRevised
-\thesisStateNew
 Physical acoustic waves can be recorded by microphones, translating mechanical vibrations to electrical signals. 
 Those electrical signals are further stored in \emph{waveform files} or \emph{audio files} with a specific audio format, for example the \texttt{.wav} format.
 Apart from any compression technique the most important storage details are the bit resolution, for example \SI{24}{\bit} floating point and the sample rate $f_s$. 
@@ -44,7 +43,7 @@ From the shown raw audio files, it can be estimated how long a speech command ma
 The pronunciation of words can of course deviate strongly in duration, but usually when commanding something it is preferred to speak short and well pronounced.
 If a time interval of \SI{500}{\milli\second} is used to capture a speech command (this time interval is used in the feature extraction), it might happen that not every phoneme of the spoken words are captured. 
 Often this might occur for words with glottal stops before consonants, for example the phoneme \enquote{t} in \enquote{left} or \enquote{right}, therefore the input features may only contain information of the first phonemes \enquote{lef} or \enquote{righ}.
-But since Key Word Spotting (KWS) is restricted in its vocabulary and no similar words are contained within, it should be no problem in distinguishing those.
+But since KWS is restricted in its vocabulary and no similar words are contained within, it should be no problem in distinguishing those.
 
 Another important aspect, when using limited time intervals for key words, is to detect an appropriate onset position (beginning of the key word) on the time axis of the signal.
 It is easy to see in \rfig{signal_raw_showcase} where the spoken words are beginning and ending, but usually not all recordings are as clean as those.

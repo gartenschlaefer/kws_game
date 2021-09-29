@@ -3,7 +3,7 @@
 
 \section{Research Questions for this Thesis}\label{sec:intro_rq}
 \thesisStateRevised
-This section lists and formulates relevant research questions regarding Key Word Spotting (KWS) in video games.
+This section lists and formulates relevant research questions regarding KWS in video games.
 Those research questions can be split into 3 parts:
 \begin{enumerate}[label={Q.\arabic*)}, leftmargin=1.4cm]
   \item Signal processing and feature extraction of speech signals.
@@ -62,7 +62,7 @@ The essential composition of a word may help to understand the problematic bette
 A word is a sequential combination of either vowels, such as \enquote{a} and \enquote{e}, or consonants \enquote{k}, \enquote{l}, with a certain length. 
 In linguistics for instance, it is possible to distinguish vowels with frequency peaks in a spectrogram, where a spectrogram is the magnitude squared of the frequency response of small time chunks over the time duration of a signal.
 However, due to many different voice generating factors involved in speakers, such as age, gender, nationality and physiology of the vocal tract, there is a huge variance in the pronunciation of words from different persons, which increases the difficulty of the problem.
-A very common approach is to use Mel Frequency Cepstral Coefficients (MFCC) as features for speech recognition tasks.
+A very common approach is to use MFCCs as features for speech recognition tasks.
 Why MFCCs present good features for speech is described in detail in \rsec{signal_mfcc}.
 
 
@@ -72,10 +72,10 @@ Why MFCCs present good features for speech is described in detail in \rsec{signa
 \subsection{Neural Network Implementation Research Questions}\label{sec:intro_rq_nn}
 Neural networks are \emph{trained} on a specific dataset, which is the learning process of all parameters in a certain neural network architecture. 
 The architecture of a neural network describes how the input features are transformed through each layer in the network.
-The feature extraction of the data to an input vector must always follow the same procedure, for instance normalization of audio sample and feature extraction to Mel Frequency Cepstral Coefficients (MFCC) with a certain constellation of coefficients and enhancements.
+The feature extraction of the data to an input vector must always follow the same procedure, for instance normalization of audio sample and feature extraction to MFCCs with a certain constellation of coefficients and enhancements.
 This is important for the preparation of new or unseen data samples for inference.
 Inference is the classification of input features to the most probable output class, performed in a single forward pass on an already trained network.
-The number and order of output classes is fixed from the beginning of the training of the neural network, which has to be considered in the deployment in a Key Word Spotting (KWS) system for a video game.
+The number and order of output classes is fixed from the beginning of the training of the neural network, which has to be considered in the deployment in a KWS system for a video game.
 A class dictionary, that describes which output node of the neural network corresponds to which speech command is therefore absolutely necessary and has to be saved in a separate parameter file.
 Further every neural network has to be trained with enough data and some special techniques to enable it to generalize well on unseen data.
 Following Questions can therefore be asked in general:
@@ -107,7 +107,7 @@ It is better to rely on that players are using key words for most of the time, s
 Several different neural network approaches with a low computational footprint should be tested and compared with each other regarding classification rate and energy efficiency. 
 A video game with online speech input restricts the amount of computation and time for classification by the minimum Frames Per Second (FPS) a game should be played.
 This is because the FPS should not fall under a certain limit (usually 30 FPS in video games), otherwise the fluidity of the game is not guaranteed.
-Further Generative Adversarial Neural Networks (GAN) and Wavenets shall be evaluated regarding their value in this task.
+Further GANs and Wavenets shall be evaluated regarding their value in this task.
 
 
 % --

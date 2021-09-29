@@ -3,7 +3,7 @@
 
 \section{Mel Frequency Cepstral Coefficients}\label{sec:signal_mfcc}
 \thesisStateRevised
-Very commonly Mel Frequency Cepstral Coefficients (MFCC) are used as input features for neural network classifications tasks in speech recognition.
+Very commonly MFCCs are used as input features for neural network classifications tasks in speech recognition.
 It is described why MFCCs are good features for speech signals, how they are calculated in detail, how they can be enhanced and in which way they can be visualized to understand them better.
 
 
@@ -12,7 +12,7 @@ It is described why MFCCs are good features for speech signals, how they are cal
 
 \subsection{The Idea}
 The processing scheme of MFCCs \cite{Mermelstein1980} is as following:
-Raw audio samples are transformed into the frequency domain with the Short-Time Fourier Transform (STFT).
+Raw audio samples are transformed into the frequency domain with the STFT.
 Afterwards the power spectrum of the STFT is segmented in frequency bands (along the frequency dimension) done by a filter bank.
 The filter bands are spaced in equidistant Mel frequencies, where Mel frequencies represent the non-linear relationship between the Mel and frequency scale.
 The Mel scale was developed in psycho-acoustic experiments, where researchers found out, that high frequency sounds (above approximately \SI{500}{\hertz}) are perceived lower than they actual are in the musical sense of pitch.
@@ -231,4 +231,4 @@ MFCC are widely used for speech recognition tasks and perform very well, however
 One disadvantage is, as already mentioned, that MFCCs are not intended for visualization, because of their broad value space of individual MFCC coefficients.
 Another disadvantage is, that MFCC are not directly invertible to raw audio samples, because of the computation of the spectrogram.
 Inversion techniques for MFCCs exist, such as described in \cite{Boucheron2008}, but it is still a rough approximation.
-The inversion of MFCC would have been very interesting, when applied to generative neural networks, such as Generative Adversarial Neural Networks (GAN).
+The inversion of MFCC would have been very interesting, when applied to generative neural networks, such as GANs.

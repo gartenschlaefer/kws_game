@@ -6,7 +6,7 @@
 Feature selection is a very important step prior to neural network training.
 A reduction of input features always means a reduction of computations, hence it is a crucial point to evaulate for finding energy efficient models.
 Unfortunately it is not always clear, which feature are contributing to good classification scores and which do not or even worsen them.
-In this section only Mel Frequency Cepstral Coefficients (MFCC) and their enhancements, as described in \rsec{signal_mfcc}, are the focus of the experiments.
+In this section only MFCCs and their enhancements, as described in \rsec{signal_mfcc}, are the focus of the experiments.
 A feature selection for raw audio samples, such as used in the Wavenet architecture, would not make any sense, because each sample is a feature itself.
 Another important aspect in the feature selection experiments is the evaluation of the proposed frame-based normalization \req{signal_mfcc_norm} originally intended to improve the visualization of MFCCs and making Generative Adversarial Neural Networks (GANs) more easy and faster to train.
 However frame-based normalization might be critical, because it is a normalization applieds only on the frame (time) dimension and disregards the frequency dimension.
@@ -116,8 +116,8 @@ The noise and shift invariance of the \texttt{conv-jim} model is shown in \rfig{
 \end{figure}
 \FloatBarrier
 \noindent
-While the invariance tests are not expressive for a general conclusion, following patterns can be observed regardless:
-The frame-based normalization does certainly increase the invariance in noise, which is logically because the model has to focus more on learning patterns of the individual key words and is less prone to overfitting.
+While the results of the invariance tests do not allow a general conclusion, following patterns can be observed regardless:
+The frame-based normalization does certainly increase the invariance in noise, which is logical because the model has to focus more on learning patterns of the individual key words and is less prone to overfitting.
 The \texttt{conv-fstride} model does unexpectedly well upon the shift invariance test, even if its strides are performed merely on the frequency axis, 
 however usually it does not achieve that good invariances against shift compared to the other models and often incorporates holed in the classification.
 The \texttt{conv-trad} performs the best on all tests, but also requires a higher computational footprint, so that the preferred model is \texttt{conv-jim} with a good trade-off between computational footprint and classification results. 

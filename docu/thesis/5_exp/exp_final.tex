@@ -9,7 +9,7 @@ A single run with 2000 epochs was performed for all experiments to save computat
 The evaluation on the adversarial pre-training, as described in \rsec{exp_adv}, was done for the \texttt{conv-jim} model in a separate run.
 The results of the experiments are shown in \rtab{exp_final_l12}.
 \input{./5_exp/tables/tab_exp_final_l12.tex}
-Note that there are some overfitting effects happening, especially showing up in the not normalized training of the \texttt{conv-trad} model in \rtab{exp_final_loss_conv-trad}.
+Note that there are some overfitting effects happening, especially showing up in the not normalized training of the \texttt{conv-trad} model in \rfig{exp_final_loss_conv-trad}.
 It is therefore useful to use an early stopping technique for better generalization, that obtains the model parameters at the best performing training epoch evaluated on the validation set.
 \begin{figure}[!ht]
   \centering
@@ -21,7 +21,7 @@ It is therefore useful to use an early stopping technique for better generalizat
 \FloatBarrier
 \noindent
 The training of models with frame-based normalization usually had less problems with overfitting compared to when using no normalization.
-The accuracy performance on the validation set of all models with and without frame-based normalization is shown in \rtab{exp_final_acc}.
+The accuracy performance on the validation set of all models with and without frame-based normalization is shown in \rfig{exp_final_acc}.
 \begin{figure}[!ht]
   \centering
   \subfigure[norm0]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_final_acc_norm0}}

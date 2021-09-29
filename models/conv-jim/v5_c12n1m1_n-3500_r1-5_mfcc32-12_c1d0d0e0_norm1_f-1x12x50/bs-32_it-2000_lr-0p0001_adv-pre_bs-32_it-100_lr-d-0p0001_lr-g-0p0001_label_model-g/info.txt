@@ -1,0 +1,13 @@
+{'cnn': ConvJim(
+  (conv_layer0): Conv2d(1, 48, kernel_size=(12, 20), stride=(1, 1), bias=False)
+  (conv_layer1): Conv2d(48, 8, kernel_size=(1, 5), stride=(1, 1), bias=False)
+  (classifier_net): ClassifierNetFc3(
+    (fc1): Linear(in_features=216, out_features=64, bias=True)
+    (fc2): Linear(in_features=64, out_features=32, bias=True)
+    (fc3): Linear(in_features=32, out_features=12, bias=True)
+    (dropout_layer): Dropout(p=0.5, inplace=False)
+    (softmax): Softmax(dim=1)
+  )
+)}
+
+ {'dual_train': False, 'label_train': True, 'use_decoder_weights': True}

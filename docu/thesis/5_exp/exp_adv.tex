@@ -58,7 +58,7 @@ In many experiments the shift and noise invariance show improvements when using 
 The adversarial dual training experiments were similar to the adversarial label train ones, but without choosing subsets of labels and simply using the same convolutional layer structure for the Generator and Discriminator model like the CNN network.
 The experiments are presented in \rtab{exp_adv_dual_l12}.
 \input{./5_exp/tables/tab_exp_adv_dual_l12}
-The dual experiments achieved worse accuracies for the transfer of Discriminator weights, when trained for too long, compared to the initializing of the target model with random weights.
+The dual experiments achieved worse accuracies for the transfer of Discriminator weights, compared to the initializing of the target model with random weights.
 The Generator weights however, could increase the average accuracy by at least \SI{1}{\percent}.
 The dual training is not further evaluated regarding shift and noise invariance, because the adv-label-train performed in most cases better.
 

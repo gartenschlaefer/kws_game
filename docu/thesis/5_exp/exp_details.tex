@@ -20,7 +20,7 @@ Also the project does not download the speech command dataset by its own and a p
 More on information about how to run the project is described in the \texttt{README.txt} file.
 The training and implementation of all used neural networks were done with the \texttt{Pytorch} \cite{Pytorch} framework of version $1.7.0$. 
 Usually it should not be a problem if a newer version of \texttt{Pytorch} is used, during the work on the thesis the version changed to $1.9.0$ without any version depending problems.
-The feature extraction of Mel Frequency Cepstral Coefficients (MFCC) was self implemented, but use already existing and efficient code for transforms, such as the Short Time Fourier Transform (STFT) or Discrete Cosine Transform (DCT), with packages from \texttt{Scipy}.
+The feature extraction of MFCCs was self implemented, but use already existing and efficient code for transforms, such as the STFT or DCT, with packages from \texttt{Scipy}.
 All matrix-vector computations were done with the well known package \texttt{Numpy} or with \texttt{Pytorch}.
 Several other \texttt{Python} packages were used within the project, but are not named explicitly, they can be looked up in the open source repository of the project, if requested.
 
@@ -39,7 +39,7 @@ The training details of the used neural networks described in \rsec{nn_arch} can
 The feature extraction parameters provide information about how the MFCC features were extracted in detail.
 The dataset parameters are the selected labels and the number of examples per labels for training.
 With the training hyperparameters, the neural network training is specified, such as the learning rate or batch size.
-The pre-training details are describing a separate training of Generative Adversarial Neural Networks (GAN), to use the obtained weights for transfer learning on an equivalent Convolutional Neural Networks (CNN).
+The pre-training details are describing a separate training of GANs, to use the obtained weights for transfer learning on an equivalent CNNs.
 Therefore the pre-training details are similar to the training hyperparameters and describe the training details of both the Generator (G) and Discriminator (D) network of the GANs.
 
 
@@ -69,30 +69,30 @@ This is important, because the number of examples per label should not be chosen
 % training hyperparameters
 
 \subsubsection{Training hyperparameters}
-The hyperparameters for training of the CNNs models described in \rsec{nn_arch} are shown in \rtab{exp_details_params_train}.
+The hyperparameters for training the used CNNs models, described in \rsec{nn_arch}, are shown in \rtab{exp_details_params_train}.
 \input{./5_exp/tables/tab_exp_details_params_train}
-From the experiments in \rsec{exp} it was shown, that epochs of 2000 yield into some small overfitting effects regarding certain models, but it was important to oberserve, when these effects are starting.
-The batch size of 32 is slected to a low number, because it worked well and the amount of classes were at maximum 12 (L12).
-Note that the batch size influences the selection of the learning rate for updating the parameters of the neural network models.
+From the following experiments it can be observed that epochs of 2000 yield into small overfitting effects regarding certain models, but it was important to examine when these effects are starting.
+The batch size of 32 is selected to a low number, because it worked well and the amount of classes were at maximum 12 (L12).
+%Note that the batch size influences the selection of the learning rate for updating the parameters of the neural network models.
 
-The hypermparameters for the Wavenet model are described in the corresponding experiment section.
+The hyperparameters for the Wavenet model are described in the corresponding experiment section.
 
 
 % --
 % training parameters
 
 \subsubsection{Pre-Training details}
-The pre-training parameters describe the training of the Generative Adversarial Neural Networks (GAN), as shown in \rsec{nn_arch_adv} and \rsec{nn_adv}.
-The hyperparameters shown in \rtab{exp_details_params_pre_train} are the same as for usual model training, but the Discriminator (D) and Generator (G) network can have different values for the hyperparameters.
+The pre-training parameters describe the training of the GANs, with their models presented in \rsec{nn_arch_adv} and \rsec{nn_adv}.
+The hyperparameters shown in \rtab{exp_details_params_pre_train} are the same as for usual model training, but the Discriminator (D) and Generator (G) network can have different values.
 \input{./5_exp/tables/tab_exp_details_params_pre_train}
-It is important that the epochs for 
+The selection of the epochs is important as it was already pointed out in \rsec{nn_adv}.
 
 
 % --
 % evaluation details
 
 \subsection{Evaluation details}\label{sec:exp_details_tb}
-The main evaluation score of the trained models is the computation of the accuracy on the test sets described in \rsec{exp_dataset}.
+The main evaluation score of the trained models is the computation of the accuracy on the test sets.
 The accuracy is simply obtained by counting all correct classifications and dividing it by the number of classified samples $n$.
 A score function $c(\hat{y}_i, y_i)$ for the accuracy can be defined as:
 \begin{equation}
@@ -111,7 +111,7 @@ Another more unconventional evaluation technique used, is the evaluation on nois
 For this one sample from each class label from the self recorded files of the \enquote{my dataset} is used as test signals.
 The length of those audio files is cut, such that by applying a fixed input frame of \SI{500}{\milli\second}, both end positions consists of at least the half of the audio file information, which is especially important for the shift invariance.
 The evaluation results are plotted in figures of correct classification upon shift and noise level changes.
-Note that the noise and shift invariance are tested on only 5 test signals and therefore this is not a reliable measure for the trained models, but it is interesting to see how different models perform upon this test.
+Note that the noise and shift invariance are tested on only 5 test signals and therefore they are not a reliable measure for the trained models, but it is interesting to see how different models perform upon these tests.
 In the following the shift and noise invariance tests are explained in more detail.
 
 
@@ -145,7 +145,7 @@ One example of a shift invariance test is shown in \rfig{exp_details_tb_shift}.
 The purpose of the shift invariance test is not to achieve a full classification score upon each test example, because this is hardly possible if not all of a key words information is captured within the shifted frame, but to provide consecutive correct classifications within a certain region.
 Holes in this region are not a good indicator for the trained model.
 If one example could not be classified at all, it does not necessarily mean that the trained model is bad, but that this special example is not recognized with this specific model.
-A good model has a long region of correct classifications with no holes in it.
+A good model has a wide region of correct classifications with no holes in it.
 
 
 % --

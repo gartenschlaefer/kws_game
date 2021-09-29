@@ -3,9 +3,9 @@
 
 \chapter{Conclusion}\label{sec:conclusion}
 %The conclusions concerns with the research questions asked in \rsec{intro_rq}.
-The conclusions of the Key Word Spotting (KWS) task in video games were separated into its disciplines.
-The feature extraction of Mel Frequency Cepstral Coefficients (MFCC) an its onset detection.
-The evaluated low computational Convolutional Neural Networks (CNN) with pre training on Generative Adversarial Neural Network (GAN) weights.
+The conclusions of the KWS task in video games were separated into its disciplines.
+The feature extraction of MFCCs an its onset detection.
+The evaluated low computational CNNs with pre training on Generative Adversarial Neural Network (GAN) weights.
 The KWS video game and its fast responses to speech signals.
 At last the future work is presented.
 
@@ -14,11 +14,11 @@ At last the future work is presented.
 
 \section{Features}
 \thesisStateNotReady
-From the experiments it was shown that Mel Frequency Cepstral Coefficients (MFCC) provide excellent features for speech signals.
+From the experiments it was shown that MFCCs provide excellent features for speech signals.
 It was observed that 12 cepstral coefficients are performing better than 32 cepstral coefficients for the evaluated models and therefore the a lower amount of cepstral coefficients is preferred.
 The enhancement of the MFCC features with deltas and energy vectors were not increasing the classification accuracy much and therefore were left out.
 The frame-based normalization yielded in worse accuracy scores of the test and validation set, but increased the noise invariance upon the test signals.
-Further it enabled Generative Adversarial Neural Networks (GAN) to be trained faster and the use of valuable weights of convolutional layers from the Generator network as pre-trained weights for a conventional Convolutional Neural Network (CNN).
+Further it enabled GANs to be trained faster and the use of valuable weights of convolutional layers from the Generator network as pre-trained weights for a conventional CNN.
 
 The onset detection with the first cepstral coefficient of the MFCC features worked extremely well with a minimum of computational effort and is an excellent choice for accurate detection of key word onsets.
 
@@ -34,7 +34,7 @@ Still the models are sufficient for playing a video game and the processing time
 The preferred CNN model was the \texttt{conv-jim} model striding only in the frame dimension. It was a good trade-off between accuracy and computational footprint.
 The traditional model achieved the best accuracy scores but was ...
 
-It was showed that Generative Adversarial Neural Networks (GAN) could be useful for obtaining initial pre-trained weights for equivalent classifier networks with same convolutional layers.
+It was showed that GANs could be useful for obtaining initial pre-trained weights for equivalent classifier networks with same convolutional layers.
 The weights from the Generator (G) network were useful, even though an up-convolution was performed instead of a usual one.
 The trade-off is that a normalization such as the frame-based normalization has to be applied in order that the weights from G are applicable.
 Nevertheless with the pre-trained weights from G the accuracies increased slightly.
@@ -56,16 +56,16 @@ The restriction of the time interval to \SI{500}{\milli\second} for a key word i
 
 \section{Future Work}
 \thesisStateNotReady
-The goal in finding the most energy efficient model with good accuracies for the Key Word Spotting (KWS) task is still a topic in future research, even though \cite{Zhang2017} and \cite{Peter2020} provided excellent solutions to this problem.
+The goal in finding the most energy efficient model with good accuracies for the KWS task is still a topic in future research, even though \cite{Zhang2017} and \cite{Peter2020} provided excellent solutions to this problem, it is still desirable to understand the problem even further and derive a minimal model that can be understood.
 It is absolutely worth to evaluate the performance when using a hop time of \SI{20}{\milli\second} like in \cite{Peter2020} instead of the used \SI{10}{\milli\second}, this would reduce the computations approximately by half.
 
-Further it would be interesting to evaluate decrease the time intervall of a key word even further below \SI{500}{\milli\second} for a really fast paced gaming experience.
+Further it would be interesting to evaluate decrease the time interval of a key word even further below \SI{500}{\milli\second} for a really fast paced gaming experience.
 
-The most future work has to be done on creating a Wavenet architecture, which is computationaly leight-weight with good classification accuracies, if that is even possible on raw audio samples.
+The most future work has to be done on creating a Wavenet architecture, which is computationally light-weight with good classification accuracies, if that is even possible on raw audio samples.
 
 Another interesting work can be done on the obtained weights from the Generator models of a GAN training. 
 An adversarial training scheme as presented in \cite{Oezdenizci2020} with the same convolutional layer parameters of a Generator (G) model and a classical CNN model would be extremely interesting, however one problem is the up-convolution done by the G so that weight sharing is a bit difficult to implement.
 
-For KWS games it would be interesting to create a flexible time span for the pronounciation of key words.
+For KWS games it would be interesting to create a flexible time span for the pronunciation of key words.
 
 Another left over evaluation is the influence of the game sounds during playing the video game

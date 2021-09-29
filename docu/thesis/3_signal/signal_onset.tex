@@ -2,18 +2,17 @@
 % onset
 
 \section{Onset Detection}\label{sec:signal_onset}
-\thesisStateReady
-\thesisStateNew
-Onset detection of key words is an essential part in Key Word Spotting (KWS) systems and describes the starting time of an actual key word.
+\thesisStateRevised
+Onset detection of key words is an essential part in KWS systems and describes the starting time of an actual key word.
 In this thesis the onset detection is separated into:
 \begin{itemize}
   \item key word onset detection (within a fixed time span)
-  \item online onset detection
+  \item online onset detection.
 \end{itemize}
-the key word onset detection is performed on already extracted time signals, such as raw data examples from the dataset, where the time interval of those signals are limited to \SI{1}{\second}.
+The key word onset detection is performed on already extracted time signals, such as raw data examples from the dataset, where the time interval of those signals are limited to \SI{1}{\second}.
 The online onset detection runs during the recording of potential key words from a microphone input in a real time system.
 Note that onset detection can be quite challenging and is of some sorts an own research subject.
-For this thesis, however it is enough to use trivial methods, that do not use much computational effort.
+For this thesis however, it is enough to use trivial methods, that do not require a high computational effort.
 
 
 % --
@@ -35,7 +34,7 @@ Note that it is assumed, that most of the key word in each signal is captured by
 It is for sure, that this onset detection is not the most reliable one, but it is the simplest and most energy efficient method performed on raw audio data.
 
 A better approach is to use energy values from the frequency response of the signal.
-Since the Mel Frequency Cepstral Coefficients (MFCC) are extracted to obtain features for neural networks, it is straight forward to use them for onset detection as well.
+Since the MFCCs are extracted to obtain features for neural networks, it is straight forward to use them for onset detection as well.
 The first cepstral coefficient $\bm{u}_0 \in \R^M$ of the MFCCs is actually an energy value, that is the sum of all equidistant mel filter bands.
 The equivalent of \req{e_win} for MFCCs in the cepstral and frame space is therefore:
 \begin{equation}
