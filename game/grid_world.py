@@ -15,19 +15,16 @@ class GridWorld(Interactable):
   grid world class
   """
 
-  def __init__(self, screen_size, color_bag, mic=None, pixel_size=(20, 20)):
+  def __init__(self, screen_size, color_bag, pixel_size=(20, 20), grid_move=True):
     """
     create the grid world
     """
 
     # variables
     self.screen_size = np.array(screen_size)
-    self.pixel_size = np.array(pixel_size)
     self.color_bag = color_bag
-    self.mic = mic
-
-    # mic control
-    self.mic_control = True if self.mic is not None else False
+    self.pixel_size = np.array(pixel_size)
+    self.grid_move = grid_move
     
     # pixel spacing
     self.grid_size = self.screen_size // self.pixel_size
@@ -81,7 +78,7 @@ class GridWorld(Interactable):
         if move_wall:
 
           # create wall element at pixel position
-          move_wall = MovableWall(grid_pos=[i, j], color=self.color_bag.default_move_wall, size=self.pixel_size, grid_move=True, mic_control=self.mic_control, mic=self.mic)
+          move_wall = MovableWall(grid_pos=[i, j], color=self.color_bag.default_move_wall, size=self.pixel_size, grid_move=self.grid_move)
 
           # set grid
           move_wall.set_move_wall_grid(self.move_wall_grid)
@@ -127,36 +124,23 @@ class GridWorld(Interactable):
       self.move_walls[self.act_wall].set_color(self.color_bag.active_move_wall)
 
 
-  def move_walls_update(self, event=None):
+  def action_key(self):
     """
-    event handling for move walls
+    if action key is pressed
     """
 
-    for move_wall in self.move_walls:
+    if not len(self.move_walls): return
 
-      # handle only active wall
-      if move_wall.is_active:
+    # old wall
+    self.move_walls[self.act_wall].is_active = False
+    self.move_walls[self.act_wall].set_color(self.color_bag.default_move_wall)
 
-        # handle event
-        move_wall.input_handler.handle(event)
+    # index wall
+    self.act_wall = self.act_wall + 1 if self.act_wall < len(self.move_walls) - 1 else 0
 
-        # event disabled wall
-        if not move_wall.is_active:
-
-          # increase index
-          self.act_wall += 1
-
-          # check if last wall
-          if self.act_wall >= len(self.move_walls):
-            self.act_wall = 0
-
-          # set new active wall
-          self.move_walls[self.act_wall].is_active = True
-
-          # set colors
-          self.move_walls[self.act_wall].set_color(self.color_bag.active_move_wall)
-          move_wall.set_color(self.color_bag.default_move_wall)
-          break
+    # new wall
+    self.move_walls[self.act_wall].is_active = True
+    self.move_walls[self.act_wall].set_color(self.color_bag.active_move_wall)
 
 
   def reset(self):
@@ -171,23 +155,33 @@ class GridWorld(Interactable):
     self.move_walls_init()
 
 
-  def event_update(self, event):
+  def is_moveable(self):
     """
-    event update of grid world
+    moveable flag
     """
+    return True
 
-    # events of move walls
-    if self.mic is None:
-      self.move_walls_update(event)
+
+  def speech_command(self, command):
+    """
+    move character to position
+    """
+    [move_wall.speech_command(command) for move_wall in self.move_walls if move_wall.is_active]
+
+
+  def direction_change(self, direction):
+    """
+    move character to position
+    """
+    [move_wall.direction_change(direction) for move_wall in self.move_walls if move_wall.is_active]
 
 
   def update(self):
     """
     frame update
     """
+    [move_wall.update() for move_wall in self.move_walls]
 
-    if self.mic is not None:
-      self.move_walls_update()
 
 
 if __name__ == '__main__':
@@ -234,9 +228,6 @@ if __name__ == '__main__':
   # level setup
   level = LevelMoveWalls(screen, cfg['game']['screen_size'], mic)
 
-  # game logic
-  game_logic = GameLogic()
-
   # add clock
   clock = pygame.time.Clock()
 
@@ -247,15 +238,13 @@ if __name__ == '__main__':
   with mic.stream:
 
     # game loop
-    while game_logic.run_loop:
+    while level.runs():
       for event in pygame.event.get():
 
         # event handling
-        game_logic.event_update(event)
         level.event_update(event)
 
       # frame update
-      game_logic.update()
       level.update()
 
       # update display

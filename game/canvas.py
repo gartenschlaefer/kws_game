@@ -196,11 +196,12 @@ class CanvasCommand(Canvas):
     self.interactable_dict.update({'text_class_dict': Text(self.canvas_surf, message='key words:', position=(20, 60), font_size='tiny', color=self.color_bag.text_menu)})
 
     # class text
-    self.interactable_dict.update({'text_class{}'.format(v): Text(self.canvas_surf, message='{}'.format(k), position=(30 + 90 * int(v > 4), 80 + 15 * v - 75 * int(v > 4)), font_size='tiny', color=self.color_bag.text_menu) for (k, v) in self.mic.classifier.class_dict.items()})
+    self.interactable_dict.update({'text_class{}'.format(v): Text(self.canvas_surf, message='{}'.format(k), position=(30 + 90 * int(v > 5), 80 + 15 * v - 90 * int(v > 5)), font_size='tiny', color=self.color_bag.text_menu) for (k, v) in self.mic.classifier.class_dict.items()})
 
     # kws text
     self.interactable_dict.update({'text_kws': Text(self.canvas_surf, message='key word spotting:', position=(20, 210), font_size='tiny_small', color=self.color_bag.text_menu_active, enabled=False)})    
-    self.interactable_dict.update({'text_cmd{}'.format(i): Text(self.canvas_surf, message='_', position=(50, 240 + 18 * i), font_size='tiny_small', color=self.color_bag.text_menu_active, enabled=False) for i in range(self.num_kws_cmds)})
+    self.interactable_dict.update({'text_cmd{}'.format(i): Text(self.canvas_surf, message='_', position=(50, 240 + 18 * i), font_size='tiny_small', color=self.color_bag.text_menu_active, enabled=False) for i in range(0, self.num_kws_cmds)})
+    #self.interactable_dict.update({'text_cmd0': Text(self.canvas_surf, message='_', position=(50, 240), font_size='tiny_small', color=self.color_bag.text_menu_active, enabled=False)})
 
 
   def select(self, active):
@@ -462,6 +463,7 @@ if __name__ == '__main__':
   import yaml
 
   from game_logic import GameLogic
+  from input_handler import InputKeyHandler
 
   # yaml config file
   cfg = yaml.safe_load(open("../config.yaml"))
@@ -476,9 +478,11 @@ if __name__ == '__main__':
   # menu
   canvas = CanvasMainMenu(screen)
 
-
   # game logic
   game_logic = GameLogic()
+
+  # key handler
+  input_handler_key = InputKeyHandler(objs=[game_logic]) 
 
   # add clock
   clock = pygame.time.Clock()
@@ -488,14 +492,14 @@ if __name__ == '__main__':
     for event in pygame.event.get():
 
       # input handling
-      game_logic.event_update(event)
-      canvas.event_update(event)
+      input_handler_key.event_update(event)
 
-    # frame update
-    game_logic.update()
+      # canvas event
+      canvas.event_update(event)
 
     # text update
     canvas.update()
+    canvas.draw()
 
     # update display
     pygame.display.flip()

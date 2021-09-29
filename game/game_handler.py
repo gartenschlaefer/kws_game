@@ -4,12 +4,9 @@ game handler
 
 import pygame
 
-from color_bag import ColorBag
-from interactable import Interactable
 from game_logic import GameLogic, ThingsGameLogic
 from menu import MainMenu, HelpMenu, OptionMenu
-from text import Text
-from levels import Level_01, Level_02
+from levels import Level_01, Level_02, LevelHandler
 
 # append paths
 import sys
@@ -90,12 +87,10 @@ class GameHandler():
 
     # level creation
     levels = [Level_01(self.screen, self.cfg['game']['screen_size'], self.mic), Level_02(self.screen, self.cfg['game']['screen_size'], self.mic)]
+    #levels = [Level_01(self.screen, self.cfg['game']['screen_size'], self.mic)]
 
-    # choose level
-    level = levels[0]
-
-    # game logic with dependencies
-    game_logic = ThingsGameLogic(level, levels)
+    # level handler
+    level_handler = LevelHandler(levels=levels, start_level=0)
 
     # add clock
     clock = pygame.time.Clock()
@@ -107,16 +102,14 @@ class GameHandler():
     with self.mic.stream:
 
       # game loop
-      while game_logic.run_loop:
+      while level_handler.runs():
         for event in pygame.event.get():
 
           # input handling
-          game_logic.event_update(event)
-          level.event_update(event)
+          level_handler.event_update(event)
 
         # frame update
-        level = game_logic.update()
-        level.update()
+        level_handler.update()
         self.screen_capturer.update()
 
         # update display
@@ -128,7 +121,7 @@ class GameHandler():
       # save video plus audio
       self.screen_capturer.save_video(self.mic)
 
-    return 'escape_game' if not game_logic.quit_game else 'exit'
+    return 'escape_game' if not level_handler.quit() else 'exit'
 
 
 if __name__ == '__main__':

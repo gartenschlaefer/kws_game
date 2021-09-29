@@ -6,7 +6,6 @@ import pygame
 import numpy as np
 
 from interactable import Interactable
-from input_handler import InputKeyHandler
 from color_bag import ColorBag
 from text import Text
 
@@ -29,17 +28,8 @@ class MicBar(Interactable):
     self.tick_length = tick_length
     self.min_db = min_db
 
-    # sprites group
-    #self.sprites = pygame.sprite.Group()
-
-    # bar sprite
-    #self.bar_sprite = BarSprite(self.mic, position, bar_size=self.bar_size, scale_margin=self.scale_margin, min_db=self.min_db)
-
     # colors
     self.color_bag = ColorBag()
-
-    # input handler
-    self.input_handler = InputKeyHandler(self)
 
     # image size
     self.image_size = (self.bar_size[0] + self.scale_margin[0], self.bar_size[1] + self.scale_margin[1] * 2,)
@@ -84,9 +74,7 @@ class MicBar(Interactable):
     """
     if action key is pressed
     """
-
-    print("action")
-
+    print("action: -5")
     if self.act_length > 5: self.act_length -= 5
 
 
@@ -94,26 +82,8 @@ class MicBar(Interactable):
     """
     if enter key is pressed
     """
-    
-    print("enter")
-
+    print("enter: +5")
     if self.act_length < self.bar_size[1] - 5: self.act_length += 5
-
-
-  def reset(self):
-    """
-    reset stuff
-    """
-    pass
-    
-
-  def event_update(self, event):
-    """
-    event for mic bar
-    """
-
-    # event handling
-    self.input_handler.handle(event)
 
 
   def update(self):
@@ -207,9 +177,7 @@ if __name__ == '__main__':
 
   from classifier import Classifier
   from mic import Mic
-  from game_logic import GameLogic
   from levels import LevelMic
-
 
   # yaml config file
   cfg = yaml.safe_load(open("../config.yaml"))
@@ -234,14 +202,8 @@ if __name__ == '__main__':
   # init display
   screen = pygame.display.set_mode(cfg['game']['screen_size'])
 
-  # level creation
-  levels = [LevelMic(screen, cfg['game']['screen_size'], mic)]
-
-  # choose level
-  level = levels[0]
-
-  # game logic with dependencies
-  game_logic = GameLogic()
+  # level
+  level = LevelMic(screen, cfg['game']['screen_size'], mic)
 
   # add clock
   clock = pygame.time.Clock()
@@ -253,11 +215,10 @@ if __name__ == '__main__':
   with mic.stream:
 
     # game loop
-    while game_logic.run_loop:
+    while level.runs():
       for event in pygame.event.get():
 
         # input handling
-        game_logic.event_update(event)
         level.event_update(event)
 
       # frame update

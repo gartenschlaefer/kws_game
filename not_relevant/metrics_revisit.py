@@ -715,4 +715,10 @@ if __name__ == '__main__':
   #[mr.run_adv_loss(plot_path=plot_path, name='nn_adv_loss_{}'.format(mr.name_id)) for mr in metrics_revisits]
 
   # fakes
-  [mr.run_create_fakes(plot_path=plot_path, name='nn_adv_fakes_{}'.format(mr.name_id)) for mr in metrics_revisits]
+  #[mr.run_create_fakes(plot_path=plot_path, name='nn_adv_fakes_{}'.format(mr.name_id)) for mr in metrics_revisits]
+
+  # weights
+  #[mr.run_weights(plot_path=plot_path, name='nn_adv_weights_{}'.format(mr.name_id)) for mr in metrics_revisits]
+
+
+

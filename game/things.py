@@ -5,8 +5,6 @@ things class
 import pygame
 import pathlib
 
-from text import Text
-
 
 class Thing(pygame.sprite.Sprite):
   """
@@ -57,10 +55,7 @@ if __name__ == '__main__':
   """
   import yaml
 
-  from levels import LevelThings, Level_01
-  from text import Text
-  from game_logic import ThingsGameLogic
-
+  from levels import LevelThings, Level_01, LevelHandler
 
   # yaml config file
   cfg = yaml.safe_load(open("../config.yaml"))
@@ -77,29 +72,23 @@ if __name__ == '__main__':
   # level creation
   levels = [LevelThings(screen, cfg['game']['screen_size']), Level_01(screen, cfg['game']['screen_size'])]
 
-  # choose level
-  level = levels[0]
-
-  # game logic with dependencies
-  game_logic = ThingsGameLogic(level, levels)
+  # level handler
+  level_handler = LevelHandler(levels=levels)
 
   # add clock
   clock = pygame.time.Clock()
 
-
   # game loop
-  while game_logic.run_loop:
+  while level_handler.runs():
     for event in pygame.event.get():
       if event.type == pygame.QUIT: 
         run_loop = False
 
       # input handling
-      game_logic.event_update(event)
-      level.event_update(event)
+      level_handler.event_update(event)
 
     # frame update
-    level = game_logic.update()
-    level.update()
+    level_handler.update()
 
     # update display
     pygame.display.flip()

@@ -13,6 +13,7 @@ from color_bag import ColorBag
 from interactable import Interactable
 from game_logic import MenuGameLogic
 from canvas import Canvas, CanvasMainMenu, CanvasHelpMenu, CanvasOptionMenu
+from input_handler import InputKeyHandler
 
 
 class Menu(Interactable):
@@ -34,6 +35,12 @@ class Menu(Interactable):
 
     # game logic
     self.game_logic = MenuGameLogic(self)
+
+    # interactables
+    self.interactable_dict = {'game_logic': self.game_logic}
+
+    # key handler
+    self.interactable_dict.update({'input_key_handler': InputKeyHandler(objs=[self.game_logic])})
 
     # actual up down click
     self.ud_click = 0
@@ -97,22 +104,27 @@ class Menu(Interactable):
     """
 
     # reset run loop
-    self.game_logic.reset()
+    #self.game_logic.reset()
+    [interactable.reset() for interactable in self.interactable_dict.values()]
 
 
   def event_update(self, event):
     """
     event update
     """
+    [interactable.event_update(event) for interactable in self.interactable_dict.values()]
 
     # game logic
-    self.game_logic.event_update(event)
+    #self.game_logic.event_update(event)
 
 
   def update(self):
     """
     update menu
     """
+
+    # interactables
+    [interactable.update() for interactable in self.interactable_dict.values()]
 
     # canvas
     self.canvas.update()
@@ -629,9 +641,9 @@ if __name__ == '__main__':
 
   # menu
   #menu = Menu(cfg['game'], screen)
-  #menu = MainMenu(cfg['game'], screen)
+  menu = MainMenu(cfg['game'], screen)
   #menu = HelpMenu(cfg['game'], screen)
-  menu = OptionMenu(cfg['game'], screen, mic)
+  #menu = OptionMenu(cfg['game'], screen, mic)
 
   # run menu loop
   menu.menu_loop()

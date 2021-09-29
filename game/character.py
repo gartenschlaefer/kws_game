@@ -8,6 +8,7 @@ import pathlib
 from input_handler import InputKeyHandler
 from interactable import Interactable
 from moveable import Moveable
+from spritesheet import SpritesheetJim, SpritesheetBubbles
 
 
 class Character(Interactable, Moveable):
@@ -15,9 +16,10 @@ class Character(Interactable, Moveable):
   character class
   """
 
-  def __init__(self, position, scale=(3, 3), has_gravity=True, grid_move=False):
+  def __init__(self, surf, position, scale=(3, 3), has_gravity=True, grid_move=False):
 
     # arguments
+    self.surf = surf
     self.position = position
     self.scale = scale
     self.has_gravity = has_gravity
@@ -32,14 +34,17 @@ class Character(Interactable, Moveable):
     # save init pos
     self.init_pos = position
 
-    # input handler
-    self.input_handler = InputKeyHandler(self, grid_move=self.grid_move)
-
     # interactions
     self.obstacle_sprites = pygame.sprite.Group()
     self.thing_sprites = pygame.sprite.Group()
     self.things_collected = 0
     self.is_active = True
+
+    # sprites
+    self.sprites = pygame.sprite.Group()
+
+    # add character sprite
+    self.sprites.add(self.character_sprite)
 
 
   def define_character_sprite(self):
@@ -58,12 +63,18 @@ class Character(Interactable, Moveable):
     self.position = position
 
     # also set initial position
-    if is_init_pos:
-      self.init_pos = position
+    if is_init_pos: self.init_pos = position
 
     # set rect
     self.character_sprite.rect.x = self.position[0]
     self.character_sprite.rect.y = self.position[1]
+
+
+  def is_moveable(self):
+    """
+    moveable flag
+    """
+    return True
 
 
   def direction_change(self, direction):
@@ -110,15 +121,6 @@ class Character(Interactable, Moveable):
     self.set_position(self.init_pos)
 
 
-  def event_update(self, event):
-    """
-    event update for character
-    """
-
-    # event handling
-    self.input_handler.handle(event)
-
-
   def update(self):
     """
     update character
@@ -135,6 +137,16 @@ class Character(Interactable, Moveable):
 
     # interaction with things
     for thing in pygame.sprite.spritecollide(self.character_sprite, self.thing_sprites, True): self.things_collected += 1
+
+    # update sprites
+    self.sprites.update()
+
+
+  def draw(self):
+    """
+    draw all sprites of the character
+    """
+    self.sprites.draw(self.surf)
 
 
 
@@ -153,17 +165,20 @@ class CharacterSprite(pygame.sprite.Sprite):
     self.scale = scale
     self.anim_frame_update = anim_frame_update
 
+    # active
+    self.active = True
+
     # frame
     self.anim_frame = 0
 
     # sprite index
     self.sprite_index = 0
 
-    # actual view
-    self.view = 'front'
-
     # define sprite dictionary
     self.sprite_dict = self.define_sprite_dictionary()
+
+    # actual view
+    self.view = list(self.sprite_dict.keys())[0]
 
     # subset of sprites
     self.view_sprites = self.sprite_dict[self.view]
@@ -283,11 +298,88 @@ class Jim(Character):
   Jim the shovelnaut
   """
 
+  def __init__(self, surf, position, scale=(3, 3), has_gravity=True, grid_move=False):
+
+    # Parent init
+    super().__init__(surf, position, scale, has_gravity, grid_move)
+
+    # bubble sprite
+    self.bubble_sprite = BubbleSprite(position, scale)
+
+    # deactivate bubble sprite
+    self.bubble_sprite.active = False
+
+    # active frames
+    self.bubble_active_frames = 45
+    self.bubble_frame = self.bubble_active_frames
+
+    # activate bubble
+    self.activate_bubble_sprite(view='question', activate=False)
+
+
+  def activate_bubble_sprite(self, view='question', activate=True):
+    """
+    activate bubble
+    """
+
+    # change view
+    self.bubble_sprite.change_view_sprites(view)
+
+    # add or remove sprite
+    self.sprites.add(self.bubble_sprite) if activate else self.sprites.remove(self.bubble_sprite)
+    self.bubble_sprite.active = activate
+    self.bubble_frame = self.bubble_active_frames
+
+
   def define_character_sprite(self):
     """
     use jim sprite
     """
     return JimSprite(self.position, self.scale)
+
+
+  def actions(self, action):
+    """
+    other actions
+    """
+
+
+  def speech_command(self, command):
+    """
+    speech command
+    """
+    if command == '_noise': self.activate_bubble_sprite(view='rubbish', activate=True)
+    elif command == '_mixed': self.activate_bubble_sprite(view='question', activate=True)
+
+
+  def update(self):
+    """
+    update character
+    """
+
+    # not active
+    if not self.is_active: return
+
+    # reduce active count
+    if self.bubble_sprite.active: 
+      self.bubble_frame -= 1
+      if not self.bubble_frame: self.activate_bubble_sprite(activate=False)
+
+    # move player with movement class
+    self.move_update()
+
+    # bubble possition
+    self.bubble_sprite.rect.x = self.character_sprite.rect.x - 26
+    self.bubble_sprite.rect.y = self.character_sprite.rect.y - 30
+
+    # update of character view
+    self.view_update()
+
+    # interaction with things
+    for thing in pygame.sprite.spritecollide(self.character_sprite, self.thing_sprites, True): self.things_collected += 1
+
+    # update character sprite
+    self.sprites.update()
 
 
 
@@ -301,10 +393,28 @@ class JimSprite(CharacterSprite):
     sprite sheet to dictionary
     """
 
-    from spritesheet import SpritesheetJim
-
     # init sprite sheet
     self.spritesheet = SpritesheetJim(scale=self.scale)
+      
+    # sprite dict
+    sprite_dict = self.spritesheet.sprite_dict
+
+    return sprite_dict
+
+
+
+class BubbleSprite(CharacterSprite):
+  """
+  character sprite class
+  """
+
+  def define_sprite_dictionary(self):
+    """
+    sprite sheet to dictionary
+    """
+
+    # init sprite sheet
+    self.spritesheet = SpritesheetBubbles(scale=self.scale)
       
     # sprite dict
     sprite_dict = self.spritesheet.sprite_dict
@@ -319,12 +429,23 @@ if __name__ == '__main__':
   """
 
   import yaml
-
   from levels import LevelCharacter
-  from game_logic import GameLogic
+
+  # append paths
+  import sys
+  sys.path.append("../")
+
+  from classifier import Classifier
+  from mic import Mic
 
   # yaml config file
   cfg = yaml.safe_load(open("../config.yaml"))
+
+  # create classifier
+  classifier = Classifier(cfg_classifier=cfg['classifier'], root_path='../')
+
+  # create mic instance
+  mic = Mic(classifier=classifier, mic_params=cfg['mic_params'], is_audio_record=False)
 
   # init pygame
   pygame.init()
@@ -333,37 +454,35 @@ if __name__ == '__main__':
   screen = pygame.display.set_mode(cfg['game']['screen_size'])
 
   # level creation
-  level = LevelCharacter(screen, cfg['game']['screen_size'])
-
-  # game logic
-  game_logic = GameLogic()
+  level = LevelCharacter(screen, cfg['game']['screen_size'], mic=mic)
 
   # add clock
   clock = pygame.time.Clock()
 
-  # game loop
-  while game_logic.run_loop:
-    for event in pygame.event.get():
-      if event.type == pygame.QUIT: 
-        run_loop = False
+  # init stream
+  mic.init_stream()
 
-      # input handling
-      game_logic.event_update(event)
-      level.event_update(event)
+  # stream and update
+  with mic.stream:
 
-    # frame update
-    game_logic.update()
-    level.update()
+    # game loop
+    while level.runs():
+      for event in pygame.event.get():
+        if event.type == pygame.QUIT: 
+          run_loop = False
 
-    # update display
-    pygame.display.flip()
+        # level event update
+        level.event_update(event)
 
-    # reduce frame rate
-    clock.tick(cfg['game']['fps'])
+      # frame update
+      level.update()
+
+      # update display
+      pygame.display.flip()
+
+      # reduce frame rate
+      clock.tick(cfg['game']['fps'])
 
   # end pygame
   pygame.quit()
-
-
-
 

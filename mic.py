@@ -65,7 +65,7 @@ class Mic():
 
     # show devices
     print("\ndevice list: \n", sd.query_devices())
-    print("\ninput devs: ", self.input_dev_dict.keys())
+    print("\ninput device ids: ", self.input_dev_dict.keys())
 
     # energy threshold in lin scale
     self.energy_thresh = 10**(self.mic_params['energy_thresh_db'] / 10)

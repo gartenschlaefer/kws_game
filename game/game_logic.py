@@ -19,16 +19,14 @@ class GameLogic(Interactable):
     self.end_game = False
     self.run_loop = True
     self.quit_game = False
-
-    # add input handler
-    self.input_handler = InputKeyHandler(self)
+    self.complete = False
 
 
   def check_win_condition(self):
     """
     move character to position
     """
-    pass
+    if self.complete: self.end_game, self.run_loop = True, False
 
 
   def check_loose_condition(self):
@@ -52,6 +50,7 @@ class GameLogic(Interactable):
 
     # end loop
     self.run_loop = False
+    self.complete = True
 
 
   def event_update(self, event):
@@ -61,9 +60,27 @@ class GameLogic(Interactable):
 
     # quit game
     if event.type == pygame.QUIT: self.run_loop, self.quit_game = False, True
-    
-    # input handling
-    self.input_handler.handle(event)
+
+
+  def update(self):
+    """
+    update game logic
+    """
+
+    # check win condition
+    self.check_win_condition()
+
+
+  def reset(self):
+    """
+    reset
+    """
+
+    # reset vars
+    self.end_game = False
+    self.run_loop = True
+    self.quit_game = False
+    self.complete = False
 
 
 
@@ -72,17 +89,13 @@ class ThingsGameLogic(GameLogic):
   Game Logic for things.py
   """
 
-  def __init__(self, level, levels):
+  def __init__(self, level):
 
     # parent init
     super().__init__()
 
     # vars
     self.level = level
-    self.levels = levels
-
-    # level id always start with zero
-    self.level_id = 0
 
 
   def check_win_condition(self):
@@ -90,8 +103,8 @@ class ThingsGameLogic(GameLogic):
     move character to position
     """
 
-    # henry found the things
-    if self.level.interactable_dict['henry'].things_collected if 'henry' in self.level.interactable_dict.keys() else False:
+    # character found the things
+    if self.level.interactable_dict['character'].things_collected if 'character' in self.level.interactable_dict.keys() else False:
 
       # win the level
       self.level.win()
@@ -119,28 +132,11 @@ class ThingsGameLogic(GameLogic):
     
     if self.end_game:
 
-      # update level id
-      self.level_id += 1
-
-      # clamp level id
-      if self.level_id >= len(self.levels): self.level_id = 0
-
       # restart
       self.restart_game()
 
-      # new level
-      self.level = self.levels[self.level_id]
-
-
-  def update(self):
-    """
-    update game logic
-    """
-
-    # check win condition
-    self.check_win_condition()
-
-    return self.level
+      # level complete
+      self.complete = True
 
 
 
@@ -159,6 +155,16 @@ class MenuGameLogic(GameLogic):
 
     # exit with escape key
     self.esc_key_exit = False
+
+    # for input handler
+    self.grid_move = False
+
+
+  def is_moveable(self):
+    """
+    moveable flag
+    """
+    return True
 
 
   def direction_change(self, direction):

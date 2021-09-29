@@ -107,7 +107,6 @@ if __name__ == '__main__':
   from levels import Level_01, Level_02
   from classifier import Classifier
   from mic import Mic
-  from text import Text
 
 
   # yaml config file

@@ -58,10 +58,37 @@ class SpritesheetJim(Spritesheet):
     # init cut dict
     cut_dict = {}
 
-    # jim
-    cut_dict.update({'front': [(i*16, 0, 16, 16) for i in range(2)]})
-    cut_dict.update({'side-l': [(i*16, 0, 16, 16) for i in range(2)]})
-    cut_dict.update({'side-r': [(i*16, 16, 16, 16) for i in range(2)]})
+    # jim sprite cuts
+    cut_dict.update({'front': [(i*16, 0, 16, 16) for i in range(1, 2)]})
+    cut_dict.update({'side-l': [(i*16, 1*16, 16, 16) for i in range(4)]})
+    cut_dict.update({'side-r': [(i*16, 2*16, 16, 16) for i in range(4)]})
+
+    return cut_dict
+
+
+
+class SpritesheetBubbles(Spritesheet):
+  """
+  spritesheet class of Jim
+  """
+
+  def __init__(self, scale=(2, 2)):
+    
+    # Parent init
+    super().__init__(file=str(pathlib.Path(__file__).parent.absolute()) + '/art/bubbles/bubbles_sprite.png', scale=scale)
+
+
+  def define_sprite_cuts(self):
+    """
+    define individual cuts of sprites
+    """
+
+    # init cut dict
+    cut_dict = {}
+
+    # jim sprite cuts
+    cut_dict.update({'question': [(i*16, 0, 16, 16) for i in range(0, 1)]})
+    cut_dict.update({'rubbish': [(i*16, 0, 16, 16) for i in range(1, 2)]})
 
     return cut_dict
 
@@ -75,6 +102,7 @@ if __name__ == '__main__':
   import yaml
 
   from game_logic import GameLogic
+  from input_handler import InputKeyHandler
 
   # yaml config file
   cfg = yaml.safe_load(open("../config.yaml"))
@@ -88,14 +116,21 @@ if __name__ == '__main__':
   # game logic
   game_logic = GameLogic()
 
+  # key handler
+  input_handler_key = InputKeyHandler(objs=[game_logic]) 
+
   # add clock
   clock = pygame.time.Clock()
 
-  # sprite sheet
+  # spritesheets
   spritesheet = SpritesheetJim()
+  spritesheet_bubbles = SpritesheetBubbles()
   
-  screen.blit(spritesheet.sprite_dict['left'][0], (0, 0))
-  screen.blit(spritesheet.sprite_dict['right'][0], (50, 50))
+  screen.blit(spritesheet.sprite_dict['side-l'][0], (0, 0))
+  screen.blit(spritesheet.sprite_dict['side-r'][0], (50, 50))
+
+  screen.blit(spritesheet_bubbles.sprite_dict['question'][0], (100, 50))
+  screen.blit(spritesheet_bubbles.sprite_dict['rubbish'][0], (150, 50))
 
   # game loop
   while game_logic.run_loop:
@@ -105,6 +140,7 @@ if __name__ == '__main__':
 
       # input handling
       game_logic.event_update(event)
+      input_handler_key.event_update(event)
 
     # frame update
     game_logic.update()

@@ -50,23 +50,18 @@ class MovableWall(Wall, Interactable, Moveable):
   a movable wall
   """
 
-  def __init__(self, grid_pos, color=(10, 200, 200), size=(20, 20), grid_move=False, mic_control=False, mic=None):
-
-    # vars
-    self.grid_pos = grid_pos
-    self.grid_move = grid_move
-    self.mic_control = mic_control
-    self.mic = mic
+  def __init__(self, grid_pos, color=(10, 200, 200), size=(20, 20), grid_move=False):
 
     # parent init
     super().__init__(np.array(grid_pos)*size, color, size)
 
+    # arguments
+    self.grid_pos = grid_pos
+    self.grid_move = grid_move
+
     # moveable init
     Moveable.__init__(self, move_sprite=self, move_rect=self.rect, move_speed=[3, 3], has_gravity=False, grid_move=self.grid_move)
     
-    # input handler
-    self.input_handler = InputMicHandler(self, mic=self.mic, grid_move=self.grid_move) if self.mic_control and mic is not None else InputKeyHandler(self, grid_move=self.grid_move)
-
     # interactions
     self.obstacle_sprites = pygame.sprite.Group()
     self.is_active = True
@@ -83,8 +78,32 @@ class MovableWall(Wall, Interactable, Moveable):
     """
     set grid
     """
-
     self.move_wall_grid = grid
+
+
+  def is_moveable(self):
+    """
+    moveable flag
+    """
+    return True
+
+
+  def speech_command(self, command):
+    """
+    speech command
+    """
+
+    # direction
+    if command == 'left': self.direction_change([-1, 0])
+    elif command == 'right': self.direction_change([1, 0])
+    elif command == 'up': self.direction_change([0, -1])
+    elif command == 'down': self.direction_change([0, 1])
+
+    # action
+    elif command == 'go': self.action_key()
+
+    # remove this++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    #elif command == '_noise': self.direction_change([0, -1]), print("move wall")
 
 
   def direction_change(self, direction):
@@ -94,14 +113,6 @@ class MovableWall(Wall, Interactable, Moveable):
 
     # update move direction in Movable class
     self.update_move_direction(direction)
-
-
-  def action_key(self):
-    """
-    if action key is pressed
-    """
-
-    self.is_active = not self.is_active
 
 
   def reset(self):
@@ -142,8 +153,7 @@ class MovableWall(Wall, Interactable, Moveable):
     """
 
     # not active
-    if not self.is_active:
-      return
+    if not self.is_active: return
 
     # move update
     self.move_update()
@@ -156,6 +166,7 @@ if __name__ == '__main__':
   """
 
   import yaml
+  from game_logic import GameLogic
 
   # append paths
   import sys
@@ -163,7 +174,6 @@ if __name__ == '__main__':
 
   from classifier import Classifier
   from mic import Mic
-  from game_logic import GameLogic
 
   # yaml config file
   cfg = yaml.safe_load(open("../config.yaml"))
@@ -193,19 +203,24 @@ if __name__ == '__main__':
   wall = Wall(position=(cfg['game']['screen_size'][0]//2, cfg['game']['screen_size'][1]//4))
 
   # create movable walls
-  move_wall = MovableWall(grid_pos=[10, 10], color=(10, 100, 100), grid_move=True, mic_control=False)
-  move_wall_mic = MovableWall(grid_pos=[12, 12], color=(10, 100, 100), grid_move=True, mic_control=True, mic=mic)
+  move_wall = MovableWall(grid_pos=[10, 10], color=(10, 100, 100), grid_move=True)
+  move_wall_mic = MovableWall(grid_pos=[12, 12], color=(10, 100, 100), grid_move=True)
+  move_wall_mic2 = MovableWall(grid_pos=[15, 15], color=(10, 100, 50), grid_move=True)
 
   # add to sprite groups
-  all_sprites.add(wall, move_wall, move_wall_mic)
+  all_sprites.add(wall, move_wall, move_wall_mic, move_wall_mic2)
   wall_sprites.add(wall)
 
-  # henry sees walls
-  move_wall.obstacle_sprites.add(wall_sprites, move_wall_mic)
+  # obstacles
+  move_wall.obstacle_sprites.add(wall_sprites, move_wall_mic, move_wall_mic2)
   move_wall_mic.obstacle_sprites.add(wall_sprites, move_wall)
 
   # game logic
   game_logic = GameLogic()
+
+  # key handler
+  input_handler_key = InputKeyHandler(objs=[game_logic, move_wall]) 
+  input_handler_mic = InputMicHandler(objs=[move_wall_mic, move_wall_mic2], mic=mic)
 
   # add clock
   clock = pygame.time.Clock()
@@ -222,10 +237,10 @@ if __name__ == '__main__':
 
         # input handling
         game_logic.event_update(event)
-        move_wall.input_handler.handle(event)
+        input_handler_key.event_update(event)
       
       # mic update
-      move_wall_mic.input_handler.handle(None)
+      input_handler_mic.update()
 
       # update
       all_sprites.update()

@@ -71,7 +71,8 @@ if __name__ == '__main__':
   import yaml
 
   from game_logic import GameLogic
-  
+  from input_handler import InputKeyHandler
+
   # yaml config file
   cfg = yaml.safe_load(open("../config.yaml"))
 
@@ -87,6 +88,9 @@ if __name__ == '__main__':
   # game logic
   game_logic = GameLogic()
 
+  # key handler
+  input_handler_key = InputKeyHandler(objs=[game_logic]) 
+
   # add clock
   clock = pygame.time.Clock()
 
@@ -96,6 +100,7 @@ if __name__ == '__main__':
 
       # input handling
       game_logic.event_update(event)
+      input_handler_key.event_update(event)
 
     # frame update
     game_logic.update()

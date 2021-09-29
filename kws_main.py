@@ -16,7 +16,6 @@ sys.path.append("./game")
 # game stuff
 from game_logic import ThingsGameLogic
 from levels import Level_01, Level_02
-from text import Text
 
 
 if __name__ == '__main__':
@@ -49,9 +48,6 @@ if __name__ == '__main__':
 
   # init screen capturer
   screen_capturer = ScreenCapturer(screen, cfg['game'])
-
-  # text
-  #text = Text(screen)
 
   # level creation
   levels = [Level_01(screen, cfg['game']['screen_size'], mic), Level_02(screen, cfg['game']['screen_size'], mic)]

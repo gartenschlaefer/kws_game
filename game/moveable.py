@@ -90,15 +90,8 @@ class Moveable():
     update movable wall moves
     """
 
-    if self.grid_move:
-
-      # perform a grid move
-      self.move_grid()
-
-    else:
-      
-      # move constantly
-      self.move_const()
+    # perform a grid move or const move
+    self.move_grid() if self.grid_move else self.move_const()
 
 
   def move_const(self):
@@ -117,18 +110,11 @@ class Moveable():
       for obst in pygame.sprite.spritecollide(self.move_sprite, self.obstacle_sprites, False):
 
         # stand at wall
-        if move_change_x > 0:
-          self.move_rect.right = obst.rect.left
-
-        else:
-          self.move_rect.left = obst.rect.right
-
+        if move_change_x > 0: self.move_rect.right = obst.rect.left
+        else: self.move_rect.left = obst.rect.right
 
       # y gravity
-      if self.has_gravity:
-
-        # calculate gravity
-        self.calc_gravity()
+      if self.has_gravity: self.calc_gravity()
 
     except:
       print("no collisions implemented")

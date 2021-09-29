@@ -7,6 +7,20 @@ class Interactable():
   Interactable interface class
   """
 
+  def speech_command(self, command):
+    """
+    speech command from mic
+    """
+    pass
+
+
+  def is_moveable(self):
+    """
+    moveable flag
+    """
+    return False
+    
+
   def direction_change(self, direction):
     """
     move direction
@@ -61,8 +75,3 @@ class Interactable():
     draw
     """
     pass
-
-
-
-
-
