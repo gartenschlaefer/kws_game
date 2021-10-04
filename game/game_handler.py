@@ -116,7 +116,7 @@ class GameHandler():
         pygame.display.flip()
 
         # reduce framerate
-        clock.tick(cfg['game']['fps'])
+        clock.tick(self.cfg['game']['fps'])
 
       # save video plus audio
       self.screen_capturer.save_video(self.mic)

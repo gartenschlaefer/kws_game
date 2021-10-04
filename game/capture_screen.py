@@ -6,6 +6,9 @@ import pygame
 import os
 import soundfile
 
+# append paths
+import sys
+sys.path.append("../")
 from common import create_folder, delete_files_in_path
 
 
@@ -50,8 +53,7 @@ class ScreenCapturer():
     """
 
     # return if deactivated
-    if not self.cfg_game['capture_enabled']:
-      return
+    if not self.cfg_game['capture_enabled']: return
 
     # add image to container
     if self.downsample_count >= self.downsample:
@@ -69,20 +71,13 @@ class ScreenCapturer():
     """
 
     # return if deactivated
-    if not self.cfg_game['capture_enabled']:
-      return
+    if not self.cfg_game['capture_enabled']: return
 
-    # restore all images and save them
-    for i, frame in enumerate(self.frame_container):
+    # save frames
+    [pygame.image.save(pygame.image.fromstring(frame, (self.screen_size[0], self.screen_size[1]), 'RGB'), '{}{}{}.png'.format(self.paths['frame_path'], self.frame_name, i)) for i, frame in enumerate(self.frame_container)]
 
-      # save image
-      pygame.image.save(pygame.image.fromstring(frame, (self.screen_size[0], self.screen_size[1]), 'RGB'), '{}{}{}.png'.format(self.paths['frame_path'], self.frame_name, i))
-
-    # audio
-    if mic is not None:
-
-      # save audio
-      soundfile.write('{}out_audio.wav'.format(self.paths['capture_path']), mic.collector.x_all, mic.feature_params['fs'], subtype=None, endian=None, format=None, closefd=True)
+    # save audio
+    if mic is not None: soundfile.write('{}out_audio.wav'.format(self.paths['capture_path']), mic.collector.x_all, mic.feature_params['fs'], subtype=None, endian=None, format=None, closefd=True)
 
     # convert to video format
     try:
@@ -98,22 +93,18 @@ if __name__ == '__main__':
 
   import yaml
   
-  # append paths
-  import sys
-  sys.path.append("./game")
-
   # game stuff
   from game_logic import ThingsGameLogic
-  from levels import Level_01, Level_02
+  from levels import Level_01, Level_02, LevelHandler
   from classifier import Classifier
   from mic import Mic
 
 
   # yaml config file
-  cfg = yaml.safe_load(open("./config.yaml"))
+  cfg = yaml.safe_load(open("../config.yaml"))
 
   # create classifier
-  classifier = Classifier(cfg_classifier=cfg['classifier'])
+  classifier = Classifier(cfg_classifier=cfg['classifier'], root_path='../')
 
   # create mic instance
   mic = Mic(classifier=classifier, mic_params=cfg['mic_params'], is_audio_record=True)
@@ -129,16 +120,13 @@ if __name__ == '__main__':
   screen = pygame.display.set_mode(cfg['game']['screen_size'])
 
   # init screen capturer
-  screen_capturer = ScreenCapturer(screen, cfg['game'])
+  screen_capturer = ScreenCapturer(screen, cfg['game'], root_path='./')
 
   # level creation
   levels = [Level_01(screen, cfg['game']['screen_size'], mic)]
 
-  # choose level
-  level = levels[0]
-
-  # game logic with dependencies
-  game_logic = ThingsGameLogic(level, levels)
+  # level handler
+  level_handler = LevelHandler(levels=levels, start_level=0)
 
   # add clock
   clock = pygame.time.Clock()
@@ -150,18 +138,15 @@ if __name__ == '__main__':
   with mic.stream:
 
     # game loop
-    while game_logic.run_loop:
+    while level_handler.runs():
       for event in pygame.event.get():
 
         # input handling
-        game_logic.event_update(event)
-        level.event_update(event)
+        level_handler.event_update(event)
 
       # frame update
-      level = game_logic.update()
-      level.update()
+      level_handler.update()
       screen_capturer.update()
-
 
       # update display
       pygame.display.flip()

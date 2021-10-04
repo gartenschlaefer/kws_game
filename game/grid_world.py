@@ -166,7 +166,7 @@ class GridWorld(Interactable):
     """
     move character to position
     """
-    [move_wall.speech_command(command) for move_wall in self.move_walls if move_wall.is_active]
+    self.action_key() if command == 'go' else [move_wall.speech_command(command) for move_wall in self.move_walls if move_wall.is_active]
 
 
   def direction_change(self, direction):

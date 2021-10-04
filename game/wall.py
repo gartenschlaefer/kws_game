@@ -99,12 +99,6 @@ class MovableWall(Wall, Interactable, Moveable):
     elif command == 'up': self.direction_change([0, -1])
     elif command == 'down': self.direction_change([0, 1])
 
-    # action
-    elif command == 'go': self.action_key()
-
-    # remove this++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    #elif command == '_noise': self.direction_change([0, -1]), print("move wall")
-
 
   def direction_change(self, direction):
     """

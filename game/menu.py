@@ -293,14 +293,13 @@ class OptionMenu(Menu):
   main menu
   """
 
-  def __init__(self, cfg_game, screen, mic, root_path='./'):
+  def __init__(self, cfg_game, screen, mic):
 
     # Parent init
     super().__init__(cfg_game, screen)
 
     # arguments
     self.mic = mic
-    self.root_path = root_path
 
     # canvas
     self.canvas = CanvasOptionMenu(self.screen, self.mic)
@@ -310,9 +309,6 @@ class OptionMenu(Menu):
 
     # menu buttons selection enable
     self.menu_button_sel_enable = True
-
-    # user settings file
-    self.user_setting_file = self.root_path + self.cfg_game['user_setting_file']
 
 
   def define_state_dicts(self):
@@ -338,11 +334,6 @@ class OptionMenu(Menu):
     clock = pygame.time.Clock()
 
     while self.game_logic.run_loop:
-
-      print("new mic loop")
-
-      # user settings
-      self.mic.load_user_settings(self.user_setting_file)
 
       # init stream
       self.mic.init_stream(enable_stream=self.mic.change_device_flag)
@@ -583,13 +574,13 @@ class OptionMenu(Menu):
     print("save user-settings")
 
     # load user settings
-    user_settings = yaml.safe_load(open(self.user_setting_file)) if os.path.isfile(self.user_setting_file) else {}
+    user_settings = yaml.safe_load(open(self.mic.user_settings_file)) if os.path.isfile(self.mic.user_settings_file) else {}
 
     # update energy thres
     user_settings.update({'energy_thresh_db': e})
 
     # write file
-    with open(self.cfg_game['user_setting_file'], 'w') as f:
+    with open(self.cfg_game['user_settings_file'], 'w') as f:
       yaml.dump(user_settings, f)
 
 
@@ -601,13 +592,13 @@ class OptionMenu(Menu):
     print("save user-settings")
 
     # load user settings
-    user_settings = yaml.safe_load(open(self.user_setting_file)) if os.path.isfile(self.user_setting_file) else {}
+    user_settings = yaml.safe_load(open(self.mic.user_settings_file)) if os.path.isfile(self.mic.user_settings_file) else {}
 
     # update energy thres
     user_settings.update({'select_device': True, 'device': device})
 
     # write file
-    with open(self.cfg_game['user_setting_file'], 'w') as f:
+    with open(self.cfg_game['user_settings_file'], 'w') as f:
       yaml.dump(user_settings, f)
 
 

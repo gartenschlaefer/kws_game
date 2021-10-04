@@ -33,6 +33,9 @@ class Mic():
     self.is_audio_record = is_audio_record
     self.root_path = root_path
 
+    # user settings
+    self.user_settings_file = self.root_path + self.mic_params['user_settings_file']
+
     # plot path
     self.plot_path = self.root_path + self.mic_params['plot_path']
 
@@ -80,13 +83,13 @@ class Mic():
     self.stream_active = False
 
 
-  def load_user_settings(self, user_setting_file):
+  def load_user_settings(self, user_settings_file):
     """
     load user settings like device and energy threshold
     """
 
     # load user settings
-    user_settings = yaml.safe_load(open(user_setting_file)) if os.path.isfile(user_setting_file) else {}
+    user_settings = yaml.safe_load(open(user_settings_file)) if os.path.isfile(user_settings_file) else {}
 
     # update mic params
     self.mic_params.update(user_settings)
@@ -98,11 +101,18 @@ class Mic():
     self.energy_thresh = 10**(self.mic_params['energy_thresh_db'] / 10)
 
 
-  def init_stream(self, enable_stream=True):
+  def init_stream(self, enable_stream=True, load_user_settings_file=True):
     """
     init stream
     """
+
+    # load user settings
+    if load_user_settings_file: self.load_user_settings(self.user_settings_file)
+
+    # init stream
     self.stream = sd.InputStream(device=self.device, samplerate=self.mic_params['fs_device'], blocksize=int(self.hop * self.downsample), channels=self.mic_params['channels'], callback=self.callback_mic) if enable_stream else contextlib.nullcontext()
+    
+    # flags
     self.change_device_flag = False
     self.stream_active = True if enable_stream else False
 
@@ -265,8 +275,6 @@ class Mic():
     if not self.is_audio_record:
       print("***you did not set the record flag!")
       return
-
-    import soundfile
 
     # save audio
     soundfile.write('{}out_audio.wav'.format(self.plot_path), self.collector.x_all, self.feature_params['fs'], subtype=None, endian=None, format=None, closefd=True)

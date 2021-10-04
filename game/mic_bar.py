@@ -15,7 +15,7 @@ class MicBar(Interactable):
   graphical bar for microphone energy measure
   """
 
-  def __init__(self, surf, mic, position, bar_size=(20, 40), scale_margin=(10, 5), energy_frame_update=4, border=2, tick_length=10, min_db=-80):
+  def __init__(self, surf, mic, position, bar_size=(20, 40), scale_margin=(10, 5), border=2, tick_length=10, min_db=-80):
 
     # mic
     self.surf = surf
@@ -23,7 +23,6 @@ class MicBar(Interactable):
     self.position = position
     self.bar_size = bar_size
     self.scale_margin = scale_margin
-    self.energy_frame_update = energy_frame_update
     self.border = border
     self.tick_length = tick_length
     self.min_db = min_db
@@ -91,21 +90,14 @@ class MicBar(Interactable):
     update
     """
     
-    # debug
-    #self.update()
-    #return
-
     # read mic
     self.mic.read_mic_data()
 
     # frame update
-    if len(self.mic.collector.e_all) > self.energy_frame_update:
+    if self.mic.collector.e_q.full():
 
       # mean energy of frames
-      e_mu = np.mean(self.mic.collector.e_all)
-
-      # reset collection
-      self.mic.collector.reset_collection_all()
+      e_mu = np.mean(self.mic.collector.read_energy_collection())
 
       # set bar accordingly
       self.act_length = np.clip((10 * np.log10(e_mu) / (-1 * self.min_db) + 1) * self.total_length, a_min=0, a_max=self.total_length)
