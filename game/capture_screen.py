@@ -6,24 +6,34 @@ import pygame
 import os
 import soundfile
 
+from datetime import datetime
+from interactable import Interactable
+from input_handler import InputKeyHandler
+
 # append paths
 import sys
 sys.path.append("../")
 from common import create_folder, delete_files_in_path
 
 
-class ScreenCapturer():
+class ScreenCapturer(Interactable):
   """
   screen capture class for recording pygame screens
   """
 
   def __init__(self, screen, cfg_game, frame_name='frame', root_path='./'):
 
-    # arguments
+    # argumentsscreenshot_name
     self.screen = screen
     self.cfg_game = cfg_game
     self.frame_name = frame_name
     self.root_path = root_path
+
+    # vars
+    self.screenshot_name = 'screenshot_{}-'.format(datetime.now().strftime('%Y-%m-%d-%H:%M:%S'))
+
+    # input handler
+    self.input_handler = InputKeyHandler(objs=[self])
 
     # shortcuts
     self.screen_size = cfg_game['screen_size']
@@ -41,10 +51,26 @@ class ScreenCapturer():
     # vars
     self.actual_frame_num = 0
     self.frame_container = []
+    self.screenshot_container = []
 
     # downsample of fps
     self.downsample = 2
     self.downsample_count = 0
+
+
+  def event_update(self, event):
+    """
+    event update
+    """
+    self.input_handler.event_update(event)
+
+
+  def r_key(self):
+    """
+    r key pressed
+    """
+    print("screenshot")
+    self.screenshot_container.append(pygame.image.tostring(self.screen, 'RGB'))
 
 
   def update(self):
@@ -69,6 +95,9 @@ class ScreenCapturer():
     """
     save as video format
     """
+
+    # save screenshots
+    [pygame.image.save(pygame.image.fromstring(frame, (self.screen_size[0], self.screen_size[1]), 'RGB'), '{}{}{}.png'.format(self.paths['screenshot_path'], self.screenshot_name, i)) for i, frame in enumerate(self.screenshot_container)]
 
     # return if deactivated
     if not self.cfg_game['capture_enabled']: return
@@ -132,7 +161,7 @@ if __name__ == '__main__':
   clock = pygame.time.Clock()
 
   # init mic stream
-  mic.init_stream()
+  #mic.init_stream()
 
   # mic stream and update
   with mic.stream:
@@ -143,6 +172,7 @@ if __name__ == '__main__':
 
         # input handling
         level_handler.event_update(event)
+        screen_capturer.event_update(event)
 
       # frame update
       level_handler.update()

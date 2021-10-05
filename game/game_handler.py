@@ -107,6 +107,7 @@ class GameHandler():
 
           # input handling
           level_handler.event_update(event)
+          self.screen_capturer.event_update(event)
 
         # frame update
         level_handler.update()
@@ -122,6 +123,7 @@ class GameHandler():
       self.screen_capturer.save_video(self.mic)
 
     return 'escape_game' if not level_handler.quit() else 'exit'
+
 
 
 if __name__ == '__main__':

@@ -28,30 +28,29 @@ class InputKeyHandler(InputHandler):
     handle keyboard inputs
     """
 
-    for obj in self.objs:
+    # key down
+    if event.type == pygame.KEYDOWN:
 
-      # key down
-      if event.type == pygame.KEYDOWN:
+      # movement      
+      if event.key == pygame.K_LEFT or event.key == pygame.K_a: [obj.direction_change([-1, 0]) for obj in self.objs if obj.is_moveable()]
+      elif event.key == pygame.K_RIGHT or event.key == pygame.K_d: [obj.direction_change([1, 0]) for obj in self.objs if obj.is_moveable()]
+      if event.key == pygame.K_UP or event.key == pygame.K_w: [obj.direction_change([0, -1]) for obj in self.objs if obj.is_moveable()]
+      elif event.key == pygame.K_DOWN or event.key == pygame.K_s: [obj.direction_change([0, 1]) for obj in self.objs if obj.is_moveable()]
 
-        if obj.is_moveable():
-          if event.key == pygame.K_LEFT or event.key == pygame.K_a: obj.direction_change([-1, 0])
-          elif event.key == pygame.K_RIGHT or event.key == pygame.K_d: obj.direction_change([1, 0])
-          if event.key == pygame.K_UP or event.key == pygame.K_w: obj.direction_change([0, -1])
-          elif event.key == pygame.K_DOWN or event.key == pygame.K_s: obj.direction_change([0, 1])
+      # jump button
+      if event.key == pygame.K_SPACE: [obj.action_key() for obj in self.objs]
+      if event.key == pygame.K_RETURN: [obj.enter_key() for obj in self.objs]
+      if event.key == pygame.K_ESCAPE: [obj.esc_key() for obj in self.objs]
+      if event.key == pygame.K_r: [obj.r_key() for obj in self.objs]
 
-        # jump button
-        if event.key == pygame.K_SPACE: obj.action_key()
-        if event.key == pygame.K_RETURN: obj.enter_key()
-        if event.key == pygame.K_ESCAPE: obj.esc_key()
+    # key up
+    elif event.type == pygame.KEYUP:
 
-      # key up
-      elif event.type == pygame.KEYUP and obj.is_moveable():
-
-        if not obj.grid_move:
-          if event.key == pygame.K_LEFT or event.key == pygame.K_a: obj.direction_change([1, 0])
-          elif event.key == pygame.K_RIGHT or event.key == pygame.K_d: obj.direction_change([-1, 0])
-          if event.key == pygame.K_UP or event.key == pygame.K_w: obj.direction_change([0, 1])
-          elif event.key == pygame.K_DOWN or event.key == pygame.K_s: obj.direction_change([0, -1])
+      #if not obj.grid_move:
+      if event.key == pygame.K_LEFT or event.key == pygame.K_a: [obj.direction_change([1, 0]) for obj in self.objs if obj.is_moveable() and not obj.grid_move]
+      elif event.key == pygame.K_RIGHT or event.key == pygame.K_d: [obj.direction_change([-1, 0]) for obj in self.objs if obj.is_moveable() and not obj.grid_move]
+      if event.key == pygame.K_UP or event.key == pygame.K_w: [obj.direction_change([0, 1]) for obj in self.objs if obj.is_moveable() and not obj.grid_move]
+      elif event.key == pygame.K_DOWN or event.key == pygame.K_s: [obj.direction_change([0, -1]) for obj in self.objs if obj.is_moveable() and not obj.grid_move]
 
 
 
@@ -71,30 +70,11 @@ class InputMicHandler(InputHandler):
 
   def update(self):
     """
-    handle keyboard inputs
+    handle mic inputs
     """
 
     # get command
     command = self.mic.update_read_command()
 
     # interpret command
-    if command is not None:
-
-      for obj in self.objs:
-
-        print("obj: {}, mic command: {}".format(obj.__class__.__name__, command))
-        obj.speech_command(command)
-
-        # # direction
-        # if command == 'left': obj.direction_change([-1, 0])
-        # elif command == 'right': obj.direction_change([1, 0])
-        # elif command == 'up': obj.direction_change([0, -1])
-        # elif command == 'down': obj.direction_change([0, 1])
-
-        # # action
-        # elif command == 'go': obj.action_key()
-
-        # # other actions
-        # elif command == '_noise' or command == '_mixed': 
-        #   print("yeah")
-        #   obj.actions(action=command)
+    if command is not None: [(obj.speech_command(command), print("obj: {}, mic command: {}".format(obj.__class__.__name__, command))) for obj in self.objs]

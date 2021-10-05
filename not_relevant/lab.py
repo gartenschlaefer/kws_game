@@ -1,6 +1,17 @@
 # --
 # laboratory for unused functions, they may not even work
 
+import yaml
+import matplotlib.pyplot as plt
+import numpy as np
+import time
+
+import sys
+sys.path.append("../")
+
+from audio_dataset import AudioDataset
+
+
 def params():
   """
   normalize params and add noise used in ml
@@ -43,16 +54,10 @@ def similarity_measures(x1, x2):
   print("o1: ", o1), print("o2: ", o2), print("o3: ", o3), print("o4: ", o4), print("o5: ", o4)
 
 
-
-if __name__ == '__main__':
+def similarity_test():
   """
-  batching test
+  sim test
   """
-
-  import yaml
-  import matplotlib.pyplot as plt
-  from plots import plot_mfcc_only, plot_grid_images, plot_other_grid, plot_mfcc_profile, plot_mfcc_equal_aspect
-  from audio_dataset import AudioDataset
 
   # yaml config file
   cfg = yaml.safe_load(open("./config.yaml"))
@@ -85,3 +90,66 @@ if __name__ == '__main__':
 
   # similarity measure
   similarity_measures(x1, x2)
+
+
+def string_compare(x):
+  """
+  string compare
+  """
+  return 1 if x == 'left' else 0
+
+
+def dictionary_compare(x):
+  """
+  dictionary compare
+  """
+  return 1 if x == global_dict['left'] else 0
+
+
+def num_compare(x):
+  """
+  number compare
+  """
+  return 1 if x == 1 else 0
+
+
+
+def time_measure_callable(x, callback_f, n_samples=100):
+  """
+  time measurement with callable
+  """
+
+  # n measurements
+  delta_time_list = []
+
+  for i in range(n_samples):
+
+    # measure extraction time - start
+    start_time = time.time()
+
+    # callable function
+    callback_f(x)
+
+    # result of measured time difference
+    delta_time_list.append(time.time() - start_time)
+
+  # times
+  print("f: [{}] mean time: [{:.4e}]".format(callback_f.__name__, np.mean(delta_time_list)))
+
+
+if __name__ == '__main__':
+  """
+  lab main
+  """
+
+  # similarity test
+  #similarity_test()
+
+  # global dict
+  global_dict = {'left': 1}
+
+  # time compare
+  time_measure_callable('left', string_compare, n_samples=1000)
+  time_measure_callable(global_dict['left'], dictionary_compare, n_samples=1000)
+  time_measure_callable(1, num_compare, n_samples=1000)
+
