@@ -1,4 +1,4 @@
 credits:
 
-character drawn by Fabian
+henry character drawn by Fabian
 https://github.com/f431

@@ -10,6 +10,7 @@ from canvas import CanvasWin
 from input_handler import InputKeyHandler, InputMicHandler
 from game_logic import GameLogic, ThingsGameLogic
 from character import Character, Henry, Jim
+from text import Text
 
 
 class Level(Interactable):
@@ -339,6 +340,12 @@ class Level_01(LevelThings):
     # determine start position
     self.character.set_position(self.grid_world.grid_to_pos([5, 20]), is_init_pos=True)
     self.thing.set_position(self.grid_world.grid_to_pos([22, 18]), is_init_pos=True)
+
+    # add canvas
+    self.interactable_dict.update({
+      'level_text1': Text(self.screen, message='say "left", "right", etc. for movement', position=(50, 50), font_size='tiny_small', color=self.color_bag.text_level_background),
+      'level_text2': Text(self.screen, message='say "go" to switch blocks', position=(50, 80), font_size='tiny_small', color=self.color_bag.text_level_background)
+      })
 
 
   def setup_level(self):

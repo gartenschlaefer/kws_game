@@ -23,6 +23,7 @@ class ColorBag():
     self.text_win = (50, 100, 100)
     self.text_menu = (50, 100, 100)
     self.text_menu_active = (100, 50, 75)
+    self.text_level_background = (10, 100, 100)
 
     # mic bar
     #self.mic_bar_meter = (210, 100, 20)

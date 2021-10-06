@@ -19,11 +19,13 @@ More detailed descriptions of the individual sub systems are provided below.
 % online
 
 \subsection{Online System}
-The length of the FIFO buffer for input data storage, must be have at least the sample length of the speech command examples used to train the neural networks for classification.
-The recorded files in the speech command dataset have a length of \SI{1}{\second}, which is too much for the FIFO buffer and would make the classification of key words slower.
+The length of the FIFO buffer for input data storage, must have at least the sample length of the speech command examples that were used to train the neural networks for classification.
+The recorded files in the speech command dataset have a length of \SI{1}{\second}, which is too much for the FIFO buffer and would make the classification of key words significantly slower.
 In this thesis the length of a key word was restricted to \SI{500}{\milli\second} or 8000 samples, further some puffer samples are added for the detection of the highest energy region of the whole signal.
-Note that the input stream reads out the microphone data in chunk, where the length of each chunk was chosen to 160 samples, corresponding to exactly one frame with the hop size of \SI{10}{\milli\second}.S
-A more appropriate size for the FIFO buffer including puffer frames is about 75 frames, which is \SI{750}{\milli\second} or 12000 samples.
+Note that the input stream reads out the microphone data in chunk, where the length of each chunk was chosen to 160 samples, corresponding to exactly one frame with the hop size of \SI{10}{\milli\second}.
+Ideally those buffer chunks should not be necessary, but due to some networks, have problems with shift invariance, the buffer samples can improve the predictions.
+The selected buffer frames for the deployed game, was 5 frames for...
+%A more appropriate size for the FIFO buffer including puffer frames is about 75 frames, which is \SI{750}{\milli\second} or 12000 samples.
 
 The puffer frames are located prior and posterior to a key word onset.
 The prior puffer frames are collected consecutively from the audio stream and are updated to the prior puffer size in the FIFO. 
@@ -34,9 +36,9 @@ The feature extraction module computes the MFCCs and determines the highest ener
 The whole structure of the FIFO buffer is illustrated in \rfig{game_system_fifo}.
 \begin{figure}[!ht]
   \centering
-  \includegraphics[width=0.60\textwidth]{./6_game/figs/game_system_fifo}
+  \includegraphics[width=0.60\textwidth]{./6_game/figs/game_system_online}
   \caption{FIFO buffer structure for the online system.}
-  \label{fig:game_system_fifo}
+  \label{fig:game_system_online}
 \end{figure}
 \FloatBarrier
 \noindent
@@ -56,4 +58,13 @@ After the parameters are loaded, the classifier simply does an inference to the 
 
 The game action can be performed once a key word is present from the classification system.
 This for example can be implemented by using an input handler, similar to a keyboard input handler or event system, that is listening if a command is present and eliciting a corresponding action.
+A simple scheme of the classification system is shown in \rfig{game_system_classification}
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=0.65\textwidth]{./6_game/figs/game_system_classification}
+  \caption{Scheme of the classification system.}
+  \label{fig:game_system_classification}
+\end{figure}
+\FloatBarrier
+\noindent
 

@@ -229,6 +229,6 @@ The summary of the estimated operations are listed in \rtab{signal_mfcc_operatio
 \thesisStateNew
 MFCC are widely used for speech recognition tasks and perform very well, however the processing pipeline of MFCC has some disadvantages.
 One disadvantage is, as already mentioned, that MFCCs are not intended for visualization, because of their broad value space of individual MFCC coefficients.
-Another disadvantage is, that MFCC are not directly invertible to raw audio samples, because of the computation of the spectrogram.
-Inversion techniques for MFCCs exist, such as described in \cite{Boucheron2008}, but it is still a rough approximation.
-The inversion of MFCC would have been very interesting, when applied to generative neural networks, such as GANs.
+Another disadvantage is, that MFCC are not directly invertible to raw audio samples because of the computation of the spectrogram and its Mel band weighting.
+Inversion techniques for MFCCs exist, such as described in \cite{Boucheron2008}, however it is still very difficult to obtain good estimations if the phase information of the original signal is missing.
+The inversion of MFCC would have been very interesting, when applied to the outputs of generative neural networks, such as GANs.
