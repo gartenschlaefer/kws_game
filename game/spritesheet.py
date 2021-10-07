@@ -94,6 +94,116 @@ class SpritesheetBubbles(Spritesheet):
 
 
 
+class SpritesheetSpaceshipThing(Spritesheet):
+  """
+  spritesheet class of Jim
+  """
+
+  def __init__(self, scale=(2, 2)):
+    
+    # Parent init
+    super().__init__(file=str(pathlib.Path(__file__).parent.absolute()) + '/art/spaceship/spaceship_parts_spritesheet.png', scale=scale)
+
+
+  def define_sprite_cuts(self):
+    """
+    define individual cuts of sprites
+    """
+
+    # init cut dict
+    cut_dict = {}
+
+    # jim sprite cuts
+    cut_dict.update({'engine': [(i*16, 0, 16, 16) for i in range(4)]})
+    cut_dict.update({'stir': [(i*16, 16, 16, 16) for i in range(4)]})
+
+    return cut_dict
+
+
+
+class SpritesheetRenderer():
+  """
+  spritesheet renderer class
+  """
+
+  def __init__(self, anim_frame_update):
+
+    # arguments
+    self.anim_frame_update = anim_frame_update
+
+    # frame
+    self.anim_frame = 0
+
+    # sprite index
+    self.sprite_index = 0
+
+    # define sprite dictionary
+    self.sprite_dict = self.define_sprite_dictionary()
+
+    # actual view
+    self.view = list(self.sprite_dict.keys())[0]
+
+    # subset of sprites
+    self.view_sprites = self.sprite_dict[self.view]
+
+
+  def get_actual_sprite(self):
+    """
+    get actual sprite
+    """
+    return self.view_sprites[self.sprite_index]
+
+
+  def define_sprite_dictionary(self):
+    """
+    sprite sheet to dictionary (overwrite this)
+    """
+
+    # sprite dictionary
+    sprite_dict = {'not_implemented': None}
+
+    return sprite_dict
+
+
+  def change_view_sprites(self, view):
+    """
+    view must be in the set of the sprite dict
+    """
+
+    # safety check
+    if not view in self.sprite_dict.keys():
+      print("view of sprite is not in list: {}".format(view))
+      return
+
+    # view update
+    self.view = view
+
+    # view sprites update
+    self.view_sprites = self.sprite_dict[self.view]
+
+
+  def update_spritesheet_renderer(self):
+    """
+    update spritesheet rendering
+    """
+
+    # frame counts
+    self.anim_frame += 1
+
+    if self.anim_frame > self.anim_frame_update:
+
+      # update sprite index, reset anim frame
+      self.sprite_index += 1
+      self.anim_frame = 0
+
+    # loop animation
+    if self.sprite_index >= len(self.view_sprites): self.sprite_index = 0
+
+    # update image
+    #self.image = self.view_sprites[self.sprite_index]
+
+
+
 if __name__ == '__main__':
   """
   test character

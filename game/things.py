@@ -5,6 +5,8 @@ things class
 import pygame
 import pathlib
 
+from spritesheet import SpritesheetRenderer, SpritesheetSpaceshipThing
+
 
 class Thing(pygame.sprite.Sprite):
   """
@@ -13,7 +15,7 @@ class Thing(pygame.sprite.Sprite):
 
   def __init__(self, position, scale=(2, 2)):
 
-    # MRO check
+    # parent init
     super().__init__()
 
     # vars
@@ -49,19 +51,90 @@ class Thing(pygame.sprite.Sprite):
     self.rect.y = self.position[1]
 
 
+
+class SpaceshipThing(pygame.sprite.Sprite, SpritesheetRenderer):
+  """
+  spaceship thing
+  """
+
+  def __init__(self, position, scale, thing_type='engine', anim_frame_update=20):
+
+    # parent init
+    super().__init__()
+
+    # arguments
+    self.position = position
+    self.scale = scale
+    self.thing_type = thing_type
+    self.anim_frame_update = anim_frame_update
+
+    # spritesheet renderer init
+    SpritesheetRenderer.__init__(self, anim_frame_update=anim_frame_update)
+
+    # active
+    self.active = True
+
+    # image refs
+    self.image = self.get_actual_sprite()
+    self.rect = self.image.get_rect()
+
+    # set rect position
+    self.rect.x, self.rect.y = self.position[0], self.position[1]
+
+    # change sprite thing
+    self.change_view_sprites(view=self.thing_type)
+
+
+  def set_position(self, position, is_init_pos=False):
+    """
+    set position absolute
+    """
+
+    # set internal pos
+    self.position = position
+
+    # set rect
+    self.rect.x = self.position[0]
+    self.rect.y = self.position[1]
+
+
+  def define_sprite_dictionary(self):
+    """
+    sprite sheet to dictionary
+    """
+
+    # init sprite sheet
+    self.spritesheet = SpritesheetSpaceshipThing(scale=self.scale)
+      
+    # sprite dict
+    sprite_dict = self.spritesheet.sprite_dict
+
+    return sprite_dict
+
+
+  def update(self):
+    """
+    update of sprite
+    """
+
+    # update sprite sheet renderer
+    self.update_spritesheet_renderer()
+
+    # update
+    self.image = self.get_actual_sprite()
+
+
 if __name__ == '__main__':
   """
   test character
   """
+  
   import yaml
 
   from levels import LevelThings, Level_01, LevelHandler
 
   # yaml config file
   cfg = yaml.safe_load(open("../config.yaml"))
-
-  # grid
-  pixel_size = (20, 20)
 
   # init pygame
   pygame.init()
@@ -81,8 +154,6 @@ if __name__ == '__main__':
   # game loop
   while level_handler.runs():
     for event in pygame.event.get():
-      if event.type == pygame.QUIT: 
-        run_loop = False
 
       # input handling
       level_handler.event_update(event)
@@ -96,10 +167,5 @@ if __name__ == '__main__':
     # reduce framerate
     clock.tick(cfg['game']['fps'])
 
-
   # end pygame
   pygame.quit()
-
-
-
-

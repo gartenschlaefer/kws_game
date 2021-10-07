@@ -32,6 +32,13 @@ class Text(Interactable):
     self.render()
 
 
+  def set_active(self, active):
+    """
+    set active
+    """
+    self.enabled = active
+
+
   def get_font_size(self, font_size):
     """
     define font sizes

@@ -10,6 +10,7 @@ from canvas import CanvasWin
 from input_handler import InputKeyHandler, InputMicHandler
 from game_logic import GameLogic, ThingsGameLogic
 from character import Character, Henry, Jim
+from things import Thing, SpaceshipThing
 from text import Text
 
 
@@ -274,10 +275,9 @@ class LevelThings(LevelCharacter):
     # parent class init
     super().__init__(screen, screen_size, mic)
 
-    from things import Thing
-
     # create thing
-    self.thing = Thing(position=self.grid_world.grid_to_pos([22, 18]), scale=(2, 2))
+    #self.thing = Thing(position=self.grid_world.grid_to_pos([22, 18]), scale=(2, 2))
+    self.thing = SpaceshipThing(position=self.grid_world.grid_to_pos([22, 18]), scale=(2, 2))
 
     # add to sprites
     self.all_sprites.add(self.thing)
@@ -302,8 +302,8 @@ class LevelThings(LevelCharacter):
     win condition for level
     """
 
-    # deactivate henry
-    self.character.is_active = False
+    # inactivate objects
+    [interactable.set_active(False) for interactable in self.interactable_dict.values()]
 
     # activate win canvas
     self.interactable_dict['win_canvas'].enabled = True
@@ -386,6 +386,9 @@ class Level_02(LevelThings):
     # determine start position
     self.character.set_position(self.grid_world.grid_to_pos([22, 20]), is_init_pos=True)
     self.thing.set_position(self.grid_world.grid_to_pos([2, 5]), is_init_pos=True)
+
+    # other thing
+    self.thing.change_view_sprites(view='stir')
 
 
   def setup_level(self):

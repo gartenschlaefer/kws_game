@@ -7,6 +7,13 @@ class Interactable():
   Interactable interface class
   """
 
+  def set_active(self, active):
+    """
+    set active
+    """
+    pass
+    
+
   def speech_command(self, command):
     """
     speech command from mic
