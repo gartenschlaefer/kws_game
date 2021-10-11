@@ -16,7 +16,7 @@ In the following those training techniques are further explained, except of the 
 % training GANs
 
 \subsection{Training Generative Adversarial Neural Networks}
-The interesting part in training Generative Adversarial Neural Networks is how the Generator (G) and Discriminator (D) models are updated and which loss functions were used.
+The interesting part in training GANs is how the Generator (G) and Discriminator (D) models are updated in each training step and which loss functions were used.
 In \req{nn_theory_gan} the game is notated as min-max game, from which the loss of D $l_D$ can be described for one specific training example $i$ of a batch as:
 \begin{equation}
   l_D(x_i, z_i, G) = l(D(x_i), y_r) + l(D(G(z_i)), y_f)

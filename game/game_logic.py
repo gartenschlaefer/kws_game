@@ -20,13 +20,14 @@ class GameLogic(Interactable):
     self.run_loop = True
     self.quit_game = False
     self.complete = False
+    self.won_game = False
 
 
   def check_win_condition(self):
     """
     move character to position
     """
-    if self.complete: self.end_game, self.run_loop = True, False
+    if self.complete: self.end_game, self.run_loop, self.won_game = True, False, True
 
 
   def check_loose_condition(self):
@@ -51,6 +52,7 @@ class GameLogic(Interactable):
     # end loop
     self.run_loop = False
     self.complete = True
+    self.won_game = True
 
 
   def event_update(self, event):
@@ -82,6 +84,7 @@ class GameLogic(Interactable):
     self.run_loop = True
     self.quit_game = False
     self.complete = False
+    self.won_game = False
 
 
 
@@ -118,6 +121,9 @@ class ThingsGameLogic(GameLogic):
       # end the game
       self.end_game = True
 
+      # won the game flag
+      self.won_game = True
+
 
   def check_loose_condition(self):
     """
@@ -135,6 +141,9 @@ class ThingsGameLogic(GameLogic):
 
       # end the game
       self.end_game = True
+
+      # loose the game flag
+      self.won_game = False
 
 
   def restart_game(self):

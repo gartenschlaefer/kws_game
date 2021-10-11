@@ -10,6 +10,7 @@ from canvas import CanvasWin, CanvasLoose
 from input_handler import InputKeyHandler, InputMicHandler
 from game_logic import GameLogic, ThingsGameLogic
 from character import Character, Henry, Jim
+from enemy import Enemy
 from things import Thing, SpaceshipThing
 from text import Text
 
@@ -330,6 +331,14 @@ class LevelThings(LevelCharacter):
     # determine position
     self.character.set_position(self.grid_world.grid_to_pos([10, 10]), is_init_pos=True)
 
+    # enemy
+    enemy = Enemy(surf=screen, position=self.grid_world.grid_to_pos([20, 20]), scale=(3, 3), has_gravity=True, grid_move=False)
+    enemy.obstacle_sprites = self.interactable_dict['character'].obstacle_sprites
+    enemy.hit_sprites.add(self.interactable_dict['character'].character_sprite)
+
+    # add enemy to level
+    self.interactable_dict.update({'enemy': enemy})
+
 
   def reset(self):
     """
@@ -362,6 +371,7 @@ class Level_01(LevelThings):
     # determine start position
     self.character.set_position(self.grid_world.grid_to_pos([5, 20]), is_init_pos=True)
     self.thing.set_position(self.grid_world.grid_to_pos([22, 18]), is_init_pos=True)
+    self.interactable_dict['enemy'].set_position(self.grid_world.grid_to_pos([18, 20]), is_init_pos=True)
 
     # add canvas
     self.interactable_dict.update({
@@ -408,6 +418,7 @@ class Level_02(LevelThings):
     # determine start position
     self.character.set_position(self.grid_world.grid_to_pos([22, 20]), is_init_pos=True)
     self.thing.set_position(self.grid_world.grid_to_pos([2, 5]), is_init_pos=True)
+    self.interactable_dict['enemy'].set_position(self.grid_world.grid_to_pos([5, 20]), is_init_pos=True)
 
     # other thing
     self.thing.change_view_sprites(view='stir')
@@ -487,7 +498,7 @@ class LevelHandler(Interactable):
     if self.levels[self.act_level].interactable_dict['game_logic'].complete:
 
       # update level
-      self.act_level += 1
+      self.act_level += 1 if self.levels[self.act_level].interactable_dict['game_logic'].won_game else 0
 
       # end game
       if self.act_level == len(self.levels): 

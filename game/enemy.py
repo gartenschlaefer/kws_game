@@ -50,6 +50,17 @@ class Enemy(Interactable, Moveable):
     # add character sprite
     self.sprites.add(self.enemy_sprite)
 
+    # move to direction
+    self.update_move_direction((1, 0))
+
+
+  def obstacle_action(self, direction):
+    """
+    obstacle action
+    """
+    if direction[0] > 0: self.update_move_direction((-2, 0))
+    else: self.update_move_direction((2, 0))
+
 
   def set_active(self, active):
     """

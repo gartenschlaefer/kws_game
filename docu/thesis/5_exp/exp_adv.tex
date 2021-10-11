@@ -3,7 +3,7 @@
 
 \section{Experiments on Adversarial Pre-Training}\label{sec:exp_adv}
 \thesisStateReady
-Adversarial pre-training, as already described in detail in \rsec{nn_adv}, is the transfer of learned weights obtained from adversarial training between a Generator (G) and a Discriminator (D) network from a Generative Adversarial Neural Network (GAN).
+Adversarial pre-training, as already described in detail in \rsec{nn_adv}, is the transfer of learned weights obtained from adversarial training between a Generator (G) and a Discriminator (D) network from a GAN.
 The target neural network architecture used for adversarial pre-training is the \texttt{conv-jim} model, described in \rsec{nn_arch_cnn}, obtaining pre-trained weights from its GAN versions the \texttt{adv-d-jim} and \texttt{adv-g-jim}, described in \rsec{nn_arch_adv}.
 Note that frame-based normalization was applied, which made the training of GANs considerably more easy and the weights from G applicable.
 Both adversarial pre-training techniques, the adversarial label and dual train explained in \rsec{nn_adv} were evaluated.

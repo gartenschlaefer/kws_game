@@ -94,6 +94,13 @@ class Moveable():
     self.move_grid() if self.grid_move else self.move_const()
 
 
+  def obstacle_action(self, direction):
+    """
+    obstacle action
+    """
+    pass
+
+
   def move_const(self):
     """
     movement
@@ -109,9 +116,14 @@ class Moveable():
     try:
       for obst in pygame.sprite.spritecollide(self.move_sprite, self.obstacle_sprites, False):
 
-        # stand at wall
+        # obstacle is right
         if move_change_x > 0: self.move_rect.right = obst.rect.left
+
+        # obstacle is left
         else: self.move_rect.left = obst.rect.right
+
+        # obstacle
+        self.obstacle_action((self.move_dir[0], 0))
 
       # y gravity
       if self.has_gravity: self.calc_gravity()
@@ -132,7 +144,7 @@ class Moveable():
     try:
       for obst in pygame.sprite.spritecollide(self.move_sprite, self.obstacle_sprites, False):
         
-        # stand at wall
+        # bottom
         if move_change_y > 0:
 
           # stop atop
@@ -141,14 +153,14 @@ class Moveable():
           # grounded condition
           self.is_grounded = True
 
+        # top
         else:
 
           # stop with head hit
           self.move_rect.top = obst.rect.bottom
 
           # no upward movement anymore (jump)
-          if self.has_gravity:
-            self.move_speed[1] = 0
+          if self.has_gravity: self.move_speed[1] = 0
 
     except:
       print("no collisions implemented")

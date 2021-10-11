@@ -8,7 +8,7 @@ A reduction of input features always means a reduction of computations, hence it
 Unfortunately it is not always clear, which feature are contributing to good classification scores and which do not or even worsen them.
 In this section only MFCCs and their enhancements, as described in \rsec{signal_mfcc}, are the focus of the experiments.
 A feature selection for raw audio samples, such as used in the Wavenet architecture, would not make any sense, because each sample is a feature itself.
-Another important aspect in the feature selection experiments is the evaluation of the proposed frame-based normalization \req{signal_mfcc_norm} originally intended to improve the visualization of MFCCs and making Generative Adversarial Neural Networks (GANs) more easy and faster to train.
+Another important aspect in the feature selection experiments is the evaluation of the proposed frame-based normalization \req{signal_mfcc_norm} originally intended to improve the visualization of MFCCs and making the Generator network of GANs more easy and faster to train.
 However frame-based normalization might be critical, because it is a normalization applieds only on the frame (time) dimension and disregards the frequency dimension.
 
 Two experiments were performed on the MFCC feature selection:

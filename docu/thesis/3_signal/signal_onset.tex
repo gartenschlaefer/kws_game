@@ -88,6 +88,6 @@ Mathematically the onset $o(\bm{x}) \in \{0, 1\}$ of an input chunk $\bm{x} \in 
 \end{equation}
 where the output value of $1$ represents the occurance of an onset, $n$ is the total sample number of the input chunk and $\alpha$ the energy threshold.
 The energy threshold should be adjustable to the users microphone and ampliefier setup. 
-This can be done for instance in the video game option menu as described in \rsec{game_interactables_menu}.
+This can be done for instance in the video game option menu as described in \rsec{game_design_menu}.
 If an online onset is detected, the whole buffer is filled up first, then read and MFCC features extracted.
 From those MFCCs the exact key word onset is calculated as described in \rsec{signal_onset_kw} and the \SI{500}{\milli\second} long feature vectors are sent to the classification system.

@@ -1,0 +1,70 @@
+% --
+% game interactables
+
+\section{Game Design}\label{sec:game_design}
+\thesisStateNotReady
+In this section the game design for the deployed KWS video game is presented.
+Prior to explaining the game and its rules, it is important to mention the game menu and its vital settings for the input microphone device.
+The game rules are explaining the win and loose condition of the video game.
+Game mechanics restrict how the player can interact in the world and how to create actions for changing the states of game objects.
+
+% --
+% menu
+
+\subsection{Menu}\label{sec:game_design_menu}
+The game menu is the first screen that appears, when starting a video game. 
+It usually consists of selectable buttons referencing for instance to the game settings of graphic and music.
+With speech input deployed in a video game, the setting of the recording device is useful to be added.
+All available microphone input devices should be visualized in a list and being selectable for being able to switch between the independent devices.
+Further a small visualization bar of the input signal energy from the selected device is beneficial, so that the user can verify its correct functionality.
+An option for adjusting the energy threshold, by which the device detects the onset of a speech signal, must be added if this property is used within the video game.
+The threshold must be adjustable because of varying recording amplification factors in different microphone set ups.
+
+
+% --
+% game rules
+
+\subsection{Game Rules}\label{sec:game_design_rules}
+The game rules were hold simple, so that the game part does not take too much effort to implement.
+A simple adventure game in a 2D-platformer view (movement are left-right and jump, like the classical Super Mario games), were the player has to collect object and dodge enemies was implemented.
+The win condition is to complete each individual level by collecting a single object within each level and the loose condition is to touch the enemy.
+If the player runs into the enemy, a loose screen appears and the same level can be restarted from its initial state.
+Being able to win the game, the player has to use speech commands, otherwise the objects cannot be reached.
+Further descriptions are presented below in the game mechanics and the level design.
+
+
+% --
+% game mechanics
+
+\subsection{Game Mechanics}\label{game_design_mechanics}
+The game mechanics with KWS are a highly time restricted, because of the processing time of the speech signals.
+In this thesis the KWS system was used as augmented input control.
+With standard keys for movement on the keyboard, the controlling of the character is handled, so that the player receives immediate feedback. 
+For other more special actions, that do not require immediate feedback, a KWS control was applied.
+
+The game mechanic implemented in the deployed video game, is to move a single block in two dimensions by saying the intended direction for instance \enquote{left} and \enquote{right} or \enquote{up} and \enquote{down}.
+For being able to move more than one of those so-called movable block, the player can say \enquote{go} to switch between the blocks to the desired one, that should be moved.
+At all times, therefore only the selected movable block of all moveable block can be controlled by the player.
+
+
+% --
+% enemy
+
+\subsection{Enemy}\label{sec:game_design_enemy}
+Being able to provide a loose condition within the game, enemies were implemented.
+If the enemy touches the player, the game is over and the actual level has to be restarted.
+The player can simply jump over the enemy to dodge.
+The movement of the enemy is simple to run from left to right and if an obstacle is hit (like a wall) the enemy turns around and goes in the opposite direction.
+
+
+% --
+% level design
+
+\subsection{Level Design}\label{sec:game_design_level}
+Two levels were implemented with the game mechanic of movable blocks, as described previously in \rsec{game_design_mechanics}.
+The first level requires the player to learn how the game works and to move blocks out of the players path to the collectable object.
+In the second level the player has to align the moveable blocks, such that by jumping upon them, higher plateaus can be reached.
+The levels are both shown in ...
+
+
+

@@ -14,7 +14,7 @@ It is explained and shown why a reduction and sparing of enhancements are often 
 %The amount of MFCC cepstral coefficients was evaluated with either 12 or 32 cepstral coefficients and showed that no accuracy improvements were achieved with 32 cepstral coefficients compared to 12.
 %The enhancement of MFCC to 39-feature vectors with 12 cepstral coefficients was evaluated likewise and showed only small increases of accuracy scores, but no significant ones, which lead to the decision to use less feature vectors and continue the experiments with 12 MFCC coefficients without enhancement.
 
-A frame-based normalization (normalization regarding the time dimension) was introduced and performed on MFCCs to suite them better for visualization and to use them for Generative Adversarial Networks (GAN) training.
+A frame-based normalization (normalization regarding the time dimension) was introduced and performed on MFCCs to suite them better for visualization and to use them for GAN training.
 Evaluation of the frame-based normalization was done in terms of accuracy, shift and noise invariance on conventional CNN models.
 The advantages and disadvantage of such a normalization technique is discussed and shown in the experiments.
 %Frame-based normalization showed significant worse accuracies (about 5 to \SI{10}{\percent}) and took a bit longer for training, but improved the noise invariance properties and had less overfitting effects in the experiments.
