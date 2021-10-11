@@ -199,9 +199,6 @@ class SpritesheetRenderer():
     # loop animation
     if self.sprite_index >= len(self.view_sprites): self.sprite_index = 0
 
-    # update image
-    #self.image = self.view_sprites[self.sprite_index]
-
 
 
 if __name__ == '__main__':

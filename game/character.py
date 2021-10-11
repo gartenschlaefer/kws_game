@@ -28,10 +28,10 @@ class Character(Interactable, Moveable):
     # character sprite
     self.character_sprite = self.define_character_sprite()
 
-    # moveable init
+    # moveable
     Moveable.__init__(self, move_sprite=self.character_sprite, move_rect=self.character_sprite.rect, move_speed=[3, 3], has_gravity=self.has_gravity, grid_move=self.grid_move)
 
-    # save init pos
+    # save initial position
     self.init_pos = position
 
     # interactions
@@ -271,9 +271,6 @@ class CharacterSprite(pygame.sprite.Sprite, SpritesheetRenderer):
 
     # spritesheet renderer init
     SpritesheetRenderer.__init__(self, anim_frame_update=anim_frame_update)
-
-    # active
-    self.active = True
 
     # image refs
     self.image = self.get_actual_sprite()

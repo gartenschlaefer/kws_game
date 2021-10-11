@@ -69,6 +69,7 @@ class GameLogic(Interactable):
 
     # check win condition
     self.check_win_condition()
+    self.check_loose_condition()
 
 
   def reset(self):
@@ -97,6 +98,10 @@ class ThingsGameLogic(GameLogic):
     # vars
     self.level = level
 
+    # check if enemy is in there
+    #self.has_character = True if 'character' in self.level.interactable_dict.keys() else False
+    #self.has_enemy = True if 'enemy' in self.level.interactable_dict.keys() else False
+
 
   def check_win_condition(self):
     """
@@ -104,10 +109,29 @@ class ThingsGameLogic(GameLogic):
     """
 
     # character found the things
+    #if self.level.interactable_dict['character'].things_collected if self.has_character else False:
     if self.level.interactable_dict['character'].things_collected if 'character' in self.level.interactable_dict.keys() else False:
 
       # win the level
       self.level.win()
+
+      # end the game
+      self.end_game = True
+
+
+  def check_loose_condition(self):
+    """
+    move character to position
+    """
+
+    #print("level: ", self.level.interactable_dict.keys())
+    # character found the things
+    #if self.level.interactable_dict['enemy'].hit_enemy if self.has_enemy else False:
+    if self.level.interactable_dict['enemy'].hit_enemy if 'enemy' in self.level.interactable_dict.keys() else False:
+
+      # win the level
+      self.level.loose()
+      #print("loose")
 
       # end the game
       self.end_game = True

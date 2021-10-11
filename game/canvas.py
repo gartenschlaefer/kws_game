@@ -383,7 +383,6 @@ class CanvasDevice(Canvas):
       # append to list
       self.text_device_list.append((num_device, text))
 
-
     # update text devices
     [self.interactable_dict.update({'text_device{}'.format(n):t}) for n, t in self.text_device_list]
 
@@ -431,15 +430,10 @@ class CanvasWin(Canvas):
     # deselect
     self.enabled = False
 
-    # info text
-    win_title = Text(self.canvas_surf, message='Win', position=(275, 75), font_size='big', color=self.color_bag.text_win)
-    win_sub = Text(self.canvas_surf, message='press Enter', position=(250, 125), font_size='small', color=self.color_bag.text_win)
-
-    # device list texts
-    self.text_device_list = []
-
     # update
-    self.interactable_dict.update({'win_title': win_title, 'win_sub': win_sub})
+    self.interactable_dict.update({
+      'title': Text(self.canvas_surf, message='Win', position=(275, 75), font_size='big', color=self.color_bag.text_win), 
+      'sub': Text(self.canvas_surf, message='press Enter', position=(250, 125), font_size='small', color=self.color_bag.text_win)})
 
 
   def reset(self):
@@ -452,6 +446,21 @@ class CanvasWin(Canvas):
 
     # interactables reset
     for interactable in self.interactable_dict.values(): interactable.reset()
+
+
+
+class CanvasLoose(CanvasWin):
+  """
+  loose canvas (changed from win canvas)
+  """
+
+  def __init__(self, screen, size=None, position=(0, 0)):
+
+    # Parent init
+    super().__init__(screen, size=size, position=position)
+
+    # change title
+    self.interactable_dict['title'].change_message('Loose', position=(250, 75))
 
 
 

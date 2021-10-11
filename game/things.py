@@ -71,9 +71,6 @@ class SpaceshipThing(pygame.sprite.Sprite, SpritesheetRenderer):
     # spritesheet renderer init
     SpritesheetRenderer.__init__(self, anim_frame_update=anim_frame_update)
 
-    # active
-    self.active = True
-
     # image refs
     self.image = self.get_actual_sprite()
     self.rect = self.image.get_rect()

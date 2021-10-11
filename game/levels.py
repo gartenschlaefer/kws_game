@@ -6,7 +6,7 @@ import pygame
 
 from interactable import Interactable
 from color_bag import ColorBag
-from canvas import CanvasWin
+from canvas import CanvasWin, CanvasLoose
 from input_handler import InputKeyHandler, InputMicHandler
 from game_logic import GameLogic, ThingsGameLogic
 from character import Character, Henry, Jim
@@ -51,6 +51,20 @@ class Level(Interactable):
     check if level runs
     """
     return self.interactable_dict['game_logic'].run_loop
+
+
+  def win(self):
+    """
+    win condition for level
+    """
+    pass
+
+
+  def loose(self):
+    """
+    win condition for level
+    """
+    pass
 
 
   def setup_level(self):
@@ -238,14 +252,44 @@ class LevelCharacter(LevelGrid):
     self.character.obstacle_sprites.add(self.grid_world.wall_sprites, self.grid_world.move_wall_sprites)
 
     # add interactable
-    self.interactable_dict.update({'character': self.character})
+    self.interactable_dict.update({'character': self.character, 'win_canvas': CanvasWin(self.screen), 'loose_canvas': CanvasLoose(self.screen)})
 
-    # mic handler
-    #if self.mic is not None: self.interactable_dict.update({'input_mic_handler': InputMicHandler(objs=[self.interactable_dict['character']], mic=self.mic)})
+    # key handler objects
+    self.interactable_dict['input_key_handler'].objs.append(self.interactable_dict['character'])
+
+    # mic handler objects
     if self.mic is not None: self.interactable_dict['input_mic_handler'].objs.append(self.interactable_dict['character'])
 
-    # handle this objects
-    self.interactable_dict['input_key_handler'].objs.append(self.interactable_dict['character'])
+
+  def define_game_logic(self):
+    """
+    define interactables
+    """
+    self.interactable_dict.update({'game_logic': ThingsGameLogic(self)})
+
+
+  def win(self):
+    """
+    win level
+    """
+
+    # inactivate objects
+    [interactable.set_active(False) for interactable in self.interactable_dict.values()]
+
+    # activate win canvas
+    self.interactable_dict['win_canvas'].enabled = True
+
+
+  def loose(self):
+    """
+    loose level
+    """
+
+    # inactivate objects
+    [interactable.set_active(False) for interactable in self.interactable_dict.values()]
+
+    # activate win canvas
+    self.interactable_dict['loose_canvas'].enabled = True
 
 
   def setup_level(self):
@@ -285,28 +329,6 @@ class LevelThings(LevelCharacter):
 
     # determine position
     self.character.set_position(self.grid_world.grid_to_pos([10, 10]), is_init_pos=True)
-
-    # add interactables
-    self.interactable_dict.update({'win_canvas': CanvasWin(self.screen)})
-
-
-  def define_game_logic(self):
-    """
-    define interactables
-    """
-    self.interactable_dict.update({'game_logic': ThingsGameLogic(self)})
-
-
-  def win(self):
-    """
-    win condition for level
-    """
-
-    # inactivate objects
-    [interactable.set_active(False) for interactable in self.interactable_dict.values()]
-
-    # activate win canvas
-    self.interactable_dict['win_canvas'].enabled = True
 
 
   def reset(self):
