@@ -9,9 +9,10 @@ from color_bag import ColorBag
 from canvas import CanvasWin, CanvasLoose
 from input_handler import InputKeyHandler, InputMicHandler
 from game_logic import GameLogic, ThingsGameLogic
+from grid_world import GridWorld
 from character import Character, Henry, Jim
-from enemy import Enemy
 from things import Thing, SpaceshipThing
+from enemy import Enemy
 from text import Text
 
 
@@ -33,11 +34,21 @@ class Level(Interactable):
     # interactable dict
     self.interactable_dict = {} 
 
+    # add some interactables
+    self.define_interactables()
+
     # game logic
     self.define_game_logic()
 
     # key handler
     self.interactable_dict.update({'input_key_handler': InputKeyHandler(objs=[self.interactable_dict['game_logic']])})
+
+
+  def define_interactables(self):
+    """
+    define interactables
+    """
+    pass
 
 
   def define_game_logic(self):
@@ -63,7 +74,7 @@ class Level(Interactable):
 
   def loose(self):
     """
-    win condition for level
+    loose condition for level
     """
     pass
 
@@ -126,11 +137,17 @@ class LevelMic(Level):
     # arguments
     self.mic = mic
 
-    # append interactable
-    self.interactable_dict.update({'mic_bar': MicBar(self.screen, self.mic, position=(200, 200), bar_size=(50, 150), scale_margin=(50, 40))})
-
     # append to key handler
     self.interactable_dict['input_key_handler'].objs.append(self.interactable_dict['mic_bar'])
+
+
+  def define_interactables(self):
+    """
+    define interactables
+    """
+
+    # append interactable
+    self.interactable_dict.update({'mic_bar': MicBar(self.screen, self.mic, position=(200, 200), bar_size=(50, 150), scale_margin=(50, 40))})
 
 
 
@@ -141,29 +158,33 @@ class LevelGrid(Level):
 
   def __init__(self, screen, screen_size, mic=None):
 
-    from grid_world import GridWorld
-
     # parent class init
     super().__init__(screen, screen_size)
 
     # new vars
     self.mic = mic
 
-    # create gridworld
-    self.grid_world = GridWorld(self.screen_size, self.color_bag)
-
     # setup
     self.setup_level()
 
-    # append interactable
-    self.interactable_dict.update({'grid_world': self.grid_world})
-
     # sprites
-    self.all_sprites.add(self.grid_world.wall_sprites, self.grid_world.move_wall_sprites)
+    self.all_sprites.add(self.interactable_dict['grid_world'].wall_sprites, self.interactable_dict['grid_world'].move_wall_sprites)
 
     # append input handler
-    self.interactable_dict['input_key_handler'].objs.append(self.grid_world) if mic is None else self.interactable_dict.update({'input_mic_handler': InputMicHandler(objs=[self.interactable_dict['grid_world']], mic=self.mic)})
+    self.interactable_dict['input_key_handler'].objs.append(self.interactable_dict['grid_world']) if mic is None else self.interactable_dict.update({'input_mic_handler': InputMicHandler(objs=[self.interactable_dict['grid_world']], mic=self.mic)})
 
+
+  def define_interactables(self):
+    """
+    define interactables
+    """
+
+    # parent
+    super().define_interactables()
+
+    # append interactable
+    self.interactable_dict.update({'grid_world': GridWorld(self.screen_size, self.color_bag)})
+    
 
   def setup_level(self):
     """
@@ -174,7 +195,7 @@ class LevelGrid(Level):
     self.setup_wall_edge()
 
     # create walls
-    self.grid_world.create_walls()
+    self.interactable_dict['grid_world'].create_walls()
 
 
   def setup_wall_edge(self):
@@ -183,10 +204,10 @@ class LevelGrid(Level):
     """
 
     # set walls
-    self.grid_world.wall_grid[:, 0] = 1
-    self.grid_world.wall_grid[:, -1] = 1
-    self.grid_world.wall_grid[0, :] = 1
-    self.grid_world.wall_grid[-1, :] = 1
+    self.interactable_dict['grid_world'].wall_grid[:, 0] = 1
+    self.interactable_dict['grid_world'].wall_grid[:, -1] = 1
+    self.interactable_dict['grid_world'].wall_grid[0, :] = 1
+    self.interactable_dict['grid_world'].wall_grid[-1, :] = 1
 
 
 
@@ -204,10 +225,10 @@ class LevelSquare(LevelGrid):
     self.setup_wall_edge()
 
     # wall in the middle
-    self.grid_world.wall_grid[7, 7] = 1
+    self.interactable_dict['grid_world'].wall_grid[7, 7] = 1
 
     # create walls
-    self.grid_world.create_walls()
+    self.interactable_dict['grid_world'].create_walls()
 
 
 
@@ -224,15 +245,16 @@ class LevelMoveWalls(LevelGrid):
     # set walls
     self.setup_wall_edge()
 
-    self.grid_world.wall_grid[5, 5] = 1
+    # simple wall
+    self.interactable_dict['grid_world'].wall_grid[5, 5] = 1
 
     # move walls
-    self.grid_world.move_wall_grid[8, 8] = 1
-    self.grid_world.move_wall_grid[10, 15] = 1
-    self.grid_world.move_wall_grid[12, 20] = 1
+    self.interactable_dict['grid_world'].move_wall_grid[8, 8] = 1
+    self.interactable_dict['grid_world'].move_wall_grid[10, 15] = 1
+    self.interactable_dict['grid_world'].move_wall_grid[12, 20] = 1
 
     # create walls
-    self.grid_world.create_walls()
+    self.interactable_dict['grid_world'].create_walls()
 
 
 
@@ -246,20 +268,31 @@ class LevelCharacter(LevelGrid):
     # parent class init
     super().__init__(screen, screen_size, mic)
 
-    # create the character
-    #self.character = Character(surf=self.screen, position=(self.screen_size[0]//2, self.screen_size[1]//2), scale=(2, 2), has_gravity=True, grid_move=False)
-    #self.character = Henry(surf=self.screen, position=(self.screen_size[0]//2, self.screen_size[1]//2), scale=(2, 2), has_gravity=True, grid_move=False)
-    self.character = Jim(surf=self.screen, position=(self.screen_size[0]//2, self.screen_size[1]//2), scale=(2, 2), has_gravity=True, grid_move=False)
-    self.character.obstacle_sprites.add(self.grid_world.wall_sprites, self.grid_world.move_wall_sprites)
-
-    # add interactable
-    self.interactable_dict.update({'character': self.character, 'win_canvas': CanvasWin(self.screen), 'loose_canvas': CanvasLoose(self.screen)})
-
     # key handler objects
     self.interactable_dict['input_key_handler'].objs.append(self.interactable_dict['character'])
 
     # mic handler objects
     if self.mic is not None: self.interactable_dict['input_mic_handler'].objs.append(self.interactable_dict['character'])
+
+    # see walls
+    self.interactable_dict['character'].obstacle_sprites.add(self.interactable_dict['grid_world'].wall_sprites, self.interactable_dict['grid_world'].move_wall_sprites)
+
+
+  def define_interactables(self):
+    """
+    define interactables
+    """
+
+    # parent
+    super().define_interactables()
+
+    # add interactable
+    self.interactable_dict.update({
+      #'character': Character(surf=self.screen, position=(self.screen_size[0]//2, self.screen_size[1]//2), scale=(2, 2), has_gravity=True, grid_move=False), 
+      #'character': Henry(surf=self.screen, position=(self.screen_size[0]//2, self.screen_size[1]//2), scale=(2, 2), has_gravity=True, grid_move=False), 
+      'character': Jim(surf=self.screen, position=(self.screen_size[0]//2, self.screen_size[1]//2), scale=(2, 2), has_gravity=True, grid_move=False), 
+      'win_canvas': CanvasWin(self.screen), 
+      'loose_canvas': CanvasLoose(self.screen)})
 
 
   def define_game_logic(self):
@@ -302,11 +335,11 @@ class LevelCharacter(LevelGrid):
     self.setup_wall_edge()
 
     # wall in the middle
-    self.grid_world.wall_grid[20:25, 20:24] = 1
-    self.grid_world.wall_grid[10:15, 20] = 1
+    self.interactable_dict['grid_world'].wall_grid[20:25, 20:24] = 1
+    self.interactable_dict['grid_world'].wall_grid[10:15, 20] = 1
 
     # create walls
-    self.grid_world.create_walls()
+    self.interactable_dict['grid_world'].create_walls()
 
 
 
@@ -321,23 +354,32 @@ class LevelThings(LevelCharacter):
     super().__init__(screen, screen_size, mic)
 
     # create thing
-    #self.thing = Thing(position=self.grid_world.grid_to_pos([22, 18]), scale=(2, 2))
-    self.thing = SpaceshipThing(position=self.grid_world.grid_to_pos([22, 18]), scale=(2, 2))
+    #self.thing = Thing(position=self.interactable_dict['grid_world'].grid_to_pos([22, 18]), scale=(2, 2))
+    self.thing = SpaceshipThing(position=self.interactable_dict['grid_world'].grid_to_pos([22, 18]), scale=(2, 2))
 
     # add to sprites
     self.all_sprites.add(self.thing)
-    self.character.thing_sprites.add(self.thing)
+    self.interactable_dict['character'].thing_sprites.add(self.thing)
 
     # determine position
-    self.character.set_position(self.grid_world.grid_to_pos([10, 10]), is_init_pos=True)
+    self.interactable_dict['character'].set_position(self.interactable_dict['grid_world'].grid_to_pos([10, 10]), is_init_pos=True)
 
-    # enemy
-    enemy = Enemy(surf=screen, position=self.grid_world.grid_to_pos([20, 20]), scale=(3, 3), has_gravity=True, grid_move=False)
-    enemy.obstacle_sprites = self.interactable_dict['character'].obstacle_sprites
-    enemy.hit_sprites.add(self.interactable_dict['character'].character_sprite)
+    # enemy things
+    self.interactable_dict['enemy'].obstacle_sprites = self.interactable_dict['character'].obstacle_sprites
+    self.interactable_dict['enemy'].hit_sprites.add(self.interactable_dict['character'].character_sprite)
 
-    # add enemy to level
-    self.interactable_dict.update({'enemy': enemy})
+
+
+  def define_interactables(self):
+    """
+    define interactables
+    """
+
+    # parent
+    super().define_interactables()
+
+    # add interactable
+    self.interactable_dict.update({'enemy': Enemy(surf=self.screen, position=self.interactable_dict['grid_world'].grid_to_pos([20, 20]), scale=(3, 3), has_gravity=True, grid_move=False)})
 
 
   def reset(self):
@@ -345,16 +387,12 @@ class LevelThings(LevelCharacter):
     reset level
     """
 
-    # reset world
-    self.grid_world.reset()
-    self.character.reset()
+    # interactables reset
+    for interactable in self.interactable_dict.values(): interactable.reset()
 
     # add to sprites
     self.all_sprites.add(self.thing)
-    self.character.thing_sprites.add(self.thing)
-
-    # interactables reset
-    for interactable in self.interactable_dict.values(): interactable.reset()
+    self.interactable_dict['character'].thing_sprites.add(self.thing)
 
 
 
@@ -369,9 +407,18 @@ class Level_01(LevelThings):
     super().__init__(screen, screen_size, mic)
 
     # determine start position
-    self.character.set_position(self.grid_world.grid_to_pos([5, 20]), is_init_pos=True)
-    self.thing.set_position(self.grid_world.grid_to_pos([22, 18]), is_init_pos=True)
-    self.interactable_dict['enemy'].set_position(self.grid_world.grid_to_pos([18, 20]), is_init_pos=True)
+    self.interactable_dict['character'].set_position(self.interactable_dict['grid_world'].grid_to_pos([5, 20]), is_init_pos=True)
+    self.interactable_dict['enemy'].set_position(self.interactable_dict['grid_world'].grid_to_pos([18, 20]), is_init_pos=True)
+    self.thing.set_position(self.interactable_dict['grid_world'].grid_to_pos([22, 18]), is_init_pos=True)
+
+
+  def define_interactables(self):
+    """
+    define interactables
+    """
+
+    # parent
+    super().define_interactables()
 
     # add canvas
     self.interactable_dict.update({
@@ -389,19 +436,20 @@ class Level_01(LevelThings):
     self.setup_wall_edge()
 
     # wall in the middle
-    self.grid_world.wall_grid[20:25, 20:23] = 1
-    self.grid_world.wall_grid[20:25, 16] = 1
-    self.grid_world.wall_grid[25, 16:23] = 1
+    self.interactable_dict['grid_world'].wall_grid[20:25, 20:23] = 1
+    self.interactable_dict['grid_world'].wall_grid[20:25, 16] = 1
+    self.interactable_dict['grid_world'].wall_grid[25, 16:23] = 1
 
-    self.grid_world.wall_grid[10:15, 20:23] = 1
+    # plateau
+    self.interactable_dict['grid_world'].wall_grid[10:15, 20:23] = 1
 
     # move walls
-    self.grid_world.move_wall_grid[20, 17] = 1
-    self.grid_world.move_wall_grid[20, 18] = 1
-    self.grid_world.move_wall_grid[20, 19] = 1
+    self.interactable_dict['grid_world'].move_wall_grid[20, 17] = 1
+    self.interactable_dict['grid_world'].move_wall_grid[20, 18] = 1
+    self.interactable_dict['grid_world'].move_wall_grid[20, 19] = 1
 
     # create walls
-    self.grid_world.create_walls()
+    self.interactable_dict['grid_world'].create_walls()
 
 
 
@@ -416,9 +464,9 @@ class Level_02(LevelThings):
     super().__init__(screen, screen_size, mic)
 
     # determine start position
-    self.character.set_position(self.grid_world.grid_to_pos([22, 20]), is_init_pos=True)
-    self.thing.set_position(self.grid_world.grid_to_pos([2, 5]), is_init_pos=True)
-    self.interactable_dict['enemy'].set_position(self.grid_world.grid_to_pos([5, 20]), is_init_pos=True)
+    self.interactable_dict['character'].set_position(self.interactable_dict['grid_world'].grid_to_pos([22, 20]), is_init_pos=True)
+    self.thing.set_position(self.interactable_dict['grid_world'].grid_to_pos([2, 5]), is_init_pos=True)
+    self.interactable_dict['enemy'].set_position(self.interactable_dict['grid_world'].grid_to_pos([5, 20]), is_init_pos=True)
 
     # other thing
     self.thing.change_view_sprites(view='stir')
@@ -432,21 +480,20 @@ class Level_02(LevelThings):
     # set walls
     self.setup_wall_edge()
 
-    # wall in the middle
-    self.grid_world.wall_grid[27:, 19] = 1
-    self.grid_world.wall_grid[19:22, 15] = 1
-    self.grid_world.wall_grid[11:14, 11] = 1
-
-    self.grid_world.wall_grid[:5, 7] = 1
+    # plateaus
+    self.interactable_dict['grid_world'].wall_grid[27:, 19] = 1
+    self.interactable_dict['grid_world'].wall_grid[19:22, 15] = 1
+    self.interactable_dict['grid_world'].wall_grid[11:14, 11] = 1
+    self.interactable_dict['grid_world'].wall_grid[:5, 7] = 1
 
     # move walls
-    self.grid_world.move_wall_grid[29, 22] = 1
-    self.grid_world.move_wall_grid[27, 18] = 1
-    self.grid_world.move_wall_grid[19, 16] = 1
-    self.grid_world.move_wall_grid[4, 8] = 1
+    self.interactable_dict['grid_world'].move_wall_grid[29, 22] = 1
+    self.interactable_dict['grid_world'].move_wall_grid[27, 18] = 1
+    self.interactable_dict['grid_world'].move_wall_grid[19, 16] = 1
+    self.interactable_dict['grid_world'].move_wall_grid[4, 8] = 1
 
     # create walls
-    self.grid_world.create_walls()
+    self.interactable_dict['grid_world'].create_walls()
 
 
 
@@ -501,9 +548,8 @@ class LevelHandler(Interactable):
       self.act_level += 1 if self.levels[self.act_level].interactable_dict['game_logic'].won_game else 0
 
       # end game
-      if self.act_level == len(self.levels): 
-        self.run_loop = False
-        self.act_level = 0
+      if self.act_level == len(self.levels): self.run_loop, self.act_level = False, 0
+      else: self.levels[self.act_level].reset()
 
     # update
     self.levels[self.act_level].update() if self.run_loop else None
@@ -553,9 +599,3 @@ if __name__ == '__main__':
 
   # end pygame
   pygame.quit()
-
-
-
-
-  
-

@@ -22,24 +22,42 @@ class GameLogic(Interactable):
     self.complete = False
     self.won_game = False
 
+    # callbacks
+    self.win_condition_callback = self.complete_win_condition if True else self.no_win_condition
+    self.loose_condition_callback = self.no_loose_condition
+
 
   def check_win_condition(self):
     """
-    move character to position
+    win condition callback
     """
-    if self.complete: self.end_game, self.run_loop, self.won_game = True, False, True
+    self.win_condition_callback()
 
 
   def check_loose_condition(self):
     """
-    check loose condition
+    loose condition callback
+    """
+    self.loose_condition_callback()
+
+
+  def no_win_condition(self):
+    """
+    no win condition call
     """
     pass
 
 
-  def restart_game(self):
+  def complete_win_condition(self):
     """
-    restart game
+    no win condition call
+    """
+    if self.complete: self.end_game, self.run_loop, self.won_game = True, False, True
+
+
+  def no_loose_condition(self):
+    """
+    no win condition call
     """
     pass
 
@@ -101,19 +119,18 @@ class ThingsGameLogic(GameLogic):
     # vars
     self.level = level
 
-    # check if enemy is in there
-    #self.has_character = True if 'character' in self.level.interactable_dict.keys() else False
-    #self.has_enemy = True if 'enemy' in self.level.interactable_dict.keys() else False
+    # win condition with character
+    self.win_condition_callback = self.character_win_condition if 'character' in self.level.interactable_dict.keys() else self.no_win_condition
+    self.loose_condition_callback = self.enemy_loose_condition if 'enemy' in self.level.interactable_dict.keys() else self.no_loose_condition
 
 
-  def check_win_condition(self):
+  def character_win_condition(self):
     """
-    move character to position
+    characters win conditions
     """
 
-    # character found the things
-    #if self.level.interactable_dict['character'].things_collected if self.has_character else False:
-    if self.level.interactable_dict['character'].things_collected if 'character' in self.level.interactable_dict.keys() else False:
+    # check if things are collected
+    if self.level.interactable_dict['character'].things_collected and not self.end_game:
 
       # win the level
       self.level.win()
@@ -125,19 +142,15 @@ class ThingsGameLogic(GameLogic):
       self.won_game = True
 
 
-  def check_loose_condition(self):
+  def enemy_loose_condition(self):
     """
-    move character to position
+    enemy loose condition
     """
 
-    #print("level: ", self.level.interactable_dict.keys())
-    # character found the things
-    #if self.level.interactable_dict['enemy'].hit_enemy if self.has_enemy else False:
-    if self.level.interactable_dict['enemy'].hit_enemy if 'enemy' in self.level.interactable_dict.keys() else False:
+    if self.level.interactable_dict['enemy'].hit_enemy:
 
       # win the level
       self.level.loose()
-      #print("loose")
 
       # end the game
       self.end_game = True
@@ -146,27 +159,13 @@ class ThingsGameLogic(GameLogic):
       self.won_game = False
 
 
-  def restart_game(self):
-    """
-    restart game
-    """
-    
-    # reset end game logic
-    self.end_game = False
-
-    # reset game objects
-    self.level.reset()
-
-
   def enter_key(self):
     """
     if enter key is pressed
     """
     
+    # end of game reached, ask for enter
     if self.end_game:
-
-      # restart
-      self.restart_game()
 
       # level complete
       self.complete = True

@@ -32,6 +32,13 @@ class Text(Interactable):
     self.render()
 
 
+  def reset(self):
+    """
+    reset: enable it in case it was disabled once
+    """
+    self.enabled = True
+
+
   def set_active(self, active):
     """
     set active
