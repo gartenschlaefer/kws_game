@@ -125,6 +125,9 @@ class Moveable():
         # obstacle
         self.obstacle_action((self.move_dir[0], 0))
 
+        # one obstacle is sufficient, can be changed later...
+        break
+
       # y gravity
       if self.has_gravity: self.calc_gravity()
 

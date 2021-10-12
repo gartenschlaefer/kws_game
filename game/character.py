@@ -259,7 +259,7 @@ class CharacterSprite(pygame.sprite.Sprite, SpritesheetRenderer):
   character sprite class
   """
 
-  def __init__(self, position, scale, anim_frame_update=3):
+  def __init__(self, position, scale, anim_frame_update=5):
 
     # parent init
     super().__init__()

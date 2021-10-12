@@ -379,7 +379,7 @@ class LevelThings(LevelCharacter):
     super().define_interactables()
 
     # add interactable
-    self.interactable_dict.update({'enemy': Enemy(surf=self.screen, position=self.interactable_dict['grid_world'].grid_to_pos([20, 20]), scale=(3, 3), has_gravity=True, grid_move=False)})
+    self.interactable_dict.update({'enemy': Enemy(surf=self.screen, position=self.interactable_dict['grid_world'].grid_to_pos([20, 20]), scale=(2, 2), has_gravity=True, grid_move=False)})
 
 
   def reset(self):

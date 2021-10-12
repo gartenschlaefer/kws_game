@@ -121,6 +121,32 @@ class SpritesheetSpaceshipThing(Spritesheet):
 
 
 
+class SpritesheetIceMonster(Spritesheet):
+  """
+  spritesheet class of Jim
+  """
+
+  def __init__(self, scale=(2, 2)):
+    
+    # Parent init
+    super().__init__(file=str(pathlib.Path(__file__).parent.absolute()) + '/art/ice_monster/ice_monster_spritesheet.png', scale=scale)
+
+
+  def define_sprite_cuts(self):
+    """
+    define individual cuts of sprites
+    """
+
+    # init cut dict
+    cut_dict = {}
+
+    # jim sprite cuts
+    cut_dict.update({'front': [(i*16, 0, 16, 16) for i in range(4)]})
+
+    return cut_dict
+
+
+
 class SpritesheetRenderer():
   """
   spritesheet renderer class

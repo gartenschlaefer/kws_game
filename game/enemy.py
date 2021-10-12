@@ -7,8 +7,7 @@ import pathlib
 
 from interactable import Interactable
 from moveable import Moveable
-from spritesheet import SpritesheetJim, SpritesheetBubbles, SpritesheetRenderer
-from character import CharacterSprite
+from spritesheet import SpritesheetIceMonster, SpritesheetRenderer
 
 
 class Enemy(Interactable, Moveable):
@@ -26,7 +25,7 @@ class Enemy(Interactable, Moveable):
     self.grid_move = grid_move
 
     # character sprite
-    self.enemy_sprite = self.define_character_sprite()
+    self.enemy_sprite = EnemySprite(self.position, self.scale)
 
     # moveable
     Moveable.__init__(self, move_sprite=self.enemy_sprite, move_rect=self.enemy_sprite.rect, move_speed=[3, 3], has_gravity=self.has_gravity, grid_move=self.grid_move)
@@ -69,13 +68,6 @@ class Enemy(Interactable, Moveable):
     self.is_active = active
 
 
-  def define_character_sprite(self):
-    """
-    define the character for child classes intended
-    """
-    return CharacterSprite(self.position, self.scale)
-
-
   def set_position(self, position, is_init_pos=False):
     """
     set position absolute
@@ -112,11 +104,12 @@ class Enemy(Interactable, Moveable):
     """
     update view upon direction
     """
-
-    # update sprite view
-    if self.move_dir[0] < 0: self.enemy_sprite.change_view_sprites("side-l")
-    elif self.move_dir[0] > 0: self.enemy_sprite.change_view_sprites("side-r")
-    else: self.enemy_sprite.change_view_sprites("front")
+    # ToDo implement...
+    # # update sprite view
+    # if self.move_dir[0] < 0: self.enemy_sprite.change_view_sprites("side-l")
+    # elif self.move_dir[0] > 0: self.enemy_sprite.change_view_sprites("side-r")
+    # else: self.enemy_sprite.change_view_sprites("front")
+    pass
 
 
   def reset(self):
@@ -137,7 +130,6 @@ class Enemy(Interactable, Moveable):
     """
     hit the enemy
     """
-    #print("hit: ", hit_sprite)
     self.hit_enemy = True
 
 
@@ -167,6 +159,56 @@ class Enemy(Interactable, Moveable):
     draw all sprites of the character
     """
     self.sprites.draw(self.surf)
+
+
+
+class EnemySprite(pygame.sprite.Sprite, SpritesheetRenderer):
+  """
+  enemy sprite class
+  """
+
+  def __init__(self, position, scale, anim_frame_update=6):
+
+    # parent init
+    super().__init__()
+
+    # arguments
+    self.position = position
+    self.scale = scale
+    self.anim_frame_update = anim_frame_update
+
+    # spritesheet renderer init
+    SpritesheetRenderer.__init__(self, anim_frame_update=anim_frame_update)
+
+    # image refs
+    self.image = self.get_actual_sprite()
+    self.rect = self.image.get_rect()
+
+    # set rect position
+    self.rect.x, self.rect.y = self.position[0], self.position[1]
+
+
+  def define_sprite_dictionary(self):
+    """
+    sprite sheet to dictionary
+    """
+
+    # init sprite sheet
+    self.spritesheet = SpritesheetIceMonster(scale=self.scale)
+
+    return self.spritesheet.sprite_dict
+
+
+  def update(self):
+    """
+    update of sprite
+    """
+
+    # update sprite sheet renderer
+    self.update_spritesheet_renderer()
+
+    # update
+    self.image = self.get_actual_sprite()
 
 
 
@@ -204,7 +246,7 @@ if __name__ == '__main__':
   level = LevelCharacter(screen, cfg['game']['screen_size'], mic=mic)
 
   # enemy
-  enemy = Enemy(surf=screen, position=(40, 40), scale=(3, 3), has_gravity=True, grid_move=False)
+  enemy = Enemy(surf=screen, position=(40, 40), scale=(2, 2), has_gravity=True, grid_move=False)
   enemy.obstacle_sprites = level.interactable_dict['character'].obstacle_sprites
   enemy.hit_sprites.add(level.interactable_dict['character'].character_sprite)
 
