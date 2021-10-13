@@ -6,11 +6,12 @@ import pygame
 import pathlib
 
 from spritesheet import SpritesheetRenderer, SpritesheetSpaceshipThing
+from interactable import Interactable
 
 
 class Thing(pygame.sprite.Sprite):
   """
-  character class
+  thing class
   """
 
   def __init__(self, position, scale=(2, 2)):
@@ -52,7 +53,98 @@ class Thing(pygame.sprite.Sprite):
 
 
 
-class SpaceshipThing(pygame.sprite.Sprite, SpritesheetRenderer):
+class SpaceshipThing(Interactable):
+  """
+  spaceship thing class
+  """
+
+  def __init__(self, surf, position, scale=(2, 2), thing_type='engine'):
+
+    # arguments
+    self.surf = surf
+    self.position = position
+    self.scale = scale
+    self.thing_type = thing_type
+
+    # character sprite
+    self.thing_sprite = SpaceshipThingSprite(self.position, self.scale, thing_type=self.thing_type, anim_frame_update=20)
+
+    # save initial position
+    self.init_pos = position
+
+    # interactions
+    self.is_active = True
+
+    # sprites
+    self.sprites = pygame.sprite.Group()
+
+    # add character sprite
+    self.sprites.add(self.thing_sprite)
+
+
+  def set_active(self, active):
+    """
+    set active
+    """
+    self.is_active = active
+
+
+  def define_character_sprite(self):
+    """
+    define the character for child classes intended
+    """
+    return CharacterSprite(self.position, self.scale)
+
+
+  def set_position(self, position, is_init_pos=False):
+    """
+    set position absolute
+    """
+
+    # set internal pos
+    self.position = position
+
+    # also set initial position
+    if is_init_pos: self.init_pos = position
+
+    # set rect
+    self.thing_sprite.rect.x = self.position[0]
+    self.thing_sprite.rect.y = self.position[1]
+
+
+  def reset(self):
+    """
+    reset stuff
+    """
+
+    # reset
+    self.is_active = True
+
+    # set init position
+    self.set_position(self.init_pos)
+
+
+  def update(self):
+    """
+    update character
+    """
+
+    # not active
+    if not self.is_active: return
+
+    # update sprites
+    self.sprites.update()
+
+
+  def draw(self):
+    """
+    draw all sprites of the character
+    """
+    self.sprites.draw(self.surf)
+
+
+
+class SpaceshipThingSprite(pygame.sprite.Sprite, SpritesheetRenderer):
   """
   spaceship thing
   """
@@ -121,9 +213,10 @@ class SpaceshipThing(pygame.sprite.Sprite, SpritesheetRenderer):
     self.image = self.get_actual_sprite()
 
 
+
 if __name__ == '__main__':
   """
-  test character
+  things
   """
   
   import yaml

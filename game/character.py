@@ -219,6 +219,11 @@ class Jim(Character):
     """
     speech command
     """
+
+    # not active
+    if not self.is_active: return
+
+    # bubbles
     if command == '_noise': self.activate_bubble_sprite(view='rubbish', activate=True)
     elif command == '_mixed': self.activate_bubble_sprite(view='question', activate=True)
 

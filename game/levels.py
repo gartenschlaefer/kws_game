@@ -31,8 +31,16 @@ class Level(Interactable):
     # sprites
     self.all_sprites = pygame.sprite.Group()
 
-    # interactable dict
-    self.interactable_dict = {} 
+    # interactable dict ordering of object!
+    self.interactable_dict = {
+      'win_canvas': Interactable(),
+      'loose_canvas': Interactable(),
+      'grid_world': Interactable(),
+      'enemy': Interactable(),
+      'character': Interactable(),
+      'game_logic': Interactable(),
+      'input_key_handler': Interactable(),
+      'input_mic_handler': Interactable()}
 
     # add some interactables
     self.define_interactables()
@@ -114,11 +122,11 @@ class Level(Interactable):
     # fill screen
     self.screen.fill(self.color_bag.background)
 
-    # draw sprites
-    self.all_sprites.draw(self.screen)
-
     # draw interactables
     for interactable in self.interactable_dict.values(): interactable.draw()
+
+    # draw sprites
+    self.all_sprites.draw(self.screen)
 
 
 
@@ -353,13 +361,8 @@ class LevelThings(LevelCharacter):
     # parent class init
     super().__init__(screen, screen_size, mic)
 
-    # create thing
-    #self.thing = Thing(position=self.interactable_dict['grid_world'].grid_to_pos([22, 18]), scale=(2, 2))
-    self.thing = SpaceshipThing(position=self.interactable_dict['grid_world'].grid_to_pos([22, 18]), scale=(2, 2))
-
-    # add to sprites
-    self.all_sprites.add(self.thing)
-    self.interactable_dict['character'].thing_sprites.add(self.thing)
+    # character sees thing
+    self.interactable_dict['character'].thing_sprites.add(self.interactable_dict['thing'].thing_sprite)
 
     # determine position
     self.interactable_dict['character'].set_position(self.interactable_dict['grid_world'].grid_to_pos([10, 10]), is_init_pos=True)
@@ -367,7 +370,6 @@ class LevelThings(LevelCharacter):
     # enemy things
     self.interactable_dict['enemy'].obstacle_sprites = self.interactable_dict['character'].obstacle_sprites
     self.interactable_dict['enemy'].hit_sprites.add(self.interactable_dict['character'].character_sprite)
-
 
 
   def define_interactables(self):
@@ -379,7 +381,9 @@ class LevelThings(LevelCharacter):
     super().define_interactables()
 
     # add interactable
-    self.interactable_dict.update({'enemy': Enemy(surf=self.screen, position=self.interactable_dict['grid_world'].grid_to_pos([20, 20]), scale=(2, 2), has_gravity=True, grid_move=False)})
+    self.interactable_dict.update({
+      'thing': SpaceshipThing(surf=self.screen, position=self.interactable_dict['grid_world'].grid_to_pos([22, 18]), scale=(2, 2)),
+      'enemy': Enemy(surf=self.screen, position=self.interactable_dict['grid_world'].grid_to_pos([18, 20]), scale=(2, 2), has_gravity=True, grid_move=False)})
 
 
   def reset(self):
@@ -391,8 +395,7 @@ class LevelThings(LevelCharacter):
     for interactable in self.interactable_dict.values(): interactable.reset()
 
     # add to sprites
-    self.all_sprites.add(self.thing)
-    self.interactable_dict['character'].thing_sprites.add(self.thing)
+    self.interactable_dict['character'].thing_sprites.add(self.interactable_dict['thing'].thing_sprite)
 
 
 
@@ -409,7 +412,7 @@ class Level_01(LevelThings):
     # determine start position
     self.interactable_dict['character'].set_position(self.interactable_dict['grid_world'].grid_to_pos([5, 20]), is_init_pos=True)
     self.interactable_dict['enemy'].set_position(self.interactable_dict['grid_world'].grid_to_pos([18, 20]), is_init_pos=True)
-    self.thing.set_position(self.interactable_dict['grid_world'].grid_to_pos([22, 18]), is_init_pos=True)
+    self.interactable_dict['thing'].set_position(self.interactable_dict['grid_world'].grid_to_pos([22, 18]), is_init_pos=True)
 
 
   def define_interactables(self):
@@ -465,11 +468,11 @@ class Level_02(LevelThings):
 
     # determine start position
     self.interactable_dict['character'].set_position(self.interactable_dict['grid_world'].grid_to_pos([22, 20]), is_init_pos=True)
-    self.thing.set_position(self.interactable_dict['grid_world'].grid_to_pos([2, 5]), is_init_pos=True)
     self.interactable_dict['enemy'].set_position(self.interactable_dict['grid_world'].grid_to_pos([5, 20]), is_init_pos=True)
+    self.interactable_dict['thing'].set_position(self.interactable_dict['grid_world'].grid_to_pos([2, 5]), is_init_pos=True)
 
     # other thing
-    self.thing.change_view_sprites(view='stir')
+    self.interactable_dict['thing'].thing_sprite.change_view_sprites(view='stir')
 
 
   def setup_level(self):
@@ -487,7 +490,7 @@ class Level_02(LevelThings):
     self.interactable_dict['grid_world'].wall_grid[:5, 7] = 1
 
     # move walls
-    self.interactable_dict['grid_world'].move_wall_grid[29, 22] = 1
+    self.interactable_dict['grid_world'].move_wall_grid[28, 20] = 1
     self.interactable_dict['grid_world'].move_wall_grid[27, 18] = 1
     self.interactable_dict['grid_world'].move_wall_grid[19, 16] = 1
     self.interactable_dict['grid_world'].move_wall_grid[4, 8] = 1

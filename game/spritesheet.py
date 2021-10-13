@@ -94,6 +94,35 @@ class SpritesheetBubbles(Spritesheet):
 
 
 
+class SpritesheetSpaceship(Spritesheet):
+  """
+  spritesheet class of Jim
+  """
+
+  def __init__(self, scale=(2, 2)):
+    
+    # Parent init
+    super().__init__(file=str(pathlib.Path(__file__).parent.absolute()) + '/art/spaceship/spaceship_spritesheet.png', scale=scale)
+
+
+  def define_sprite_cuts(self):
+    """
+    define individual cuts of sprites
+    """
+
+    # init cut dict
+    cut_dict = {}
+
+    # jim sprite cuts
+    cut_dict.update({'whole': [(i*64, 0, 64, 64) for i in range(0, 1)]})
+    cut_dict.update({'empty': [(i*64, 0, 64, 64) for i in range(1, 2)]})
+    cut_dict.update({'add_engine': [(i*64, 64*1, 64, 64) for i in range(0, 1)]})
+    cut_dict.update({'add_stir': [(i*64, 64*1, 64, 64) for i in range(1, 2)]})
+
+    return cut_dict
+
+
+
 class SpritesheetSpaceshipThing(Spritesheet):
   """
   spritesheet class of Jim
@@ -229,7 +258,7 @@ class SpritesheetRenderer():
 
 if __name__ == '__main__':
   """
-  test character
+  spritesheet
   """
 
   import yaml
@@ -256,14 +285,21 @@ if __name__ == '__main__':
   clock = pygame.time.Clock()
 
   # spritesheets
-  spritesheet = SpritesheetJim()
+  spritesheet_jim = SpritesheetJim()
   spritesheet_bubbles = SpritesheetBubbles()
+  spritesheet_spaceship = SpritesheetSpaceship()
   
-  screen.blit(spritesheet.sprite_dict['side-l'][0], (0, 0))
-  screen.blit(spritesheet.sprite_dict['side-r'][0], (50, 50))
+  screen.blit(spritesheet_jim.sprite_dict['side-l'][0], (0, 0))
+  screen.blit(spritesheet_jim.sprite_dict['side-r'][0], (50, 50))
 
   screen.blit(spritesheet_bubbles.sprite_dict['question'][0], (100, 50))
   screen.blit(spritesheet_bubbles.sprite_dict['rubbish'][0], (150, 50))
+
+  screen.blit(spritesheet_spaceship.sprite_dict['whole'][0], (100, 200))
+  screen.blit(spritesheet_spaceship.sprite_dict['empty'][0], (300, 200))
+  screen.blit(spritesheet_spaceship.sprite_dict['empty'][0], (500, 200))
+  screen.blit(spritesheet_spaceship.sprite_dict['add_stir'][0], (500, 200))
+  screen.blit(spritesheet_spaceship.sprite_dict['add_engine'][0], (500, 200))
 
   # game loop
   while game_logic.run_loop:
