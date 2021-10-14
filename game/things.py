@@ -5,13 +5,13 @@ things class
 import pygame
 import pathlib
 
-from spritesheet import SpritesheetRenderer, SpritesheetSpaceshipThing
+from spritesheet import SpritesheetRenderer, SpritesheetSpaceshipThing, SpritesheetSpaceship
 from interactable import Interactable
 
 
-class Thing(pygame.sprite.Sprite):
+class ThingOrigin(pygame.sprite.Sprite):
   """
-  thing class
+  thing originally
   """
 
   def __init__(self, position, scale=(2, 2)):
@@ -39,7 +39,7 @@ class Thing(pygame.sprite.Sprite):
     self.is_active = True
 
 
-  def set_position(self, position, is_init_pos=False):
+  def set_position(self, position):
     """
     set position absolute
     """
@@ -53,21 +53,17 @@ class Thing(pygame.sprite.Sprite):
 
 
 
-class SpaceshipThing(Interactable):
+class Thing(Interactable):
   """
-  spaceship thing class
+  thing base class
   """
 
-  def __init__(self, surf, position, scale=(2, 2), thing_type='engine'):
+  def __init__(self, surf, position, scale=(2, 2)):
 
     # arguments
     self.surf = surf
     self.position = position
     self.scale = scale
-    self.thing_type = thing_type
-
-    # character sprite
-    self.thing_sprite = SpaceshipThingSprite(self.position, self.scale, thing_type=self.thing_type, anim_frame_update=20)
 
     # save initial position
     self.init_pos = position
@@ -79,7 +75,24 @@ class SpaceshipThing(Interactable):
     self.sprites = pygame.sprite.Group()
 
     # add character sprite
-    self.sprites.add(self.thing_sprite)
+    self.sprites.add(self.define_sprites())
+
+
+  def change_view(self, view):
+    """
+    change view
+    """
+    [s.change_view_sprites(view=view) for s in self.sprites]
+
+
+  def define_sprites(self):
+    """
+    define sprites (overwrite this)
+    """
+
+    from character import CharacterSprite
+
+    return [CharacterSprite(position=self.position, scale=self.scale, anim_frame_update=5)]
 
 
   def set_active(self, active):
@@ -87,13 +100,6 @@ class SpaceshipThing(Interactable):
     set active
     """
     self.is_active = active
-
-
-  def define_character_sprite(self):
-    """
-    define the character for child classes intended
-    """
-    return CharacterSprite(self.position, self.scale)
 
 
   def set_position(self, position, is_init_pos=False):
@@ -107,9 +113,8 @@ class SpaceshipThing(Interactable):
     # also set initial position
     if is_init_pos: self.init_pos = position
 
-    # set rect
-    self.thing_sprite.rect.x = self.position[0]
-    self.thing_sprite.rect.y = self.position[1]
+    # set sprite position
+    [s.set_position(self.position) for s in self.sprites]
 
 
   def reset(self):
@@ -144,6 +149,50 @@ class SpaceshipThing(Interactable):
 
 
 
+class SpaceshipThing(Thing):
+  """
+  spaceship thing class
+  """
+
+  def __init__(self, surf, position, scale=(2, 2), thing_type='engine'):
+
+    # arguments
+    self.thing_type = thing_type
+
+    # parent init
+    super().__init__(surf=surf, position=position, scale=scale)
+
+
+  def define_sprites(self):
+    """
+    define sprites (overwrite this)
+    """
+    return [SpaceshipThingSprite(self.position, self.scale, thing_type=self.thing_type, anim_frame_update=20)]
+
+
+
+class Spaceship(Thing):
+  """
+  spaceship thing class
+  """
+
+  def __init__(self, surf, position, scale=(2, 2), thing_type='whole'):
+
+    # arguments
+    self.thing_type = thing_type
+
+    # parent init
+    super().__init__(surf=surf, position=position, scale=scale)
+
+
+  def define_sprites(self):
+    """
+    define sprites (overwrite this)
+    """
+    return [SpaceshipSprite(self.position, self.scale, thing_type=self.thing_type, anim_frame_update=20)]
+
+
+
 class SpaceshipThingSprite(pygame.sprite.Sprite, SpritesheetRenderer):
   """
   spaceship thing
@@ -174,7 +223,7 @@ class SpaceshipThingSprite(pygame.sprite.Sprite, SpritesheetRenderer):
     self.change_view_sprites(view=self.thing_type)
 
 
-  def set_position(self, position, is_init_pos=False):
+  def set_position(self, position):
     """
     set position absolute
     """
@@ -194,11 +243,8 @@ class SpaceshipThingSprite(pygame.sprite.Sprite, SpritesheetRenderer):
 
     # init sprite sheet
     self.spritesheet = SpritesheetSpaceshipThing(scale=self.scale)
-      
-    # sprite dict
-    sprite_dict = self.spritesheet.sprite_dict
 
-    return sprite_dict
+    return self.spritesheet.sprite_dict
 
 
   def update(self):
@@ -211,6 +257,23 @@ class SpaceshipThingSprite(pygame.sprite.Sprite, SpritesheetRenderer):
 
     # update
     self.image = self.get_actual_sprite()
+
+
+
+class SpaceshipSprite(SpaceshipThingSprite):
+  """
+  spaceship
+  """
+
+  def define_sprite_dictionary(self):
+    """
+    sprite sheet to dictionary
+    """
+
+    # init sprite sheet
+    self.spritesheet = SpritesheetSpaceship(scale=self.scale)
+
+    return self.spritesheet.sprite_dict
 
 
 
@@ -234,6 +297,9 @@ if __name__ == '__main__':
 
   # level creation
   levels = [LevelThings(screen, cfg['game']['screen_size']), Level_01(screen, cfg['game']['screen_size'])]
+
+  # add a spaceship to the level
+  levels[0].interactable_dict.update({'new_thing': Spaceship(surf=screen, position=(100, 100), scale=(2, 2), thing_type='empty')})
 
   # level handler
   level_handler = LevelHandler(levels=levels)

@@ -73,8 +73,7 @@ class Character(Interactable, Moveable):
     if is_init_pos: self.init_pos = position
 
     # set rect
-    self.character_sprite.rect.x = self.position[0]
-    self.character_sprite.rect.y = self.position[1]
+    self.character_sprite.set_position(self.position)
 
 
   def is_moveable(self):
@@ -299,6 +298,19 @@ class CharacterSprite(pygame.sprite.Sprite, SpritesheetRenderer):
     sprite_dict['side-l'][0].fill((50, 50, 100))
 
     return sprite_dict
+
+
+  def set_position(self, position, is_init_pos=False):
+    """
+    set position absolute
+    """
+
+    # set internal pos
+    self.position = position
+
+    # set rect
+    self.rect.x = self.position[0]
+    self.rect.y = self.position[1]
 
 
   def update(self):

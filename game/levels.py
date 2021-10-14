@@ -362,7 +362,7 @@ class LevelThings(LevelCharacter):
     super().__init__(screen, screen_size, mic)
 
     # character sees thing
-    self.interactable_dict['character'].thing_sprites.add(self.interactable_dict['thing'].thing_sprite)
+    self.interactable_dict['character'].thing_sprites.add(self.interactable_dict['thing'].sprites)
 
     # determine position
     self.interactable_dict['character'].set_position(self.interactable_dict['grid_world'].grid_to_pos([10, 10]), is_init_pos=True)
@@ -395,7 +395,7 @@ class LevelThings(LevelCharacter):
     for interactable in self.interactable_dict.values(): interactable.reset()
 
     # add to sprites
-    self.interactable_dict['character'].thing_sprites.add(self.interactable_dict['thing'].thing_sprite)
+    self.interactable_dict['character'].thing_sprites.add(self.interactable_dict['thing'].sprites)
 
 
 
@@ -472,7 +472,7 @@ class Level_02(LevelThings):
     self.interactable_dict['thing'].set_position(self.interactable_dict['grid_world'].grid_to_pos([2, 5]), is_init_pos=True)
 
     # other thing
-    self.interactable_dict['thing'].thing_sprite.change_view_sprites(view='stir')
+    self.interactable_dict['thing'].change_view(view='stir')
 
 
   def setup_level(self):
