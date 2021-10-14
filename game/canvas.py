@@ -10,6 +10,7 @@ from text import Text
 from button import StartButton, EndButton, HelpButton, OptionButton, DeviceButton, ThreshButton, CmdButton
 from color_bag import ColorBag
 from mic_bar import MicBar
+from things import Spaceship
 
 
 class Canvas(Interactable):
@@ -414,9 +415,9 @@ class CanvasDevice(Canvas):
 
 
 
-class CanvasWin(Canvas):
+class CanvasPrompt(Canvas):
   """
-  win canvas
+  prompt canvas
   """
 
   def __init__(self, screen, size=None, position=(0, 0)):
@@ -432,7 +433,7 @@ class CanvasWin(Canvas):
 
     # update
     self.interactable_dict.update({
-      'title': Text(self.canvas_surf, message='Win', position=(275, 75), font_size='big', color=self.color_bag.text_win), 
+      'title': Text(self.canvas_surf, message='Prompt', position=(250, 75), font_size='big', color=self.color_bag.text_win), 
       'sub': Text(self.canvas_surf, message='press Enter', position=(250, 125), font_size='small', color=self.color_bag.text_win)})
 
 
@@ -449,18 +450,67 @@ class CanvasWin(Canvas):
 
 
 
-class CanvasLoose(CanvasWin):
+class CanvasWin(CanvasPrompt):
+  """
+  win canvas
+  """
+
+  def __init__(self, screen, size=None, position=(0, 0)):
+
+    # parent init
+    super().__init__(screen, size=size, position=position)
+
+    # change title
+    self.interactable_dict['title'].change_message('Level Complete', position=(200, 75))
+    self.interactable_dict['sub'].change_message('press Enter', position=(200, 125))
+
+    # spaceship
+    self.interactable_dict.update({'spaceship': Spaceship(surf=self.canvas_surf, position=(250, 175), scale=(2, 2), thing_type='empty')})
+
+
+  def add_spaceship_part(self, thing_type=None):
+    """
+    add part of spaceship
+    """
+    if thing_type is not None: self.interactable_dict.update({'spaceship_engine': Spaceship(surf=self.canvas_surf, position=(250, 175), scale=(2, 2), thing_type=thing_type)})
+
+
+
+class CanvasLoose(CanvasPrompt):
   """
   loose canvas (changed from win canvas)
   """
 
   def __init__(self, screen, size=None, position=(0, 0)):
 
-    # Parent init
+    # parent init
     super().__init__(screen, size=size, position=position)
 
     # change title
     self.interactable_dict['title'].change_message('Loose', position=(250, 75))
+
+
+
+class CanvasCredits(CanvasPrompt):
+  """
+  credits canvas
+  """
+
+  def __init__(self, screen, size=None, position=(0, 0)):
+
+    # parent init
+    super().__init__(screen, size=size, position=position)
+
+    # change title
+    self.interactable_dict['title'].change_message('Credits', position=(230, 75))
+    self.interactable_dict.update({'sub': Interactable()})
+
+    # my text
+    self.interactable_dict.update({'text_chris': Text(self.canvas_surf, message='Christian Walter', position=(230, 175), font_size='small', color=self.color_bag.text_win)})
+    self.interactable_dict.update({'text_tu': Text(self.canvas_surf, message='TU Graz', position=(230, 200), font_size='small', color=self.color_bag.text_win)})
+
+    # spaceship
+    self.interactable_dict.update({'spaceship': Spaceship(surf=self.canvas_surf, position=(250, 265), scale=(2, 2), thing_type='whole')})
 
 
 
@@ -485,7 +535,11 @@ if __name__ == '__main__':
   screen = pygame.display.set_mode(cfg['game']['screen_size'])
 
   # menu
-  canvas = CanvasMainMenu(screen)
+  #canvas = CanvasMainMenu(screen)
+  #canvas = CanvasLoose(screen)
+  #canvas = CanvasWin(screen)
+  canvas = CanvasCredits(screen)
+  canvas.enabled = True
 
   # game logic
   game_logic = GameLogic()

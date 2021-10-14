@@ -42,21 +42,11 @@ class Level(Interactable):
       'input_key_handler': Interactable(),
       'input_mic_handler': Interactable()}
 
-    # add some interactables
-    self.define_interactables()
-
     # game logic
     self.define_game_logic()
 
     # key handler
     self.interactable_dict.update({'input_key_handler': InputKeyHandler(objs=[self.interactable_dict['game_logic']])})
-
-
-  def define_interactables(self):
-    """
-    define interactables
-    """
-    pass
 
 
   def define_game_logic(self):
@@ -145,17 +135,11 @@ class LevelMic(Level):
     # arguments
     self.mic = mic
 
+    # add mic bar
+    self.interactable_dict.update({'mic_bar': MicBar(self.screen, self.mic, position=(200, 200), bar_size=(50, 150), scale_margin=(50, 40))})
+
     # append to key handler
     self.interactable_dict['input_key_handler'].objs.append(self.interactable_dict['mic_bar'])
-
-
-  def define_interactables(self):
-    """
-    define interactables
-    """
-
-    # append interactable
-    self.interactable_dict.update({'mic_bar': MicBar(self.screen, self.mic, position=(200, 200), bar_size=(50, 150), scale_margin=(50, 40))})
 
 
 
@@ -169,8 +153,10 @@ class LevelGrid(Level):
     # parent class init
     super().__init__(screen, screen_size)
 
-    # new vars
+    # new arguments
     self.mic = mic
+
+    self.interactable_dict.update({'grid_world': GridWorld(self.screen_size, self.color_bag)})
 
     # setup
     self.setup_level()
@@ -180,18 +166,6 @@ class LevelGrid(Level):
 
     # append input handler
     self.interactable_dict['input_key_handler'].objs.append(self.interactable_dict['grid_world']) if mic is None else self.interactable_dict.update({'input_mic_handler': InputMicHandler(objs=[self.interactable_dict['grid_world']], mic=self.mic)})
-
-
-  def define_interactables(self):
-    """
-    define interactables
-    """
-
-    # parent
-    super().define_interactables()
-
-    # append interactable
-    self.interactable_dict.update({'grid_world': GridWorld(self.screen_size, self.color_bag)})
     
 
   def setup_level(self):
@@ -276,6 +250,14 @@ class LevelCharacter(LevelGrid):
     # parent class init
     super().__init__(screen, screen_size, mic)
 
+    # add interactable
+    self.interactable_dict.update({
+      #'character': Character(surf=self.screen, position=(self.screen_size[0]//2, self.screen_size[1]//2), scale=(2, 2), has_gravity=True, grid_move=False), 
+      #'character': Henry(surf=self.screen, position=(self.screen_size[0]//2, self.screen_size[1]//2), scale=(2, 2), has_gravity=True, grid_move=False), 
+      'character': Jim(surf=self.screen, position=(self.screen_size[0]//2, self.screen_size[1]//2), scale=(2, 2), has_gravity=True, grid_move=False), 
+      'win_canvas': CanvasWin(self.screen), 
+      'loose_canvas': CanvasLoose(self.screen)})
+
     # key handler objects
     self.interactable_dict['input_key_handler'].objs.append(self.interactable_dict['character'])
 
@@ -285,22 +267,8 @@ class LevelCharacter(LevelGrid):
     # see walls
     self.interactable_dict['character'].obstacle_sprites.add(self.interactable_dict['grid_world'].wall_sprites, self.interactable_dict['grid_world'].move_wall_sprites)
 
-
-  def define_interactables(self):
-    """
-    define interactables
-    """
-
-    # parent
-    super().define_interactables()
-
-    # add interactable
-    self.interactable_dict.update({
-      #'character': Character(surf=self.screen, position=(self.screen_size[0]//2, self.screen_size[1]//2), scale=(2, 2), has_gravity=True, grid_move=False), 
-      #'character': Henry(surf=self.screen, position=(self.screen_size[0]//2, self.screen_size[1]//2), scale=(2, 2), has_gravity=True, grid_move=False), 
-      'character': Jim(surf=self.screen, position=(self.screen_size[0]//2, self.screen_size[1]//2), scale=(2, 2), has_gravity=True, grid_move=False), 
-      'win_canvas': CanvasWin(self.screen), 
-      'loose_canvas': CanvasLoose(self.screen)})
+    # thing type for win
+    self.thing_type = None
 
 
   def define_game_logic(self):
@@ -317,6 +285,9 @@ class LevelCharacter(LevelGrid):
 
     # inactivate objects
     [interactable.set_active(False) for interactable in self.interactable_dict.values()]
+
+    # add to spaceship
+    self.interactable_dict['win_canvas'].add_spaceship_part(thing_type=self.thing_type)
 
     # activate win canvas
     self.interactable_dict['win_canvas'].enabled = True
@@ -361,6 +332,14 @@ class LevelThings(LevelCharacter):
     # parent class init
     super().__init__(screen, screen_size, mic)
 
+    # thing type for win
+    self.thing_type = 'engine'
+
+    # add interactable
+    self.interactable_dict.update({
+      'thing': SpaceshipThing(surf=self.screen, position=self.interactable_dict['grid_world'].grid_to_pos([22, 18]), scale=(2, 2), thing_type=self.thing_type),
+      'enemy': Enemy(surf=self.screen, position=self.interactable_dict['grid_world'].grid_to_pos([18, 20]), scale=(2, 2), has_gravity=True, grid_move=False)})
+
     # character sees thing
     self.interactable_dict['character'].thing_sprites.add(self.interactable_dict['thing'].sprites)
 
@@ -370,20 +349,6 @@ class LevelThings(LevelCharacter):
     # enemy things
     self.interactable_dict['enemy'].obstacle_sprites = self.interactable_dict['character'].obstacle_sprites
     self.interactable_dict['enemy'].hit_sprites.add(self.interactable_dict['character'].character_sprite)
-
-
-  def define_interactables(self):
-    """
-    define interactables
-    """
-
-    # parent
-    super().define_interactables()
-
-    # add interactable
-    self.interactable_dict.update({
-      'thing': SpaceshipThing(surf=self.screen, position=self.interactable_dict['grid_world'].grid_to_pos([22, 18]), scale=(2, 2)),
-      'enemy': Enemy(surf=self.screen, position=self.interactable_dict['grid_world'].grid_to_pos([18, 20]), scale=(2, 2), has_gravity=True, grid_move=False)})
 
 
   def reset(self):
@@ -409,25 +374,16 @@ class Level_01(LevelThings):
     # parent class init
     super().__init__(screen, screen_size, mic)
 
-    # determine start position
-    self.interactable_dict['character'].set_position(self.interactable_dict['grid_world'].grid_to_pos([5, 20]), is_init_pos=True)
-    self.interactable_dict['enemy'].set_position(self.interactable_dict['grid_world'].grid_to_pos([18, 20]), is_init_pos=True)
-    self.interactable_dict['thing'].set_position(self.interactable_dict['grid_world'].grid_to_pos([22, 18]), is_init_pos=True)
-
-
-  def define_interactables(self):
-    """
-    define interactables
-    """
-
-    # parent
-    super().define_interactables()
-
     # add canvas
     self.interactable_dict.update({
       'level_text1': Text(self.screen, message='say "left", "right", etc. for movement', position=(50, 50), font_size='tiny_small', color=self.color_bag.text_level_background),
       'level_text2': Text(self.screen, message='say "go" to switch blocks', position=(50, 80), font_size='tiny_small', color=self.color_bag.text_level_background)
       })
+
+    # determine start position
+    self.interactable_dict['character'].set_position(self.interactable_dict['grid_world'].grid_to_pos([5, 20]), is_init_pos=True)
+    self.interactable_dict['enemy'].set_position(self.interactable_dict['grid_world'].grid_to_pos([18, 20]), is_init_pos=True)
+    self.interactable_dict['thing'].set_position(self.interactable_dict['grid_world'].grid_to_pos([22, 18]), is_init_pos=True)
 
 
   def setup_level(self):
@@ -466,13 +422,16 @@ class Level_02(LevelThings):
     # parent class init
     super().__init__(screen, screen_size, mic)
 
+    # thing type for win
+    self.thing_type = 'stir'
+
     # determine start position
     self.interactable_dict['character'].set_position(self.interactable_dict['grid_world'].grid_to_pos([22, 20]), is_init_pos=True)
     self.interactable_dict['enemy'].set_position(self.interactable_dict['grid_world'].grid_to_pos([5, 20]), is_init_pos=True)
     self.interactable_dict['thing'].set_position(self.interactable_dict['grid_world'].grid_to_pos([2, 5]), is_init_pos=True)
 
     # other thing
-    self.interactable_dict['thing'].change_view(view='stir')
+    self.interactable_dict['thing'].change_view(view=self.thing_type)
 
 
   def setup_level(self):

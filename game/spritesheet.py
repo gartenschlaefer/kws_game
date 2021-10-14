@@ -116,8 +116,8 @@ class SpritesheetSpaceship(Spritesheet):
     # jim sprite cuts
     cut_dict.update({'whole': [(i*64, 0, 64, 64) for i in range(0, 1)]})
     cut_dict.update({'empty': [(i*64, 0, 64, 64) for i in range(1, 2)]})
-    cut_dict.update({'add_engine': [(i*64, 64*1, 64, 64) for i in range(0, 1)]})
-    cut_dict.update({'add_stir': [(i*64, 64*1, 64, 64) for i in range(1, 2)]})
+    cut_dict.update({'engine': [(i*64, 64*1, 64, 64) for i in range(0, 1)]})
+    cut_dict.update({'stir': [(i*64, 64*1, 64, 64) for i in range(1, 2)]})
 
     return cut_dict
 
