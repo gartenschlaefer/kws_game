@@ -10,7 +10,9 @@ from text import Text
 from button import StartButton, EndButton, HelpButton, OptionButton, DeviceButton, ThreshButton, CmdButton
 from color_bag import ColorBag
 from mic_bar import MicBar
-from things import Spaceship
+from things import Spaceship, SpaceshipSprite
+from character import JimSprite, BubbleSprite
+from enemy import EnemySprite
 
 
 class Canvas(Interactable):
@@ -46,7 +48,7 @@ class Canvas(Interactable):
     reset level
     """
 
-    # reenable
+    # re enable
     self.enabled = True
 
     # interactables reset
@@ -72,7 +74,7 @@ class Canvas(Interactable):
     if not self.enabled: return
 
     # update all interactables
-    for interactable in self.interactable_dict.values(): interactable.update()
+    [interactable.update() for interactable in self.interactable_dict.values()]
 
 
   def draw(self):
@@ -86,7 +88,7 @@ class Canvas(Interactable):
     self.canvas_surf.fill(self.color_background)
 
     # blit stuff
-    for interactable in self.interactable_dict.values(): interactable.draw()
+    [interactable.draw() for interactable in self.interactable_dict.values()]
 
     # draw canvas
     self.screen.blit(self.canvas_surf, self.position)
@@ -104,10 +106,24 @@ class CanvasMainMenu(Canvas):
     super().__init__(screen)
 
     # add text
-    text = Text(self.canvas_surf, message='main menu', position=(0, 0), font_size='small', color=self.color_bag.text_menu)
+    #self.interactable_dict.update({'text': Text(self.canvas_surf, message='main menu', position=(0, 0), font_size='small', color=self.color_bag.text_menu)})
 
     # update canvas objects
-    self.interactable_dict.update({'text': text, 'start_button': StartButton(self.canvas_surf, position=(30, 75), scale=(3, 3)), 'help_button': HelpButton(self.canvas_surf, position=(30, 175), scale=(3, 3)), 'option_button': OptionButton(self.canvas_surf, position=(30, 275), scale=(3, 3)), 'end_button': EndButton(self.canvas_surf, position=(30, 375), scale=(3, 3))})
+    self.interactable_dict.update({'start_button': StartButton(self.canvas_surf, position=(30, 75), scale=(3, 3)), 'help_button': HelpButton(self.canvas_surf, position=(30, 175), scale=(3, 3)), 'option_button': OptionButton(self.canvas_surf, position=(30, 275), scale=(3, 3)), 'end_button': EndButton(self.canvas_surf, position=(30, 375), scale=(3, 3))})
+
+    # sprites
+    self.sprites_overlay = pygame.sprite.Group()
+
+    # add overlay sprites
+    self.sprites_overlay.add(JimSprite(position=(400, 300), scale=(2, 2)), SpaceshipSprite(position=(250, 220), scale=(2, 2), thing_type='empty'))
+
+
+  def draw_overlay(self):
+    """
+    draw overlay
+    """
+    if not self.enabled: return
+    self.sprites_overlay.draw(self.screen)
 
 
 
@@ -122,15 +138,33 @@ class CanvasHelpMenu(Canvas):
     super().__init__(screen)
 
     # add text
-    self.interactable_dict.update({'text_menu_info': Text(self.canvas_surf, message='help', position=(0, 0), font_size='small', color=self.color_bag.text_menu)})
-    self.interactable_dict.update({'text_help1': Text(self.canvas_surf, message='Movement: Arrow keys and Space for jump', position=(40, 50 + 30), font_size='tiny_small', color=self.color_bag.text_menu)})
-    self.interactable_dict.update({'text_help2': Text(self.canvas_surf, message='A Microphone is needed to capture speech commands', position=(40, 50 + 60), font_size='tiny_small', color=self.color_bag.text_menu)})
-    self.interactable_dict.update({'text_help3': Text(self.canvas_surf, message='Checkout the option menu for your Mircrophone settings', position=(40, 50 + 90), font_size='tiny_small', color=self.color_bag.text_menu)})
-    self.interactable_dict.update({'text_help4': Text(self.canvas_surf, message='Use speech commands [left, right, up, down, go]', position=(40, 50 + 120), font_size='tiny_small', color=self.color_bag.text_menu)})
-    self.interactable_dict.update({'text_credits': Text(self.canvas_surf, message='Credits: Christian Walter', position=(40, 50 + 200), font_size='tiny_small', color=self.color_bag.text_menu)})
+    self.interactable_dict.update({'text_title': Text(self.canvas_surf, message='Help', position=(270, 20), font_size='small', color=self.color_bag.text_menu)})
+    self.interactable_dict.update({'text_project': Text(self.canvas_surf, message='Key Word Spotting Game, MA thesis project @TUGraz.', position=(40, 75 + 25*0 + 10*0), font_size='tiny_small', color=self.color_bag.text_menu)})
+    self.interactable_dict.update({'text_controls': Text(self.canvas_surf, message='Controls:', position=(40, 75 + 25*1 + 10*1), font_size='tiny_small', color=self.color_bag.text_menu)})
+    self.interactable_dict.update({'text_help1': Text(self.canvas_surf, message='Movement: [Arrow keys], Jump: [Space], End: [ESC]', position=(40, 75 + 25*2 + 10*1), font_size='tiny_small', color=self.color_bag.text_menu)})
+    self.interactable_dict.update({'text_help2': Text(self.canvas_surf, message='Speech commands: [left, right, up, down, go]', position=(40, 75 + 25*3 + 10*1), font_size='tiny_small', color=self.color_bag.text_menu)})
+    self.interactable_dict.update({'text_help3': Text(self.canvas_surf, message='A microphone is necessary to play this game.', position=(40, 75 + 25*4 + 10*2), font_size='tiny_small', color=self.color_bag.text_menu)})
+    self.interactable_dict.update({'text_help4': Text(self.canvas_surf, message='Checkout the option menu for your mircrophone settings.', position=(40, 75 + 25*5 + 10*2), font_size='tiny_small', color=self.color_bag.text_menu)})
+    self.interactable_dict.update({'text_help5': Text(self.canvas_surf, message='Collect spaceship parts to win the game.', position=(40, 75 + 25*6 + 10*3), font_size='tiny_small', color=self.color_bag.text_menu)})
+    self.interactable_dict.update({'text_help6': Text(self.canvas_surf, message='Game Version: 1.0.0', position=(40, 75 + 25*7 + 10*4), font_size='tiny_small', color=self.color_bag.text_menu)})
+    #self.interactable_dict.update({'text_credits': Text(self.canvas_surf, message='Credits: Christian Walter', position=(40, 50 + 200), font_size='tiny_small', color=self.color_bag.text_menu)})
 
     # end button
     self.interactable_dict.update({'end_button': EndButton(self.canvas_surf, position=(30, 375), scale=(3, 3))})
+
+    # sprites
+    self.sprites_overlay = pygame.sprite.Group()
+
+    # add overlay sprites
+    self.sprites_overlay.add(JimSprite(position=(275, 375), scale=(2, 2)), BubbleSprite(position=(275 - 26, 375 - 30), scale=(2, 2)))
+
+
+  def draw_overlay(self):
+    """
+    draw overlay
+    """
+    if not self.enabled: return
+    self.sprites_overlay.draw(self.screen)
 
 
 
@@ -148,22 +182,24 @@ class CanvasOptionMenu(Canvas):
     self.mic = mic
 
     # add text
-    text = Text(self.canvas_surf, message='options', position=(0, 0), font_size='small', color=self.color_bag.text_menu)
+    self.interactable_dict.update({'text': Text(self.canvas_surf, message='Options', position=(270, 20), font_size='small', color=self.color_bag.text_menu)})
 
     # mic bar
-    mic_bar = MicBar(self.canvas_surf, self.mic, position=(540, 225), bar_size=(30, 150), scale_margin=(50, 40))
+    #mic_bar = MicBar(self.canvas_surf, self.mic, position=(540, 225), bar_size=(30, 150), scale_margin=(50, 40))
+    self.interactable_dict.update({'mic_bar': MicBar(self.canvas_surf, self.mic, position=(545, 100), bar_size=(20, 250), scale_margin=(50, 40))})
 
     # device canvas
-    self.interactable_dict.update({'device_canvas': CanvasDevice(self.canvas_surf, self.mic, size=(350, 380), position=(170, 50))})
+    self.interactable_dict.update({'device_canvas': CanvasDevice(self.canvas_surf, self.mic, size=(340, 340), position=(170, 77))})
 
     # thresh canvas
-    self.interactable_dict.update({'thresh_canvas': CanvasThresh(self.canvas_surf, self.mic, size=(350, 380), position=(170, 50))})
+    self.interactable_dict.update({'thresh_canvas': CanvasThresh(self.canvas_surf, self.mic, size=(340, 340), position=(170, 77))})
     
     # command canvas
-    self.interactable_dict.update({'cmd_canvas': CanvasCommand(self.canvas_surf, self.mic, size=(350, 380), position=(170, 50))})
+    self.interactable_dict.update({'cmd_canvas': CanvasCommand(self.canvas_surf, self.mic, size=(340, 340), position=(170, 77))})
 
-    # update canvas objects
-    self.interactable_dict.update({'text': text, 'mic_bar': mic_bar, 'cmd_button': CmdButton(self.canvas_surf, position=(30, 75), scale=(3, 3)), 'thresh_button': ThreshButton(self.canvas_surf, position=(30, 175), scale=(3, 3)), 'device_button': DeviceButton(self.canvas_surf, position=(30, 275), scale=(3, 3)), 'end_button': EndButton(self.canvas_surf, position=(30, 375), scale=(3, 3))})
+    # add buttons
+    self.interactable_dict.update({'cmd_button': CmdButton(self.canvas_surf, position=(30, 75), scale=(3, 3)), 'thresh_button': ThreshButton(self.canvas_surf, position=(30, 175), scale=(3, 3)), 'device_button': DeviceButton(self.canvas_surf, position=(30, 275), scale=(3, 3)), 'end_button': EndButton(self.canvas_surf, position=(30, 375), scale=(3, 3))})
+   
 
 
 
@@ -190,19 +226,18 @@ class CanvasCommand(Canvas):
     self.num_kws_cmds = 5
 
     # info text
-    self.interactable_dict.update({'text_info': Text(self.canvas_surf, message='speech commands: ', position=(0, 0), font_size='small', color=self.color_bag.text_menu)})
+    self.interactable_dict.update({'text_info': Text(self.canvas_surf, message='Speech Commands', position=(5, 5), font_size='tiny_small', color=self.color_bag.text_menu)})
     
     # class dict text
-    self.interactable_dict.update({'text_model': Text(self.canvas_surf, message='model: {}'.format(self.mic.classifier.nn_arch), position=(20, 40), font_size='tiny', color=self.color_bag.text_menu)})
-    self.interactable_dict.update({'text_class_dict': Text(self.canvas_surf, message='key words:', position=(20, 60), font_size='tiny', color=self.color_bag.text_menu)})
+    self.interactable_dict.update({'text_model': Text(self.canvas_surf, message='Model: {}'.format(self.mic.classifier.nn_arch), position=(20, 40), font_size='tiny', color=self.color_bag.text_menu)})
+    self.interactable_dict.update({'text_class_dict': Text(self.canvas_surf, message='Dictionary:', position=(20, 60), font_size='tiny', color=self.color_bag.text_menu)})
 
     # class text
     self.interactable_dict.update({'text_class{}'.format(v): Text(self.canvas_surf, message='{}'.format(k), position=(30 + 90 * int(v > 5), 80 + 15 * v - 90 * int(v > 5)), font_size='tiny', color=self.color_bag.text_menu) for (k, v) in self.mic.classifier.class_dict.items()})
 
     # kws text
-    self.interactable_dict.update({'text_kws': Text(self.canvas_surf, message='key word spotting:', position=(20, 210), font_size='tiny_small', color=self.color_bag.text_menu_active, enabled=False)})    
-    self.interactable_dict.update({'text_cmd{}'.format(i): Text(self.canvas_surf, message='_', position=(50, 240 + 18 * i), font_size='tiny_small', color=self.color_bag.text_menu_active, enabled=False) for i in range(0, self.num_kws_cmds)})
-    #self.interactable_dict.update({'text_cmd0': Text(self.canvas_surf, message='_', position=(50, 240), font_size='tiny_small', color=self.color_bag.text_menu_active, enabled=False)})
+    self.interactable_dict.update({'text_kws': Text(self.canvas_surf, message='Key Word Spotting', position=(5, 200), font_size='tiny_small', color=self.color_bag.text_menu_active, enabled=False)})    
+    self.interactable_dict.update({'text_cmd{}'.format(i): Text(self.canvas_surf, message='_', position=(50, 230 + 18 * i), font_size='tiny_small', color=self.color_bag.text_menu_active, enabled=False) for i in range(0, self.num_kws_cmds)})
 
 
   def select(self, active):
@@ -211,10 +246,7 @@ class CanvasCommand(Canvas):
     """
 
     # reset texts
-    if active:
-      for i in range(self.num_kws_cmds):
-        self.interactable_dict['text_cmd{}'.format(i)].message = '_'
-        self.interactable_dict['text_cmd{}'.format(i)].render()
+    if active: [self.interactable_dict['text_cmd{}'.format(i)].change_message(message='_') for i in range(self.num_kws_cmds)]
 
     # enable text
     self.interactable_dict['text_kws'].enabled = True if active else False
@@ -239,18 +271,12 @@ class CanvasCommand(Canvas):
 
     # interpret command
     if command is not None:
-      print("command: ", command)
-
-      # listing downwards
-      for i in range(self.num_kws_cmds - 1, 0, -1):
         
-        # update render message
-        self.interactable_dict['text_cmd{}'.format(i)].message = self.interactable_dict['text_cmd{}'.format(i-1)].message
-        self.interactable_dict['text_cmd{}'.format(i)].render()
+      # update render message
+      [self.interactable_dict['text_cmd{}'.format(i)].change_message(message=self.interactable_dict['text_cmd{}'.format(i-1)].message) for i in range(self.num_kws_cmds - 1, 0, -1)]
 
       # first entry is always the command
-      self.interactable_dict['text_cmd0'].message = command
-      self.interactable_dict['text_cmd0'].render()
+      self.interactable_dict['text_cmd0'].change_message(message=command)
 
 
 
@@ -277,7 +303,7 @@ class CanvasThresh(Canvas):
     self.energy_thresh_db = self.mic.mic_params['energy_thresh_db']
 
     # info text
-    self.interactable_dict.update({'text_info': Text(self.canvas_surf, message='energy threshold: ', position=(0, 0), font_size='small', color=self.color_bag.text_menu)})
+    self.interactable_dict.update({'text_info': Text(self.canvas_surf, message='Energy Threshold', position=(5, 5), font_size='tiny_small', color=self.color_bag.text_menu)})
     
     # energy text
     self.interactable_dict.update({'text_energy': Text(self.canvas_surf, message='e: {:.1f}dB'.format(self.energy_thresh_db), position=(20, 40), font_size='tiny', color=self.color_bag.text_menu)})
@@ -292,18 +318,14 @@ class CanvasThresh(Canvas):
     self.energy_thresh_db = self.mic.mic_params['energy_thresh_db']
 
     # update render message
-    self.interactable_dict['text_energy'].message = 'e: {:.1f}dB'.format(self.energy_thresh_db)
-    self.interactable_dict['text_energy'].render()
+    self.interactable_dict['text_energy'].change_message(message='e: {:.1f}dB'.format(self.energy_thresh_db))
 
 
   def select(self, active):
     """
     select by clicking enter -> change color and make it editable
     """
-
-    # set color and render
-    self.interactable_dict['text_energy'].color = self.color_bag.text_menu_active if active else self.color_bag.text_menu
-    self.interactable_dict['text_energy'].render()
+    self.interactable_dict['text_energy'].change_message(color=self.color_bag.text_menu_active if active else self.color_bag.text_menu)
 
 
   def change_energy_thresh_key(self, ud=0):
@@ -315,8 +337,7 @@ class CanvasThresh(Canvas):
     self.energy_thresh_db -= ud * 0.5
 
     # update render message
-    self.interactable_dict['text_energy'].message = 'e: {:.1f}dB'.format(self.energy_thresh_db)
-    self.interactable_dict['text_energy'].render()
+    self.interactable_dict['text_energy'].change_message(message='e: {:.1f}dB'.format(self.energy_thresh_db), position=None, color=None)
 
 
 
@@ -346,7 +367,7 @@ class CanvasDevice(Canvas):
     self.device_id_dict = {}
 
     # update
-    self.interactable_dict.update({'text_info': Text(self.canvas_surf, message='devices: ', position=(0, 0), font_size='small', color=self.color_bag.text_menu)})
+    self.interactable_dict.update({'text_info': Text(self.canvas_surf, message='Devices', position=(5, 5), font_size='tiny_small', color=self.color_bag.text_menu)})
 
     # active device number and id
     self.active_device_num = 0
@@ -365,7 +386,7 @@ class CanvasDevice(Canvas):
     device_dicts = self.mic.extract_devices()
 
     # selector
-    text_indicator = Text(self.canvas_surf, message='*', position=(5, 40), font_size='tiny', color=self.color_bag.text_menu)
+    text_indicator = Text(self.canvas_surf, message='*', position=(7, 40), font_size='tiny', color=self.color_bag.text_menu)
 
     for i, (num_device, device_dict) in enumerate(device_dicts.items()):
 
@@ -376,7 +397,7 @@ class CanvasDevice(Canvas):
       if num_device == self.mic.device:
         self.active_device_num = num_device
         self.active_device_id = i
-        text_indicator.position = (5, i * 25 + 40)
+        text_indicator.position = (7, i * 25 + 40)
 
       # device id dict update
       self.device_id_dict.update({i: num_device})
@@ -402,16 +423,11 @@ class CanvasDevice(Canvas):
     # update active device
     self.active_device_num = self.device_id_dict[self.active_device_id]
 
-    # change indicator position
-    self.interactable_dict['text_indicator'].position = (5, self.active_device_id * 25 + 40)
+    # update text indication
+    self.interactable_dict['text_indicator'].change_message(position=(5, self.active_device_id * 25 + 40), color=text_color)
 
-    # set color
-    self.interactable_dict['text_indicator'].color = text_color
-    self.interactable_dict['text_device{}'.format(self.active_device_num)].color = text_color
-
-    # render text
-    self.interactable_dict['text_indicator'].render()
-    self.interactable_dict['text_device{}'.format(self.active_device_num)].render()
+    # update text device
+    self.interactable_dict['text_device{}'.format(self.active_device_num)].change_message(color=text_color)
 
 
 
@@ -428,8 +444,11 @@ class CanvasPrompt(Canvas):
     # set background color
     self.color_background = self.color_bag.canvas_win_backgound
 
-    # deselect
-    self.enabled = False
+    # enabled initially 
+    self.initially_enabled = False
+
+    # enabled
+    self.enabled = self.initially_enabled
 
     # update
     self.interactable_dict.update({
@@ -442,8 +461,8 @@ class CanvasPrompt(Canvas):
     reset level
     """
 
-    # reenable
-    self.enabled = False
+    # re enable
+    self.enabled = self.initially_enabled
 
     # interactables reset
     for interactable in self.interactable_dict.values(): interactable.reset()
@@ -461,8 +480,8 @@ class CanvasWin(CanvasPrompt):
     super().__init__(screen, size=size, position=position)
 
     # change title
-    self.interactable_dict['title'].change_message('Level Complete', position=(200, 75))
-    self.interactable_dict['sub'].change_message('press Enter', position=(200, 125))
+    self.interactable_dict['title'].change_message('Level Complete', position=(150, 75))
+    self.interactable_dict['sub'].change_message('press Enter', position=(250, 125))
 
     # spaceship
     self.interactable_dict.update({'spaceship': Spaceship(surf=self.canvas_surf, position=(250, 175), scale=(2, 2), thing_type='empty')})
@@ -472,7 +491,15 @@ class CanvasWin(CanvasPrompt):
     """
     add part of spaceship
     """
-    if thing_type is not None: self.interactable_dict.update({'spaceship_engine': Spaceship(surf=self.canvas_surf, position=(250, 175), scale=(2, 2), thing_type=thing_type)})
+    if thing_type is not None: self.interactable_dict.update({'spaceship_{}'.format(thing_type): Spaceship(surf=self.canvas_surf, position=(250, 175), scale=(2, 2), thing_type=thing_type)})
+
+
+  def draw_overlay(self):
+    """
+    draw overlay
+    """
+    if not self.enabled: return
+    [interactable.sprites.draw(self.screen) for k, interactable in self.interactable_dict.items() if k.find('spaceship') != -1]
 
 
 
@@ -502,16 +529,37 @@ class CanvasCredits(CanvasPrompt):
     super().__init__(screen, size=size, position=position)
 
     # change title
-    self.interactable_dict['title'].change_message('Credits', position=(230, 75))
+    self.interactable_dict['title'].change_message('Credits', position=(240, 75))
     self.interactable_dict.update({'sub': Interactable()})
 
     # my text
-    self.interactable_dict.update({'text_chris': Text(self.canvas_surf, message='Christian Walter', position=(230, 175), font_size='small', color=self.color_bag.text_win)})
-    self.interactable_dict.update({'text_tu': Text(self.canvas_surf, message='TU Graz', position=(230, 200), font_size='small', color=self.color_bag.text_win)})
+    self.interactable_dict.update({'text_chris': Text(self.canvas_surf, message='Christian Walter', position=(230, 150), font_size='small', color=self.color_bag.text_win)})
+    #self.interactable_dict.update({'text_jim': Text(self.canvas_surf, message='Jim', position=(230, 200), font_size='small', color=self.color_bag.text_win)})
+    #self.interactable_dict.update({'text_tu': Text(self.canvas_surf, message='TU Graz', position=(230, 200), font_size='small', color=self.color_bag.text_win)})
+    self.interactable_dict.update({'text_follows': Text(self.canvas_surf, message='Thank you for playing', position=(200, 400), font_size='small', color=self.color_bag.text_win)})
 
     # spaceship
-    self.interactable_dict.update({'spaceship': Spaceship(surf=self.canvas_surf, position=(250, 265), scale=(2, 2), thing_type='whole')})
+    self.interactable_dict.update({'spaceship': Spaceship(surf=self.canvas_surf, position=(250, 220), scale=(2, 2), thing_type='whole')})
 
+    # enabled initially 
+    self.initially_enabled = True
+
+    # enabled
+    self.enabled = self.initially_enabled
+
+    # sprites
+    self.sprites_overlay = pygame.sprite.Group()
+
+    # add character sprite
+    self.sprites_overlay.add(JimSprite(position=(200, 325), scale=(2, 2)), EnemySprite(position=(400, 300), scale=(2, 2)))
+
+
+  def draw_overlay(self):
+    """
+    draw overlay
+    """
+    if not self.enabled: return
+    self.sprites_overlay.draw(self.screen)
 
 
 if __name__ == '__main__':
@@ -563,6 +611,7 @@ if __name__ == '__main__':
     # text update
     canvas.update()
     canvas.draw()
+    canvas.draw_overlay()
 
     # update display
     pygame.display.flip()

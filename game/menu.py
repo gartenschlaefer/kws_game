@@ -129,6 +129,7 @@ class Menu(Interactable):
     # canvas
     self.canvas.update()
     self.canvas.draw()
+    self.canvas.draw_overlay()
 
     # up down movement
     self.button_state_update()
@@ -506,6 +507,7 @@ class OptionMenu(Menu):
     # canvas
     self.canvas.update()
     self.canvas.draw()
+    self.canvas.draw_overlay()
 
     # up down movement
     if self.menu_button_sel_enable: self.button_state_update()
@@ -632,9 +634,9 @@ if __name__ == '__main__':
 
   # menu
   #menu = Menu(cfg['game'], screen)
-  menu = MainMenu(cfg['game'], screen)
+  #menu = MainMenu(cfg['game'], screen)
   #menu = HelpMenu(cfg['game'], screen)
-  #menu = OptionMenu(cfg['game'], screen, mic)
+  menu = OptionMenu(cfg['game'], screen, mic)
 
   # run menu loop
   menu.menu_loop()

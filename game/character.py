@@ -263,7 +263,7 @@ class CharacterSprite(pygame.sprite.Sprite, SpritesheetRenderer):
   character sprite class
   """
 
-  def __init__(self, position, scale, anim_frame_update=5):
+  def __init__(self, position, scale, view_type='front', anim_frame_update=5):
 
     # parent init
     super().__init__()
@@ -271,10 +271,14 @@ class CharacterSprite(pygame.sprite.Sprite, SpritesheetRenderer):
     # arguments
     self.position = position
     self.scale = scale
+    self.view_type = view_type
     self.anim_frame_update = anim_frame_update
 
     # spritesheet renderer init
     SpritesheetRenderer.__init__(self, anim_frame_update=anim_frame_update)
+
+    # change sprite thing
+    self.change_view_sprites(view=self.view_type)
 
     # image refs
     self.image = self.get_actual_sprite()
@@ -385,6 +389,12 @@ class BubbleSprite(CharacterSprite):
   """
   character sprite class
   """
+
+  def __init__(self, position, scale, view_type='question', anim_frame_update=5):
+
+    # parent init
+    super().__init__(position, scale, view_type=view_type, anim_frame_update=anim_frame_update)
+
 
   def define_sprite_dictionary(self):
     """

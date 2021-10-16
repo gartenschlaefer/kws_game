@@ -15,17 +15,21 @@ class GridWorld(Interactable):
   grid world class
   """
 
-  def __init__(self, screen_size, color_bag, pixel_size=(20, 20), grid_move=True):
+  def __init__(self, surf, screen_size, color_bag, pixel_size=(20, 20), grid_move=True):
     """
     create the grid world
     """
 
-    # variables
+    # arguments
+    self.surf = surf
     self.screen_size = np.array(screen_size)
     self.color_bag = color_bag
     self.pixel_size = np.array(pixel_size)
     self.grid_move = grid_move
     
+    # sprites
+    self.sprites = pygame.sprite.Group()
+
     # pixel spacing
     self.grid_size = self.screen_size // self.pixel_size
 
@@ -91,6 +95,9 @@ class GridWorld(Interactable):
 
     # init move walls
     self.move_walls_init()
+
+    # add to sprites
+    self.sprites.add(self.wall_sprites, self.move_wall_sprites)
 
 
   def move_walls_init(self):
@@ -181,6 +188,13 @@ class GridWorld(Interactable):
     frame update
     """
     [move_wall.update() for move_wall in self.move_walls]
+
+
+  def draw(self):
+    """
+    draw
+    """
+    self.sprites.draw(self.surf)
 
 
 

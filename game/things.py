@@ -212,15 +212,15 @@ class SpaceshipThingSprite(pygame.sprite.Sprite, SpritesheetRenderer):
     # spritesheet renderer init
     SpritesheetRenderer.__init__(self, anim_frame_update=anim_frame_update)
 
+    # change sprite thing
+    self.change_view_sprites(view=self.thing_type)
+
     # image refs
     self.image = self.get_actual_sprite()
     self.rect = self.image.get_rect()
 
     # set rect position
     self.rect.x, self.rect.y = self.position[0], self.position[1]
-
-    # change sprite thing
-    self.change_view_sprites(view=self.thing_type)
 
 
   def set_position(self, position):
@@ -299,7 +299,7 @@ if __name__ == '__main__':
   levels = [LevelThings(screen, cfg['game']['screen_size']), Level_01(screen, cfg['game']['screen_size'])]
 
   # add a spaceship to the level
-  levels[0].interactable_dict.update({'new_thing': Spaceship(surf=screen, position=(100, 100), scale=(2, 2), thing_type='empty')})
+  #levels[0].interactable_dict.update({'new_thing': Spaceship(surf=screen, position=(100, 100), scale=(2, 2), thing_type='empty')})
 
   # level handler
   level_handler = LevelHandler(levels=levels)

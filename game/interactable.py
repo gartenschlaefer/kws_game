@@ -89,3 +89,10 @@ class Interactable():
     draw
     """
     pass
+
+
+  def draw_overlay(self):
+    """
+    draw
+    """
+    pass

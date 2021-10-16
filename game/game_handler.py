@@ -6,7 +6,7 @@ import pygame
 
 from game_logic import GameLogic, ThingsGameLogic
 from menu import MainMenu, HelpMenu, OptionMenu
-from levels import Level_01, Level_02, LevelHandler
+from levels import Level_01, Level_02, LevelHandler, LevelCredits
 
 # append paths
 import sys
@@ -86,7 +86,7 @@ class GameHandler():
     """
 
     # level creation
-    levels = [Level_01(self.screen, self.cfg['game']['screen_size'], self.mic), Level_02(self.screen, self.cfg['game']['screen_size'], self.mic)]
+    levels = [Level_01(self.screen, self.cfg['game']['screen_size'], self.mic), Level_02(self.screen, self.cfg['game']['screen_size'], self.mic), LevelCredits(self.screen, self.cfg['game']['screen_size'])]
     #levels = [Level_01(self.screen, self.cfg['game']['screen_size'], self.mic)]
 
     # level handler

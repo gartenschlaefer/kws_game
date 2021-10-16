@@ -68,12 +68,13 @@ class Text(Interactable):
     self.rendered_message = self.font.render(self.message, True, self.color)
 
 
-  def change_message(self, message, position=None):
+  def change_message(self, message=None, position=None, color=None):
     """
     change message
     """
-    self.message = message
+    self.message = message if message is not None else self.message
     self.position = position if position is not None else self.position
+    self.color = color if color is not None else self.color
     self.render()
 
 

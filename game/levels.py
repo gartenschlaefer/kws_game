@@ -6,7 +6,7 @@ import pygame
 
 from interactable import Interactable
 from color_bag import ColorBag
-from canvas import CanvasWin, CanvasLoose
+from canvas import CanvasWin, CanvasLoose, CanvasCredits
 from input_handler import InputKeyHandler, InputMicHandler
 from game_logic import GameLogic, ThingsGameLogic
 from grid_world import GridWorld
@@ -14,6 +14,7 @@ from character import Character, Henry, Jim
 from things import Thing, SpaceshipThing
 from enemy import Enemy
 from text import Text
+from mic_bar import MicBar
 
 
 class Level(Interactable):
@@ -27,9 +28,6 @@ class Level(Interactable):
     self.screen = screen
     self.screen_size = screen_size
     self.color_bag = ColorBag()
-
-    # sprites
-    self.all_sprites = pygame.sprite.Group()
 
     # interactable dict ordering of object!
     self.interactable_dict = {
@@ -104,19 +102,34 @@ class Level(Interactable):
     """
 
     # interactables
-    for interactable in self.interactable_dict.values(): interactable.update()
-
-    # update sprites
-    self.all_sprites.update()
+    [interactable.update() for interactable in self.interactable_dict.values()]
 
     # fill screen
     self.screen.fill(self.color_bag.background)
 
     # draw interactables
-    for interactable in self.interactable_dict.values(): interactable.draw()
+    [interactable.draw() for interactable in self.interactable_dict.values()]
 
-    # draw sprites
-    self.all_sprites.draw(self.screen)
+    # overlay objects
+    [interactable.draw_overlay() for interactable in self.interactable_dict.values()]
+
+
+
+
+class LevelCredits(Level):
+  """
+  credits level
+  """
+
+  def __init__(self, screen, screen_size):
+
+    # parent class init
+    super().__init__(screen, screen_size)
+
+    # add mic bar
+    self.interactable_dict.update({'credit_canvas': CanvasCredits(self.screen)})
+
+    #print("int: ", self.interactable_dict.keys())
 
 
 
@@ -126,8 +139,6 @@ class LevelMic(Level):
   """
 
   def __init__(self, screen, screen_size, mic):
-
-    from mic_bar import MicBar
 
     # parent class init
     super().__init__(screen, screen_size)
@@ -156,13 +167,11 @@ class LevelGrid(Level):
     # new arguments
     self.mic = mic
 
-    self.interactable_dict.update({'grid_world': GridWorld(self.screen_size, self.color_bag)})
+    # add gridworld
+    self.interactable_dict.update({'grid_world': GridWorld(self.screen, self.screen_size, self.color_bag)})
 
     # setup
     self.setup_level()
-
-    # sprites
-    self.all_sprites.add(self.interactable_dict['grid_world'].wall_sprites, self.interactable_dict['grid_world'].move_wall_sprites)
 
     # append input handler
     self.interactable_dict['input_key_handler'].objs.append(self.interactable_dict['grid_world']) if mic is None else self.interactable_dict.update({'input_mic_handler': InputMicHandler(objs=[self.interactable_dict['grid_world']], mic=self.mic)})
@@ -288,6 +297,7 @@ class LevelCharacter(LevelGrid):
 
     # add to spaceship
     self.interactable_dict['win_canvas'].add_spaceship_part(thing_type=self.thing_type)
+    [self.interactable_dict['win_canvas'].add_spaceship_part(thing_type=thing_type) for thing_type in self.thing_types_collected]
 
     # activate win canvas
     self.interactable_dict['win_canvas'].enabled = True
@@ -334,6 +344,7 @@ class LevelThings(LevelCharacter):
 
     # thing type for win
     self.thing_type = 'engine'
+    self.thing_types_collected = []
 
     # add interactable
     self.interactable_dict.update({
@@ -424,6 +435,9 @@ class Level_02(LevelThings):
 
     # thing type for win
     self.thing_type = 'stir'
+
+    # already collected thing types
+    self.thing_types_collected = ['engine']
 
     # determine start position
     self.interactable_dict['character'].set_position(self.interactable_dict['grid_world'].grid_to_pos([22, 20]), is_init_pos=True)
@@ -535,7 +549,7 @@ if __name__ == '__main__':
   screen = pygame.display.set_mode(cfg['game']['screen_size'])
 
   # level creation
-  levels = [Level_01(screen, cfg['game']['screen_size']), Level_02(screen, cfg['game']['screen_size']), LevelSquare(screen, cfg['game']['screen_size']), LevelMoveWalls(screen, cfg['game']['screen_size'])]
+  levels = [Level_01(screen, cfg['game']['screen_size']), Level_02(screen, cfg['game']['screen_size']), LevelSquare(screen, cfg['game']['screen_size']), LevelMoveWalls(screen, cfg['game']['screen_size']), LevelCredits(screen, cfg['game']['screen_size'])]
 
   # level handler
   level_handler = LevelHandler(levels=levels, start_level=0)
