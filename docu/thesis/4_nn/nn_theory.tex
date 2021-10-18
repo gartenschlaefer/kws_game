@@ -217,8 +217,8 @@ The interesting elements are therefore only the neural network architecture desi
 % GANs
 
 \subsection{Generative Adversarial Neural Networks Game}\label{sec:nn_theory_gan}
-\thesisStateNew
-GANs \cite{Goodfellow2014}, as already mentioned in \rsec{prev_nn_adv} are deploying two neural networks: a Generator (G) network for generating fake images and a Discriminator (D) network for discriminating between fake and real images.
+\thesisStateRevised
+GANs \cite{Goodfellow2014}, as already mentioned in \rsec{prev_nn_adv} consist of two neural networks: a Generator (G) network for generating fake images and a Discriminator (D) network for discriminating between fake and real images.
 The min-max game both networks are playing is the following:
 \begin{equation}\label{eq:nn_theory_gan}
   \underset{G}{\min} \, \underset{D}{\max} \, V(D, G) = \E_{\bm{x} \sim p_{data}(\bm{x})}\left[ \log D(\bm{x}) \right] + 

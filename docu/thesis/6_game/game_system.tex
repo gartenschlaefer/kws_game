@@ -2,15 +2,15 @@
 % game kws integration
 
 \section{Key Word Spotting System Integration}
-\thesisStateNotReady
+\thesisStateReady
 In order to use KWS in a video game, a dedicated system has to be integrated within the game framework.
 The KWS system deployed in this thesis consists of two essential parts:
 \begin{itemize}
 	\item online system for the audio stream
 	\item classification system of key words
 \end{itemize}
-where the online system captures the microphone audio stream in real-time and stores it in a FIFO (First In First Out) buffer for later calculations of features for the classification system.
-The classification system consists of a neural network architecture for the KWS task.
+where the online system captures the audio stream from a microphone in real-time and stores it in a FIFO (First In First Out) buffer for subsequent calculations of features and key word prediction in the classification system.
+The classification system consists of a feature extractor and the neural network architecture for the KWS task.
 The video game interprets the commands from the classification systems to real actions within the game.
 More detailed descriptions of the individual sub systems are provided below.
 
@@ -19,20 +19,18 @@ More detailed descriptions of the individual sub systems are provided below.
 % online
 
 \subsection{Online System}
-The length of the FIFO buffer for input data storage, must have at least the sample length of the speech command examples that were used to train the neural networks for classification.
-The recorded files in the speech command dataset have a length of \SI{1}{\second}, which is too much for the FIFO buffer and would make the classification of key words significantly slower.
-In this thesis the length of a key word was restricted to \SI{500}{\milli\second} or 8000 samples, further some puffer samples are added for the detection of the highest energy region of the whole signal.
-Note that the input stream reads out the microphone data in chunk, where the length of each chunk was chosen to 160 samples, corresponding to exactly one frame with the hop size of \SI{10}{\milli\second}.
-Ideally those buffer chunks should not be necessary, but due to some networks, have problems with shift invariance, the buffer samples can improve the predictions.
-The selected buffer frames for the deployed game, was 5 frames for...
-%A more appropriate size for the FIFO buffer including puffer frames is about 75 frames, which is \SI{750}{\milli\second} or 12000 samples.
+The length of the FIFO buffer for input data storage, must have at least the sample length of the speech command examples, that were used to train the neural networks for classification.
+The recorded files in the speech command dataset have a length of \SI{1}{\second}, using this time duration however, would have made the classification of key words very slow and the gaming experience boring.
+In this thesis, the length of a key word was restricted to \SI{500}{\milli\second} or 8000 samples for the input features of the neural network models.
+Further some puffer samples were added for an improved detection of the highest energy region within the speech signal.
+Note that the input stream reads out the microphone data in chunk, where the length of each chunk was chosen to 160 samples, corresponding to exactly one frame with hop size of \SI{10}{\milli\second}.
+Ideally these buffer frames should not be necessary, but due to shift invariance problems in some network architectures (specially the \texttt{fstride} model), it can be advantageous and improve the key word predictions.
 
-The puffer frames are located prior and posterior to a key word onset.
+The puffer frames are located prior and posterior to a key word onset and were selected to both 5 frames for the prior and posterior puffer frames in the deployed video game.
 The prior puffer frames are collected consecutively from the audio stream and are updated to the prior puffer size in the FIFO. 
 Each input chunk or frame is used for the detection of an online onset as described in \rsec{signal_onset_online}.
-If an onset was detected from one frame, then the FIFO will be filled up to its full size including the posterior puffer frames.
-Afterwards the whole FIFO is read out and the frames are passed to the feature extraction module.
-The feature extraction module computes the MFCCs and determines the highest energy onset as described in \rsec{signal_onset_kw}.
+If an onset is detected from one of these frames, subsequently the FIFO will be filled up to its full size including the posterior puffer frames.
+Afterwards the whole FIFO is read out and the frames are passed to the feature extraction module already located in the classification system.
 The whole structure of the FIFO buffer is illustrated in \rfig{game_system_fifo}.
 \begin{figure}[!ht]
   \centering
@@ -42,23 +40,24 @@ The whole structure of the FIFO buffer is illustrated in \rfig{game_system_fifo}
 \end{figure}
 \FloatBarrier
 \noindent
-Note that the feature extraction has to use the same feature extraction parameters as the model was trained in the classification system.
 
 
 % --
 % classification
 
 \subsection{Classification System}
-The classification system consists of a classifier, which is composed of a neural network architecture for the classification of the key words (speech commands) it was trained for.
-The trained weights of a neural network model are stored in the \texttt{.pth} format for the \texttt{Pytorch} framework.
-A separate parameter file is stored to provide information of the unique model name (for example \texttt{conv-jim}) of the neural network architecture, the feature extraction parameters and the class dictionary.
-Feature extraction parameters provide information of which constellation of features were used during training, for instance 12 MFCC coefficients frame-based normalized, so that the same extraction is applied for inference of new data samples from the online system.
-The class dictionary describes which output node of the neural network corresponds to which speech command, this is especially important for the video game application to observe, which key word was spotted.
+The classification system consists of a feature extractor and a classifier, which is composed of a neural network architecture for the classification of the key words (speech commands) it was trained for.
+The feature extractor computes the MFCCs according to its provided feature extraction parameters and determines the highest energy onset as described in \rsec{signal_onset_kw}.
+The feature extraction parameters provide information of which constellation of features were used during training, for instance 12 MFCC coefficients frame-based normalized, so that the same extraction is applied for inference of new data samples from the online system.
+
+The classifier requires the neural network model architectures name (for example \texttt{conv-jim}), the parameters of this model and the class dictionary.
+The trained weights of the  models are stored in the \texttt{.pth} format of the \texttt{Pytorch} framework and can simply be loaded to a corresponding model architecture.
+The class dictionary describes which output node of the neural network corresponds to which speech command and is especially important for the video game to trigger the correct action.
 After the parameters are loaded, the classifier simply does an inference to the most probable key word in its class dictionary.
 
-The game action can be performed once a key word is present from the classification system.
-This for example can be implemented by using an input handler, similar to a keyboard input handler or event system, that is listening if a command is present and eliciting a corresponding action.
-A simple scheme of the classification system is shown in \rfig{game_system_classification}
+A game action is performed, once a key word is present from the classification system.
+This for example, can be implemented by using an input handler, similar to a keyboard input handler or event system, that is listening for new speech commands and does trigger an action if one is available.
+A simple scheme of the classification system is shown in \rfig{game_system_classification}.
 \begin{figure}[!ht]
   \centering
   \includegraphics[width=0.65\textwidth]{./6_game/figs/game_system_classification}

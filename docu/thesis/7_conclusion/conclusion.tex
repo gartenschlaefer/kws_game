@@ -2,70 +2,71 @@
 % conclusion
 
 \chapter{Conclusion}\label{sec:conclusion}
-%The conclusions concerns with the research questions asked in \rsec{intro_rq}.
-The conclusions of the KWS task in video games were separated into its disciplines.
-The feature extraction of MFCCs an its onset detection.
-The evaluated low computational CNNs with pre training on weights from a separate training instance of GANs.
-The KWS video game and its fast responses to speech signals.
+The conclusions of the KWS task of speech commands applied in video games were separated into its disciplines.
+The feature extraction of MFCCs an its onset detection, the evaluation of low computational CNNs with pre-training on weights from a separate training instance of GANs and the deployed KWS video game and its fast responses to speech signals.
 At last the future work is presented.
+
 
 % --
 % featues
 
 \section{Features}
-\thesisStateNotReady
-From the experiments it was shown that MFCCs provide excellent features for speech signals.
-It was observed that 12 cepstral coefficients are performing better than 32 cepstral coefficients for the evaluated models and therefore the a lower amount of cepstral coefficients is preferred.
-The enhancement of the MFCC features with deltas and energy vectors were not increasing the classification accuracy much and therefore were left out.
-The frame-based normalization yielded in worse accuracy scores of the test and validation set, but increased the noise invariance upon the test signals.
+\thesisStateReady
+From the experiments in \rsec{exp_fs} it was shown that MFCCs provide excellent features for speech signals.
+It was observed that 12 cepstral coefficients were performing better than 32 cepstral coefficients for the evaluated models and therefore the experiments were continued with 12 cepstral coefficients.
+The enhancements of the MFCC features by deltas and energy vectors, did not increase the classification accuracy greatly and therefore were left out.
+The frame-based normalization yielded into worse accuracy scores of the test and validation set, but increased the noise invariance upon the test signals.
 Further it enabled GANs to be trained faster and the use of valuable weights of convolutional layers from the Generator network as pre-trained weights for a conventional CNN.
 
-The onset detection with the first cepstral coefficient of the MFCC features worked extremely well with a minimum of computational effort and is an excellent choice for accurate detection of key word onsets.
+The onset detection, applied on the first cepstral coefficient of the MFCC features, worked extremely well and requires a minimum of computational effort and is therefore an efficient and accurate choice for the detection of key word onsets.
 
 
 % --
 % neural networks
 
 \section{Neural Networks}
-\thesisStateNotReady
-% conclusions about best neural networks for video games
-The use of low computational CNN models with few layers is a good evaluation topic, but brings less great accuracy achievements than sophisticated Deep Neural Networks (DNNs).
-Still the models are sufficient for playing a video game and the processing time of available speech commands is reduced strongly, so that it does not slow down the frame rate of a video game.
-The preferred CNN model was the \texttt{conv-jim} model striding only in the frame dimension. It was a good trade-off between accuracy and computational footprint.
-The traditional model achieved the best accuracy scores but was ...
+\thesisStateReady
+The use of low computational CNN models with few layers is an efficient and illustrative evaluation topic, but often brings less accuracy achievements compared to sophisticated Deep Neural Networks (DNNs) model.
+Still the evaluated models (apart from the Wavenet model) were sufficient for playing a video game with KWS.
+The preferred CNN model was the \texttt{conv-jim} model striding only in the frame dimension and gave a good trade-off between accuracy and computational footprint.
+The traditional model \texttt{conv-trad} achieved the best accuracy scores but also requires more computations and it was more prone to overfitting effects during training.
+The \texttt{conv-fstride} also performed well, even though is very small amount of computational footprint, but had often problems with shift invariance.
 
 It was showed that GANs could be useful for obtaining initial pre-trained weights for equivalent classifier networks with same convolutional layers.
-The weights from the Generator (G) network were useful, even though an up-convolution was performed instead of a usual one.
-The trade-off is that a normalization such as the frame-based normalization has to be applied in order that the weights from G are applicable.
-Nevertheless with the pre-trained weights from G the accuracies increased slightly.
+The weights from the Generator (G) network were useful, even though an up-convolution instead of a normal convolution was performed.
+The trade-off is, that a normalization scheme, such as the frame-based normalization, must be applied in order that the weights from G are applicable.
+Nevertheless with the pre-trained weights from G it was possible to increase the accuracies slightly.
 
-In comparison to the benchmark models listed in \rsec{prev_kws_benchmark} the obtained accuracies on the test sets were significantly lower with much headroom of about \SI{10}{\percent}.
-But considering a lower amount of computations and a restricted time interval for the speech commands, the accuracy was not that bad, though a better score on the \enquote{my dataset} would have been great.
+In comparison to the benchmark models listed in \rsec{prev_kws_benchmark}, the obtained accuracies on the test sets were significantly lower with much headroom of about \SI{10}{\percent}.
+But considering a lower amount of computations and a restricted time interval for the speech commands, the obtained accuracies were not that bad, though a \SI{100}{\percent} score on the \enquote{my dataset} would have been desirable.
 
 
 % --
 % game
 
 \section{KWS Game}
-\thesisStateNotReady
-The restriction of the time interval to \SI{500}{\milli\second} for a key word is a great contribution for the fast responsiveness in playing a KWS video game. 
+\thesisStateReady
+The restriction of the time interval to \SI{500}{\milli\second} for a single key word, was a good decision to icrease the fast responsiveness in playing a KWS video game.
+With the prior and posterior puffer frames, a classification usually took about \SI{600}{\milli\second}.
+Still it would be eligible if the detection of key words and triggering of actions were performed even faster, so that the playing experience can be increased further.
+
+Considering the amounts of computations necessary for the feature extraction and the inference through the classifier, the deployed KWS Game was playable and had no lacks, when played with 60 FPS.
 
 
 % --
 % future work
 
 \section{Future Work}
-\thesisStateNotReady
-The goal in finding the most energy efficient model with good accuracies for the KWS task is still a topic in future research, even though \cite{Zhang2017} and \cite{Peter2020} provided excellent solutions to this problem, it is still desirable to understand the problem even further and derive a minimal model that can be understood.
-It is absolutely worth to evaluate the performance when using a hop time of \SI{20}{\milli\second} like in \cite{Peter2020} instead of the used \SI{10}{\milli\second}, this would reduce the computations approximately by half.
+\thesisStateReady
+The goal in finding the most energy efficient model obtaining good accuracies for the KWS task of speech commands, is still a topic in future research, even though \cite{Zhang2017} and \cite{Peter2020} provide excellent solutions to this problem, it is desirable to understand the problem even further and derive a minimal model, that can be understood in its mechanism.
 
-Further it would be interesting to evaluate decrease the time interval of a key word even further below \SI{500}{\milli\second} for a really fast paced gaming experience.
+It is absolutely worth to evaluate the increase of the hop time from the used \SI{10}{\milli\second} to \SI{20}{\milli\second}, as applied in \cite{Peter2020}, this would reduce the computations approximately by half (both for the feature extraction and the classifier).
+Further it would be interesting to evaluate an even smaller time interval, that should represent a key word below \SI{500}{\milli\second}, for a fast paced gaming experience.
+Also it might be preferrable to switch from a fixed input size to a flexible one, so that no spoken key word is missed regardless of its duration and the game can respond even faster when the speaker pronounces the key words with a short time duration.
 
-The most future work has to be done on creating a Wavenet architecture, which is computationally light-weight with good classification accuracies, if that is even possible on raw audio samples.
+The most future work has to be done on creating a Wavenet architecture, which is computationally light-weight and provides good classification accuracies, if that is even possible on raw audio samples.
 
 Another interesting work can be done on the obtained weights from the Generator models of a GAN training. 
-An adversarial training scheme as presented in \cite{Oezdenizci2020} with the same convolutional layer parameters of a Generator (G) model and a classical CNN model would be extremely interesting, however one problem is the up-convolution done by the G so that weight sharing is a bit difficult to implement.
+An adversarial training scheme, as presented in \cite{Oezdenizci2020}, that consists of both a Generator (G) model and a classical CNN model operating on the very same convolutional layers, would be extremely interesting, however one problem is the up-convolution done by the G so that weight sharing is difficult to implement in this task.
 
-For KWS games it would be interesting to create a flexible time span for the pronunciation of key words.
-
-Another left over evaluation is the influence of the game sounds during playing the video game
+Another future work is the evaluation of the influence of game sounds during playing the video game, this would be problematic if the game sounds high amount of audio feedback into the microphone input stream and alters the speech commands or even elicit one by its own.

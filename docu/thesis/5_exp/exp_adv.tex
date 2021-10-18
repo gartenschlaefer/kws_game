@@ -2,7 +2,7 @@
 % adversarial training
 
 \section{Experiments on Adversarial Pre-Training}\label{sec:exp_adv}
-\thesisStateReady
+\thesisStateRevised
 Adversarial pre-training, as already described in detail in \rsec{nn_adv}, is the transfer of learned weights obtained from adversarial training between a Generator (G) and a Discriminator (D) network from a GAN.
 The target neural network architecture used for adversarial pre-training is the \texttt{conv-jim} model, described in \rsec{nn_arch_cnn}, obtaining pre-trained weights from its GAN versions the \texttt{adv-d-jim} and \texttt{adv-g-jim}, described in \rsec{nn_arch_adv}.
 Note that frame-based normalization was applied, which made the training of GANs considerably more easy and the weights from G applicable.
@@ -16,7 +16,7 @@ Also no overfitting mechanism was applied in this experiments as well.
 % label train
 
 \subsection{Impact of Adversarial Label Train}\label{sec:exp_adv_label}
-The adversarial label training experiments on the \texttt{conv-jim} architecture with obtained weights from either \texttt{adv-g-jim} or \texttt{adv-d-jim} are shown in \rtab{exp_adv_label_l12}.
+The adversarial label training experiments on the \texttt{conv-jim} architecture with obtained weights from either \texttt{adv-g-jim} or \texttt{adv-d-jim} are presented in \rtab{exp_adv_label_l12}.
 \input{./5_exp/tables/tab_exp_adv_label_l12}
 It can be observed that the weights from the Generator network achieves better performances than the weights from the Discriminator network.
 The best models from the experiments concatenated in one accuracy plot can be seen in \rfig{exp_adv_label_acc_conv-jim}.
@@ -29,7 +29,7 @@ The best models from the experiments concatenated in one accuracy plot can be se
 \FloatBarrier
 \noindent
 
-Noise and shift invariance test is shown in \rfig{exp_adv_label_tb_noise_conv-jim} and \rfig{exp_adv_label_tb_shift_conv-jim} respectivly.
+The noise and shift invariance test is shown in \rfig{exp_adv_label_tb_noise_conv-jim} and \rfig{exp_adv_label_tb_shift_conv-jim} respectively.
 \begin{figure}[!ht]
   \centering
   \subfigure[D]{\includegraphics[width=0.35\textwidth]{./5_exp/figs/exp_adv_label_tb_noise_conv-jim_d-100}}
@@ -61,34 +61,3 @@ The experiments are presented in \rtab{exp_adv_dual_l12}.
 The dual experiments achieved worse accuracies for the transfer of Discriminator weights, compared to the initializing of the target model with random weights.
 The Generator weights however, could increase the average accuracy by at least \SI{1}{\percent}.
 The dual training is not further evaluated regarding shift and noise invariance, because the adv-label-train performed in most cases better.
-
-% % old
-% \subsection{old renew this}
-% To evaluate the value of adversarial pre-training, the architecture is trained first with random init and compared to a training with adversarial pre-training. 
-% The training losses of those two training methods are shown in \rfig{exp_adv_fc3_train_loss} as well as their obtained accuracies in \rfig{exp_adv_fc3_val_acc}.
-
-% \begin{figure}[!ht]
-%   \centering
-%     \subfigure[adv init]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_adv_fc3_train_loss_label}}
-%     \subfigure[random init]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_adv_fc3_train_loss_random}}
-%   \caption{Comparing the train loss of L5-n500-norm1, c1d0dd0e0-norm1-it1000-bs32-lr0.0001-mo0.5 once with random init and once with adv init with dec-itl1000.}
-%   \label{fig:exp_adv_fc3_train_loss}
-% \end{figure}
-% \FloatBarrier
-% \noindent
-
-% \begin{figure}[!ht]
-%   \centering
-%     \subfigure[adv init]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_adv_fc3_val_acc_label}}
-%     \subfigure[random init]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_adv_fc3_val_acc_random}}
-%   \caption{Comparing the validation accuracy of L5-n500, c1d0dd0e0-norm1-it1000-bs32-lr0.0001-mo0.5 once with random init and once with adv init with dec-itl1000.}
-%   \label{fig:exp_adv_fc3_val_acc}
-% \end{figure}
-% \FloatBarrier
-% \noindent
-
-% The loss and accuracy plots show how well the training was going forward for this showcase example. Both training work well and seem to converge, the one of the adversarial init parameters has a considerably faster convergence time here than the one without.
-% The scores on the test sets are shown in \rtab{exp_adv_fc3_score}, where both are achieving high scores on the test set, while the adversarial init one got a few percent more, but less on the my set.
-% This does not necessarily proof if one method is better or worse, therefore a more challenging task must be picked.
-% But at least it shows that adversarial pre training works at least as good as random initialization.
-% \input{./5_exp/tables/tab_exp_adv_fc3_score}

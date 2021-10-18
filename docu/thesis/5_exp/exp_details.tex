@@ -2,7 +2,7 @@
 % training details
 
 \section{Implementation and Experiment Details}\label{sec:exp_details}
-\thesisStateReady
+\thesisStateRevised
 The implementation describes the used software tools for the experiments on the neural networks, such as the programming language and packages for the source code.
 The training details provide commonly used sets of hyperparameters applied to train neural networks.
 Note that the training details can vary between different experiments and models and that the listing provide merely an overview of all available parameters to choose from with recommendations of parameters for the speech command dataset.
@@ -56,24 +56,27 @@ If not other stated, the feature extraction parameters in \rtab{exp_details_para
 % dataset
 
 \subsubsection{Dataset parameters}
-The selected labels for training are either the 12 labels (L12) for comparison to the benchmark networks described in \rsec{prev_kws_benchmark} or 7 labels (L7) used for the deployed KWS game are listed as well as the number of examples per label in \rtab{exp_details_params_dataset}.
-\input{./5_exp/tables/tab_exp_details_params_dataset}
-However in all experiments the L12 labels are used, so that a comparison to previous work is possible.
-The maximal number of examples per label for training is chosen by the minimum examples per selected label for each label and each set.
+The labels for training are selected to the same 12 labels (L12) that were also used in the benchmark networks, described in \rsec{prev_kws_benchmark}, to provide a comparison for the performed experiments in this section and the previous work.
+The deployed video game in \rsec{game} uses only 7 of those L12 labels, the rest is handled in the same way as the \enquote{\_mixed} label.
+
+The maximal number of examples per label for training is given by the minimum examples per selected label for each label and each set.
 This is provided by the validation set of \enquote{go} with \{train: 2948, test: 425, validation: 350 \} shown in \rtab{exp_dataset_all_labels}, with 350 examples per label in the validation set, considering a \SI{10}{\percent} split of both test and validation set.
-This gives a maximal amount of 3500 examples per label to represent the whole dataset.
-This is important, because the number of examples per label should not be chosen to higher values than 3500 for training, otherwise the same amount of examples per label is not given.
+This gives a maximal amount of 3500 examples per label to represent the whole dataset, because the number of examples per label should not be chosen to higher values than 3500 for training, otherwise the same amount of examples per label is not provided.
+
+The L12 labels and their number of examples per label used for training, is listed in \rtab{exp_details_params_dataset}.
+\input{./5_exp/tables/tab_exp_details_params_dataset}
+Note that the action set of the video game is displayed informatively and not used in the experiments, though it could have improved the classification performance in the deployed video game if only 7 labels instead of the L12 were used.
+Nevertheless the deployed video game worked well with the model trained on the L12 labels and very few confusions are happening to the unused key words.
 
 
 % --
 % training hyperparameters
 
 \subsubsection{Training hyperparameters}
-The hyperparameters for training the used CNNs models, described in \rsec{nn_arch}, are shown in \rtab{exp_details_params_train}.
+The hyperparameters for the training of the used CNNs models, described in \rsec{nn_arch}, are shown in \rtab{exp_details_params_train}.
 \input{./5_exp/tables/tab_exp_details_params_train}
-From the following experiments it can be observed that epochs of 2000 yield into small overfitting effects regarding certain models, but it was important to examine when these effects are starting.
-The batch size of 32 is selected to a low number, because it worked well and the amount of classes were at maximum 12 (L12).
-%Note that the batch size influences the selection of the learning rate for updating the parameters of the neural network models.
+From the following experiments it can be observed, that epochs of 2000 yield into small overfitting effects regarding certain models, which might be a small loss in accuracy, if the set of parameters is used at the last epoch and no early stopping mechanism was applied.
+The batch size of 32 is selected to a low number, because it worked well on the task and the amount of classes were at maximum 12 (L12 labels).
 
 The hyperparameters for the Wavenet model are described in the corresponding experiment section.
 
@@ -83,9 +86,9 @@ The hyperparameters for the Wavenet model are described in the corresponding exp
 
 \subsubsection{Pre-Training details}
 The pre-training parameters describe the training of the GANs, with their models presented in \rsec{nn_arch_adv} and \rsec{nn_adv}.
-The hyperparameters shown in \rtab{exp_details_params_pre_train} are the same as for usual model training, but the Discriminator (D) and Generator (G) network can have different values.
+The hyperparameters shown in \rtab{exp_details_params_pre_train} are the same as for usual training, but the Discriminator (D) and Generator (G) network can have each different values.
 \input{./5_exp/tables/tab_exp_details_params_pre_train}
-The selection of the epochs is important as it was already pointed out in \rsec{nn_adv}.
+The selection of the epochs is important, as it was already pointed out in \rsec{nn_adv}.
 
 
 % --
@@ -108,7 +111,7 @@ The accuracy $a \in [0, 1]$ can therefore be written as:
   a = \frac{1}{n} \sum_{i=0}^n c(\hat{y}_i, y_i)
 \end{equation}
 Another more unconventional evaluation technique used, is the evaluation on noise and shift invariance.
-For this one sample from each class label from the self recorded files of the \enquote{my dataset} is used as test signals.
+For this one sample of each class label, taken from the self recorded files of the \enquote{my dataset}, are used as test signals.
 The length of those audio files is cut, such that by applying a fixed input frame of \SI{500}{\milli\second}, both end positions consists of at least the half of the audio file information, which is especially important for the shift invariance.
 The evaluation results are plotted in figures of correct classification upon shift and noise level changes.
 Note that the noise and shift invariance are tested on only 5 test signals and therefore they are not a reliable measure for the trained models, but it is interesting to see how different models perform upon these tests.
