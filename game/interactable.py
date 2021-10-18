@@ -63,6 +63,13 @@ class Interactable():
     pass
 
 
+  def n_key(self):
+    """
+    r key pressed
+    """
+    pass
+
+
   def reset(self):
     """
     reset

@@ -58,15 +58,18 @@ class GameHandler():
     while self.game_loop_state != self.game_loop_state_dict['exit']:
 
       # run menu loops
-      if self.game_loop_state == self.game_loop_state_dict['main_menu_loop']: self.det_next_loop(self.main_menu.menu_loop())
-      elif self.game_loop_state == self.game_loop_state_dict['help_menu_loop']: self.det_next_loop(self.help_menu.menu_loop())
-      elif self.game_loop_state == self.game_loop_state_dict['option_menu_loop']: self.det_next_loop(self.option_menu.menu_loop())
+      if self.game_loop_state == self.game_loop_state_dict['main_menu_loop']: self.det_next_loop(self.main_menu.menu_loop(self.screen_capturer))
+      elif self.game_loop_state == self.game_loop_state_dict['help_menu_loop']: self.det_next_loop(self.help_menu.menu_loop(self.screen_capturer))
+      elif self.game_loop_state == self.game_loop_state_dict['option_menu_loop']: self.det_next_loop(self.option_menu.menu_loop(self.screen_capturer))
 
       # run game loop
       elif self.game_loop_state == self.game_loop_state_dict['game_loop']: self.det_next_loop(self.game_loop())
 
       # exit
       else: self.game_loop_state = self.game_loop_state_dict['exit']
+
+    # save video plus audio
+    self.screen_capturer.save_video(self.mic)
 
 
   def det_next_loop(self, action):
@@ -118,9 +121,6 @@ class GameHandler():
 
         # reduce framerate
         clock.tick(self.cfg['game']['fps'])
-
-      # save video plus audio
-      self.screen_capturer.save_video(self.mic)
 
     return 'escape_game' if not level_handler.quit() else 'exit'
 

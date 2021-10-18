@@ -229,11 +229,8 @@ class Mic():
     # read chunk
     is_onset = self.read_mic_data()
 
-    # onset was detected
-    if is_onset:
-
-      # start collection of items
-      self.collector.start_collecting()
+    # onset was detected start collection
+    if is_onset: self.collector.start_collecting()
 
     # collection is full
     if self.collector.is_full():

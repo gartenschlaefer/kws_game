@@ -37,11 +37,12 @@ class InputKeyHandler(InputHandler):
       if event.key == pygame.K_UP or event.key == pygame.K_w: [obj.direction_change([0, -1]) for obj in self.objs if obj.is_moveable()]
       elif event.key == pygame.K_DOWN or event.key == pygame.K_s: [obj.direction_change([0, 1]) for obj in self.objs if obj.is_moveable()]
 
-      # jump button
+      # other buttons
       if event.key == pygame.K_SPACE: [obj.action_key() for obj in self.objs]
       if event.key == pygame.K_RETURN: [obj.enter_key() for obj in self.objs]
       if event.key == pygame.K_ESCAPE: [obj.esc_key() for obj in self.objs]
       if event.key == pygame.K_r: [obj.r_key() for obj in self.objs]
+      if event.key == pygame.K_n: [obj.n_key() for obj in self.objs]
 
     # key up
     elif event.type == pygame.KEYUP:

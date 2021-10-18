@@ -64,10 +64,20 @@ class GameLogic(Interactable):
 
   def esc_key(self):
     """
-    if esc is pressed
+    esc pressed
     """
 
     # end loop
+    self.run_loop = False
+    self.won_game = False
+
+
+  def n_key(self):
+    """
+    n key pressed
+    """
+
+    # end loop and go to next level
     self.run_loop = False
     self.complete = True
     self.won_game = True

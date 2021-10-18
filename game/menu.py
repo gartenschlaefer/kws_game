@@ -192,7 +192,7 @@ class Menu(Interactable):
       print("button not available in canvas: ", list(self.button_state_dict.keys())[list(self.button_state_dict.values()).index(self.button_state)])
 
 
-  def menu_loop(self):
+  def menu_loop(self, screen_capture=None):
     """
     menu loop
     """
@@ -206,9 +206,11 @@ class Menu(Interactable):
 
         # input handling
         self.event_update(event)
+        if screen_capture is not None: screen_capture.event_update(event)
 
       # update menu
       self.update()
+      if screen_capture is not None: screen_capture.update()
 
       # update display
       pygame.display.flip()
@@ -255,6 +257,7 @@ class MainMenu(Menu):
     state_action_dict = {0: 'start_game', 1: 'open_help_menu', 2: 'open_option_menu', 3: 'exit'}
 
     return button_state_dict, state_action_dict, button_state_dict['start_button']
+
 
 
 class HelpMenu(Menu):
@@ -326,7 +329,7 @@ class OptionMenu(Menu):
     return button_state_dict, state_action_dict, button_state_dict['end_button']
 
 
-  def menu_loop(self):
+  def menu_loop(self, screen_capture=None):
     """
     menu loop
     """
@@ -346,10 +349,13 @@ class OptionMenu(Menu):
         while self.game_logic.run_loop:
 
           # events
-          for event in pygame.event.get(): self.event_update(event)
+          for event in pygame.event.get(): 
+            self.event_update(event)
+            if screen_capture is not None: screen_capture.event_update(event)
 
           # update menu
           self.update()
+          if screen_capture is not None: screen_capture.update()
 
           # update display
           pygame.display.flip()

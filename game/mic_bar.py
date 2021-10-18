@@ -15,7 +15,7 @@ class MicBar(Interactable):
   graphical bar for microphone energy measure
   """
 
-  def __init__(self, surf, mic, position, bar_size=(20, 40), scale_margin=(10, 5), border=2, tick_length=10, min_db=-80):
+  def __init__(self, surf, mic, position, bar_size=(20, 40), scale_margin=(10, 5), border=2, tick_length=10, min_db=-80, meter_pad=3):
 
     # mic
     self.surf = surf
@@ -26,6 +26,7 @@ class MicBar(Interactable):
     self.border = border
     self.tick_length = tick_length
     self.min_db = min_db
+    self.meter_pad = meter_pad
 
     # colors
     self.color_bag = ColorBag()
@@ -89,10 +90,7 @@ class MicBar(Interactable):
     """
     update
     """
-    
-    # read mic
-    self.mic.read_mic_data()
-
+        
     # frame update
     if self.mic.collector.e_q.full():
 
@@ -149,7 +147,7 @@ class MicBar(Interactable):
     pygame.draw.rect(self.image, self.color_bag.mic_bar_meter_background, (self.border, self.scale_margin[1], self.bar_size[0], self.total_length))
     
     # draw meter bar
-    pygame.draw.rect(self.image, self.color_bag.mic_bar_meter, (5 + self.border, self.total_length - self.act_length + self.scale_margin[1], self.bar_size[0] - 10, self.act_length))
+    pygame.draw.rect(self.image, self.color_bag.mic_bar_meter, (self.meter_pad + self.border, self.total_length - self.act_length + self.scale_margin[1], self.bar_size[0] - self.meter_pad * 2, self.act_length))
 
     # energy thresh
     pygame.draw.rect(self.image, self.color_bag.mic_bar_energy_thresh, (self.border, self.scale_margin[1] + self.energy_thresh_position, self.bar_size[0] + self.tick_length + 2, 2))

@@ -224,7 +224,7 @@ class Jim(Character):
 
     # bubbles
     if command == '_noise': self.activate_bubble_sprite(view='rubbish', activate=True)
-    elif command == '_mixed': self.activate_bubble_sprite(view='question', activate=True)
+    elif command in ['_mixed', 'on', 'off', 'yes', 'no', 'stop']: self.activate_bubble_sprite(view='question', activate=True)
 
 
   def update(self):
