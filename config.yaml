@@ -425,7 +425,8 @@ classifier:
 
   # path to model
   #model_path: 'models/conv-fstride/v3_c-5_n-2000/bs-32_it-1000_lr-1e-05/'
-  #model_path: 'models/conv-encoder/v4_c-5_n-500_f-13x50/bs-32_it-1024_lr-0p0001/'
+  #model_path: 'models/conv-fstride/v5_c12n1m1_n-3500_r1-5_mfcc32-12_c1d0d0e0_norm1_f-1x12x50/bs-32_it-2000_lr-0p0001/'
+  #model_path: 'models/conv-trad/v5_c12n1m1_n-3500_r1-5_mfcc32-12_c1d0d0e0_norm1_f-1x12x50/bs-32_it-2000_lr-0p0001/'
   model_path: 'models/conv-jim/v5_c12n1m1_n-3500_r1-5_mfcc32-12_c1d0d0e0_norm1_f-1x12x50/bs-32_it-2000_lr-0p0001_adv-pre_bs-32_it-100_lr-d-0p0001_lr-g-0p0001_label_model-g/'
 
   # file names

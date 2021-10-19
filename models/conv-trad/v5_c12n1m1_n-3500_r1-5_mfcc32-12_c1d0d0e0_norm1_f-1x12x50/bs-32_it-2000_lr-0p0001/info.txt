@@ -1,0 +1,13 @@
+{'cnn': ConvNetTrad(
+  (conv1): Conv2d(1, 64, kernel_size=(4, 20), stride=(1, 1))
+  (pool): MaxPool2d(kernel_size=(2, 4), stride=(2, 4), padding=0, dilation=1, ceil_mode=False)
+  (conv2): Conv2d(64, 64, kernel_size=(2, 4), stride=(1, 1))
+  (fc1): Linear(in_features=768, out_features=32, bias=True)
+  (fc2): Linear(in_features=32, out_features=128, bias=True)
+  (fc3): Linear(in_features=128, out_features=12, bias=True)
+  (dropout_layer1): Dropout(p=0.2, inplace=False)
+  (dropout_layer2): Dropout(p=0.5, inplace=False)
+  (softmax): Softmax(dim=1)
+)}
+
+ {'dual_train': False, 'label_train': False, 'use_decoder_weights': True}

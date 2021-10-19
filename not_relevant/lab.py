@@ -10,6 +10,8 @@ import sys
 sys.path.append("../")
 
 from audio_dataset import AudioDataset
+from feature_extraction import FeatureExtractor
+from classifier import Classifier
 
 
 def params():
@@ -142,14 +144,37 @@ if __name__ == '__main__':
   lab main
   """
 
+  import yaml
+
+  # yaml config file
+  cfg = yaml.safe_load(open("../config.yaml"))
+
+  # init feature extractor
+  feature_extractor = FeatureExtractor(cfg['feature_params'])
+
+  #cfg['classifier']['model_path'] = 'models/conv-fstride/v3_c-5_n-2000/bs-32_it-1000_lr-1e-05/'
+  #cfg['classifier']['model_path'] = 'models/conv-fstride/v5_c12n1m1_n-3500_r1-5_mfcc32-12_c1d0d0e0_norm1_f-1x12x50/bs-32_it-2000_lr-0p0001/'
+  #cfg['classifier']['model_path'] = 'models/conv-trad/v5_c12n1m1_n-3500_r1-5_mfcc32-12_c1d0d0e0_norm1_f-1x12x50/bs-32_it-2000_lr-0p0001/'
+  cfg['classifier']['model_path'] = 'models/conv-jim/v5_c12n1m1_n-3500_r1-5_mfcc32-12_c1d0d0e0_norm1_f-1x12x50/bs-32_it-2000_lr-0p0001_adv-pre_bs-32_it-100_lr-d-0p0001_lr-g-0p0001_label_model-g/'
+
+
+  # create classifier
+  classifier = Classifier(cfg_classifier=cfg['classifier'], root_path='../')
+
+
   # similarity test
   #similarity_test()
 
-  # global dict
-  global_dict = {'left': 1}
+  # # global dict
+  # global_dict = {'left': 1}
 
-  # time compare
-  time_measure_callable('left', string_compare, n_samples=1000)
-  time_measure_callable(global_dict['left'], dictionary_compare, n_samples=1000)
-  time_measure_callable(1, num_compare, n_samples=1000)
+  # # time compare
+  # time_measure_callable('left', string_compare, n_samples=1000)
+  # time_measure_callable(global_dict['left'], dictionary_compare, n_samples=1000)
+  # time_measure_callable(1, num_compare, n_samples=1000)
+
+  # time feature extraction
+  time_measure_callable(x=np.random.randn(16000), callback_f=feature_extractor.extract_audio_features, n_samples=1000)
+  time_measure_callable(x= np.random.randn(classifier.net_handler.data_size[0], classifier.net_handler.data_size[1], classifier.net_handler.data_size[2]), callback_f=classifier.classify, n_samples=1000)
+
 
