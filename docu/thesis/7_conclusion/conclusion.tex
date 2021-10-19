@@ -46,8 +46,8 @@ But considering a lower amount of computations and a restricted time interval fo
 
 \section{KWS Game}
 \thesisStateReady
-The restriction of the time interval to \SI{500}{\milli\second} for a single key word, was a good decision to icrease the fast responsiveness in playing a KWS video game.
-With the prior and posterior puffer frames, a classification usually took about \SI{600}{\milli\second}.
+The restriction of the time interval to \SI{500}{\milli\second} for a single key word, was a good decision to increase the fast responsiveness in playing a KWS video game.
+With the prior and posterior buffer frames, a classification usually took about \SI{600}{\milli\second}.
 Still it would be eligible if the detection of key words and triggering of actions were performed even faster, so that the playing experience can be increased further.
 
 Considering the amounts of computations necessary for the feature extraction and the inference through the classifier, the deployed KWS Game was playable and had no lacks, when played with 60 FPS.
@@ -59,14 +59,17 @@ Considering the amounts of computations necessary for the feature extraction and
 \section{Future Work}
 \thesisStateReady
 The goal in finding the most energy efficient model obtaining good accuracies for the KWS task of speech commands, is still a topic in future research, even though \cite{Zhang2017} and \cite{Peter2020} provide excellent solutions to this problem, it is desirable to understand the problem even further and derive a minimal model, that can be understood in its mechanism.
-
-It is absolutely worth to evaluate the increase of the hop time from the used \SI{10}{\milli\second} to \SI{20}{\milli\second}, as applied in \cite{Peter2020}, this would reduce the computations approximately by half (both for the feature extraction and the classifier).
+It is worth to evaluate the increase of the hop time from the used \SI{10}{\milli\second} to \SI{20}{\milli\second}, as applied in \cite{Peter2020}, this would reduce the computations approximately by half (both for the feature extraction and the classifier).
 Further it would be interesting to evaluate an even smaller time interval, that should represent a key word below \SI{500}{\milli\second}, for a fast paced gaming experience.
-Also it might be preferrable to switch from a fixed input size to a flexible one, so that no spoken key word is missed regardless of its duration and the game can respond even faster when the speaker pronounces the key words with a short time duration.
+Also it might be preferable to switch from a fixed input size to a flexible one, so that no spoken key word is missed, regardless of its duration and the game can respond even faster when the speaker pronounces the key words with a short time duration.
 
-The most future work has to be done on creating a Wavenet architecture, which is computationally light-weight and provides good classification accuracies, if that is even possible on raw audio samples.
+Further research can be done on the value of the obtained weights from Generator (G) models of a GAN training. 
+An adversarial training scheme, as presented in \cite{Oezdenizci2020}, that consists of both a G model and a classical CNN model operating on the very same convolutional layers, would be extremely interesting, however one problem is the up-convolution performed by the G so that weight sharing is difficult to implement in this task.
 
-Another interesting work can be done on the obtained weights from the Generator models of a GAN training. 
-An adversarial training scheme, as presented in \cite{Oezdenizci2020}, that consists of both a Generator (G) model and a classical CNN model operating on the very same convolutional layers, would be extremely interesting, however one problem is the up-convolution done by the G so that weight sharing is difficult to implement in this task.
+Much future work has to be done on creating a Wavenet architecture, which is computationally light-weight and provides good classification accuracies, if that is even possible on raw audio samples.
+Also the influence of game sounds during playing the video game was not evaluated and could be problematic if a high amount of audio feedback goes into the microphone input stream and alters the speech commands or even elicit them unintended.
 
-Another future work is the evaluation of the influence of game sounds during playing the video game, this would be problematic if the game sounds high amount of audio feedback into the microphone input stream and alters the speech commands or even elicit one by its own.
+In regards of video game designs with KWS, only the imagination restricts its possibilities and there are possibly countless great game ideas, that can use such a technique.
+However it must be added that Neural Networks require large amounts of data and that every command word needs enough training samples to learn from.
+This suggests more in the direction phoneme based recognition, to be more flexible in the selection of command words.
+A comparison between ASR and KWS in video games would be a very interesting topic in upcoming research as well.
