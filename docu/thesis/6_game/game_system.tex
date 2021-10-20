@@ -28,8 +28,8 @@ Further some buffer samples were added for an improved detection of the highest 
 Note that the input stream reads out the microphone data in chunk, where the length of each chunk was chosen to 160 samples, corresponding to exactly one frame with hop size of \SI{10}{\milli\second}.
 Ideally these buffer frames should not be necessary, but due to shift invariance problems in some network architectures (especially for the \texttt{fstride} model), it can be advantageous and improve the key word predictions when buffer frames are added.
 
-The buffer frames are located prior and posterior to the dedicated key word frames and were selected to both 5 frames for the prior and posterior buffer frames in the deployed video game.
-The frames for the prior buffer are collected consecutively from the audio stream and are updated to the full size of the prior buffer in the FIFO. 
+The buffer frames are located prior and posterior to the dedicated key word frames and were selected to both 5 frames for the prior and posterior buffer.
+The frames for the prior buffer are collected consecutively from the audio stream and are updated to the size of the prior buffer. 
 Each input chunk or frame is used for the detection of an online onset as described in \rsec{signal_onset_online}.
 If an onset is detected from one of these frames, subsequently the FIFO will be filled up to its full size including the posterior buffer frames.
 Afterwards the whole FIFO is read out and the obtained frames are passed to the feature extraction module already located in the classification system.
