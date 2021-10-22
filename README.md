@@ -1,44 +1,44 @@
-# Key-Word Spotting Game
+# Key Word Spotting Game
 
-from Christian Walter
-Date: 01.09.2020
+Master Thesis Project @TUGraz 
+Author: Christian Walter
+Date: 01.11.2021
 
 
 ## Project description
 
-The aim of this project was to evaluate a Key-Word-Spotting (KWS) system trained with the speech command data set from Warden (2018) in a simple Computer Game.
+The aim of this project was to implement a Key-Word-Spotting (KWS) system with neural networks trained on the speech command dataset [1] and applied in a simple video game.
+Several low computational Convolutional Neural Networks (CNN) in the fashion of [2] were evaluated.
+A pre-training method using Generative Adversarial Networks (GAN) [3] was used to increase the accuracies.
+Wavenets [4] were extended with a classification of speech commands.
 
 ![alt text](https://raw.githubusercontent.com/chrisworld/kws_game/master/docu/screenshots/level1-1.png)
 
+
 ## Technical Details
 
-Python 3.7 was used for coding and testing.
+Operating System: Linux
+Programming Language: Python 3.8.x
+Neural Network Framework: Pytorch 1.7
 Several packages must by installed to run the game, try and see what is missing.
 Further a microphone is necessary to play the game.
 
 
 ## Usage
 
-The project contains a fundamental approach for developing a KWS system.
-This stretches from extracting features from the dataset, to speech commands used in the game.
-The interested reader is welcome to go through the code and investigate how it is done, also most files can be executed by their own to show their contribution.
-
-To play the game open a terminal and type:
+To play the game open a terminal with the project path and type:
 
 python kws_main.py
-
-But note that the microphone parameters need to be changed to your own setup, this can be done in line 39:
-
-mic = Mic(fs=fs, N=N, hop=hop, classifier=classifier, energy_thres=1e-4, device=7)
-
-where the 'device' parameter specifies the input device. 
-Choose a number from the device list printed in the terminal.
-Also the 'energy_thres' might need some fine tuning according to your microphone.
 
 ![alt text](https://raw.githubusercontent.com/chrisworld/kws_game/master/docu/screenshots/level1-2.png)
 
 
+## References
 
+[1]...
+[2]
+[3]
+[4]
 
 
 
