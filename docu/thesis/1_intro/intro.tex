@@ -2,44 +2,44 @@
 % Introduction
 
 \chapter{Introduction}\label{sec:intro}
-\thesisStateRevised
-Controlling video games with the voice of a player to render certain actions within the game, is an interdisciplinary challenge between speech signal processing, machine learning and game design.
-A microphone is necessary to capture the voice of a player providing a speech signal of a potential command for the video game.
-The speech signal should be extracted from raw audio samples to meaningful feature vectors, that are used as inputs to a Key Word Spotting (KWS) system with the task of classifying those features to the most probable command.
-The spoken command should change states of specific game objects and therefore ideally enhance and extend the game play experience of the players.
+Controlling video games with the voice of a player in order to render certain actions within the game, is an interdisciplinary challenge between speech signal processing, machine learning and game design.
+A microphone is required to capture the voice of a player providing a speech signal of a potential command for the video game.
+The speech signal is usually extracted from raw audio samples to meaningful features, such as the Mel Frequency Cepstral Coefficients (MFCC) and being used as inputs to a Key Word Spotting (KWS) system with the task of classifying those features to the most probable command.
+The spoken command should change states of specific game objects and therefore ideally enhance and extend the gaming experience of the players.
 A simple schematic of the whole process is shown in \rfig{intro_kws}.
 \begin{figure}[!ht]
   \centering
     \includegraphics[width=0.9\textwidth]{./1_intro/figs/intro_kws}
-  \caption{Simplified process of Key Word Spotting for video games.}
+  \caption{Simplified process of key word spotting for video games.}
   \label{fig:intro_kws}
 \end{figure}
 \FloatBarrier
 \noindent
 In the semantic perspective, the controlling of game objects, should be short, clear and best done with single command words, referred as speech commands.
-Single words are easier to detect in comparison to long sentences, for instance it is easier to recognize a simple \enquote{left} than \enquote{missile target on position x, y}.
+Single words are easier to detect in comparison to long sentences, for instance it is easier to recognize the word \enquote{left} than the sentence \enquote{missile target on position x, y}.
 The classification of those speech commands can be done with a KWS system composed of a neural network.
-KWS is the task of recognizing words from human speakers, with regard to a limited set of selected key words.
-In terms of video games, those key words might be commands like \enquote{left} or \enquote{right}, for instance to move an element within the game to either left or right respectively.
-The limited set of key words, referred as vocabulary, is crucial to restrict the complexity of the recognition task, because usually in all KWS applications it is not necessary to cover all words in a natural language.
+KWS is restricted by a limited set of selected key words, referred as vocabulary or class dictionary.
+In terms of video games, the set of key words might have members like \enquote{left} or \enquote{right}, for instance to move an element within the game to either left or right respectively.
+The limited set of key words is crucial to restrict the complexity of the recognition task, since in practical applications it is not necessary to cover all words in a natural language.
 Especially in video games, where the game environment is restricted by rules, technical limits and play-ability, KWS is suited perfectly as an alternative or augmented control system.
 The size of the vocabulary and the selected words are two parameters that influence on one hand the choice of the neural network architecture, evaluated on energy efficiency and accuracy performance and on the other hand the game experience over the controls a player can choose from.
 If the vocabulary of a KWS system would be too large, the chance of confusion between two different key words grows naturally.
-In many KWS applications it is absolutely necessary that the vocabulary includes labels for \emph{background noise}, \emph{silence} and \emph{unknown words}. 
-This is especially interesting in \emph{wake word} applications, where a single key word must be detected over the previously mentioned labels.
-Also in video games those additional labels are useful to prevent that the player elicits an unwanted command accidentally, through for instance loud background noise.
+In many KWS applications it is absolutely necessary to include labels for \emph{background noise}, \emph{silence} and \emph{unknown words} in the vocabulary. 
+This is especially interesting in \emph{wake word} applications, where a single key word must be detected over the previously mentioned labels representing all other possible words that can be spoken.
+Also in video games those additional labels are useful to prevent the player from eliciting unintended commands accidentally, through for instance loud background noise.
 Therefore a KWS system has the demand of being very accurate and fast in its classification of key words.
 
-Nowadays KWS systems are considered no science-fiction anymore, assisting consumers in everyday situations, such as rendering simple control tasks like the triggering of a photo release button on a \emph{smartphone} with a single speech command.
-Application like this create more awareness of key word spotting, or generally speaking speech recognition tasks, in human society.
-Unfortunately some consumer applications, that are incorporating speech recognition, leave some bitter aftertaste in data privacy issues through an externally and extensive computational processing pipeline and data storage over corporate servers \cite{Tang2018}.
-It is therefore important to create KWS systems that respects private user data and provide an efficient implementation to save energy consumption. 
-Video games can be yet another very positive application for KWS systems, until now however, there exist very few video games with this special feature.
-Reasons for that might be found in the history of video games itself, where players find themselves in a fast paced arcade game and speech recognition is simply too slow.
-Also the complexity of KWS and lack of training data are often two valid reasons for not even considering the development of a KWS system.
+Nowadays KWS systems are considered no science-fiction anymore, assisting consumers in everyday situations, such as rendering simple control tasks as the triggering of a photo release button on a \emph{smartphone} with a single speech command.
+Application like this create more awareness of KWS, or generally speaking of speech recognition tasks, in human society.
+Unfortunately some consumer applications with integrated speech recognition systems, leave a bitter aftertaste in data privacy issues and energy consumption through an externally and extensive computational processing pipeline over corporate servers \cite{Tang2018}.
+It is therefore important to create incorporated KWS systems that respect private user data and provide an efficient implementation to save energy consumption.
+
+Video games are a potential application for KWS, until now however, there exist very few of them with this special feature.
+Reasons for that might be found in the history of video games itself, where players find themselves in fast paced arcade games and speech recognition was simply too slow.
+Additionally the complexity of KWS and lack of training data are often two valid arguments for not considering the deployment of a KWS system in a video game.
 
 The following two sections in this introduction will briefly show the contributions of this thesis and give an overview of upcoming sections.
-In summary, the focus of this thesis lies on key word spotting with neural networks trained through supervised learning on a speech command dataset \cite{Warden2018}.
+In summary, the focus of this thesis lies on KWS with neural networks trained through supervised learning on a speech command dataset \cite{Warden2018}.
 The best suitable solutions for speech commands classification for video games are presented and evaluated with special interests in Convolutional Neural Networks (CNN), Generative Adversarial Neural Networks (GAN) and Wavenets.
 
 % contributions
@@ -53,11 +53,10 @@ The best suitable solutions for speech commands classification for video games a
 % background section
 
 \chapter{Background}\label{sec:back}
-\thesisStateRevised
-This chapter provides the fundamental background knowledge of the individual disciplines of the KWS task with neural networks applied in video games.
-The KWS task is mathematically formulated to provide an actual problem expression.
-Neural network approaches for KWS are described in general and some notes on video games with KWS controls are outlined.
-Research questions are listed and provide a deeper insight in the actual problems, that are present for the implementation of a KWS system into a video game.
+This section provides fundamental background information and problem formulations for this thesis.
+The KWS task is described mathematically to express the actual recognition problem.
+Notes on neural networks explain common properties and terms in their application.
+Research questions are listed and give a deeper insight in common challenges of implementing a KWS system into a video game.
 
 % disciplines
 \input{./1_intro/intro_kws.tex}
