@@ -3,8 +3,10 @@
 
 \section{Notes on Neural Networks}\label{sec:intro_nn}
 Neural networks enable computers to automatically learn from data to be able to solve tasks such as pattern recognition in images or audio.
+The \emph{training} of a neural network with a specific dataset, is the learning process of all parameters within its architecture.
 The examples or samples from the input data can be paired with annotations, denoted as \emph{labels} or \emph{classes}.
-If the label information of each example is used during the \emph{training} of a machine learning system, such as a neural network, it is called \emph{supervised learning} otherwise it is called \emph{unsupervised learning}, however supervised learning is more commonly applied.
+If the label information of each example is used during the training of a machine learning system, such as a neural network, it is called \emph{supervised learning} otherwise it is called \emph{unsupervised learning}, however supervised learning is more commonly applied.
+\emph{Inference} is simply the forward pass of input data samples through an already trained network to output their estimated class labels.
 
 The big advantage of neural networks is, that they are able to cope with large amounts of input variables per data example.
 Considering a raw waveform file of merely \SI{1}{s} time duration, sampled with \SI{16}{\kilo\hertz} would give an input size of 16000 features.
@@ -22,7 +24,7 @@ The re-usability of pre-trained weights is often named as \emph{transfer learnin
 
 The potential of neural networks in research are vast.
 The observation on how the learning from data is done and what recognition patterns are obtained after training, might allow researchers and experts to better understand the problem or gain a different viewpoint on it.
-Especially when using CNNs, researchers are able to visualize the learned filters and interpret their results.
+Especially the use of CNNs allows researchers to visualize the learned filters and interpret their results.
 A very interesting example of investigating learned CNN filters is shown by Zeiler et al. \cite{Zeiler2013}.
 Other exciting subjects in research are generative models, such as GANs \cite{Goodfellow2014}, which are able to create convincing samples from the learned data distribution.
 
