@@ -28,9 +28,11 @@ More conveniently, \req{signal_spec_dtft} can be written in matrix notation with
 %--
 % DFT matrix
 \begin{equation}\label{eq:signal_spec_dtft_matrix}
-  \hat{\bm{x}} = \mathcal{F} \bm{x} \quad \mathrm{with} 
-  \quad \mathcal{F}[k, n] = e^{-j\frac{2 \pi n}{N} k},
-  \quad k, n = (0, 1, \dots, K-1), (0, 1 \dots, N-1)
+  \begin{aligned}
+    \hat{\bm{x}} = \mathcal{F} \bm{x} \quad \mathrm{with} 
+    \quad &\mathcal{F}[k, n] = e^{-j\frac{2 \pi n}{N} k},\\
+    &k, n = (0, 1, \dots, K-1), (0, 1 \dots, N-1)
+  \end{aligned}
 \end{equation}
 where $k$ and $n$ are row and column indices in the transformation matrix $\mathcal{F}$, which gives an output dimension of the DFT transformed signal $\hat{\bm{x}} \in \C^K$.
 

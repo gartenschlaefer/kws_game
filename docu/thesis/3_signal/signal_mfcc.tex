@@ -77,8 +77,11 @@ where $c$ is the DCT coefficient index and $n$ the sample index of a signal vect
 This can be conveniently written in matrix notation with a total number of $C$ DCT coefficients:
 % dct matrix
 \begin{equation}\label{eq:signal_mfcc_dct_matrix}
-  \hat{\bm{x}} = \mathcal{D} \bm{x} \quad \mathrm{with} \quad \mathcal{D}[c, n] = \cos{\left[ \frac{\pi}{N} \left( n + \frac{1}{2} \right) c  \right]}, 
-  \quad c, n = (0, 1, \dots, N - 1), (0, 1, \dots, C - 1) 
+  \begin{aligned}
+    \hat{\bm{x}} = \mathcal{D} \bm{x} \quad \mathrm{with} 
+    \quad &\mathcal{D}[c, n] = \cos{\left[ \frac{\pi}{N} \left( n + \frac{1}{2} \right) c  \right]},\\
+    &c, n = (0, 1, \dots, N - 1), (0, 1, \dots, C - 1) 
+  \end{aligned}
 \end{equation}
 with $\mathcal{D} \in \R^{C \times N}$ as DCT matrix and input signal $\bm{x} \in \R^N$ which gives the transformed signal $\hat{\bm{x}} \in \R^C$
 The DCT basis functions illustrated in a matrix in two different color schemes are shown in \rfig{signal_mfcc_dct}.

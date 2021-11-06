@@ -1,47 +1,43 @@
 % --
 % prev key word spotting
 
-\section{Key Word Spotting with Neural Networks}\label{sec:prev_kws}
-\thesisStateRevised
-Some important works regarding KWS with neural networks are presented here. 
-The aspect of energy efficients is very important within this thesis, because of the deployment of a KWS system in a video game.
-Further the neural network architectures evaluated in this thesis are trained and tested on an already profoundly examined speech command dataset \cite{Warden2018}.
-Actual benchmarks are provided on classification accuracies from different neural network approaches.
+\section{Work on Key Word Spotting with Neural Networks}\label{sec:prev_kws}
+The presented work on KWS with neural networks were selected to energy efficient solutions and benchmark networks for the speech command dataset \cite{Warden2018}.
 
 
 % --
 % energy efficient
 
-\subsection{Energy efficient solutions}
-In video games the processing and classification of speech commands has to run in real-time and therefore a low computational footprint is needed for the deployment of neural networks in this task.
-One of the most famous papers on low computational footprint regarding KWS systems is from Sainath et al. in 2015 \cite{Sainath2015}.
-Two neural network architectures are chosen from this paper, one is a traditional CNN network for comparison and the other is a limited multipliers network with a CNN striding only in the frequency axis.
+\subsection{Energy Efficient Solutions}
+The processing and classification of speech commands for video games have to run in real-time and therefore a low computational footprint is required for the neural networks embedded in the classification system.
+One famous paper on low computational footprint of CNNs regarding KWS tasks, was presented by Sainath et al. in 2015 \cite{Sainath2015}.
+Two neural network architectures were chosen from this paper, one is a traditional CNN network and the other is a limited multipliers network with a CNN striding only in the frequency axis.
 Both networks are described in detail in \rsec{nn_arch}.
 
-A deployment of a KWS system on microcontrollers is examined in \cite{Zhang2017}.
+The deployment of a KWS system on microcontrollers was examined in \cite{Zhang2017}.
 Different neural network architectures were evaluated regarding their memory usage and operations per inference.
 The work showed that 32-bit to 8-bit quantization does not reduce the classification accuracy and that the depthwise separable CNN (DS-CNN) was the best choice with regards to limited amounts of memory and operations compared to the other evaluated networks.
 
-Another highly optimized resource efficient Deep Neural Network (DNN) based on CNNs obtained with a Neural Architecture Search (NAS) is described by \cite{Peter2020}.
-This work also showed that a 1-bit quantization of the weights performs nearly as good as the 8-bit quantization, which decreases the memory usage even further.
+Another highly optimized resource efficient Deep Neural Network (DNN) based on CNNs and obtained with a Neural Architecture Search (NAS) is described by \cite{Peter2020}.
+This work also showed that a 1-bit quantization of the weights perform nearly as good as the 8-bit quantization, which decreases the memory usage even further.
 
 
 % --
 % benchmark
 
-\subsection{Benchmark Networks for this thesis}\label{sec:prev_kws_benchmark}
+\subsection{Benchmark Networks for this Thesis}\label{sec:prev_kws_benchmark}
 First it is to mention that the speech command dataset \cite{Warden2018} exists in two versions \texttt{v0.01} and \texttt{v0.02} consisting of raw audio data in the \texttt{.wav} format and there is no pre-processing or feature extraction done beforehand.
 Also it is up to the users for which labels are to be selected.
-The main idea however is to choose the \emph{core words} as classification labels and add an \enquote{unknown} label for the \emph{auxiliary words}.
+The main idea however, is to choose the \emph{core words} as classification labels and add an \enquote{unknown} label for the \emph{auxiliary words}.
 Also a separate noise or \enquote{silence} label can be added from given noise data files.
-In most papers the core words were \{\enquote{left},  \enquote{right}, \enquote{up}, \enquote{down}, \enquote{go}, \enquote{stop}, \enquote{yes}, \enquote{no}, \enquote{on}, \enquote{off}\} and two label for \enquote{silence} and \enquote{unknown} (all other words) used for comparison to previous papers.
+In most papers the core words were \{\enquote{left},  \enquote{right}, \enquote{up}, \enquote{down}, \enquote{go}, \enquote{stop}, \enquote{yes}, \enquote{no}, \enquote{on}, \enquote{off}\} and additional two labels for \enquote{silence} and \enquote{unknown} (all other words) used for comparison to previous papers.
 This constellation of selected key words is referred here as \texttt{L12}, the speech command dataset version is referenced with \texttt{V1} or \texttt{V2}.
 More details about the dataset is presented in \rsec{exp_dataset}.
 
 One benchmark is hold by \cite{Berg2021} introducing a Key Word Transformer (KWT) network, which performs accuracy scores of almost \SI{100}{\percent}.
 A good overview of actual benchmark scores regarding the speech command dataset is given in \cite{PaperswithcodeKWS}.
 
-All benchmark scores from the referenced works in this section are shown in \rtab{prev_kws_bench}.
+All benchmark scores from the referenced work in this section are shown in \rtab{prev_kws_bench}.
 \input{./2_prev/tables/tab_prev_kws_bench.tex}
 Note that this scores are achieved by very sophisticated neural network architectures incorporating many layers.
 It is very hard to achieve the same performance as presented in those papers.

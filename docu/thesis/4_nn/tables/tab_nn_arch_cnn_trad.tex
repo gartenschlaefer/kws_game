@@ -2,13 +2,13 @@
 \small
 \begin{center}
 \caption{Network footprint of \texttt{conv-trad} with 12 output labels.}
-\begin{tabular}{ M{1.5cm} M{1.5cm} M{1.2cm} M{1.2cm} M{2cm} M{2cm} M{2.3cm} }
+\begin{tabular}{ M{1.5cm} M{1.4cm} M{1.2cm} M{1.2cm} M{2cm} M{1.8cm} M{2.3cm} }
 \toprule
  \textbf{layer types} & \textbf{number of feature maps} & \textbf{kernel size} & \textbf{stride} & \textbf{output dimension} & \textbf{number of parameters} & \textbf{number of operations}\\
 \midrule
 input & - & - & - & $1 \times 12 \times 50$ & - & -\\
 conv. & 64 & $(4 \times 20)$ & $(1, 1)$ & $64 \times 9 \times 31$ & \num{5184} & \SI{2874.82}{\kilo\ops}\\
-max & - & $(2 \times 4)$ & $(2, 4)$ & $64 \times 4 \times 7$ & - & -\\
+max pool & - & $(2 \times 4)$ & $(2, 4)$ & $64 \times 4 \times 7$ & - & -\\
 conv. & 64 & $(2 \times 4)$ & $(1, 1)$ & $64 \times 3 \times 4$ & \num{32832} & \SI{835.58}{\kilo\ops}\\
 flatten & - & - & - & $1 \times 768$ & - & - \\
 fc & - & - & - & $1 \times 32$ & \num{24608} & \SI{49.18}{\kilo\ops} \\

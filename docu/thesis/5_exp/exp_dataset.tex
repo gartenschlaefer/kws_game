@@ -209,7 +209,7 @@ This was done by zero-padding the signals to the desired length of 16000 samples
 Further dither noise was added, so that neural networks are not confused when operating with pure zeros emerging from the data examples.
 The dithering was done by Gaussian additive noise with:
 \begin{equation}\label{eq:exp_dither}
-  \bm{x} = \bm{\tilde{x}} + \bm{v}, \quad \bm{v} \sim \mathcal{N}(\mu=0, \sigma=0.5) \cdot \tilde{x}_{quant}
+  \bm{x} = \bm{\tilde{x}} + \bm{v}, \quad \bm{v} \sim \mathcal{N}(\mu=0, \sigma=0.5 \cdot \tilde{x}_{quant}) 
 \end{equation}
 with fixed sample length of $n = 16000$, $\mathcal{N}$ is the normal distribution and $\bm{v} \in \R^n$ is sampled from this distribution multiplied with the quantization error $\tilde{x}_{quant} \in \R$, $\bm{\tilde{x}} \in \R^n$ is the zero-padded signal (only if the total sample number is less than 16000).
 The quantization error $\tilde{x}_{quant}$ corresponds to the minimum of all absolute values from the samples of $\bm{\tilde{x}}$, except the pure zero entries, that were added through the zero-padding.

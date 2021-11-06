@@ -65,8 +65,7 @@ This gives a maximal amount of 3500 examples per label to represent the whole da
 
 The L12 labels and their number of examples per label used for training, is listed in \rtab{exp_details_params_dataset}.
 \input{./5_exp/tables/tab_exp_details_params_dataset}
-Note that the action set of the video game is displayed informatively and not used in the experiments, though it could have improved the classification performance in the deployed video game if only 7 labels instead of the L12 were used.
-Nevertheless the deployed video game worked well with the model trained on the L12 labels and very few confusions are happening to the unused key words.
+Note that the actions set of the deployed video game uses only a subset of the L12 labels, namely the set: \{\enquote{left},  \enquote{right}, \enquote{up}, \enquote{down}, \enquote{go}, \enquote{\_mixed}, \enquote{\_noise}\}.
 
 
 % --
