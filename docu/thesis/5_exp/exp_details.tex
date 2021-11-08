@@ -29,7 +29,7 @@ Several other \texttt{Python} packages were used within the project, but are not
 % training details
 
 \subsection{Neural Network Training Details}\label{sec:exp_details_training}
-The training details of the used neural networks described in \rsec{nn_arch} can be split into following parameters:
+The training details of the used neural networks described in \rsec{nn_arch}, can be split into following parameters:
 \begin{enumerate}
   \item Feature extraction parameters
   \item Dataset parameters
@@ -57,7 +57,7 @@ If not other stated, the feature extraction parameters in \rtab{exp_details_para
 
 \subsubsection{Dataset parameters}
 The labels for training are selected to the same 12 labels (L12) that were also used in the benchmark networks, described in \rsec{prev_kws_benchmark}, to provide a comparison for the performed experiments in this section and the previous work.
-The deployed video game in \rsec{game} uses only 7 of those L12 labels, the rest is handled in the same way as the \enquote{\_mixed} label.
+The deployed video game in \rsec{game} uses only 7 of those L12 labels, the rest is handled equally as the \enquote{\_mixed} label.
 
 The maximal number of examples per label for training is given by the minimum examples per selected label for each label and each set.
 This is provided by the validation set of \enquote{go} with \{train: 2948, test: 425, validation: 350 \} shown in \rtab{exp_dataset_all_labels}, with 350 examples per label in the validation set, considering a \SI{10}{\percent} split of both test and validation set.

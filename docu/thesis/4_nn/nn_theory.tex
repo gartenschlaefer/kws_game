@@ -20,7 +20,7 @@ A loss function computes the difference between the predicted and the actual cla
 % activation functions
 
 \subsection{Activation Functions}\label{sec:nn_theory_acti}
-Activation functions for neural networks of a node in a current layer, are non-linear functions that usually maps the sum of the weighted inputs from nodes in a previous layer to a single output value $z \in \R$ as following:
+Activation functions for neural networks of a node in a current layer, are non-linear functions that usually maps the sum of the weighted inputs from nodes in a previous layer to a single output value $z \in \R$ defined by:
 \begin{equation}\label{eq:nn_theory_acti}
   z = h(\bm{w}^T \bm{x})
 \end{equation}
@@ -73,7 +73,7 @@ A simple FC layer is illustrated in \rfig{nn_theory_fc} with 3 nodes.
 \end{figure}
 \FloatBarrier
 \noindent
-Mathematically one node $i$ performs following calculation:
+Mathematically one node $i$ performs the following calculation:
 \begin{equation}
   z_i = h(\bm{w_i}^T \bm{x} + b_i)
 \end{equation}
@@ -101,7 +101,7 @@ Convolutional layers are the fundamental building block of every CNN, as already
 Convolutional filters are applied on small areas of the input data to retrieve spatial information, where the input data can consist of multiple channels or input maps.
 Those convolutional filters are also called kernels, denoted as $k$ and in case of 2 dimensional input maps illustrated as images with kernel width $d_{k_w}$ and height $d_{k_h}$.
 The kernels are shifted over each input map in each dimensional axis with an operation called \emph{stride}, denoted as $s$, and produce an output map corresponding to each kernel and input map through the convolution operation, mathematically denoted with a star $\ast$.
-The output length $d_{o_z}$ of an image in any dimension $z$, where $z \in \{w, h\}$ with $w$ as width and $h$ as height for images, convoluted from an input map of length $d_{x_z}$ with a kernel $k$ striding along axis $z$ with $s_z$ and kernel size for that axis $d_{k_z}$ can be computed as following:
+The output length $d_{o_z}$ of an image in any dimension $z$, where $z \in \{w, h\}$ with $w$ as width and $h$ as height for images, convoluted from an input map of length $d_{x_z}$ with a kernel $k$ striding along axis $z$ with $s_z$ and kernel size for that axis $d_{k_z}$ can be computed as follows:
 \begin{equation}\label{eq:nn_theory_cnn_}
   d_{o_z} = \floor*{\frac{d_{x_z} + p_z - d_{k_z}}{s_z} + 1}
 \end{equation}
@@ -169,7 +169,7 @@ which can be achieved with the softmax function:
 where $L$ is the amount of nodes in this layer, if it is the last layer as usual for the softmax, $L$ is the total amount of class labels and $\hat{y}_i$ the probability value of the corresponding class $i$.
 
 There are already plenty of different loss functions available for training neural networks, such as described in \cite{LeCun2006}, however in this thesis only one kind of it is used for all neural network architecture, the cross-entropy loss or for two classes the binary cross-entropy loss function.
-Without going too much into the detail of this loss function, it is described in the same way as in the \texttt{Pytorch} framework \cite{Pytorch}.
+Without going too much into the detail of this loss function, it is formulated similarly to its implementation in the \texttt{Pytorch} framework \cite{Pytorch}.
 The binary cross-entropy is implemented as:
 \begin{equation}\label{eq:nn_theory_binary_cross_entropy}
   l(x_i, y_i) = y_i \cdot \log x_i + (1 - y_i) \cdot \log (1 - x_i)
@@ -219,7 +219,7 @@ The interesting elements are therefore only the neural network architecture desi
 \subsection{Generative Adversarial Neural Networks Game}\label{sec:nn_theory_gan}
 \thesisStateRevised
 GANs \cite{Goodfellow2014}, as already mentioned in \rsec{prev_nn_adv} consist of two neural networks: a Generator (G) network for generating fake images and a Discriminator (D) network for discriminating between fake and real images.
-The min-max game both networks are playing is the following:
+The min-max game both networks are playing, is defined by:
 \begin{equation}\label{eq:nn_theory_gan}
   \underset{G}{\min} \, \underset{D}{\max} \, V(D, G) = \E_{\bm{x} \sim p_{data}(\bm{x})}\left[ \log D(\bm{x}) \right] + 
     \E_{\bm{z} \sim p_{\bm{z}}(\bm{z})}\left[ \log (1 - D(G(\bm{z}))) \right]

@@ -42,7 +42,7 @@ The equivalent of \req{e_win} for MFCCs in the cepstral and frame space is there
 \end{equation}
 where $m$ and $N$ are in the frame space instead of the sample space.
 A conversion from sample to frame space can simply be done by dividing the sample variable with the hop size $h$ in samples and rounding it to an integer number.
-The onset frame $o$, using the first MFCC coefficient, is determined in the same way as formulated in \req{onset}.
+The onset frame $o$ is obtained from the highest value of the windowed energy measure $e[m]$, as already formulated in \req{onset}.
 An illustration of the onset detection with the fixed window of size \SI{500}{\milli\second} is shown in \rfig{signal_onset_window}, where
 the start of the striding window with the highest energy value contained in this window, is the onset.
 \begin{figure}[!ht]

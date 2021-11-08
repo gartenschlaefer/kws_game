@@ -50,7 +50,7 @@ The length of 20 frames in the first convolutional layer is reasonable and corre
 Note that the \enquote{Flatten} layer simply flattens the output tensor of the last convolutional layers to 1-dimension, so that consecutive fully-connected (FC) layers can be appended.
 Dropout was used in the first two FC layers to improve generalization.
 The last FC layer has $L$ nodes corresponding to $L$ output class labels, depending on the amount of chosen key words in the vocabulary.
-Assuming that the input will be of shape $d_x = (1 \times 12 \times 50)$, following dimensions, amount of parameters and operations or each layer, listed in \rtab{nn_arch_cnn_trad}, are present.
+Assuming that the input will be of shape $d_x = (1 \times 12 \times 50)$, the following dimensions, amount of parameters and operations for each layer are listed in \rtab{nn_arch_cnn_trad}.
 \input{./4_nn/tables/tab_nn_arch_cnn_trad.tex}
 
 The \texttt{conv-fstride} has the kernel size adapted to the input frame size and is therefore striding only in the frequency dimension.
