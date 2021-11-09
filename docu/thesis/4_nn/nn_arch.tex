@@ -38,7 +38,7 @@ The network architecture of the traditional network (\texttt{conv-trad}) is show
 % conv-trad
 \begin{figure}[!ht]
   \centering
-    \includegraphics[height=0.2\textwidth]{./4_nn/figs/nn_arch_cnn_trad.eps}
+    \includegraphics[height=0.2\textwidth]{./4_nn/figs/nn_arch_cnn_trad.pdf}
   \caption{Traditional CNN network design from \cite{Sainath2015} named \texttt{conv-trad}.}
   \label{fig:nn_arch_cnn_trad}
 \end{figure}
@@ -47,7 +47,7 @@ The network architecture of the traditional network (\texttt{conv-trad}) is show
 The \texttt{conv-trad} network consists of 2 convolutional layers and one max pooling layer in between.
 The architecture was adapted from \cite{Sainath2015} as a baseline network and modified a bit in the kernel sizes, so that also reduced input features, for instance 12 MFCCs instead of 39 MFCC (including deltas and energies), can be computed with the same model.
 The length of 20 frames in the first convolutional layer is reasonable and corresponds approximately to the length of a vowel sound.
-Note that the \enquote{Flatten} layer simply flattens the output tensor of the last convolutional layers to 1-dimension, so that consecutive fully-connected (FC) layers can be appended.
+Note that the \enquote{Flatten} layer simply flattens the output tensor of the last convolutional layers to 1-dimension, so that consecutive FC layers can be appended.
 Dropout was used in the first two FC layers to improve generalization.
 The last FC layer has $L$ nodes corresponding to $L$ output class labels, depending on the amount of chosen key words in the vocabulary.
 Assuming that the input will be of shape $d_x = (1 \times 12 \times 50)$, the following dimensions, amount of parameters and operations for each layer are listed in \rtab{nn_arch_cnn_trad}.
@@ -58,7 +58,7 @@ The kernel height of 8 with vertical stride of 4 creates only two dimensions in 
 The model is shown in \rfig{nn_arch_cnn_fstride} and its footprint is listed in \rtab{nn_arch_cnn_fstride}
 \begin{figure}[!ht]
   \centering
-    \includegraphics[height=0.2\textwidth]{./4_nn/figs/nn_arch_cnn_fstride.eps}
+    \includegraphics[height=0.2\textwidth]{./4_nn/figs/nn_arch_cnn_fstride.pdf}
   \caption{Frequency striding CNN design from \cite{Sainath2015} named \texttt{conv-fstride}.}
   \label{fig:nn_arch_cnn_fstride}
 \end{figure}
@@ -69,12 +69,12 @@ The model is shown in \rfig{nn_arch_cnn_fstride} and its footprint is listed in 
 The self designed \texttt{conv-jim} consists of two convolutional layers, where the first has an adaptive kernel size in the feature (frequency) dimension and is therefore striding only in frame (time) dimension.
 The kernel width of the first convolutional filters is set to $20$, which illustrates much of the learned data structure in the feature maps after the training.
 The second convolutional filter has a width of $5$ intended for temporal variations.
-The \texttt{conv-jim} model is shown in \rfig{nn_arch_cnn_conv-jim} with footprint in \rtab{nn_arch_cnn_jim}.
+The \texttt{conv-jim} model is shown in \rfig{nn_arch_cnn_jim} with footprint in \rtab{nn_arch_cnn_jim}.
 \begin{figure}[!ht]
   \centering
-    \includegraphics[height=0.2\textwidth]{./4_nn/figs/nn_arch_cnn_conv-jim.eps}
+    \includegraphics[height=0.2\textwidth]{./4_nn/figs/nn_arch_cnn_jim.pdf}
   \caption{Self designed frame (time) striding CNN named \texttt{conv-jim}.}
-  \label{fig:nn_arch_cnn_conv-jim}
+  \label{fig:nn_arch_cnn_jim}
 \end{figure}
 \FloatBarrier
 \noindent
@@ -98,7 +98,7 @@ The convolutional layer parameters of both D and G can be applied for transferri
 The only GAN model used for adversarial pre-training has the same convolutional layer structure as the \texttt{conv-jim} network and is therefore denoted as \texttt{adv-d-jim} for the Discriminator model and \texttt{adv-g-jim} for the Generator model, both are shown in \rfig{nn_arch_adv_d_jim} and \rfig{nn_arch_adv_g_jim} respectively.
 \begin{figure}[!ht]
   \centering
-    \includegraphics[height=0.2\textwidth]{./4_nn/figs/nn_arch_adv_d_jim.eps}
+    \includegraphics[height=0.2\textwidth]{./4_nn/figs/nn_arch_adv_d_jim.pdf}
   \caption{Discriminator model named \texttt{adv-d-jim}.}
   \label{fig:nn_arch_adv_d_jim}
 \end{figure}
@@ -106,7 +106,7 @@ The only GAN model used for adversarial pre-training has the same convolutional 
 \noindent
 \begin{figure}[!ht]
   \centering
-    \includegraphics[height=0.23\textwidth]{./4_nn/figs/nn_arch_adv_g_jim.eps}
+    \includegraphics[height=0.23\textwidth]{./4_nn/figs/nn_arch_adv_g_jim.pdf}
   \caption{Generator model named \texttt{adv-g-jim}.}
   \label{fig:nn_arch_adv_g_jim}
 \end{figure}
@@ -127,7 +127,7 @@ An implementation of a Wavenet can be found in \cite{Herrmann2018} (without clas
 A Wavenet residual block with an extension for class prediction is illustrated in \rfig{nn_arch_wavenet_block}.
 \begin{figure}[!ht]
   \centering
-    \includegraphics[width=0.7\textwidth]{./4_nn/figs/nn_arch_wavenet_block.eps}
+    \includegraphics[width=0.7\textwidth]{./4_nn/figs/nn_arch_wavenet_block.pdf}
   \caption{Wavenet residual block \cite{Oord2016} with an extension of class prediction layers.}
   \label{fig:nn_arch_wavenet_block}
 \end{figure}
@@ -143,7 +143,7 @@ The whole Wavenet architecture is composed of several consecutive Wavenet residu
 The whole Wavenet architecture adaption with class prediction is shown in \rfig{nn_arch_wavenet_all}.
 \begin{figure}[!ht]
   \centering
-    \includegraphics[width=0.9\textwidth]{./4_nn/figs/nn_arch_wavenet_all.eps}
+    \includegraphics[width=0.9\textwidth]{./4_nn/figs/nn_arch_wavenet_all.pdf}
   \caption{Whole Wavenet architecture with class prediction extension.}
   \label{fig:nn_arch_wavenet_all}
 \end{figure}

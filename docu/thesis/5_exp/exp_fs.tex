@@ -36,9 +36,9 @@ The obtained accuracies on the test set after a training of 2000 epochs are show
 In \rfig{exp_fs_cepstral_acc} the accuracies on the validation set of the best performing training instances for each model are shown, where the accuracies are smoothed by a striding average filter with a length of 10 epochs for better visualization.
 \begin{figure}[!ht]
   \centering
-  \subfigure[conv-trad]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_fs_cepstral_acc_conv-trad}}
-  \subfigure[conv-fstride]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_fs_cepstral_acc_conv-fstride}}
-  \subfigure[conv-jim]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_fs_cepstral_acc_conv-jim}}
+  \subfigure[conv-trad]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_fs_cepstral_acc_conv-trad.png}}
+  \subfigure[conv-fstride]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_fs_cepstral_acc_conv-fstride.png}}
+  \subfigure[conv-jim]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_fs_cepstral_acc_conv-jim.png}}
   \caption{Accuracies on the validation set of all three CNN models of their best training instance, with different amounts of cepstral coefficients and with and without frame-based normalization. Applied smoothing with a 10 epoch average filter.}
   \label{fig:exp_fs_cepstral_acc}
 \end{figure}
@@ -50,10 +50,10 @@ In the following the shift and noise invariance of each model is evaluated.
 The noise and shift invariance of the \texttt{conv-trad} model is shown in \rfig{exp_fs_cepstral_tb_noise_conv-trad} and \rfig{exp_fs_cepstral_tb_shift_conv-trad} respectively.
 \begin{figure}[!ht]
   \centering
-  \subfigure[mfcc12, norm0]{\includegraphics[width=0.35\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_noise_conv-trad_mfcc12_norm0}}
-  \subfigure[mfcc12, norm1]{\includegraphics[width=0.35\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_noise_conv-trad_mfcc12_norm1}}
-  \subfigure[mfcc32, norm0]{\includegraphics[width=0.35\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_noise_conv-trad_mfcc32_norm0}}
-  \subfigure[mfcc32, norm1]{\includegraphics[width=0.35\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_noise_conv-trad_mfcc32_norm1}}
+  \subfigure[mfcc12, norm0]{\includegraphics[width=0.35\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_noise_conv-trad_mfcc12_norm0.png}}
+  \subfigure[mfcc12, norm1]{\includegraphics[width=0.35\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_noise_conv-trad_mfcc12_norm1.png}}
+  \subfigure[mfcc32, norm0]{\includegraphics[width=0.35\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_noise_conv-trad_mfcc32_norm0.png}}
+  \subfigure[mfcc32, norm1]{\includegraphics[width=0.35\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_noise_conv-trad_mfcc32_norm1.png}}
   \caption{Noise invariance of the \texttt{conv-trad} model, with different amounts of cepstral coefficients and with and without frame-based normalization.}
   \label{fig:exp_fs_cepstral_tb_noise_conv-trad}
 \end{figure}
@@ -61,10 +61,10 @@ The noise and shift invariance of the \texttt{conv-trad} model is shown in \rfig
 \noindent
 \begin{figure}[!ht]
   \centering
-  \subfigure[mfcc12, norm0]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_shift_conv-trad_mfcc12_norm0}}
-  \subfigure[mfcc12, norm1]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_shift_conv-trad_mfcc12_norm1}}
-  \subfigure[mfcc32, norm0]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_shift_conv-trad_mfcc32_norm0}}
-  \subfigure[mfcc32, norm1]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_shift_conv-trad_mfcc32_norm1}}
+  \subfigure[mfcc12, norm0]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_shift_conv-trad_mfcc12_norm0.png}}
+  \subfigure[mfcc12, norm1]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_shift_conv-trad_mfcc12_norm1.png}}
+  \subfigure[mfcc32, norm0]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_shift_conv-trad_mfcc32_norm0.png}}
+  \subfigure[mfcc32, norm1]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_shift_conv-trad_mfcc32_norm1.png}}
   \caption{Shift invariance of the \texttt{conv-trad} model, with different amounts of cepstral coefficients and with and without frame-based normalization.}
   \label{fig:exp_fs_cepstral_tb_shift_conv-trad}
 \end{figure}
@@ -73,10 +73,10 @@ The noise and shift invariance of the \texttt{conv-trad} model is shown in \rfig
 The noise and shift invariance of the \texttt{conv-fstride} model is shown in \rfig{exp_fs_cepstral_tb_noise_conv-fstride} and \rfig{exp_fs_cepstral_tb_shift_conv-fstride} respectively.
 \begin{figure}[!ht]
   \centering
-  \subfigure[mfcc12, norm0]{\includegraphics[width=0.35\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_noise_conv-fstride_mfcc12_norm0}}
-  \subfigure[mfcc12, norm1]{\includegraphics[width=0.35\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_noise_conv-fstride_mfcc12_norm1}}
-  \subfigure[mfcc32, norm0]{\includegraphics[width=0.35\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_noise_conv-fstride_mfcc32_norm0}}
-  \subfigure[mfcc32, norm1]{\includegraphics[width=0.35\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_noise_conv-fstride_mfcc32_norm1}}
+  \subfigure[mfcc12, norm0]{\includegraphics[width=0.35\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_noise_conv-fstride_mfcc12_norm0.png}}
+  \subfigure[mfcc12, norm1]{\includegraphics[width=0.35\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_noise_conv-fstride_mfcc12_norm1.png}}
+  \subfigure[mfcc32, norm0]{\includegraphics[width=0.35\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_noise_conv-fstride_mfcc32_norm0.png}}
+  \subfigure[mfcc32, norm1]{\includegraphics[width=0.35\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_noise_conv-fstride_mfcc32_norm1.png}}
   \caption{Noise invariance of the \texttt{conv-fstride} model, with different amounts of cepstral coefficients and with and without frame-based normalization.}
   \label{fig:exp_fs_cepstral_tb_noise_conv-fstride}
 \end{figure}
@@ -84,10 +84,10 @@ The noise and shift invariance of the \texttt{conv-fstride} model is shown in \r
 \noindent
 \begin{figure}[!ht]
   \centering
-  \subfigure[mfcc12, norm0]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_shift_conv-fstride_mfcc12_norm0}}
-  \subfigure[mfcc12, norm1]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_shift_conv-fstride_mfcc12_norm1}}
-  \subfigure[mfcc32, norm0]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_shift_conv-fstride_mfcc32_norm0}}
-  \subfigure[mfcc32, norm1]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_shift_conv-fstride_mfcc32_norm1}}
+  \subfigure[mfcc12, norm0]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_shift_conv-fstride_mfcc12_norm0.png}}
+  \subfigure[mfcc12, norm1]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_shift_conv-fstride_mfcc12_norm1.png}}
+  \subfigure[mfcc32, norm0]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_shift_conv-fstride_mfcc32_norm0.png}}
+  \subfigure[mfcc32, norm1]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_shift_conv-fstride_mfcc32_norm1.png}}
   \caption{Shift invariance of the \texttt{conv-fstride} model, with different amounts of cepstral coefficients and with and without frame-based normalization.}
   \label{fig:exp_fs_cepstral_tb_shift_conv-fstride}
 \end{figure}
@@ -96,10 +96,10 @@ The noise and shift invariance of the \texttt{conv-fstride} model is shown in \r
 The noise and shift invariance of the \texttt{conv-jim} model is shown in \rfig{exp_fs_cepstral_tb_noise_conv-jim} and \rfig{exp_fs_cepstral_tb_shift_conv-jim} respectively.
 \begin{figure}[!ht]
   \centering
-  \subfigure[mfcc12, norm0]{\includegraphics[width=0.35\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_noise_conv-jim_mfcc12_norm0}}
-  \subfigure[mfcc12, norm1]{\includegraphics[width=0.35\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_noise_conv-jim_mfcc12_norm1}}
-  \subfigure[mfcc32, norm0]{\includegraphics[width=0.35\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_noise_conv-jim_mfcc32_norm0}}
-  \subfigure[mfcc32, norm1]{\includegraphics[width=0.35\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_noise_conv-jim_mfcc32_norm1}}
+  \subfigure[mfcc12, norm0]{\includegraphics[width=0.35\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_noise_conv-jim_mfcc12_norm0.png}}
+  \subfigure[mfcc12, norm1]{\includegraphics[width=0.35\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_noise_conv-jim_mfcc12_norm1.png}}
+  \subfigure[mfcc32, norm0]{\includegraphics[width=0.35\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_noise_conv-jim_mfcc32_norm0.png}}
+  \subfigure[mfcc32, norm1]{\includegraphics[width=0.35\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_noise_conv-jim_mfcc32_norm1.png}}
   \caption{Noise invariance of the \texttt{conv-jim} model, with different amounts of cepstral coefficients and with and without frame-based normalization.}
   \label{fig:exp_fs_cepstral_tb_noise_conv-jim}
 \end{figure}
@@ -107,10 +107,10 @@ The noise and shift invariance of the \texttt{conv-jim} model is shown in \rfig{
 \noindent
 \begin{figure}[!ht]
   \centering
-  \subfigure[mfcc12, norm0]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_shift_conv-jim_mfcc12_norm0}}
-  \subfigure[mfcc12, norm1]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_shift_conv-jim_mfcc12_norm1}}
-  \subfigure[mfcc32, norm0]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_shift_conv-jim_mfcc32_norm0}}
-  \subfigure[mfcc32, norm1]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_shift_conv-jim_mfcc32_norm1}}
+  \subfigure[mfcc12, norm0]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_shift_conv-jim_mfcc12_norm0.png}}
+  \subfigure[mfcc12, norm1]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_shift_conv-jim_mfcc12_norm1.png}}
+  \subfigure[mfcc32, norm0]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_shift_conv-jim_mfcc32_norm0.png}}
+  \subfigure[mfcc32, norm1]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_shift_conv-jim_mfcc32_norm1.png}}
   \caption{Shift invariance of the \texttt{conv-jim} model, with different amounts of cepstral coefficients and with and without frame-based normalization.}
   \label{fig:exp_fs_cepstral_tb_shift_conv-jim}
 \end{figure}
@@ -135,7 +135,7 @@ The best two feature enhancements were the full MFCC-39 features (c1d1d1e1) and 
 Those were used for examining the accuracy on the validation set during training shown in \rfig{exp_fs_mfcc_tb_acc_conv-jim} and the noise and shift invaiance in \rfig{exp_fs_mfcc_tb_noise_conv-jim} and \rfig{exp_fs_mfcc_tb_shift_conv-jim}.
 \begin{figure}[!ht]
   \centering
-  \includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_fs_mfcc_acc_conv-jim}
+  \includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_fs_mfcc_acc_conv-jim.png}
   \caption{Accuracies of the \texttt{conv-jim} model, with different feature enhancements and frame-based normalization.}
   \label{fig:exp_fs_mfcc_tb_acc_conv-jim}
 \end{figure}
@@ -143,8 +143,8 @@ Those were used for examining the accuracy on the validation set during training
 \noindent
 \begin{figure}[!ht]
   \centering
-  \subfigure[c1d1d1e1]{\includegraphics[width=0.35\textwidth]{./5_exp/figs/exp_fs_mfcc_tb_noise_conv-jim_c1d1d1e1}}
-  \subfigure[c1d1d0e1]{\includegraphics[width=0.35\textwidth]{./5_exp/figs/exp_fs_mfcc_tb_noise_conv-jim_c1d1d0e1}}
+  \subfigure[c1d1d1e1]{\includegraphics[width=0.35\textwidth]{./5_exp/figs/exp_fs_mfcc_tb_noise_conv-jim_c1d1d1e1.png}}
+  \subfigure[c1d1d0e1]{\includegraphics[width=0.35\textwidth]{./5_exp/figs/exp_fs_mfcc_tb_noise_conv-jim_c1d1d0e1.png}}
   \caption{Noise invariance of the \texttt{conv-jim} model, with different feature enhancements and frame-based normalization.}
   \label{fig:exp_fs_mfcc_tb_noise_conv-jim}
 \end{figure}
@@ -152,8 +152,8 @@ Those were used for examining the accuracy on the validation set during training
 \noindent
 \begin{figure}[!ht]
   \centering
-  \subfigure[c1d1d1e1]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_fs_mfcc_tb_shift_conv-jim_c1d1d1e1}}
-  \subfigure[c1d1d0e1]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_fs_mfcc_tb_shift_conv-jim_c1d1d0e1}}
+  \subfigure[c1d1d1e1]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_fs_mfcc_tb_shift_conv-jim_c1d1d1e1.png}}
+  \subfigure[c1d1d0e1]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_fs_mfcc_tb_shift_conv-jim_c1d1d0e1.png}}
   \caption{Shift invariance of the \texttt{conv-jim} model with different feature enhancements and frame-based normalization.}
   \label{fig:exp_fs_mfcc_tb_shift_conv-jim}
 \end{figure}

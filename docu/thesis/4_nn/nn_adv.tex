@@ -59,7 +59,7 @@ It is important to assign a specific number of feature maps to each label train 
 The label train scheme is illustrated in \rfig{nn_adv_label_scheme} and applies 6 label train instances, such as used for the experiments in \rsec{exp_adv}.
 \begin{figure}[!ht]
   \centering
-    \includegraphics[width=0.7\textwidth]{./4_nn/figs/nn_adv_label_scheme}
+    \includegraphics[width=0.7\textwidth]{./4_nn/figs/nn_adv_label_scheme.pdf}
   \caption{Label train scheme of 6 training instances, trained with 100 epochs for each label subset.}
   \label{fig:nn_adv_label_scheme}
 \end{figure}
@@ -69,8 +69,8 @@ An actual GAN training for the labels \enquote{left} and \enquote{go} is shown i
 Note that the update of either the Discriminator (D) or Generator (G) model is done alternating for 2 training epochs.
 \begin{figure}[!ht]
   \centering
-  \subfigure[it-100]{\includegraphics[width=0.45\textwidth]{./4_nn/figs/nn_adv_loss_label_it-100}}
-  \subfigure[it-1000]{\includegraphics[width=0.45\textwidth]{./4_nn/figs/nn_adv_loss_label_it-1000}}
+  \subfigure[it-100]{\includegraphics[width=0.45\textwidth]{./4_nn/figs/nn_adv_loss_label_it-100.png}}
+  \subfigure[it-1000]{\includegraphics[width=0.45\textwidth]{./4_nn/figs/nn_adv_loss_label_it-1000.png}}
   \caption{Adversarial training loss of the labels \enquote{left} and \enquote{go} with 8 feature maps.}
   \label{fig:nn_adv_loss_label}
 \end{figure}
@@ -79,8 +79,8 @@ Note that the update of either the Discriminator (D) or Generator (G) model is d
 The creation of fake images from G is shown in \rfig{nn_adv_fakes_label} of the same training instances.
 \begin{figure}[!ht]
   \centering
-  \subfigure[it-100]{\includegraphics[width=0.45\textwidth]{./4_nn/figs/nn_adv_fakes_label_it-100}}
-  \subfigure[it-1000]{\includegraphics[width=0.45\textwidth]{./4_nn/figs/nn_adv_fakes_label_it-1000}}
+  \subfigure[it-100]{\includegraphics[width=0.45\textwidth]{./4_nn/figs/nn_adv_fakes_label_it-100.png}}
+  \subfigure[it-1000]{\includegraphics[width=0.45\textwidth]{./4_nn/figs/nn_adv_fakes_label_it-1000.png}}
   \caption{Generation of fake images of the labels \enquote{left} and \enquote{go} with 8 feature maps for the GAN training.}
   \label{fig:nn_adv_fakes_label}
 \end{figure}
@@ -90,8 +90,8 @@ The creation of fake images from G is shown in \rfig{nn_adv_fakes_label} of the 
 As showcase example, some concatenated adversarial label train weights used for weight transfer, are shown for D and G with different amounts of training epochs in \rfig{nn_adv_label_weights_d} and \rfig{nn_adv_label_weights_g}.
 \begin{figure}[!ht]
   \centering
-  \subfigure[d-100]{\includegraphics[width=0.45\textwidth]{./4_nn/figs/nn_adv_label_weights_d-100}}
-  \subfigure[d-1000]{\includegraphics[width=0.45\textwidth]{./4_nn/figs/nn_adv_label_weights_d-1000}}
+  \subfigure[d-100]{\includegraphics[width=0.45\textwidth]{./4_nn/figs/nn_adv_label_weights_d-100.png}}
+  \subfigure[d-1000]{\includegraphics[width=0.45\textwidth]{./4_nn/figs/nn_adv_label_weights_d-1000.png}}
   \caption{Concatenated label weights of the first convolutional layer from the Discriminator model with different amounts of epochs.}
   \label{fig:nn_adv_label_weights_d}
 \end{figure}
@@ -99,8 +99,8 @@ As showcase example, some concatenated adversarial label train weights used for 
 \noindent
 \begin{figure}[!ht]
   \centering
-  \subfigure[g-100]{\includegraphics[width=0.45\textwidth]{./4_nn/figs/nn_adv_label_weights_g-100}}
-  \subfigure[g-1000]{\includegraphics[width=0.45\textwidth]{./4_nn/figs/nn_adv_label_weights_g-1000}}
+  \subfigure[g-100]{\includegraphics[width=0.45\textwidth]{./4_nn/figs/nn_adv_label_weights_g-100.png}}
+  \subfigure[g-1000]{\includegraphics[width=0.45\textwidth]{./4_nn/figs/nn_adv_label_weights_g-1000.png}}
   \caption{Concatenated label weights of the first convolutional layer from the Generator model with different amounts of epochs.}
   \label{fig:nn_adv_label_weights_g}
 \end{figure}
@@ -112,9 +112,9 @@ With 1000 epochs the Generator produces already different fakes as already shown
 Note that a second convolutional layer for the \texttt{adv-d-jim} and \texttt{adv-g-jim} exist as well, the corresponding weights are shown only for the 100 epoch examples in \rfig{nn_adv_label_weights_conv1}.
 \begin{figure}[!ht]
   \centering
-  \subfigure[d-100]{\includegraphics[width=0.25\textwidth]{./4_nn/figs/nn_adv_label_weights_conv1_d-100}}
+  \subfigure[d-100]{\includegraphics[width=0.25\textwidth]{./4_nn/figs/nn_adv_label_weights_conv1_d-100.png}}
   \qquad \qquad
-  \subfigure[g-100]{\includegraphics[width=0.25\textwidth]{./4_nn/figs/nn_adv_label_weights_conv1_g-100}}
+  \subfigure[g-100]{\includegraphics[width=0.25\textwidth]{./4_nn/figs/nn_adv_label_weights_conv1_g-100.png}}
   \caption{Concatenated label weights of the second convolutional layer from the Discriminator and Generator model with trained with 100 epochs.}
   \label{fig:nn_adv_label_weights_conv1}
 \end{figure}

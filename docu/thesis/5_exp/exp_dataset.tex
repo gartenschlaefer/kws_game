@@ -41,7 +41,7 @@ The number of examples picked for training is then simply the entries from index
 To examine the recorded examples from the speech command dataset, one example of all labels is shown in \rfig{exp_dataset_speech_cmd_wav_grid} in raw audio format, with vertical lines indicating the onset detection and end of a \SI{500}{\milli\second} window.
 \begin{figure}[!ht]
   \centering
-    \includegraphics[width=0.65\textwidth]{./5_exp/figs/exp_dataset_speech_cmd_wav_grid}
+    \includegraphics[width=0.65\textwidth]{./5_exp/figs/exp_dataset_speech_cmd_wav_grid.png}
   \caption{One random sample of each individual speech command in the speech command dataset in normalized raw audio format.}
   \label{fig:exp_dataset_speech_cmd_wav_grid}
 \end{figure}
@@ -68,8 +68,8 @@ The histograms of all available examples in the dataset are shown in \rfig{exp_d
 
 \begin{figure}[!ht]
   \centering
-    \subfigure[energy]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_dataset_hist_energy_overall}}
-    \subfigure[sample length]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_dataset_hist_sample_overall}}
+    \subfigure[energy]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_dataset_hist_energy_overall.png}}
+    \subfigure[sample length]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_dataset_hist_sample_overall.png}}
   \caption{Energy value and sample length histograms in log-log and log-scale respectively of all examples in the speech commands dataset \texttt{v0.02}.}
   \label{fig:exp_dataset_hist}
 \end{figure}
@@ -144,11 +144,11 @@ This has the practicability that features do not have to be extracted each time 
 Samples from the extracted MFCCs with frame-based normalization as explained in \rsec{signal_mfcc} are shown in \rfig{exp_dataset_speech_cmd_mfcc}.
 \begin{figure}[!ht]
   \centering
-    \subfigure[left]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_dataset_speech_cmd_mfcc_left}}
-    \subfigure[right]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_dataset_speech_cmd_mfcc_right}}
-    \subfigure[up]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_dataset_speech_cmd_mfcc_up}}
-    \subfigure[down]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_dataset_speech_cmd_mfcc_down}}
-    \subfigure[go]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_dataset_speech_cmd_mfcc_go}}
+    \subfigure[left]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_dataset_speech_cmd_mfcc_left.png}}
+    \subfigure[right]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_dataset_speech_cmd_mfcc_right.png}}
+    \subfigure[up]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_dataset_speech_cmd_mfcc_up.png}}
+    \subfigure[down]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_dataset_speech_cmd_mfcc_down.png}}
+    \subfigure[go]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_dataset_speech_cmd_mfcc_go.png}}
   \caption{MFCC extraction of randomly selected 30 samples per class label, obtained from the training set of the speech commands dataset \texttt{v0.02}. The corresponding class labels are written below the plots.}
   \label{fig:exp_dataset_speech_cmd_mfcc}
 \end{figure}
@@ -169,7 +169,7 @@ It is important to mention that none of the self recorded files were used within
 All examples of my own dataset are illustrated in \rfig{exp_dataset_my_wav_grid} in raw audio format.
 \begin{figure}[!ht]
   \centering
-    \includegraphics[width=0.6\textwidth]{./5_exp/figs/exp_dataset_my_wav_grid}
+    \includegraphics[width=0.6\textwidth]{./5_exp/figs/exp_dataset_my_wav_grid.png}
   \caption{Self recorded files of the \enquote{my dataset} in raw audio format.}
   \label{fig:exp_dataset_my_wav_grid}
 \end{figure}
@@ -178,7 +178,7 @@ All examples of my own dataset are illustrated in \rfig{exp_dataset_my_wav_grid}
 The same examples extracted to MFCC features are shown in \rfig{exp_dataset_my_mfcc}.
 \begin{figure}[!ht]
   \centering
-    \includegraphics[width=0.65\textwidth]{./5_exp/figs/exp_dataset_my_mfcc}
+    \includegraphics[width=0.65\textwidth]{./5_exp/figs/exp_dataset_my_mfcc.png}
   \caption{All MFCC extracted samples of the \enquote{my dataset} with the same ordering as shown in \rfig{exp_dataset_my_wav_grid}.}
   \label{fig:exp_dataset_my_mfcc}
 \end{figure}

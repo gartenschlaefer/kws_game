@@ -2,17 +2,15 @@
 % theory
 
 \section{Theory}\label{sec:nn_theory}
-\thesisStateRevised
-The theory provided in this section, merely focuses on the used neural network architectures and some basic theory about neural networks.
-The most basic element in neural networks is denoted as node, an abstract element, that defines input and output connections from and to other nodes within the network.
-The edges of the connections from and to a node represents a multiplication with a scalar value, denoted as weight.
-Each node usually incorporates an additive term, denoted as bias term.
+The most basic element in neural networks is denoted as node, an abstract element, that defines input and output connections from and to other nodes within a network.
+The edges of the connections from and to a node, represents a multiplication with a scalar value, denoted as \emph{weight}.
+Each node usually incorporates an additive term, denoted as \emph{bias term}.
 All weights and bias terms are forming the parameters of a network and can be trained through backpropagation.
-The output of a node is a scalar computed from all inputs and mapped with a non-linear function denoted as activation function.
+The output of a node is a scalar computed from all inputs and mapped with a non-linear function denoted as \emph{activation function}.
 A neural network can consist of thousand of nodes in each possible constellation of connections.
-The structure of a neural network is defined by its layers, where a layer is a set of nodes with specific connection properties, that receive inputs from the previous layer and output connections to the next layer.
+The structure of a neural network is defined by its layers, where a layer is a set of nodes with specific connection properties, that receive input connections from the previous layer and output connections to the next layer.
 For example, a neural network consists of one convolutional layer followed by three fully-connected layers.
-The last layer of a neural network usually represents the class labels of a classification tasks.
+The last layer of a neural network usually represents the class labels regarding classification tasks.
 A loss function computes the difference between the predicted and the actual class label during training and is essential for the backpropagation algorithm, that updates each parameter in the network through the gradients of the obtained error.
 
 
@@ -20,21 +18,21 @@ A loss function computes the difference between the predicted and the actual cla
 % activation functions
 
 \subsection{Activation Functions}\label{sec:nn_theory_acti}
-Activation functions for neural networks of a node in a current layer, are non-linear functions that usually maps the sum of the weighted inputs from nodes in a previous layer to a single output value $z \in \R$ defined by:
+Activation functions for neural networks are usually present in each node and define non-linear functions, that map the sum of the weighted input values from nodes in a previous layer to a single output value $z \in \R$ as follows:
 \begin{equation}\label{eq:nn_theory_acti}
   z = h(\bm{w}^T \bm{x})
 \end{equation}
-where $h$ is the activation function, $\bm{w} \in \R^n$ is a weight vector and $\bm{x} \in \R^n$ an input vector for one specific node receiving connections from a total number of $n$ nodes in the previous layer.
+where $h$ is the activation function, $\bm{w} \in \R^n$ is a weight vector and $\bm{x} \in \R^n$ an input vector representing the connections from a total number of $n$ nodes in the previous layer.
 The output of each node in a current layer is further connected to other nodes in the next layer and builds up the neural network.
-The constraint of an activation function is, that an easy computable derivative of this function must exist in order to backpropagate its gradients.
+The constraint of an activation function is, that an easy computable derivative of this function exist, in order to backpropagate its gradients.
 
-The most famous activation function nowadays is the Rectified Linear Unit (ReLU) \cite{Zeiler2013_relu} function:
+The most famous activation function nowadays, is the Rectified Linear Unit (ReLU) \cite{Zeiler2013_relu} function:
 \begin{equation}\label{eq:nn_theory_relu}
   h(a) = \max{(0, a)}
 \end{equation}
-with $a \in \R$ as input to the activation function.
-The big advantage of the ReLU function is, that its sub-gradients are very easy and fast to compute.
-Further two other well known activation functions, that are used in Wavenets for example, are the sigmoid function:
+with $a \in \R$ as input scalar.
+The great advantage of the ReLU function is, that its sub-gradients are very easy and fast computable.
+Further two other well known activation functions, that are used for example in the Wavenet, are the sigmoid function:
 \begin{equation}\label{eq:nn_theory_sigmoid}
   h(a) = \frac{1}{1 + \exp{-a}}
 \end{equation}
@@ -42,13 +40,15 @@ and the tanh function:
 \begin{equation}\label{eq:nn_theory_tanh}
   h(a) = \frac{\exp{a} - \exp{-a}}{\exp{a} + \exp{-a}}
 \end{equation}
-both are squeezing the signal between either $[0, 1]$ for the sigmoid and $[-1, 1]$ for the tanh activation function.
+where both are squeezing the input between a range of either $[0, 1]$ for the sigmoid and $[-1, 1]$ for the tanh activation function.
 The mentioned activation functions are shown in \rfig{nn_theory_activation}.
 \begin{figure}[!ht]
   \centering
-    \subfigure[relu]{\includegraphics[width=0.3\textwidth]{./4_nn/figs/nn_theory_activation_relu}}
-    \subfigure[sigmoid]{\includegraphics[width=0.3\textwidth]{./4_nn/figs/nn_theory_activation_sigmoid}}
-    \subfigure[tanh]{\includegraphics[width=0.3\textwidth]{./4_nn/figs/nn_theory_activation_tanh}}
+    \subfigure[ReLU]{\includegraphics[width=0.3\textwidth]{./4_nn/figs/nn_theory_activation_relu.png}}
+    \quad
+    \subfigure[sigmoid]{\includegraphics[width=0.3\textwidth]{./4_nn/figs/nn_theory_activation_sigmoid.png}}
+    \quad
+    \subfigure[tanh]{\includegraphics[width=0.3\textwidth]{./4_nn/figs/nn_theory_activation_tanh.png}}
   \caption{Different activation functions for neural networks.}
   \label{fig:nn_theory_activation}
 \end{figure}
@@ -61,13 +61,12 @@ The mentioned activation functions are shown in \rfig{nn_theory_activation}.
 
 \subsection{Fully Connected Layer}
 A fully-connected (FC) layer is one of the simplest and most commonly used layer types in neural network architectures.
-Each node from a previous layer is forwardly connected to all nodes in a current FC layer and each node in that current FC layer is connected to all nodes in the next layer.
-Further every connection consist of one trainable weight and each node incorporates an additive bias term.
-A simple FC layer is illustrated in \rfig{nn_theory_fc} with 3 nodes.
+Each node from a previous layer is forwardly connected to all nodes in a current FC layer.
+A simple FC layer containing 3 nodes, is illustrated in \rfig{nn_theory_fc}.
 % fc
 \begin{figure}[!ht]
   \centering
-    \includegraphics[width=0.30\textwidth]{./4_nn/figs/nn_theory_fc.eps}
+    \includegraphics[width=0.30\textwidth]{./4_nn/figs/nn_theory_fc.pdf}
   \caption{Basic fully-connected layer with 3 nodes, receiving connections from 2 input nodes and outputting connections to 2 output nodes.}
   \label{fig:nn_theory_fc}
 \end{figure}
@@ -130,7 +129,7 @@ A graphical example of this procedure is shown in \rfig{nn_theory_cnn_basics}.
 % cnn basics
 \begin{figure}[!ht]
   \centering
-    \includegraphics[width=0.6\textwidth]{./4_nn/figs/nn_theory_cnn_basics.eps}
+    \includegraphics[width=0.6\textwidth]{./4_nn/figs/nn_theory_cnn_basics.pdf}
   \caption{Basic convolutional layer with a $16 \times 16$ input image, decomposed in 3 channels (CYM) and processed to 4 output feature maps. The kernel size is $5 \times 5$ and the stride is $1$ in both dimensions.}
   \label{fig:nn_theory_cnn_basics}
 \end{figure}
