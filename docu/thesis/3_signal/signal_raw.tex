@@ -21,11 +21,10 @@ With the sampling frequency known, a discrete time signal of an audio recording 
   \bm{x} = [x_1, x_2, \dots, x_n]^T
 \end{equation}
 with a total number of $n$ samples.
-The recorded audio files provided in the speech command dataset \cite{Warden2018} applied for the experiments in \rsec{exp}, are sampled with a sampling rate of \SI{16}{\kilo\hertz}.
-Further those recordings usually have a time duration of \SI{1}{\second}, apart from some individual shorter files.
+The recorded audio files provided in the speech command dataset \cite{Warden2018} and further applied in the experiments in \rsec{exp}, are sampled with a sampling rate of \SI{16}{\kilo\hertz} and usually have a time duration of \SI{1}{\second}, apart from some individual shorter files.
 
 For evaluation and visualization purpose, the author of this thesis has recorded examples of the speech commands \{\enquote{left}, \enquote{right}, \enquote{up}, \enquote{down}, \enquote{go}\} with a simple consumer Lavalier microphone.
-One example of each speech command is contained in the showcase examples, visualized in \rfig{signal_raw_showcase} in raw audio format and will be used to illustrate the whole feature extraction process in the following sections.
+One example of each of those speech commands is contained in the showcase examples, visualized in \rfig{signal_raw_showcase} in raw audio format and will be used to illustrate the whole feature extraction process in the following sections.
 \begin{figure}[!ht]
   \centering
     \subfigure[left]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_raw_showcase_left0.png}}
@@ -33,13 +32,13 @@ One example of each speech command is contained in the showcase examples, visual
     \subfigure[up]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_raw_showcase_up0.png}}
     \subfigure[down]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_raw_showcase_down0.png}}
     \subfigure[go]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_raw_showcase_go0.png}}
-  \caption{Self recorded speech commands in raw audio waveform, where phoneme onsets are marked as vertical dashed lines.}
+  \caption{Self recorded showcase examples of speech commands presented in the raw audio waveform format. Phoneme onsets are marked as vertical dashed lines.}
   \label{fig:signal_raw_showcase}
 \end{figure}
 \FloatBarrier
 \noindent
-From the shown recordings, it can be estimated how long a speech command may take in terms of duration.
-The observation of those examples suggests, that usually \SI{1}{\second} is too much for a single speech command.
+From the shown recordings, it can be estimated how long a speech command out of this vocabulary may take in terms of duration.
+The observation of those examples suggests, that usually a duration of \SI{1}{\second} is too much.
 The pronunciation of words can of course deviate strongly in duration, but usually when commanding something, it is preferred to speak short and well pronounced.
 When a time interval of \SI{500}{\milli\second} is used to capture a speech command (this time interval is used in the feature extraction stage of the experiments), it might happen that not every phoneme of the spoken words are captured.
 Often this might occur for words with glottal stops before consonants, for example the phoneme \enquote{t} in \enquote{left} or \enquote{right}, therefore the input features may only contain information of the first phonemes and miss the \enquote{t}.
@@ -51,8 +50,8 @@ There might be a large noise floor, imminent background sound or cut off signals
 The applied onset detection is therefore separately discussed in \rsec{signal_onset}.
 
 Further it is worth mentioning, that the value range of audio recordings heavily depends on the used microphone, amplifier and post processing stage.
-It is therefore strongly recommended to normalize all recordings to a defined value range before they are feature extracted.
-The normalization can be achieved for instance by applying the infinity norm as:
+It is therefore strongly recommended to normalize all recordings to a defined value range before applying the feature extraction.
+The normalization can be achieved for instance by dividing each sample of the signal by the infinity norm of the whole signal as:
 \begin{equation}
   \bm{x} \gets \frac{\bm{x}}{\norm{\bm{x}}_\infty}
 \end{equation}

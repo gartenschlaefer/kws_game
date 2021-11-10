@@ -33,7 +33,7 @@ More conveniently, \req{signal_spec_dtft} can be written in matrix notation with
     &k, n = (0, 1, \dots, K-1), (0, 1 \dots, N-1)
   \end{aligned}
 \end{equation}
-where $k$ and $n$ are row and column indices in the transformation matrix $\mathcal{F}$, which gives an output dimension of the DFT transformed signal $\hat{\bm{x}} \in \C^K$.
+where $k$ and $n$ are row and column indices in the transformation matrix $\mathcal{F}$ and $\hat{\bm{x}} \in \C^K$ is the transformed signal in vector notation.
 
 The length of the analytic window in samples $N$ is crucial for the frequency resolution and the lowest frequency that can be represented.
 For example, the time duration of a periodic signal with frequency $f=\SI{20}{\hertz}$ is $t=\frac{1}{f} = \SI{50}{\milli\second}$.
@@ -41,7 +41,7 @@ To represent a waveform, it is necessary to have at least a quarter of its wavel
 Within this thesis, the length of the analytic window is selected to \SI{25}{\milli\second}, which is enough for speech signals.
 
 The \emph{hop size} $h$ in samples of the hop time $t_h$, by which the analytical window is shifted on the time axis, indicates the resolution in time and is especially important for sequential changes within the audio data.
-In applications like speech processing the hop time should be selected, so that the fastest pronounced phonemes and its transitions to other phonemes is captured with sufficient resolution.
+In applications like speech processing the hop time should be selected, so that the fastest pronounced phonemes and its transitions to other phonemes are captured with sufficient resolution.
 Usually a hop time of $t_{h}=\SI{10}{\milli\second}$ is chosen for speech recognition tasks (also used within this thesis), but an extension to $t_{h}=\SI{20}{\milli\second}$ is also possible, as demonstrated by \cite{Peter2020}.
 
 With the hop size $h$ in samples and $N$ the length of the analytical window, the Short-Time Fourier Transform (STFT) for discrete time signals, can be computed as:
@@ -65,12 +65,6 @@ The calculation of the STFT can be written in matrix notation if the input chunk
 where each individual $\bm{x}_m \in \R^N$ can be concatenated in a matrix $X \in \R^{N \times M}$ denoted as:
 \begin{equation}
   X = [\bm{x}_0, \bm{x}_1, \dots, \bm{x}_M]
-  % X = 
-  % \begin{bmatrix}
-  %   \bar{x}_1^T \\
-  %   \vdots\\
-  %   \bar{x}_M^T \\
-  % \end{bmatrix}
 \end{equation}
 so that the STFT $\tilde{X} \in \C^{K \times M}$ can be conveniently written as:
 % --
@@ -79,18 +73,14 @@ so that the STFT $\tilde{X} \in \C^{K \times M}$ can be conveniently written as:
   \tilde{X} = \mathcal{F} \diag{\bm{w}} X
 \end{equation}
 where $\diag{\bm{w}}$ is a diagonal matrix of weight vectors with a realization of a window function $\bm{w} \in \R^N$ in vector notation.
-The matrix $\tilde{X} \in \C^{K \times M}$ represents the whole STFT, where the rows represent the shifts of the analytical window on the time axis (frames) and the columns the Fourier coefficients of each DFT.
-The used STFT parameters for this thesis are shown in \rtab{signal_spec_stft}.
-% --
-% stft params
+The matrix $\tilde{X} \in \C^{K \times M}$ represents the whole STFT, where the rows correspond to Fourier coefficients and the columns to frames.
+The used STFT parameters for this thesis are listed in \rtab{signal_spec_stft}.
 \input{./3_signal/tables/tab_signal_spec_stft.tex}
 A spectrogram $P \in \R^{K \times M}$ is simply the power spectrum of the STFT $\tilde{X} \in \C^{K \times M}$ computed as:
-% --
-% spec
 \begin{equation}\label{eq:signal_spec_spec}
   P = \abs{\tilde{X}}^2.
 \end{equation}
-Note that $P$ has now real values instead of complex ones.
+Note that $P$ consists of real values instead of complex ones.
 The recorded examples transformed to a spectrogram with linear representation is shown in \rfig{signal_spec_lin_showcase}.
 \begin{figure}[!ht]
   \centering
@@ -99,19 +89,17 @@ The recorded examples transformed to a spectrogram with linear representation is
     \subfigure[up]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_spec-lin_showcase_up0.png}}
     \subfigure[down]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_spec-lin_showcase_down0.png}}
     \subfigure[go]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_spec-lin_showcase_go0.png}}
-  \caption{Spectrogram linear scaled.}
+  \caption{Linear scaled spectrogram of the showcase examples.}
   \label{fig:signal_spec_lin_showcase}
 \end{figure}
 \FloatBarrier
 \noindent
-It can be observed, that most of the signals energy is in the lower frequency regions of under approximately \SI{1}{\kilo\hertz}, therefore it is more appealing to transform the spectrogram into the log scale of its value space, achieved by:
-% --
-% log
+It can be observed, that most of the signal's energy is located in the lower frequency regions of under approximately \SI{1}{\kilo\hertz}.
+To ensures that small energies are more emphasized, it is more appealing to logarithmic scale the value space of the spectrogram, achieved by for instance the calculation of the decibel scale of the spectrogram $P_{DB} \in \R^{K \times M}$ as follows:
 \begin{equation}\label{eq:signal_spec_log}
-  P_{DB} = 10 \cdot \log{P}
+  P_{DB} = 10 \cdot \log_{10}{P}.
 \end{equation}
-so that small energies are more emphasized with $P_{DB} \in \R^{K \times M}$. 
-The same examples with log scaling in the value space visualized with log scaling of the frequency space in the plots are shown in \rfig{signal_spec_log_showcase}.
+The showcase examples of the logarithmic scaled spectrogram and log scaled frequency space is visualized in \rfig{signal_spec_log_showcase}, where it is possible to observe some interesting structures and movements in certain frequency bands over time.
 \begin{figure}[!ht]
   \centering
     \subfigure[left]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_spec-log_showcase_left0.png}}
@@ -119,10 +107,9 @@ The same examples with log scaling in the value space visualized with log scalin
     \subfigure[up]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_spec-log_showcase_up0.png}}
     \subfigure[down]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_spec-log_showcase_down0.png}}
     \subfigure[go]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_spec-log_showcase_go0.png}}
-  \caption{Spectrogram logarithmic scaled.}
+  \caption{Logarithmic scaled spectrogram of the showcase examples.}
   \label{fig:signal_spec_log_showcase}
 \end{figure}
 \FloatBarrier
 \noindent
-With the log scaling of the spectrogram, it is possible to observe some interesting structures and movements in certain frequency bands over time.
-A compression scheme, such as the MFCC, explained in the next section, reduces the high dimensional frequency feature vectors of the STFT to more compact feature vectors.
+A compression scheme, such as the MFCC, explained in the next section, reduces the high dimensional frequency feature vectors of the spectrogram to more compact feature vectors.

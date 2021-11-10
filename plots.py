@@ -1457,7 +1457,7 @@ def plot_spec_profile(x, x_spec, fs, N, hop, log_scale=False, cmap=None, cmap_wa
   ax = fig.add_subplot(gs[rs:re, :n_im_cols-3-2])
 
   # to log scale
-  if log_scale: x_spec = 20 * np.log(x_spec)
+  if log_scale: x_spec = 10 * np.log10(x_spec)
 
   # plot image coeffs
   im = ax.imshow(x_spec, aspect='auto', interpolation='none', cmap=cmap, origin='lower')

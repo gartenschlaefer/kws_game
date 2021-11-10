@@ -144,7 +144,7 @@ def showcase_wavs(cfg, raw_plot=True, raw_energy_plot=True, spec_plot=True, mfcc
 
     # spectrogram
     if spec_plot:
-      plot_spec_profile(x, feature_extractor.calc_spectogram(x).T, feature_params['fs'], feature_extractor.N, feature_extractor.hop, anno_file=anno, plot_path=plot_path, name='signal_spec-lin_showcase_' + wav.split('/')[-1].split('.')[0], show_plot=show_plot)
+      #plot_spec_profile(x, feature_extractor.calc_spectogram(x).T, feature_params['fs'], feature_extractor.N, feature_extractor.hop, anno_file=anno, plot_path=plot_path, name='signal_spec-lin_showcase_' + wav.split('/')[-1].split('.')[0], show_plot=show_plot)
       plot_spec_profile(x, feature_extractor.calc_spectogram(x).T, feature_params['fs'], feature_extractor.N, feature_extractor.hop, log_scale=True, anno_file=anno, plot_path=plot_path, name='signal_spec-log_showcase_' + wav.split('/')[-1].split('.')[0], show_plot=show_plot)
 
     # mfcc
@@ -315,7 +315,7 @@ if __name__ == '__main__':
   #mfcc_stuff(cfg, dct_plot=True, mel_scale_plot=True, mel_band_plot=True, show_plot=True)
 
   # showcase wavs
-  #showcase_wavs(cfg, raw_plot=True, raw_energy_plot=False, spec_plot=False, mfcc_plot=False, use_mfcc_39=False, show_plot=True)
+  showcase_wavs(cfg, raw_plot=False, raw_energy_plot=False, spec_plot=True, mfcc_plot=False, use_mfcc_39=False, show_plot=True)
 
   # feature selection tables
   #feature_selection_tables(overwrite=True)
@@ -336,5 +336,5 @@ if __name__ == '__main__':
   #noise_wavs_info(cfg)
 
   # test bench
-  test_bench_stuff(cfg)
+  #test_bench_stuff(cfg)
 

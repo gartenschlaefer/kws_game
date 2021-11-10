@@ -2,7 +2,7 @@
 % mfcc
 
 \section{Mel Frequency Cepstral Coefficients}\label{sec:signal_mfcc}
-Very commonly MFCCs are used as input features for speech recognition.
+Very commonly MFCCs are used as features for speech recognition tasks.
 It is described why MFCCs are appropriate features for speech signals, how they are calculated in detail and how they can be enhanced.
 Further a normalization technique for an improved visualization of MFCCs is presented.
 
@@ -31,9 +31,9 @@ These processing steps seem rather complicated, but are merely consecutive steps
 
 \subsection{Processing Pipeline in Detail}\label{sec:signal_mfcc_pipeline}
 The frequency spectrum is separated into filter bands through triangular window functions.
-Those window functions are equidistantly placed onto the Mel scale and therefore result in a varying number of frequency bins in the frequency scale of each window.
-The lower frequency bands receive less frequency bins, than the high frequency bands.
-Sometimes the height of the triangular windows are scaled down, so that the effect of unequal amounts frequency bin numbers is equalized, however high frequency signals usually carry less energy and therefore this scaling is in most cases neglected or not preferred.
+Those window functions are equidistantly placed onto the Mel scale and therefore result in a varying number of frequency bins in the frequency scale for each window.
+The lower frequency bands receive less frequency bins, than the higher frequency bands.
+Sometimes the height of the individual triangular windows is scaled down, so that the effect of unequal amounts frequency bins is equalized, however high frequency signals usually carry less energy and therefore this scaling is in most cases neglected or not preferred.
 
 The Mel - frequency relation can be approximated by:
 % mel
@@ -64,16 +64,16 @@ The equidistantly spaced triangular window functions on the Mel scale and their 
 \noindent
 Note that the maximum frequency of the filter bands is $\SI{8}{\kilo\hertz}$ corresponding to the half of the sampling frequency $f_s = \SI{16}{\kilo\hertz}$.
 The creation of those filter bands is not described mathematically, because the graphical showcase is much more intuitive and easier to understand.
-For further calculations, those filter bands are notated in a weight matrix called $W_m \in \R^{B \times K}$, where $B$ is the amount of used filter bands and $K$ the amount of frequency bins of the DFT transformed input signal.
+For further calculations, those filter bands are notated in a weight matrix $W_m \in \R^{B \times K}$, where $B$ is the amount of used filter bands and $K$ the amount of frequency bins of the DFT transformed input signal.
 
 % dct
 The DCT is very similar to the Fourier transform and projects the input signal to a set of sinusoidal basis functions, however the transformed signal remains real instead of complex valued.
-Different types of DCT formulations exist, but most commonly the \enquote{type 2} DCT is applied by following definition:
+Different types of DCT formulations exist, but most commonly the \enquote{type 2} DCT is applied by its following definition:
 \begin{equation}\label{eq:signal_mfcc_dct}
   \hat{x}[c] = \sum_{n=0}^{N-1} x[n] \cos{\left[ \frac{\pi}{N} \left( n + \frac{1}{2} \right) c \right]}
 \end{equation}
 where $c$ is the DCT coefficient index and $n$ the sample index of a signal vector $\bm{x} \in \R^N$ with total length of $N$.
-This can be conveniently written in matrix notation with a total number of $C$ DCT coefficients:
+Again this can be conveniently written in matrix notation with a total number of $C$ DCT coefficients as follows:
 \begin{equation}\label{eq:signal_mfcc_dct_matrix}
   \begin{aligned}
     \hat{\bm{x}} = \mathcal{D} \bm{x} \quad \mathrm{with} 
@@ -81,14 +81,14 @@ This can be conveniently written in matrix notation with a total number of $C$ D
     &c, n = (0, 1, \dots, C - 1), (0, 1, \dots, N - 1) 
   \end{aligned}
 \end{equation}
-with $\mathcal{D} \in \R^{C \times N}$ as DCT matrix and the transformed signal $\hat{\bm{x}} \in \R^C$.
+with the DCT matrix $\mathcal{D} \in \R^{C \times N}$ and the transformed signal $\hat{\bm{x}} \in \R^C$.
 The DCT basis functions are illustrated in \rfig{signal_mfcc_dct} in two different color schemes.
 \begin{figure}[!ht]
   \centering
-  \subfigure[DCT with continuous color scheme]{\includegraphics[width=0.35\textwidth]{./3_signal/figs/signal_mfcc_dct.png}}
+  \subfigure[continuous color scheme]{\includegraphics[width=0.35\textwidth]{./3_signal/figs/signal_mfcc_dct.png}}
   \qquad
-  \subfigure[DCT with diverging color scheme]{\includegraphics[width=0.35\textwidth]{./3_signal/figs/signal_mfcc_dct-div.png}}
-  \caption{DCT matrix with 32 basis functions illustrated with a continuous and a diverging color scheme. The rows are the cepstral coefficients and the columns the length of the signal for transformation.}
+  \subfigure[diverging color scheme]{\includegraphics[width=0.35\textwidth]{./3_signal/figs/signal_mfcc_dct-div.png}}
+  \caption{DCT matrix with 32 basis functions illustrated with a continuous and a diverging color scheme. The rows are the cepstral coefficients and the columns represent the length of the signal for transformation.}
   \label{fig:signal_mfcc_dct}
 \end{figure}
 \FloatBarrier
@@ -104,9 +104,8 @@ Another important aspect is the visualization of MFCC features.
 MFCCs computed as shown above, are not well intended for visualizations, because their individual coefficients value space differs strongly from each other.
 For example, the first coefficient equals a summation of all filter bands of the spectrogram and is therefore some kind of energy measure, while the other coefficients are different weighted sum combinations of the filter bands.
 Further the most of the signal energy is located in the lower frequency bands, which impacts the value space of the coefficients with strongly weighted low frequency bands.
-The differences in the value space leads to a problem in the visualization with a linear color scheme, such that the changes of some coefficients cannot be shown appropriately.
+The differences in the value space lead to a problem in the visualization with a linear color scheme, such that the changes of some coefficients cannot be presented appropriately.
 A solution to this problem is to normalize the feature vectors over each frame dimension with the infinity norm as:
-% frame-based normalization
 \begin{equation}\label{eq:signal_mfcc_norm}
   U[c, m] \gets \frac{U[c, m] + \vert \underset{m \in \mathcal{M}}{\min} \bm{u}_c \vert}{\norm{\bm{u}_c + \vert \underset{m \in \mathcal{M}}{\min} \bm{u}_c \vert}_\infty} \quad \forall \, c, m = (0, 1, \dots, C - 1), (0, 1, \dots, M - 1)
 \end{equation}
@@ -114,7 +113,7 @@ where $c$ is the individual MFCC coefficient, $m$ the frame (time) index and $\b
 This equation results in a value space between $[0, 1]$ for each feature vector $\bm{u}_c$.
 This normalization technique is denoted as \emph{frame-based normalization} and will be an important evaluation subject in the following sections.
 
-A visualization of MFCC features with 32 filter bands and 32 cepstral coefficients with frame-based normalization of each coefficient is shown in \rfig{signal_mfcc_showcase_mfcc32}.
+A visualization of MFCC features with 32 filter bands and 32 cepstral coefficients and frame-based normalization of each coefficient is shown in \rfig{signal_mfcc_showcase_mfcc32}.
 \begin{figure}[!ht]
   \centering
     \subfigure[left]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_mfcc_showcase_mfcc32_left0.png}}
@@ -128,7 +127,7 @@ A visualization of MFCC features with 32 filter bands and 32 cepstral coefficien
 \FloatBarrier
 \noindent
 The frame-based normalization is an interesting technique to improve the visualization of MFCC features, however it can be critical. 
-A normalization that operates only in one dimension, changes important structures within the feature space and it cannot be answered yet, whether this is a problem for neural networks in their classification performance.
+A normalization that operates only in one dimension, changes important structures within the other dimensions and it cannot be answered yet, whether this is a problem for the classification task in the later sections.
 One more research question arises here: Is it possible to use frame-based normalized MFCC features as inputs to neural network models and what is the impact on the classification accuracy.
 
 
@@ -138,22 +137,23 @@ One more research question arises here: Is it possible to use frame-based normal
 \subsection{MFCC Feature Usage and Enhancement}\label{sec:signal_mfcc_enhancement}
 After MFCCs are computed by choosing the amount of filter bands $B$ and cepstral coefficients $C$, they can already be used as input features for neural networks.
 The question arises, whether feature enhancements can improve the performance in classification.
-The best practice, applied in many papers, is to use $B=32$, $C=12$, compute derivatives of those 12 MFCC coefficients named as \emph{deltas} (first derivative regarding the frame dimension) and \emph{double deltas} (second derivative) and add \emph{energy vectors} of the 12 coefficients and each one of the deltas.
+The best practice, applied in many papers, is to use $B=32$, $C=12$, compute derivatives of those 12 MFCC coefficients, named as \emph{deltas} (first derivative regarding the frame dimension) and \emph{double deltas} (second derivative) and add \emph{energy vectors} of the 12 coefficients and each one of the deltas.
 The deltas are simply computed as frame difference of the MFCCs by:
 \begin{equation}\label{eq:signal_mfcc_delta}
   \Delta u_c[m] = \frac{u_c[m - 1] + u_c[m + 1]}{2}
 \end{equation}
-where $\bm{u}_c \in \R^M$ is the c-th MFCC coefficient vector and $m$ the frame index.
-Note that the computation of the deltas at the edges $m=0$ and $m=M$, is not possible and the same value is obtained from the neighbor at this specific locations.
+where $u_c[m]$ is the c-th MFCC coefficient at frame $m$, where $m = 0, 1, \dots, M$ is therefore the frame index of a total number of $M$ frames.
+Note that the computation of the deltas at the edges $m=0$ and $m=M$, is not possible and the same value is obtained from the neighbor at this specific positions.
 The second derivative of MFCC features, known as double deltas, are the frame differences of the deltas and likewise computed as in \req{signal_mfcc_delta}.
 Another enhancement is the computation of an energy feature vector of the MFCCs expressed by:
 \begin{equation}
   e[m] = \bm{u}[m]^T \bm{u}[m] 
 \end{equation}
 where $\bm{u}[m] \in \R^C$ is the MFCC feature vector of frame $m$.
-The same energy computation may also be applied to the deltas and double deltas each by its own.
-The MFCCs, their deltas, double deltas and energy vectors can simply be stacked at top of each other and used as enhanced feature inputs to neural networks.
-In this thesis the feature vectors are stacked as follows:
+The same energy computation may also be applied to the deltas and double deltas.
+
+A concatenation of all features vectors and their enhancements into a single feature matrix, is usually performed by simply stacking the MFCCs, their deltas, double deltas and energy vectors at top of each other.
+In this thesis the stacking of features and enhancements is done in following constellation:
 \begin{enumerate}
     \item 12 MFCCs
     \item 1 Energy feature of the 12 MFCCs
@@ -164,7 +164,7 @@ In this thesis the feature vectors are stacked as follows:
 \end{enumerate}
 which sums up to a 39-dimensional feature vector, very commonly used in the literature.
 Many papers do not explicitly explain how the 39 MFCCs are calculated in detail, in most cases however this constellation is applied.
-The computation of 39 MFCCs are shown in \rfig{signal_mfcc_showcase_mfcc39}.
+The computation of 39 MFCCs from the showcase examples are shown in \rfig{signal_mfcc_showcase_mfcc39}.
 \begin{figure}[!ht]
   \centering
     \subfigure[left]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_mfcc_showcase_mfcc39_left0.png}}
@@ -172,7 +172,7 @@ The computation of 39 MFCCs are shown in \rfig{signal_mfcc_showcase_mfcc39}.
     \subfigure[up]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_mfcc_showcase_mfcc39_up0.png}}
     \subfigure[down]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_mfcc_showcase_mfcc39_down0.png}}
     \subfigure[go]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_mfcc_showcase_mfcc39_go0.png}}
-  \caption{MFCC with 32 filter bands and 12 cepstral coefficients, deltas, double deltas and energy vector visualized with frame-based normalization.}
+  \caption{MFCCs extracted from the showcase examples with 32 filter bands and 12 cepstral coefficients, deltas, double deltas and energy vector visualized with frame-based normalization.}
   \label{fig:signal_mfcc_showcase_mfcc39}
 \end{figure}
 \FloatBarrier
@@ -183,7 +183,7 @@ The computation of 39 MFCCs are shown in \rfig{signal_mfcc_showcase_mfcc39}.
 % energy consumption
 
 \subsection{Computational Complexity}\label{sec:signal_mfcc_complexity}
-The computational complexity is evaluated on the total amount of operations required for a specific computation task, such as the feature extraction of MFCCs.
+The computational complexity is evaluated on the amount of operations required to process a specific computation task, such as the feature extraction of MFCCs.
 The energy consumption is related to the computational complexity, but it is much harder to define and depends on many parameters and actual hardware implementations, which is especially important for handheld devices.
 The count of operations is sufficient for this thesis and provides a comparison to the benchmark models mentioned in \rsec{prev_kws_benchmark}.
 The computational complexity for the extraction of MFCC features is the amount of operations required to process a \SI{1}{\second} time signal sampled with $f_s = \SI{16}{\kilo\hertz}$.
@@ -195,7 +195,7 @@ The most costly component is of course the STFT, which again is composed of the 
 Note that the DFT uses complex multiplications and additions.
 One complex multiplication equals to 4 real multiplication and 2 additions, so one complex multiplication consists of 6 operations.
 For one complex addition, two real additions are necessary and equals therefore to 2 operations.
-A general matrix multiplication with a vector $y = A \bm{x}$, where $A \in \R^{m \times n}$ and $\bm{x} \in \R^n$ is composed of $m \cdot n$ multiplications and $m \cdot (n - 1)$ additions, where for simplicity the amount of additions is approximated to $m \cdot n$.
+A general matrix multiplication with a vector $y = A \bm{x}$, where $A \in \R^{m \times n}$ and $\bm{x} \in \R^n$ is composed of $m \cdot n$ multiplications and $m \cdot (n - 1)$ additions, where for simplicity the amount of additions is also approximated to $m \cdot n$.
 
 The amount of operations, denoted as $\mathcal{T(.)}$, for a trivial DFT transform with operator $\mathcal{F} \in \C^{K \times N}$ and $K$ Fourier coefficients on a windowed signal $\bm{x} \in \R^N$ with a total sample number of $N$ is:
 \begin{equation}
@@ -225,9 +225,8 @@ The summary of the estimated operations is listed in \rtab{signal_mfcc_operation
 % critism
 
 \subsection{Criticism}
-\thesisStateRevised
-MFCC are widely used for speech recognition tasks and perform very well upon them, however the processing pipeline of MFCC has some disadvantages.
+MFCC are widely used for speech recognition tasks and perform very well upon them, however the processing pipeline of MFCCs leave some disadvantages.
 One disadvantage is, as already mentioned, that MFCCs are not intended for visualization, because of their broad value space of individual MFCC coefficients.
 Another disadvantage is, that MFCC are not directly invertible to raw audio samples, because of the computation of the spectrogram and its Mel band weighting.
-Inversion techniques for MFCCs exist, such as described in \cite{Boucheron2008}, however it is still very difficult to obtain good estimations if the phase information of the original signal is missing.
+Inversion techniques for MFCCs exist, such as described in \cite{Boucheron2008}, however it is still very difficult to obtain good estimations when the phase information of the original signal is missing.
 The inversion of MFCCs would have been very interesting, when applied to the outputs of generative neural networks, such as GANs.
