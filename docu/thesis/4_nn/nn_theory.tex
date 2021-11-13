@@ -3,13 +3,13 @@
 
 \section{Theory}\label{sec:nn_theory}
 The most basic element in neural networks is denoted as node, an abstract element, that defines input and output connections from and to other nodes within a network.
-The edges of the connections from and to a node, represents a multiplication with a scalar value, denoted as \emph{weight}.
+The edges of the connections from and to a node represents a multiplication with a scalar value, denoted as \emph{weight}.
 Each node usually incorporates an additive term, denoted as \emph{bias term}.
 All weights and bias terms are forming the parameters of a network and can be trained through backpropagation.
 The output of a node is a scalar computed from all inputs and mapped with a non-linear function denoted as \emph{activation function}.
 A neural network can consist of thousand of nodes in each possible constellation of connections.
 The structure of a neural network is defined by its layers, where a layer is a set of nodes with specific connection properties, that receive input connections from the previous layer and output connections to the next layer.
-For example, a neural network consists of one convolutional layer followed by three fully-connected layers.
+For example, a neural network may consist of one convolutional layer followed by three fully-connected layers.
 The last layer of a neural network usually represents the class labels regarding classification tasks.
 A loss function computes the difference between the predicted and the actual class label during training and is essential for the backpropagation algorithm, that updates each parameter in the network through the gradients of the obtained error.
 
@@ -23,16 +23,17 @@ Activation functions for neural networks are usually present in each node and de
   z = h(\bm{w}^T \bm{x})
 \end{equation}
 where $h$ is the activation function, $\bm{w} \in \R^n$ is a weight vector and $\bm{x} \in \R^n$ an input vector representing the connections from a total number of $n$ nodes in the previous layer.
-The output of each node in a current layer is further connected to other nodes in the next layer and builds up the neural network.
-The constraint of an activation function is, that an easy computable derivative of this function exist, in order to backpropagate its gradients.
+The output of each node in a current layer further connects to other nodes in the next layer and builds up the neural network.
+The constraint of an activation function is that an easy computable derivative must exist.
+This allows the backpropagation of gradients from the activation function.
 
 The most famous activation function nowadays, is the Rectified Linear Unit (ReLU) \cite{Zeiler2013_relu} function:
 \begin{equation}\label{eq:nn_theory_relu}
   h(a) = \max{(0, a)}
 \end{equation}
 with $a \in \R$ as input scalar.
-The great advantage of the ReLU function is, that its sub-gradients are very easy and fast computable.
-Further two other well known activation functions, that are used for example in the Wavenet, are the sigmoid function:
+The great advantage of the ReLU function is that its sub-gradients are very easy and fast computable.
+Further two other well known activation functions that are used for example in the Wavenet, are the sigmoid function:
 \begin{equation}\label{eq:nn_theory_sigmoid}
   h(a) = \frac{1}{1 + \exp{-a}}
 \end{equation}
@@ -40,8 +41,8 @@ and the tanh function:
 \begin{equation}\label{eq:nn_theory_tanh}
   h(a) = \frac{\exp{a} - \exp{-a}}{\exp{a} + \exp{-a}}
 \end{equation}
-where both are squeezing the input between a range of either $[0, 1]$ for the sigmoid and $[-1, 1]$ for the tanh activation function.
-The mentioned activation functions are shown in \rfig{nn_theory_activation}.
+where both squeeze the input between a range of either $[0, 1]$ for the sigmoid and $[-1, 1]$ for the tanh activation function.
+\rfig{nn_theory_activation} illustrates the mentioned activation functions.
 \begin{figure}[!ht]
   \centering
     \subfigure[ReLU]{\includegraphics[width=0.3\textwidth]{./4_nn/figs/nn_theory_activation_relu.png}}
@@ -67,7 +68,7 @@ A simple FC layer containing 3 nodes, is illustrated in \rfig{nn_theory_fc}.
 \begin{figure}[!ht]
   \centering
     \includegraphics[width=0.30\textwidth]{./4_nn/figs/nn_theory_fc.pdf}
-  \caption{Basic fully-connected layer with 3 nodes, receiving connections from 2 input nodes and outputting connections to 2 output nodes.}
+  \caption{Basic fully-connected layer with 3 nodes receiving connections from 2 input nodes and outputting connections to 2 output nodes.}
   \label{fig:nn_theory_fc}
 \end{figure}
 \FloatBarrier
@@ -77,15 +78,15 @@ Mathematically one node $i$ performs the following calculation:
   z_i = h(\bm{w_i}^T \bm{x} + b_i)
 \end{equation}
 with the same notations as described in \req{nn_theory_acti} and an additional bias term $b_i \in \R$.
-For all nodes in a current layer this equation of a single node can be summarized to a weight matrix $W \in \R^{m \times n}$ with $m$ as total amount of nodes in the current layer and a total number of $n$ nodes from the previous layer, so that an FC layer can be written as:
+For all nodes in a current layer this equation of a single node can be summarized to a weight matrix $W \in \R^{m \times n}$ with $m$ as total amount of nodes in the current layer and a total number of $n$ nodes from the previous layer, so that an FC layer can be defined as:
 \begin{equation}
   \bm{z} = h(W \bm{x} + \bm{b})
 \end{equation}
 where $\bm{b} \in \R^m$ are the bias terms and $\bm{z} \in \R^m$ the outputs of all nodes in the current layer $m$.
 With the matrix representation it is easy to obtain the number of training parameters and amount of operations needed for a FC layer.
-The amount of parameters are clearly $m \cdot n$ for $W$ and $m$ for $\bm{b}$, so in total this gives $m \cdot n + m$ parameters.
+The amount of parameters are clearly $m \cdot n$ for $W$ and $m$ for $\bm{b}$, so in total this results in $m \cdot n + m$ parameters.
 The amount of operations are the matrix vector multiplication with approximated amounts of multiplication and additions, plus the additive bias terms.
-With the activation function disregarded, the amount of calculations are closely:
+Disregarding the activation function leads to an amount of calculations of approximately:
 \begin{equation} 
   \mathcal{T}(W \bm{x} + \bm{b}) = 2 (m \cdot n) + m
 \end{equation}

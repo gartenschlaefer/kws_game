@@ -55,7 +55,7 @@ To examine the recorded examples from the speech command dataset, one example of
 \subsubsection{Observations of all examples in the dataset}
 Two histograms were created to observe the quality of all recorded files, those are an energy measure for each file and the count of the sample length.
 The energy of a recorded file provides information about a recordings amplification setting and is an indicator for too silent or too loud (overdrive distortions) samples. 
-In the first version of the speech command dataset (\texttt{v0.01}) too silent files were a problem, this had been fixed in the second version by rejecting those silent files, therefore \texttt{v0.01} is a bit more unclean than \texttt{v0.02}.
+In the first version of the speech command dataset (\texttt{v0.01}) too silent files were a problem, this had been fixed in the second version by rejecting those silent files, therefore \texttt{v0.01} is slightly more unclean than \texttt{v0.02}.
 The energy value $e \in \R$ can be computed as:
 \begin{equation}\label{eq:exp_dataset_energy}
   e = \frac{1}{n} \left( \bm{x}^T \bm{x} \right)
@@ -184,7 +184,7 @@ The same examples extracted to MFCC features are shown in \rfig{exp_dataset_my_m
 \end{figure}
 \FloatBarrier
 \noindent
-It turned out that it is a very hard task for neural networks to achieve a \SI{100}{\percent} classification score upon it, even though all examples are from the same speaker.
+It turned out that it is a very hard task for neural networks to achieve a \SI{100}{\percent} classification score upon it, despite the fact that all examples correspond to the same speaker.
 This is a bit worrying, because acoustically each of the examples per word is perfectly understandable for humans and for instance in the classification of the five examples of \enquote{left} from the \enquote{my dataset}, neural networks may classify 4 examples as \enquote{left} and one as \enquote{right}.
 It is difficult to examine why exactly this one example is classified wrong.
 

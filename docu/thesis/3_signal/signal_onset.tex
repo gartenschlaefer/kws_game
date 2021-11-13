@@ -8,7 +8,7 @@ In this thesis the onset detection is separated into:
   \item key word onset detection (within a fixed time span)
   \item online onset detection.
 \end{itemize}
-The key word onset detection is performed on already extracted time signals, such as raw data examples from the dataset, where the time interval of those signals are limited to \SI{1}{\second}.
+The key word onset detection performs on already extracted time signals, such as the raw data examples from the speech command dataset.
 The online onset detection runs during the recording of potential key words from a microphone input stream in a real time system.
 Note that onset detection in general can be quite challenging and is of some sorts an own research subject.
 For this thesis however, it is enough to use trivial methods, that do not require a high computational effort.
@@ -19,17 +19,18 @@ For this thesis however, it is enough to use trivial methods, that do not requir
 
 \subsection{Key Word Onset Detection}\label{sec:signal_onset_kw}
 An intuitive method to detect the onsets of key words in a fixed time signal, is to simply use the signal energy.
-Consider a fixed time signal $\bm{x} \in \R^n$ with a total number of $n$ samples, that is windowed with a striding frame of sample length $N$ corresponding to a time duration of \SI{500}{\milli\second}, the energy of each windowed signal is calculated as:
+Consider a fixed time signal $\bm{x} \in \R^n$ with a total number of $n$ samples, that is windowed with a striding frame of sample length $N$ corresponding to a time duration of \SI{500}{\milli\second}, the energy of each windowed signal calculates as:
 \begin{equation}\label{eq:e_win}
   e[m] = \sum_{i=0}^{N-1} \abs{x[m + i]}^2
 \end{equation}
 with shift index $m \in \mathcal{M} = \{0, 1, \dots, n - N + 1\}$.
-The onset sample number $o \in \mathcal{M}$ with the highest energy region can be determined by
+The onset sample number $o \in \mathcal{M}$ with the highest energy region is determined by:
 \begin{equation}\label{eq:onset}
   o = \underset{m \in \mathcal{M}}{\arg \max} \, e[m]
 \end{equation}
 for all windowed signal energies $e[m]$.
-Note that it is assumed, that most of the information of a key word in each signal, is captured by the window length $N$ and that no noise peaks are present before and after the key word, otherwise the onset $o$ would be shifted to either the left or right-hand side of the actual key word onset.
+Note that it is assumed, that most of the information of a key word in each signal, is captured by the window length $N$ and that no noise peaks are present before and after the key word. 
+Otherwise the onset $o$ would be shifted to either the left or right-hand side of the actual key word onset depending on where the noise peak was located.
 It is for sure, that this onset detection is not the most reliable one, but it is the simplest and most energy efficient method performed on raw audio data.
 
 A better approach is to use energy values from the frequency response of the signal.
@@ -39,7 +40,7 @@ The equivalent of \req{e_win} for MFCCs in the cepstral and frame space is there
 \begin{equation}
   e[m] = \sum_{i=0}^{N-1} u_0[m + i]
 \end{equation}
-where $m$ and $N$ are in the frame space instead of the sample space.
+where $m$ and $N$ are indices in the frame space instead of the sample space.
 A conversion from sample to frame space can simply be done by dividing the sample variable with the hop size $h$ in samples and rounding it to an integer number.
 The onset frame $o$ is obtained from the highest value of the windowed energy measure $e[m]$, as already formulated in \req{onset}.
 An illustration of the onset detection by shifting an analytic window of size \SI{500}{\milli\second}, is shown in \rfig{signal_onset_window}, where
@@ -60,13 +61,13 @@ A showcase on the performance of both energy onset detection methods is provided
     \subfigure[up]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_onset_showcase_up0.png}}
     \subfigure[down]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_onset_showcase_down0.png}}
     \subfigure[go]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_onset_showcase_go0.png}}
-  \caption{Onsets (vertical colored lines) obtained from the maximum of either the sample energy or first MFCC coefficient energy, with an analytical window length of \SI{500}{\milli\second}.}
+  \caption{Onsets (vertical colored lines) obtained from the maximum of either the sample energy or first MFCC coefficient energy method with an analytic window length of \SI{500}{\milli\second}.}
   \label{fig:signal_onset_showcase}
 \end{figure}
 \FloatBarrier
 \noindent
-It can be observed that the MFCC onset method achieves better results, especially for the \enquote{left} example, where a little noise peak shifts the sample energy onset too far to the left so that the whole word is not captured.
-Note that the dataset extraction of the experiments in \rsec{exp} use the MFCC onset method for all CNN models and the sample energy method for the Wavenet model.
+It can be observed that the MFCC onset method achieves better results, especially for the \enquote{left} example, where a little noise peak shifts the sample energy onset too far to the left, so that the analytic window at this onset position does not capture the whole word.
+Note that the dataset extraction in the experiments in \rsec{exp} apply the MFCC onset method for all CNN models and the sample energy method for the Wavenet model.
 
 
 % --
@@ -76,7 +77,7 @@ Note that the dataset extraction of the experiments in \rsec{exp} use the MFCC o
 The onset detection of online speech signals is processed by evaluating consecutive input chunks, that are stored in an input buffer.
 From those input chunks the energy level can be computed and compared with an energy threshold, that should indicate the presence of an onset.
 It is not the purpose to detect key word onsets by its correct starting time, but to signalize whether a signal with enough energy is available for a potential key word classification.
-Mathematically the onset $o(\bm{x}) \in \{0, 1\}$ of an input chunk $\bm{x} \in \R^n$ from an actual microphone input stream, can be obtained by:
+Mathematically the onset $o(\bm{x}) \in \{0, 1\}$ of an input chunk $\bm{x} \in \R^n$ from an actual microphone input stream can be obtained by:
 \begin{equation}
   o(\bm{x}) = 
   \begin{cases}
