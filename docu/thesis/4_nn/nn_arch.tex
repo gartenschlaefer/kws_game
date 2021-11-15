@@ -9,11 +9,11 @@ The fundamental neural network architecture types were:
 	\item GANs
 	\item Wavenets
 \end{enumerate}
-where CNNs were used for the classification of MFCC features and are therefore the main architecture type within this thesis.
+where CNNs had been used for the classification of MFCC features and are therefore the main architecture type within this thesis.
 Generative models, such as GANs, were evaluated in regards of their ability to generate samples from the data distribution.
-Further the trained weights from the convolutional layers were applied as pre-trained weights for initialization purpose of a CNN networks with the same convolutional layer structure.
+Further the trained weights from the convolutional layers of GANs were applied as pre-trained weights to initialize the weights of a CNN networks with the same convolutional layer structure.
 A completely different approach, to the KWS task, was the evaluation of Wavenets operating on raw audio samples as input features.
-Deployed in an online system, the Wavenet architecture has no need to extract MFCC features.
+When deployed in an online system, the Wavenet architecture has no need to extract MFCC features.
 However it will be shown that the overall computations are not reduced, because the complexity of Wavenets require many operations.
 
 The amount of parameters and operations are listed for each architecture to provide a comparison between the used models regarding their computational footprint.
@@ -35,7 +35,7 @@ The mentioned models summarizes as:
 \end{itemize}
 The naming of the \texttt{conv-trad} and \texttt{conv-fstride} comes from their original papers, and the self defined network \texttt{conv-jim} was named bluntly after the astronaut avatar, that is used for the deployed video game.
 
-The network architecture of the traditional network (\texttt{conv-trad}) is shown in \rfig{nn_arch_cnn_trad}.
+\rfig{nn_arch_cnn_trad} shows the network architecture of the traditional network (\texttt{conv-trad}).
 \begin{figure}[!ht]
   \centering
     \includegraphics[height=0.2\textwidth]{./4_nn/figs/nn_arch_cnn_trad.pdf}
@@ -91,9 +91,10 @@ The second lowest footprint is given by the \texttt{conv-jim} model and the \tex
 \subsection{Generative Adversarial Neural Networks}\label{sec:nn_arch_adv}
 GANs, as already mentioned in \rsec{prev_nn_adv} and \rsec{nn_theory_gan} consist of two separate neural network architectures, denoted as Discriminator (D) and Generator (G).
 Being able to transfer the obtained weights from the training of the adversarial models requires that the layer parameters of the receiving network must coincide with the adversarial network layer parameters.
-This implies that the kernel size of the filters must be equal for each layer, the amount of feature maps does not necessarily have to be the same.
+This implies that the kernel size of the filters must be equal for each layer, the amount of filters does not necessarily have to be the same.
 The convolutional layer parameters of both D and G can be transferred, even though G performs a convolutional upsampling (transposed convolution) instead of a usual convolution.
-However it is preferred to use a normalization technique, such as frame-based normalization for the G network, otherwise the transferring of weights might be disadvantageous for the classifier network.
+However it is preferred to use a normalization technique, such as the frame-based normalization. 
+Otherwise the transferring of weights might be disadvantageous for the classifier network.
 
 The only GAN model used for adversarial pre-training consists of the same convolutional layer structure as the \texttt{conv-jim} network and is therefore named as \texttt{adv-d-jim} for the D model and \texttt{adv-g-jim} for the G model. 
 Both models are shown in \rfig{nn_arch_adv_d_jim} and \rfig{nn_arch_adv_g_jim}.
@@ -113,9 +114,9 @@ Both models are shown in \rfig{nn_arch_adv_d_jim} and \rfig{nn_arch_adv_g_jim}.
 \end{figure}
 \FloatBarrier
 \noindent
-Note that the number of operations are the same as in \rtab{nn_arch_cnn_jim}, except for the fully-connected layers.
+Note that the number of operations are the same as in \rtab{nn_arch_cnn_jim} except for the fully-connected layers.
 The \texttt{adv-g-jim} model uses either the sigmoid or an identity (same output as input) activation function depending on whether the MFCC are frame-based normalized or not.
-If the MFCCs are frame-based normalized the sigmoid activation function is used to produce outputs in the range of $[0, 1]$.
+If the MFCCs are frame-based normalized, the sigmoid activation function is used to produce outputs in the range of $[0, 1]$.
 This enhances the model training speed since the Generator model is able to produce convincing fakes sooner.
 
 
@@ -125,7 +126,7 @@ This enhances the model training speed since the Generator model is able to prod
 \subsection{Wavenets}\label{sec:nn_arch_wavenet}
 Wavenets, as introduced in \cite{Oord2016}, were originally intended for speech generation.
 In the paper it is mentioned that Wavenets can be applied for ASR tasks as well, though it is very sparsely described.
-An classical implementation of a Wavenet can be found in \cite{Herrmann2018} and motivated the following model structure.
+\cite{Herrmann2018} provides a classical implementation of a Wavenet and motivated the following model structure.
 \rfig{nn_arch_wavenet_block} illustrates the residual block, which is one of the fundamental building blocks of the Wavenet architecture.
 \begin{figure}[!ht]
   \centering
@@ -143,7 +144,7 @@ Note that the dilated convolutional filters have a filter size of two with adjus
 Further, the filters stride merely in the time dimension, because the input is a one-dimensional time signal.
 The $1 \times 1$ convolutions are a special type of convolutional filters and work in the same manner as usual convolutions, just with a filter size of one.
 The whole Wavenet architecture is composed of several consecutive Wavenet residual blocks with increasing dilation parameters for the first two convolutional layers (filter and gate) in the blocks.
-The whole Wavenet architecture adaption with an extension of a class prediction is shown in \rfig{nn_arch_wavenet_all}.
+\rfig{nn_arch_wavenet_all} shows he whole Wavenet architecture adaption with an extension of a class prediction.
 \begin{figure}[!ht]
   \centering
     \includegraphics[width=0.9\textwidth]{./4_nn/figs/nn_arch_wavenet_all.pdf}

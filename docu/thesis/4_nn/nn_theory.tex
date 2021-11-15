@@ -98,64 +98,62 @@ which would give for example with $n = 128$ and $m = 64$ roughly $\mathcal{T}(W 
 
 \subsection{Convolutional Layers}\label{sec:nn_theory_cnn}
 Convolutional layers are the fundamental building block of every CNN, as already discussed in \rsec{prev_nn_cnn}.
-Convolutional filters are applied on small areas of the input data to retrieve spatial information, where the input data can consist of multiple channels or input maps.
-Those convolutional filters are also called kernels, denoted as $k$ and in case of 2 dimensional input maps illustrated as images with kernel width $d_{k_w}$ and height $d_{k_h}$.
-The kernels are shifted over each input map in each dimensional axis with an operation called \emph{stride}, denoted as $s$, and produce an output map corresponding to each kernel and input map through the convolution operation, mathematically denoted with a star $\ast$.
-The output length $d_{o_z}$ of an image in any dimension $z$, where $z \in \{w, h\}$ with $w$ as width and $h$ as height for images, convoluted from an input map of length $d_{x_z}$ with a kernel $k$ striding along axis $z$ with $s_z$ and kernel size for that axis $d_{k_z}$ can be computed as follows:
-\begin{equation}\label{eq:nn_theory_cnn_}
+Convolutional filters are applied on small areas of the input data to retrieve spatial information, where the input data may consist of multiple channels or input maps.
+Those convolutional filters are also denoted as kernels $k$.
+In the case the kernels operate on 2 dimensional input maps, they can be seen as 2 dimensional maps as well with kernel width $d_{k_w}$ and height $d_{k_h}$ typically smaller than the input maps.
+The \emph{stride} of a kernel, denoted as $s$, specifies the number of shifts a kernel moves on a specific axis over an input map to perform the next convolution operation.
+There are limited amounts of possible kernel strides over an input map in any specific axis which determines the dimension of the output map on that axis.
+The length $d_{o_z}$ of an output map of axis $z$ computes from an input map of length $d_{x_z}$ with a kernel striding along axis $z$ with $s_z$ and kernel size for that axis $d_{k_z}$ as follows:
+\begin{equation}\label{eq:nn_theory_cnn_dim}
   d_{o_z} = \floor*{\frac{d_{x_z} + p_z - d_{k_z}}{s_z} + 1}
 \end{equation}
-where $p_z$ is an additional \emph{padding} term in dimension $z$, for instance zero-padding adds zeros on both sides of the selected axis.
-For example if a $16 \times 16$ image is convoluted by a $5 \times 5$ kernel with stride $1$ in each direction and no padding is done, the output image is a $12 \times 12$ image.
-The padding operation has usually the purpose to keep the same output and input dimension.
-For instance, this is necessary in residual neural networks, where the input to a residual block with several convolutional layers is bypassed and added to the output of the same residual block again.
-Being able to compute the addition operation from input and output of the residual block, their dimensions must coincide.
-However in most convolutional network applications without residual blocks, it is preferred not to pad the image, so that dimensions are reduced hence parameters and multiplications saved for further consecutive layers.
-Further some special types of sub-sampling layers exist, such as a Max-Pooling layer, designed to reduce the dimensions of the output image.
+where $p_z$ is an additional \emph{padding} term on the $z$ axis, which appends a specified amount of values to the input image on both sides of the selected axis.
+Usually these appended values are zeros such as applied in \emph{zero-padding}.
+To provide an example of \req{nn_theory_cnn_dim}, consider the convolution of a $16 \times 16$ image by a $5 \times 5$ kernel with stride $1$ in each direction and without any padding terms, will result in an output image of dimensions $12 \times 12$.
 
-A convolutional layer is defined by the amount of input maps and output channels (feature maps), the kernel size, the stride of the kernel and some other specialties like padding and dilation.
-However it is not immediately clear from those parameter, how many convolutional filters are applied and how the output feature maps are calculated exactly.
+A convolutional layer is therefore defined by the amount of input maps and resulting output channels (feature maps), the kernel size, the stride of the kernel, and some other specialties like padding and dilation.
+However it is not immediately clear from those parameters, how many convolutional filters are applied and how the output feature maps are calculated in detail.
 The number of convolutional filters $\#k$ is in most practical examples always:
 \begin{equation}\label{eq:nn_theory_n_filters}
   \#k = i \cdot j
 \end{equation}
 where $i$ and $j$ is the amount of input and output channels respectively.
 Each kernel produces an output map, but the idea is to constraint the number of output maps $\#k$ to the defined output channels $j$.
-This is usually done by summing up all feature maps obtained from all input channels $i$ convoluted with kernel $k_{i, j}$ for one output channel $j$:
+This is usually done by summing up all feature maps obtained from all input channels $i$ convoluted with kernel $k_{i, j}$ for one specific output channel $j$ as follows:
 \begin{equation}
-  o_j = \sum_{i} k_{i, j} \ast x_i
+  o_j = \sum_{i} k_{i, j} \ast x_i.
 \end{equation}
-where $o_j$ is the resulting j-th feature map or output channel and $x_i$ the i-th input channel.
-A graphical example of this procedure is shown in \rfig{nn_theory_cnn_basics}.
-% cnn basics
+where $o_j$ is the resulting j-th feature map or output channel, $x_i$ the i-th input channel, and $\ast$ represents the convolution operation.
+\rfig{nn_theory_cnn_basics} provides a graphical example of the calculation of feature maps.
 \begin{figure}[!ht]
   \centering
-    \includegraphics[width=0.6\textwidth]{./4_nn/figs/nn_theory_cnn_basics.pdf}
-  \caption{Basic convolutional layer with a $16 \times 16$ input image, decomposed in 3 channels (CYM) and processed to 4 output feature maps. The kernel size is $5 \times 5$ and the stride is $1$ in both dimensions.}
+    \includegraphics[width=0.75\textwidth]{./4_nn/figs/nn_theory_cnn_basics.pdf}
+  \caption{Processing scheme of a convolutional layer composed of 3 input channels, 4 output channels, a kernel size of $5 \times 5$, and strides of $1$ in both dimensions. The input channel is represented by a $16 \times 16$ image decomposed in 3 color channels.}
   \label{fig:nn_theory_cnn_basics}
 \end{figure}
 \FloatBarrier
 \noindent
 
-The amount of parameters are all weights in the convolutional filters (kernels) and their bias terms, however the bias terms for each filter can be ignored, in this thesis no bias terms were used for the convolutional layers.
-Therefore the amount of parameters are $\#k \cdot d_{k_w} \cdot d_{k_h}$ for a two dimensional convolutional layer, which makes $3 \cdot 4 \cdot 5 \cdot 5 = 300$ parameters for the example in \rfig{nn_theory_cnn_basics}.
-The amount of operations are all convolution operations for each filter and the summation to $j$ output channels.
-One convolution with a single two dimensional kernel $k$ and one input channel $x$ has an approximate number of multiplication and addition operations:
+The parameters of a convolutional layer consist of weights and bias terms in the convolutional filters, however the bias terms for each filter are optional.
+Ignoring the bias terms, the amount of parameters are $\#k \cdot d_{k_w} \cdot d_{k_h}$ for a two dimensional convolutional layer, which makes $3 \cdot 4 \cdot 5 \cdot 5 = 300$ parameters for the example in \rfig{nn_theory_cnn_basics}.
+The amount of operations of a convolutional layer is given by all convolution operations for each filter and the summation to $j$ output channels.
+One convolution with a single two dimensional kernel $k$ and one input channel $x$ results in an approximate number of multiplication and addition operations:
 \begin{equation}
-  \mathcal{T}(k * x) = 2(d_{k_w} \cdot d_{k_h}) (d_{o_w} \cdot d_{o_h})
+  \mathcal{T}(k * x) = 2(d_{k_w} \cdot d_{k_h}) (d_{o_w} \cdot d_{o_h}).
 \end{equation}
-and for all feature maps and the summation of them to the output channels:
+Further, the computation of all feature maps and their summation give:
 \begin{equation}
   \mathcal{T}(o) = \#k \cdot \mathcal{T}(k * x) + \#k \cdot (d_{o_w} \cdot d_{o_h})
 \end{equation}
-For the previous example this would give $\mathcal{T}(k * x) = 2 (12 \cdot 12) (5 \cdot 5) = \SI{7.2}{\kilo\ops}$ and $\mathcal{T}(o) = 12 \cdot \SI{7.2}{\kilo\ops} + 12 \cdot (12 \cdot 12) = \SI{88.1}{\kilo\ops}$.
+operations.
+For the example in \rfig{nn_theory_cnn_basics} this would result in $\mathcal{T}(k * x) = 2 (12 \cdot 12) (5 \cdot 5) = \SI{7.2}{\kilo\ops}$ and $\mathcal{T}(o) = 12 \cdot \SI{7.2}{\kilo\ops} + 12 \cdot (12 \cdot 12) = \SI{88.1}{\kilo\ops}$.
 
 
 % --
 % loss functions
 
 \subsection{Loss Functions and Softmax}
-Loss functions also known as cost functions, are used to determine the difference between the predicted label $\hat{y}_i$ for class $i$ compared to the actual or ground truth label $y$ of one specific training data example.
+Loss functions, also denoted as cost functions, are used to determine the difference between the predicted label $\hat{y}_i$ for class $i$ compared to the actual or ground truth label $y$ of one specific training data example.
 The predicted labels are usually presented by the output nodes in the last layer of a neural network.
 Therefore $\hat{\bm{y}} = [\hat{y_0}, \hat{y_1}, \dots, \hat{y_L}]^T$ has the dimension of the number of labels or classes $L$.
 Often it is preferred that $\hat{\bm{y}} \in \R^L$ provides a probability distribution such that:
@@ -166,24 +164,25 @@ which can be achieved with the softmax function:
 \begin{equation}\label{eq:nn_theory_softmax}
   \hat{y}_i = \frac{\exp{x_i}}{\sum_{j=0}^{L}\exp{x_j}}
 \end{equation}
-where $L$ is the amount of nodes in this layer, if it is the last layer as usual for the softmax, $L$ is the total amount of class labels and $\hat{y}_i$ the probability value of the corresponding class $i$.
+in the last layer, where $x$ presents here the output of any specific node.
 
-There are already plenty of different loss functions available for training neural networks, such as described in \cite{LeCun2006}, however in this thesis only one kind of it is used for all neural network architecture, the cross-entropy loss or for two classes the binary cross-entropy loss function.
-Without going too much into the detail of this loss function, it is formulated similarly to its implementation in the \texttt{Pytorch} framework \cite{Pytorch}.
+There are already plenty of different loss functions available for training neural networks, such as described in \cite{LeCun2006}. 
+However in this thesis only one kind of loss function is applied for all neural network architectures namely the \emph{cross-entropy loss}, which is in the case of two classes known as \emph{binary cross-entropy loss}.
+The formulation of the cross-entropy loss is similarly expressed as provided in the documentation of its implementation in the \texttt{Pytorch} framework \cite{Pytorch}.
 The binary cross-entropy is implemented as:
 \begin{equation}\label{eq:nn_theory_binary_cross_entropy}
   l(x_i, y_i) = y_i \cdot \log x_i + (1 - y_i) \cdot \log (1 - x_i)
 \end{equation}
-with the training pair $(x_i, y_i)$, where $x_i \in \R^{N \times 1}$ as feature input and $y_i \in \{0, 1\}^N$ as corresponding label for the two label classification problem.
-During the training procedure a whole batch of sample size $N$ is used for one update step, however the loss function should provide only a single value, therefore all $l_i$ with $i = 0, \dots, N$ must be concatenated.
-This can simply be done for instance with the calculation of the mean of all $l_i$.
+with the training pair $(x_i, y_i)$, where $x_i \in \R^{N \times 1}$ is the feature input and $y_i \in \{0, 1\}^N$ the corresponding label.
+During the training procedure a whole batch with a total number of $N$ examples is used for one update step.
+However the loss function should provide only a single output value, which can be achieved by calculating the mean value of all $l_i$ where $i = 0, \dots, N$ is the index of the examples in the actual batch.
 
-The multiclass variant of the cross-entropy can be defined by
+The multi-class variant of the cross-entropy is defined by:
 \begin{equation}
   l(x_i, y_i) = - x_i[y_i] + \log{\left( \sum_{j=0}^{L} \exp{x_i[j]} \right)}
 \end{equation}
-where $x_i \in \R^{N \times L}$, $y_i \in \{0, 1, \dots, L\}^N$ and a total number of $L$ classes.
-Note that $x_i[y_i]$ is denoted as indexing of $x_i$ of its class dimension $L$. 
+with dimensions of the training pair $x_i \in \R^{N \times L}$ and $y_i \in \{0, 1, \dots, L\}^N$, and a total number of $L$ classes.
+Note that $x_i[.]$ is denoted as indexing of $x_i$ of its class dimension $L$. 
 
 
 % --
@@ -193,14 +192,15 @@ Note that $x_i[y_i]$ is denoted as indexing of $x_i$ of its class dimension $L$.
 Dropout \cite{Hinton2012} is a method to improve generalization and training of neural networks.
 The idea is to set the output of randomly selected nodes within a layer for one training step to zero, so that only the other nodes are updated.
 This can be done by multiplying all outputs of a current layer with a vector containing a specified number of zeros and ones places at random positions within the vector.
-The amount of zeros compared to ones can be sampled from a Bernoulli distribution set by a probability value, for instance $p=0.2$ means that there are \SI{20}{\percent} zeros and \SI{80}{\percent} ones randomly placed within the vector.
+The amount of zeros compared to ones can be sampled from a Bernoulli distribution by setting a probability value $p$.
+For instance $p=0.2$ means that there are \SI{20}{\percent} zeros and \SI{80}{\percent} ones randomly placed within the vector.
 
 
 % --
 % training
 
 \subsection{Training of a Neural Network}
-The training of a neural network is usually done by updating each parameter of the model with back-propagated gradients from the loss obtained at the output nodes.
+The training of a neural network is usually done by updating each parameter of the model with back-propagated gradients from the obtained loss at the output nodes.
 The loss is calculated by a specific loss function comparing the predicted labels to the targets of the actual training samples.
 To update the parameters of the network, an update rule, such as Stochastic Gradient Descend (SGD) or Adam \cite{Kingma2015} is applied.
 Note that a single update step is usually not performed on the whole dataset, unless it is a very small dataset. 
@@ -217,7 +217,6 @@ The interesting elements are therefore only the neural network architecture desi
 % GANs
 
 \subsection{Generative Adversarial Neural Networks Game}\label{sec:nn_theory_gan}
-\thesisStateRevised
 GANs \cite{Goodfellow2014}, as already mentioned in \rsec{prev_nn_adv} consist of two neural networks: a Generator (G) network for generating fake images and a Discriminator (D) network for discriminating between fake and real images.
 The min-max game both networks are playing, is defined by:
 \begin{equation}\label{eq:nn_theory_gan}
@@ -226,4 +225,3 @@ The min-max game both networks are playing, is defined by:
 \end{equation}
 where $\bm{x} \in \mathcal{X}$ are samples from the training data $p_{data}$, $\bm{z} \in \mathcal{Z}$ is a latent variable sampled from $p_{\bm{z}}$, $D: \mathcal{X} \mapsto [0, 1]$ is the discriminator network and $G: \mathcal{Z} \mapsto \mathcal{X}$ the generator network.
 The advise from the original paper is not to minimize G with $\log (1 - D(G(\bm{z})))$, but to maximize $\log D(G(\bm{z}))$ instead.
-The training algorithm can be read from \cite{Goodfellow2014} in detail.
