@@ -39,7 +39,7 @@ With the similarity loss incorporated, $l_G$ gets:
   l_G(x_i, z_i, D) =  l(D(G(z_i)), y_r) + \lambda \left(1 - \frac{1}{C} \sum_{c=0}^{C} s(\hat{\bm{e}}_c^T x_i , \hat{\bm{e}}_c^T G(z_i)) \right)
 \end{equation}
 where $\hat{\bm{e}}_c \in \{1, 0\}^C$ is a unit vector representing one cepstral coefficient of the Mel Frequency Cepstral Coefficient (MFCC) data $x_i \in \mathcal{X} = \R^{C \times M}$ with a total number of $C$ MFCC coefficients and $M$ frames.
-Further $\lambda$ is a trade-off factor between data similarity and fake loss from D.
+Further, $\lambda$ is a trade-off factor between data similarity and fake loss from D.
 For the experiments in \rsec{exp_adv}, $\lambda = 5$ was chosen.
 
 The update of D and G performs in each training step by backpropagating the obtained losses.
@@ -67,7 +67,7 @@ For example, each label train gets 8 filters in the first convolutional layer.
 \end{figure}
 \FloatBarrier
 \noindent
-To further investigate the adversarial label train, the training results of the models \texttt{adv-d-jim}, \texttt{adv-g-jim} and \texttt{conv-jim} is provided in the following.
+To further investigate the adversarial label train, the training results of the models \texttt{adv-d-jim}, \texttt{adv-g-jim}, and \texttt{conv-jim} is provided in the following.
 \rfig{nn_adv_loss_label} shows the training loss of an actual GAN training for the label subset \{\enquote{left}, \enquote{go}\}.
 \begin{figure}[!ht]
   \centering

@@ -3,8 +3,8 @@
 
 \section{Mel Frequency Cepstral Coefficients}\label{sec:signal_mfcc}
 Very commonly MFCCs are used as features for speech recognition tasks.
-It is described why MFCCs are appropriate features for speech signals, how they are calculated in detail and how they can be enhanced.
-Further a normalization technique for an improved visualization of MFCCs is presented.
+It is described why MFCCs are appropriate features for speech signals, how they are calculated in detail, and how they can be enhanced.
+Moreover, a normalization technique for an improved visualization of MFCCs is presented.
 
 
 % --
@@ -104,10 +104,10 @@ The required parameters for the computations of MFCCs are therefore the amount o
 
 Another important aspect is the visualization of MFCC features.
 MFCCs computed as described above, are not well intended for visualizations because their individual coefficients value space differs strongly from each other.
-For example, the first coefficient equals a summation of all filter bands of the spectrogram and is therefore some kind of energy measure, while the other coefficients are different weighted sum combinations of the filter bands.
-Further the most of the signal energy is located in the lower frequency bands, which impacts the value space of the coefficients with strongly weighted low frequency bands.
-The differences in the value space lead to a problem in the visualization with a linear color scheme, such that the changes of some coefficients cannot be presented appropriately.
-A solution to this problem is to normalize the feature vectors over each frame dimension with the infinity norm as:
+For example, the first coefficient equals a summation of all filter bands of the spectrogram and is therefore some kind of energy measure while the other coefficients are different weighted sum combinations of the filter bands.
+Furthermore, the most of the signal energy is located in the lower frequency bands, which impacts the value space of the coefficients with strongly weighted low frequency bands.
+The differences in the value space lead to a problem in the visualization with a linear color scheme such that the changes of some coefficients cannot be presented appropriately.
+A solution to this problem is to normalize the feature vectors over each frame dimension with the infinity norm as follows:
 \begin{equation}\label{eq:signal_mfcc_norm}
   U[c, m] \gets \frac{U[c, m] + \vert \underset{m \in \mathcal{M}}{\min} \bm{u}_c \vert}{\norm{\bm{u}_c + \vert \underset{m \in \mathcal{M}}{\min} \bm{u}_c \vert}_\infty} \quad \forall \, c, m = (0, 1, \dots, C - 1), (0, 1, \dots, M - 1)
 \end{equation}

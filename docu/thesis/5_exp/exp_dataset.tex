@@ -111,19 +111,19 @@ The personal experiments obtained by listened to the examples in the dataset, we
   \item No children speakers had been found.
 \end{itemize}
 Due to data privacy issues the information of individual speakers is not displayed.
-Further it is not clear whether there is an equal amount of male and female speakers and whether there are any children speakers included.
-The last would be especially interesting for a video games intended for kids.
+Therefore, it is not clear whether the dataset consists of an equal amount of male and female speakers and whether there are any children speakers included.
+The last would be especially interesting for a video games intended for children.
 
-In many recordings the background noise is imminent, such as traffic noise, chattering people, office sounds, etc.
-A quality check of the recorded files in the dataset had been done beforehand to ensure that bad samples are rejected.
-However there are still some existing flaws such as extremely loud or silent recordings, examples with inconsistent sample numbers, recordings that are including too much noise or in the worst case noise only (very rarely), and cut off signals capturing only half of a word.
+In many recordings the background noise is imminent, such as traffic noise, chattering people, office sounds, and many more.
+A quality check of the recorded files in the dataset had been done beforehand to ensure that bad quality examples are rejected.
+However, there are still some existing flaws such as extremely loud or silent recordings, examples with inconsistent sample numbers, recordings that include too much noise or in the worst case noise only (very rarely), and cut off signals capturing only half of a word.
 Those quality issues in the dataset can for most cases be neglected or fixed, such as inconsistent sample numbers. 
 Other more problematic cases, such as noise-only examples, should ideally be removed.
 But since their occurrence is very rare it is not worth the effort.
-Usually it is not a problem for neural networks to cope with noisy datasets. 
-Actually it is favorable when a dataset contains many noisy samples, so that neural networks can learn invariance against noise, loudness differences and other nuisances during training.
-Further if the training dataset is large enough and the test and validation sets do not contain very bad examples, there should be no problem in the training and evaluation of different models.
-Finally it has to be acknowledged that the dataset is published under the creative common license, hence it is freely available to everyone, which is simply fabulous.
+Besides, it is usually not a problem for neural networks to cope with noisy datasets.
+In many cases it is favorable when a dataset contains many noisy samples so that neural networks can learn invariance against noise, loudness differences, and other nuisances during training.
+Moreover, if the training dataset is large enough, and the test and validation sets do not contain very bad examples, there should be no problem in the training and evaluation of different models.
+Finally, it has to be acknowledged that the dataset is published under the creative common license, hence it is freely available to everyone, which is simply fabulous.
 
 
 % --
@@ -138,7 +138,7 @@ The noise examples were assigned to the label \enquote{\_noise}.
 Each waveform file from the key word folders is named by an 8-digit hexadecimal hash code for the speaker identification and followed by the utterance number, for instance \texttt{3b4f8f24\_nohash\_0.wav}.
 With the speaker identification code known, it is possible to distinguish between different speakers, however as mentioned above, no further information about the speakers is provided due to data privacy issues.
 
-Further the dataset contains a testing file list called \texttt{testing\_list.txt} and a validation file list \texttt{validation\_list.txt}, where each row entry in the text file refers to a file in the dataset, as for example \texttt{right/bb05582b\_nohash\_3.wav}.
+Moreover, the dataset contains a testing file list called \texttt{testing\_list.txt} and a validation file list \texttt{validation\_list.txt}, where each row entry in the text file refers to a file in the dataset, as for example \texttt{right/bb05582b\_nohash\_3.wav}.
 Those file lists should ensure the comparability between different neural network approaches from individual researchers.
 The testing and validation file lists are applied in this thesis and the separation into sets are shown in \rtab{exp_dataset_all_labels}.
 
@@ -215,13 +215,13 @@ It is important that the enumeration of class labels in the class dictionary sta
 \rsec{signal_mfcc} already showed how to extract MFCC features, however it is important that each individual $x_i$ for all $i$ has the same dimension $\mathcal{X}$, so that a data preparation for the training of neural networks is possible.
 It could happen that the sample numbers of the waveform files are inconsistent, as described in \rsec{exp_dataset_speech_cmd}, and therefore different dimension of individual data examples may be obtained.
 To ensure that all $x_i$ have the same dimension, the audio files were adjusted to the same fixed sample length of a duration of \SI{1}{\second} and sampling frequency \SI{16}{\kilo\hertz}.
-This was done by zero-padding the signals to the desired fixed length of $n = 16000$ samples.
-Further, a dither noise was added so that neural networks are not confused when operating with pure zeros emerging from the data examples.
+This was achieved by zero-padding the signals to the desired fixed length of $n = 16000$ samples.
+Furthermore, a dither noise was added so that neural networks are not confused when operating on pure zeros that emerge from the data examples.
 Additive White Gaussian Noise (AWGN) ensures an appropriate dithering of the data examples as follows:
 \begin{equation}\label{eq:exp_dither}
   \bm{x} = \bm{\tilde{x}} + \bm{v}, \quad \bm{v} \sim \mathcal{N}(\mu=0, \sigma=0.5 \cdot \tilde{x}_{quant}) 
 \end{equation}
 where $\bm{v} \in \R^n$ is sampled from the normal distribution $\mathcal{N}$ with standard deviation given by the quantization error $\tilde{x}_{quant} \in \R$, $\bm{\tilde{x}} \in \R^n$ is the zero-padded signal (only if the total sample number is less than 16000).
 The quantization error $\tilde{x}_{quant}$ corresponds to the minimum of all absolute values from the samples of $\bm{\tilde{x}}$, except the pure zero entries added through zero-padding.
-When the dithering is applied to the signal the pure zeros are overwritten by the sampled dither noise, while at the same time a minimal altering of the original signal is done.
+When the dithering is applied to the signal the pure zeros are overwritten by the sampled dither noise while at the same time a minimal altering of the original signal is done.
 This is because the maximum change is in range of a normal distribution of the quantization error from the original recording.

@@ -78,21 +78,21 @@ Following Questions can be asked in general:
 \textbf{Question \ref{it:q2-a}:} 
 The availability of a dataset for KWS video games can be answered right away, as there exists a speech commands dataset \cite{Warden2018} with enough and diverse data.
 The dataset consist of 35 labels and contains commands for movement and numbers.
-Further it includes randomly selected words like \enquote{marvin} or \enquote{bird} intended to represent \emph{unknown} words for the KWS system.
+Further, it includes randomly selected words like \enquote{marvin} or \enquote{bird} intended to represent \emph{unknown} words for the KWS system.
 It has to be noted that not every game idea can be realized with a restricted vocabulary.
-However with commands for movement like \enquote{left} or \enquote{go} it is possible to move objects within a game and this can already be used for many game mechanics.
-An aspect regarding efficiency is to restrict the amount of key words in the vocabulary as much as possible, such that a cheaper neural network architecture can be deployed, which of course should still be sufficiently good in its classification accuracy.
+However, with commands for movement like \enquote{left} or \enquote{go} it is possible to move objects within a game and this can already be used for many game mechanics.
+An aspect regarding efficiency, is to restrict the amount of key words in the vocabulary as much as possible such that a cheaper neural network architecture can be deployed, which of course should still be sufficiently good in its classification accuracy.
 
 \textbf{Question \ref{it:q2-b}:} 
-Without doubt players will try out words, which are not in the vocabulary (denoted as \emph{unknown} key words) and observe the response of the video game.
+Without doubt, players will try out words that are not in the vocabulary (denoted as \emph{unknown} key words) and observe the response of the video game.
 The ideal response would be to shown an indication to the player that the word is not present in the vocabulary. 
-However it might happen that the similarity of a unknown key word is too close to a key word and an unintended action is triggered in the game. 
-At the same time the neural network should not classify key words, as unknown key words, to create a satisfying game play.
-It is better to rely on that players are using key words for most of the time, so that they are preferred over unknown key words.
+However, it might happen that the similarity of a unknown key word is too close to a key word and an unintended action is triggered in the game. 
+At the same time the neural network should not classify key words as unknown key words to ensure a satisfying game experience.
+It is better to rely on that players are using key words for most of the time so that they are preferred over unknown key words.
 
 \textbf{Question \ref{it:q2-c}:}
 In the ideal case, video games with KWS do not slow down during the inference process of unknown input data.
-The restriction of the amount of computations and time for the classification of key words, is given by the minimum Frames Per Second (FPS) a video game is perceived as fluent.
+The restriction of the amount of computations and time for the classification of key words is given by the minimum Frames Per Second (FPS) a video game is perceived as fluent.
 That requires the FPS to not fall under a certain limit (usually 30 FPS in video games), otherwise the fluidity of the game is not guaranteed.
 Several different neural network approaches with a low computational footprint must therefore be tested and compared against each other regarding classification rate and energy efficiency.
 The transfer of weights from GANs is an interesting approach to evaluate whether the trained parameters are also useful for pure classification tasks in CNNs.
@@ -129,7 +129,7 @@ Also language learning games are an interesting application but usually require 
 \textbf{Question \ref{it:q3-c}:}
 Apart from the technical requirements involved in KWS systems, also the general game design with KWS has to be considered.
 It certainly can be stated that KWS systems are not always reliable and therefore a main game mechanic solely based on it is not always preferred.
-Further it is important to recognize the amount of time lag required to process speech commands to actual actions within the game.
-The player should for one get immediate and accurate feedback from the game and on the other hand be challenged while playing, so that the game play does not get frustrating or boring.
-Using speech commands consecutively can also be very exhausting for the player and maybe it is better to use KWS only in special situations within the game.
+Furthermore, the time lag required to process speech commands to actual actions within the game should not be ignored.
+The player should for one get immediate and accurate feedback from the game and on the other hand be challenged while playing so that the game experience does not get frustrating or tiresome.
+Using speech commands consecutively, can also be very exhausting for the player and maybe it is better to use KWS only in special situations within the game.
 Generally it can be stated that a game developer has to design a KWS game with care.

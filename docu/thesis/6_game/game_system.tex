@@ -23,7 +23,7 @@ The length of the FIFO buffer must be at least as large as the sample length of 
 The recorded files in the speech command dataset have a time duration of \SI{1}{\second}. 
 Using this time duration however would have made the classification of key words very slow and influenced the gaming experience.
 In this thesis, the length of a key word was restricted to \SI{500}{\milli\second} or 8000 samples.
-Further some buffer samples were added for an improved detection of the highest energy region within the speech signal.
+Further, some buffer samples were added for an improved detection of the highest energy region within the speech signal.
 Note that the input stream reads out the microphone data in chunks, where the length of each chunk had been chosen to be 160 samples, corresponding to exactly one frame with hop size of \SI{10}{\milli\second}.
 Ideally these buffer frames should not be necessary but due to shift invariance problems in some network architectures (especially for the \texttt{fstride} model) it can be advantageous and improve the key word predictions when buffer frames are added.
 

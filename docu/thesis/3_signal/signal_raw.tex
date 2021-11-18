@@ -21,10 +21,10 @@ With the sampling frequency known, a discrete time signal of an audio recording 
   \bm{x} = [x_1, x_2, \dots, x_n]^T
 \end{equation}
 with a total number of $n$ samples.
-The recorded audio files provided in the speech command dataset \cite{Warden2018} and further applied in the experiments in \rsec{exp}, are sampled with a sampling rate of \SI{16}{\kilo\hertz} and usually have a time duration of \SI{1}{\second}, apart from some individual shorter files.
+The recorded audio files provided in the speech command dataset \cite{Warden2018}, which are further applied in the experiments in \rsec{exp}, are sampled with a sampling rate of \SI{16}{\kilo\hertz} and usually have a time duration of \SI{1}{\second} apart from some individual shorter files.
 
 For evaluation and visualization purpose, the author of this thesis has recorded examples of the speech commands \{\enquote{left}, \enquote{right}, \enquote{up}, \enquote{down}, \enquote{go}\} with a simple consumer Lavalier microphone.
-One example of each of those speech commands is contained in the showcase examples, visualized in \rfig{signal_raw_showcase} in raw audio format and will be used to illustrate the whole feature extraction process in the following sections.
+One example of each of those speech commands is contained in the showcase examples, visualized in \rfig{signal_raw_showcase} in raw audio format, and will be used to illustrate the whole feature extraction process in the following sections.
 \begin{figure}[!ht]
   \centering
     \subfigure[left]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_raw_showcase_left0.png}}
@@ -50,9 +50,9 @@ In \rfig{signal_raw_showcase} it is easy to spot the beginning and ending of the
 There might be a large noise floor, imminent background sound, or cut off signals so that the detection of the right onset position for the \SI{500}{\milli\second} time interval within the \SI{1}{\second} recordings is not always accurate.
 The applied onset detection is therefore separately discussed in \rsec{signal_onset}.
 
-Further it is worth mentioning that the value range of audio recordings heavily depends on the used microphone, amplifier and post processing stage.
+Moreover, it is worth mentioning that the value range of audio recordings heavily depends on the used microphone, amplifier, and post processing stage.
 It is therefore strongly recommended to normalize all recordings to a defined value range before applying the feature extraction.
-The normalization can be achieved for instance by dividing each sample of the signal by the infinity norm of the whole signal as:
+The normalization can be achieved, for instance, by dividing each sample of the signal by the infinity norm of the whole signal as:
 \begin{equation}
   \bm{x} \gets \frac{\bm{x}}{\norm{\bm{x}}_\infty}
 \end{equation}

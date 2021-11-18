@@ -68,7 +68,7 @@ Yet as a proof of concept, the two levels with moveable blocks are a good starti
 % future work
 
 \section{Future Work}
-The goal to find the most energy efficient model that obtains at the same time good accuracies for the KWS task of speech commands, is still a topic for future research.
+The goal to find the most energy efficient model that obtains at the same time good accuracies for the KWS task of speech commands is still a topic for future research.
 Even though \cite{Zhang2017} and \cite{Peter2020} provide excellent solutions to this problem, it is desirable to understand the problem even further and derive a minimal model where each layer can be understood and analyzed.
 It is worth to evaluate the increase of the hop time from the used \SI{10}{\milli\second} to \SI{20}{\milli\second}, as applied in \cite{Peter2020}.
 This would reduce the computations approximately by half (both for the feature extraction and the classifier).
@@ -76,7 +76,7 @@ Further, it would be interesting to evaluate an even smaller time interval that 
 Also it might be preferable to switch from a fixed sized input to a flexible one, so that no spoken key word will be missed, regardless of its duration.
 This would enable the game to respond faster and allow the speaker to pronounce the key words with a short time duration.
 
-Further research can be done on the value of the obtained weights from the Generator (G) model of a GAN training. 
+Further research can be conducted on the value of the obtained weights from the Generator (G) model of a GAN training. 
 An adversarial training scheme, as presented in \cite{Oezdenizci2020}, that consists of both a G model and a classical CNN model operating on the very same convolutional layers, would be extremely interesting. 
 However one problem is the up-convolution performed by the G network, so that weight sharing is difficult to implement in this task.
 

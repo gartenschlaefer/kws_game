@@ -23,7 +23,7 @@ Activation functions for neural networks are usually present in each node and de
   z = h(\bm{w}^T \bm{x})
 \end{equation}
 where $h$ is the activation function, $\bm{w} \in \R^n$ is a weight vector and $\bm{x} \in \R^n$ an input vector representing the connections from a total number of $n$ nodes in the previous layer.
-The output of each node in a current layer further connects to other nodes in the next layer and builds up the neural network.
+The output of each node in a current layer further connects to other nodes in the next layer, hence builds up the neural network.
 The constraint of an activation function is that an easy computable derivative must exist.
 This allows the backpropagation of gradients from the activation function.
 
@@ -33,7 +33,7 @@ The most famous activation function nowadays, is the Rectified Linear Unit (ReLU
 \end{equation}
 with $a \in \R$ as input scalar.
 The great advantage of the ReLU function is that its sub-gradients are very easy and fast computable.
-Further two other well known activation functions that are used for example in the Wavenet, are the sigmoid function:
+Furthermore, two other well known activation functions, used for example in the Wavenet, are the sigmoid function:
 \begin{equation}\label{eq:nn_theory_sigmoid}
   h(a) = \frac{1}{1 + \exp{-a}}
 \end{equation}
@@ -141,19 +141,18 @@ One convolution with a single two dimensional kernel $k$ and one input channel $
 \begin{equation}
   \mathcal{T}(k * x) = 2(d_{k_w} \cdot d_{k_h}) (d_{o_w} \cdot d_{o_h}).
 \end{equation}
-Further, the computation of all feature maps and their summation give:
+Further, the computation of all feature maps and their summation is given by:
 \begin{equation}
-  \mathcal{T}(o) = \#k \cdot \mathcal{T}(k * x) + \#k \cdot (d_{o_w} \cdot d_{o_h})
+  \mathcal{T}(o) = \#k \cdot \mathcal{T}(k * x) + \#k \cdot (d_{o_w} \cdot d_{o_h}).
 \end{equation}
-operations.
-For the example in \rfig{nn_theory_cnn_basics} this would result in $\mathcal{T}(k * x) = 2 (12 \cdot 12) (5 \cdot 5) = \SI{7.2}{\kilo\ops}$ and $\mathcal{T}(o) = 12 \cdot \SI{7.2}{\kilo\ops} + 12 \cdot (12 \cdot 12) = \SI{88.1}{\kilo\ops}$.
+For the example in \rfig{nn_theory_cnn_basics}, this would result in $\mathcal{T}(k * x) = 2 (12 \cdot 12) (5 \cdot 5) = \SI{7.2}{\kilo\ops}$ and $\mathcal{T}(o) = 12 \cdot \SI{7.2}{\kilo\ops} + 12 \cdot (12 \cdot 12) = \SI{88.1}{\kilo\ops}$.
 
 
 % --
 % loss functions
 
 \subsection{Loss Functions and Softmax}
-Loss functions, also denoted as cost functions, are used to determine the difference between the predicted label $\hat{y}_i$ for class $i$ compared to the actual or ground truth label $y$ of one specific training data example.
+Loss functions, also called cost functions, are used to determine the difference between the predicted label $\hat{y}_i$ for class $i$ compared to the actual or ground truth label $y$ of one specific training data example.
 The predicted labels are usually presented by the output nodes in the last layer of a neural network.
 Therefore $\hat{\bm{y}} = [\hat{y_0}, \hat{y_1}, \dots, \hat{y_L}]^T$ has the dimension of the number of labels or classes $L$.
 Often it is preferred that $\hat{\bm{y}} \in \R^L$ provides a probability distribution such that:
@@ -209,7 +208,7 @@ One training iteration is therefore the update of parameters for a single batch.
 The run over all batches of a dataset is defined as \emph{epoch}.
 Note that the training of neural networks may take over thousands of epochs until convergence is reached.
 The general training techniques for neural networks and further details are not described because of many existing books and papers, such as \cite{LeCun2006}, \cite{Goodfellow2016}, \cite{DeepLearning}, that are already presenting this topic very well. 
-Further, it does not add any value to this thesis as the algorithms are well examined and run in the background of every neural network framework.
+Moreover, it does not add any value to this thesis as the algorithms are well examined and run in the background of every neural network framework.
 The interesting elements are therefore only the neural network architecture design, the hyperparameters for training, and the used loss functions.
 
 
