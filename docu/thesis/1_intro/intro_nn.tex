@@ -8,10 +8,10 @@ The examples or samples from the input data can be paired with annotations, deno
 If the label information of each example is used during the training of a machine learning system, such as a neural network, it is called \emph{supervised learning} otherwise it is called \emph{unsupervised learning}, however supervised learning is more commonly applied.
 \emph{Inference} is simply the forward pass of input data samples through an already trained network to output their estimated class labels.
 
-The main advantage of neural networks is, that they are able to cope with large amounts of input variables per data example.
+The main advantage of neural networks is that they are able to cope with large amounts of input variables per data example.
 Considering a raw waveform file of merely \SI{1}{s} time duration, sampled with \SI{16}{\kilo\hertz} would give an input size of 16000 features.
 This huge amount of input features is even difficult for neural networks to learn from with restricted computational resources and usually a feature extraction stage is placed in between to reduce the input dimension.
-For instance the computation of MFCCs with 12 coefficients and a time duration of \SI{0.5}{s} with a time shift of \SI{10}{\milli\second}, reduces the input feature size dramatically to $12 \times 50 = 600$, which is still a high number of input features, but much more affordable and faster to train.
+For instance, the computation of MFCCs with 12 coefficients and a time duration of \SI{0.5}{s} with a time shift of \SI{10}{\milli\second} reduces the input feature size dramatically to $12 \times 50 = 600$, which is still a high number of input features but much more affordable and faster to train.
 
 Neural networks are able to learn own feature representations, selection and interpretation, rather than using hand-crafted ones done by humans with expertise in the research field.
 Note that hand-crafting features of complex recognition tasks, is in most cases not even possible or extremely cumbersome.
@@ -29,6 +29,6 @@ A very interesting example of investigating learned CNN filters is shown by Zeil
 Other exciting subjects in research are generative models, such as GANs \cite{Goodfellow2014}, which are able to create convincing samples from the learned data distribution.
 
 Neural network architectures for speech recognition are a little bit different from image recognition, mainly because of the sequential nature of time signals.
-However if time signals are restricted in time, that means limited to a fixed number of samples, and frequency features are extracted over that time span, then speech signals can be represented in 2D space (frequency and time) and classified like images.
+However, if time signals are restricted in time, which implies that they are limited to a fixed number of samples, and frequency features are extracted over that time span, then speech signals can be represented in 2D space (frequency and time) and classified like images.
 That suggests that CNNs are reasonable network architectures for speech as well.
-Another potential architecture for audio signals is the Wavenet \cite{Oord2016}, because of its ability to process raw audio data.
+Another potential architecture for audio signals is the Wavenet \cite{Oord2016} because of its ability to process raw audio data.

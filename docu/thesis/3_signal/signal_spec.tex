@@ -42,7 +42,7 @@ Within this thesis, the length of the analytic window is selected to \SI{25}{\mi
 
 The \emph{hop size} $h$ in samples of the hop time $t_h$, by which the analytical window is shifted on the time axis, indicates the resolution in time and is especially important for sequential changes within the audio data.
 In applications like speech processing the hop time should be selected, so that the fastest pronounced phonemes and its transitions to other phonemes are captured with sufficient resolution.
-Usually a hop time of $t_{h}=\SI{10}{\milli\second}$ is chosen for speech recognition tasks (also used within this thesis), but an extension to $t_{h}=\SI{20}{\milli\second}$ is also possible, as demonstrated by \cite{Peter2020}.
+Usually a hop time of $t_{h}=\SI{10}{\milli\second}$ is chosen for speech recognition tasks (also used within this thesis) but an extension to $t_{h}=\SI{20}{\milli\second}$ is also possible, as demonstrated by \cite{Peter2020}.
 
 With the hop size $h$ in samples and $N$ the length of the analytical window, the Short-Time Fourier Transform (STFT) for discrete time signals, can be computed as:
 % --
@@ -94,7 +94,7 @@ The recorded examples transformed to a spectrogram with linear representation is
 \end{figure}
 \FloatBarrier
 \noindent
-It can be observed, that most of the signal's energy is located in the lower frequency regions of under approximately \SI{1}{\kilo\hertz}.
+It can be observed that most of the signal's energy is located in the lower frequency regions of under approximately \SI{1}{\kilo\hertz}.
 To ensures that small energies are more emphasized, it is more appealing to logarithmic scale the value space of the spectrogram, achieved by for instance the calculation of the decibel scale of the spectrogram $P_{DB} \in \R^{K \times M}$ as follows:
 \begin{equation}\label{eq:signal_spec_log}
   P_{DB} = 10 \cdot \log_{10}{P}.

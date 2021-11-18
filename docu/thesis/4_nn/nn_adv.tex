@@ -8,7 +8,7 @@ The application of GANs, as already explained in \rsec{prev_nn_adv} and \rsec{nn
 In the following, the training algorithms are explained in more detail, such as the loss functions used for G and D.
 The transfer of weights can be done for training instances on small subsets of labels or the whole network by regarding all labels at once in a single training instance.
 The transferring technique of training instances on small subsets of labels is denoted as \emph{adversarial label train} and the transfer of weights from a whole network with all labels is named as \emph{adversarial dual train}.
-Only the adversarial label train is explained in detail, because the adversarial dual train is straight forward once the adversarial label train is understood.
+Only the adversarial label train is explained in detail because the adversarial dual train is straight forward once the adversarial label train is understood.
 Note that the adversarial pre-training performs only on the \texttt{adv-d-jim} and \texttt{adv-g-jim} models to update the \texttt{conv-jim} model.
 Those models were already described in \rsec{nn_arch}.
 
@@ -108,8 +108,8 @@ Note that the update of either the Discriminator or Generator model performs alt
 \end{figure}
 \FloatBarrier
 \noindent
-The amount of training epochs is important, because it determine how much the models learn during their adversarial training.
-With 100 epochs the Generator creates similar convolutional filters for each label train instance, because it does not need to be that accurate in creating different looking fakes.
+The amount of training epochs is important because it determines how much the models learn during their adversarial training.
+With 100 training epochs, the Generator already creates similar convolutional filters for each label train instance because it does not need to be that accurate in creating different looking fakes.
 However the Discriminator gets better as well and the need of generating different looking fakes motivates G to match up.
 With 1000 epochs the Generator generates many different fakes, as already shown in \rfig{nn_adv_fakes_label} and the filters take on different structures. 
 Note that a second convolutional layer for the \texttt{adv-d-jim} and \texttt{adv-g-jim} exist as well, the corresponding weights are shown only for the 100 epoch examples in \rfig{nn_adv_label_weights_conv1}.

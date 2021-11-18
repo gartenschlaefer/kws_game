@@ -2,23 +2,23 @@
 % theory
 
 \section{Theory}\label{sec:nn_theory}
-The most basic element in neural networks is denoted as node, an abstract element, that defines input and output connections from and to other nodes within a network.
+The most basic element in neural networks is denoted as node, an abstract element that defines input and output connections from and to other nodes within a network.
 The edges of the connections from and to a node represents a multiplication with a scalar value, denoted as \emph{weight}.
 Each node usually incorporates an additive term, denoted as \emph{bias term}.
 All weights and bias terms are forming the parameters of a network and can be trained through backpropagation.
 The output of a node is a scalar computed from all inputs and mapped with a non-linear function denoted as \emph{activation function}.
 A neural network can consist of thousand of nodes in each possible constellation of connections.
-The structure of a neural network is defined by its layers, where a layer is a set of nodes with specific connection properties, that receive input connections from the previous layer and output connections to the next layer.
+The structure of a neural network is defined by its layers where a layer is a set of nodes with specific connection properties that receives input connections from the previous layer and outputs connections to the next layer.
 For example, a neural network may consist of one convolutional layer followed by three fully-connected layers.
 The last layer of a neural network usually represents the class labels regarding classification tasks.
-A loss function computes the difference between the predicted and the actual class label during training and is essential for the backpropagation algorithm, that updates each parameter in the network through the gradients of the obtained error.
+A loss function computes the difference between the predicted and the actual class label during training and is essential for the backpropagation algorithm that updates each parameter in the network through the gradients of the obtained error.
 
 
 % --
 % activation functions
 
 \subsection{Activation Functions}\label{sec:nn_theory_acti}
-Activation functions for neural networks are usually present in each node and define non-linear functions, that map the sum of the weighted input values from nodes in a previous layer to a single output value $z \in \R$ as follows:
+Activation functions for neural networks are usually present in each node and define non-linear functions that map the sum of the weighted input values from nodes in a previous layer to a single output value $z \in \R$ as follows:
 \begin{equation}\label{eq:nn_theory_acti}
   z = h(\bm{w}^T \bm{x})
 \end{equation}
@@ -118,7 +118,7 @@ The number of convolutional filters $\#k$ is in most practical examples always:
   \#k = i \cdot j
 \end{equation}
 where $i$ and $j$ is the amount of input and output channels respectively.
-Each kernel produces an output map, but the idea is to constraint the number of output maps $\#k$ to the defined output channels $j$.
+Each kernel produces a single feature map for each input channel, but the idea is to constraint the number of output maps $\#k$ to the defined output channels $j$.
 This is usually done by summing up all feature maps obtained from all input channels $i$ convoluted with kernel $k_{i, j}$ for one specific output channel $j$ as follows:
 \begin{equation}
   o_j = \sum_{i} k_{i, j} \ast x_i.
@@ -208,9 +208,9 @@ In the normal case the update is performed on small chunks of the dataset called
 One training iteration is therefore the update of parameters for a single batch.
 The run over all batches of a dataset is defined as \emph{epoch}.
 Note that the training of neural networks may take over thousands of epochs until convergence is reached.
-The general training techniques for neural networks and further details are not described here, because of many existing books and papers \cite{LeCun2006}, \cite{Goodfellow2016}, \cite{DeepLearning} that are already presenting this topic very well. 
-Further it does not add any value to this thesis as the algorithms are well examined and run in the background of all neural network frameworks.
-The interesting elements are therefore only the neural network architecture design, the hyperparameters for training and the used loss functions.
+The general training techniques for neural networks and further details are not described because of many existing books and papers, such as \cite{LeCun2006}, \cite{Goodfellow2016}, \cite{DeepLearning}, that are already presenting this topic very well. 
+Further, it does not add any value to this thesis as the algorithms are well examined and run in the background of every neural network framework.
+The interesting elements are therefore only the neural network architecture design, the hyperparameters for training, and the used loss functions.
 
 
 % --
@@ -224,4 +224,4 @@ The min-max game both networks are playing, is defined by:
     \E_{\bm{z} \sim p_{\bm{z}}(\bm{z})}\left[ \log (1 - D(G(\bm{z}))) \right]
 \end{equation}
 where $\bm{x} \in \mathcal{X}$ are samples from the training data $p_{data}$, $\bm{z} \in \mathcal{Z}$ is a latent variable sampled from $p_{\bm{z}}$, $D: \mathcal{X} \mapsto [0, 1]$ is the discriminator network and $G: \mathcal{Z} \mapsto \mathcal{X}$ the generator network.
-The advise from the original paper is not to minimize G with $\log (1 - D(G(\bm{z})))$, but to maximize $\log D(G(\bm{z}))$ instead.
+The advise from the original paper is not to minimize G with $\log (1 - D(G(\bm{z})))$ but to maximize $\log D(G(\bm{z}))$ instead.

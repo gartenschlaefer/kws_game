@@ -6,9 +6,9 @@ Feature selection is a very important step prior to neural network training.
 A reduction of input features always means a reduction of computations, hence it is a crucial point to evaluate for finding energy efficient models.
 Unfortunately it is not always clear which feature are contributing to good classification scores and which do not or even worsen them.
 In this section only MFCCs and their enhancements, as described in \rsec{signal_mfcc}, are the focus in the experiments.
-A feature selection for raw audio samples, such as used in the Wavenet architecture, would not make any sense, because each sample is a feature itself.
+A feature selection for raw audio samples, such as used in the Wavenet architecture, would not make any sense because each sample is a feature itself.
 Another important aspect in the feature selection experiments is the evaluation of the proposed frame-based normalization \req{signal_mfcc_norm} originally intended to improve the visualization of MFCCs and making the Generator network of GANs easier and faster to train.
-However frame-based normalization might be critical, because this normalization applies only on the frame (time) dimension and disregards the frequency dimension.
+However, frame-based normalization might be critical because this normalization applies only on the frame (time) dimension and disregards the frequency dimension.
 
 Two experiments perform on the MFCC feature selection and evaluates:
 \begin{enumerate}
@@ -124,7 +124,7 @@ While the results of the invariance tests do not allow a general conclusion, fol
 The frame-based normalization does certainly increase the invariance in noise, which is logical because the model has to focus more on learning patterns of the individual key words and is less prone to overfitting.
 The \texttt{conv-fstride} model does unexpectedly well upon the shift invariance test, even though its strides perform merely on the frequency axis.
 However it usually does not achieve that good shift invariance results compared to the other models, and often holes appear in the classification with the shift invariance test.
-The \texttt{conv-trad} performs best on all tests, but also requires a higher computational footprint, so that the preferred model is \texttt{conv-jim} with a good trade-off between computational footprint and classification results.
+The \texttt{conv-trad} model performs best on all tests yet also requires a higher computational footprint so that the preferred model is the \texttt{conv-jim} model by providing a good trade-off between computational footprint and classification results.
 The usage of 32 MFCC coefficients does not improve the invariance against shift or noise and very often worsens the results.
 
 
@@ -164,4 +164,4 @@ Those were used for examining the accuracy on the validation set during training
 \end{figure}
 \FloatBarrier
 \noindent
-The experiments show that the enhancements of the MFCC features can improve the classification results significantly, but it also increased the amount of computations for each model.
+The experiments show that the enhancements of the MFCC features can improve the classification results significantly yet also increases the amount of computations for each model.

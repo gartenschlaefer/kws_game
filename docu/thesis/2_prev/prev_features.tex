@@ -6,12 +6,12 @@ The feature extraction of audio signals is crucial for an efficient data compres
 Not all audio signals should be handled in the same manner, as for instance speech signals are very different from musical signals.
 Music has its important features in rhythm and pitch patterns, while speech does not specifically depend on those.
 Speech can be spoken in different duration and pitch, depending on the speaker and the situation.
-Therefore speech signals are usually extracted to \emph{low-level features}, that do not incorporate specific structures of duration and pitch.
+Therefore, speech signals are usually extracted to \emph{low-level features} that do not incorporate specific structures of duration and pitch.
 
 One of the most popular low-level features for speech recognition are the MFCCs, introduced by \cite{Mermelstein1980} in 1980.
 MFCCs are motivated by the physiological human hearing system using equidistant Mel-frequency bands and are described in detail in \rsec{signal_mfcc}.
 Another popular low-level feature similar to MFCCs are Perceptual Linear Prediction (PLP) features introduced by \cite{Hermansky1987}.
-PLPs were not evaluated in this thesis, but it would have been interesting to compare their performance to MFCCs in the KWS task of speech commands.
+PLPs were not evaluated in this thesis yet it would have been interesting to compare their performance to MFCCs in the KWS task of speech commands.
 A good summary and comparison between PLP and MFCC can be found in \cite{Hoenig2005}.
 
 Recently raw audio samples can be used directly as input features to some special kind of neural networks, such as the Wavenet, however the size of the input features is huge and there is no frequency correlation between the features except from the waveform they present.

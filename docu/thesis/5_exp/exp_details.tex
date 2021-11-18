@@ -59,7 +59,8 @@ The labels for training are selected to the same 12 labels (L12) that were also 
 
 The maximum number of examples per label for training is given by the minimum examples per selected label for each label and each set.
 This is provided by the validation set of \enquote{go} with \{train: 2948, test: 425, validation: 350 \} shown in \rtab{exp_dataset_all_labels}, with 350 examples per label in the validation set, considering a \SI{10}{\percent} split of both test and validation set.
-This gives a maximum amount of 3500 examples per label to represent the whole dataset, because the number of examples per label should not be chosen to higher values than 3500 for training, otherwise the same amount of examples per label is not provided.
+This gives a maximum amount of 3500 examples per label to represent the whole dataset because the number of examples per label should not be chosen to higher values than 3500 for training.
+Otherwise the equal amount of examples per label is not provided.
 
 \rtab{exp_details_params_dataset} lists the L12 labels and their number of examples per label used for training.
 \input{./5_exp/tables/tab_exp_details_params_dataset}
@@ -72,7 +73,7 @@ Note that the actions set of the deployed video game in \rsec{game} uses only a 
 \subsubsection{Training hyperparameters}
 \rtab{exp_details_params_train} shows the hyperparameters for the training of the used CNNs models, described in \rsec{nn_arch}.
 \input{./5_exp/tables/tab_exp_details_params_train}
-From the following experiments it can be observed, that epochs of 2000 yield into small overfitting effects regarding certain models.
+From the following experiments it can be observed that epochs of 2000 yield into small overfitting effects regarding certain models.
 This might result into smaller accuracy scores if the set of parameters is used at the last epoch and no early stopping mechanism was applied.
 The batch size of 32 is selected to a low number because it worked well on the KWS task of speech commands.
 Further, the amount of classes is at maximum 12 (L12 labels) and therefore a batch size of 32 would include most of the individual labels.
@@ -84,7 +85,7 @@ Note that the hyperparameters for the Wavenet model are described in the corresp
 
 \subsubsection{Pre-Training details}
 The pre-training parameters describe the training of the GANs with their models presented in \rsec{nn_arch_adv} and \rsec{nn_adv}.
-The hyperparameters shown in \rtab{exp_details_params_pre_train} are the same as for usual training, but the Discriminator (D) and Generator (G) network can have each different values.
+The hyperparameters shown in \rtab{exp_details_params_pre_train} are the same as for usual training but the Discriminator (D) and Generator (G) network can have each different values.
 \input{./5_exp/tables/tab_exp_details_params_pre_train}
 The selection of the epochs is important, as it was already pointed out in \rsec{nn_adv}.
 
@@ -113,8 +114,9 @@ For this one sample of each class label is taken from the self recorded files of
 The length of those audio files is cut, such that by applying a fixed input frame of \SI{500}{\milli\second}, both end positions consists of at least the half of the audio file information, which is especially important for the shift invariance.
 The evaluation results are plotted in figures of correct classification upon shift and noise level changes.
 Note that the noise and shift invariance are tested on only 5 test signals.
-Therefore they are not a reliable measure for the trained models, but it is interesting to observe how different models perform upon these tests.
-In the following the shift and noise invariance tests are explained in more detail.
+Therefore they are not a reliable measure for the trained models.
+Yet it is interesting to observe how different models perform upon these tests.
+In the following, the shift and noise invariance tests are explained in more detail.
 
 
 % --
@@ -144,9 +146,10 @@ The figures in this section present a correct classification with a colored pixe
 \end{figure}
 \FloatBarrier
 \noindent
-The purpose of the shift invariance test is not to achieve a full classification score upon each test example, because this is hardly possible if not all of a key word's information is captured within the shifted frame, but to provide consecutive correct classifications within a certain region.
+The purpose of the shift invariance test is not to achieve a full classification score upon each test example because this is hardly possible when not all of a key word's information is captured within the shifted frame.
+But to analyze whether there are consecutive correct classifications within a certain region on the shift index.
 Holes in this region are not a good indicator for the trained model.
-If one example could not be classified at all, it does not necessarily imply that the trained model performs poorly, but that this special example is not recognized with this specific model.
+If one example could not be classified at all it does not necessarily imply that the trained model performs poorly but that this special example is not recognized with this specific model.
 A good model has a wide region of correct classifications with no holes in it.
 
 
@@ -154,7 +157,7 @@ A good model has a wide region of correct classifications with no holes in it.
 % noise invariance
 
 \subsubsection{Noise invariance}
-The classification of speech signals often requires noise invariance, because a significant amount of noise usually is added from the use of bad microphones or recording set-ups and therefore might disturb the classification accuracy.
+The classification of speech signals often requires noise invariance because a significant amount of noise usually is added from the use of bad microphones or recording set-ups and therefore might disturb the classification accuracy.
 To create a test upon noise invariance, AWGN was added to the test signal $\bm{x} \in \R^n$ by:
 \begin{equation}
   \bm{\tilde{x}} = \bm{x} + \bm{v}, \quad \bm{v} \sim \mathcal{N}(\mu, \sigma)

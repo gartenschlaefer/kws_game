@@ -34,9 +34,10 @@ In detail the core key words are \{\enquote{yes}, \enquote{no}, \enquote{up}, \e
 
 The auxiliary key words have the purpose to disturb the classification of the core key words.
 Therefore the auxiliary key words should be labeled separately with one single class label.
-In many papers those auxiliary key words are labeled as \enquote{unknown}, but in this thesis it is referred as \enquote{\_mixed} label, since it is a mixture of all auxiliary key words, and core words that were not used for classification.
+In many papers those auxiliary key words are labeled as \enquote{unknown}.
+However in this thesis it is referred as \enquote{\_mixed} label, since it is a mixture of all auxiliary key words and core words that were not used for classification.
 The \enquote{\_mixed} key words represent all unknown words that a user might speak and are therefore a very important element in the KWS task for the identification of words that are not in the class dictionary.
-Note that the \enquote{\_mixed} label makes the classification task much more challenging, because the network has to be more accurate in modeling each core key words against the other core key words, and additionally, to the auxiliary key words.
+Note that the \enquote{\_mixed} label makes the classification task much more challenging because the network has to be more accurate in modeling each core key words against the other core key words, and additionally, to the auxiliary key words.
 In the creation of the examples for the \enquote{\_mixed} label, it is preferable to have an equal number of examples per individual auxiliary key word and unused core key words.
 This was done by placing all unused core key words and auxiliary words into a separate folder and reading them into an ordered list.
 This list is ordered such that one example per key word is placed consecutively to the next and repeated until all examples were added.
@@ -67,10 +68,11 @@ The energy value $e \in \R$ can be computed as:
   e = \frac{1}{n} \left( \bm{x}^T \bm{x} \right)
 \end{equation}
 where $\bm{x} \in \R^n$ represents a single recorded file with a total number of $n$ samples.
-The division through the sample length $n$ of each individual audio recording is required, because not every file has a duration of \SI{1}{\second} (16000 samples).
+The division through the sample length $n$ of each individual audio recording is required because not every file has a duration of \SI{1}{\second} (16000 samples).
 For an unknown reason many of the recordings consist of less than 16000 samples.
-It would be problematic if the sample length is too low to capture a word, but the minimum duration found is about \SI{0.4}{\second}.
-This is enough for words like \enquote{go}, where the reduced samples length often show up.
+It would be problematic if the sample length is too low to capture a word.
+The minimum duration of all examples was found to be about \SI{0.4}{\second}.
+This however, is enough for words like \enquote{go} where the reduced samples length often show up.
 \rfig{exp_dataset_hist} shows the mentioned histograms of all available examples in the dataset.
 \begin{figure}[!ht]
   \centering
@@ -84,8 +86,8 @@ This is enough for words like \enquote{go}, where the reduced samples length oft
 \noindent
 The histogram of the energy measure has one main lobe, which is good, so it means that there are no clusters of extremely silent or loud files.
 For comparison, if silent files were extracted from for instance the given background files, the energy of some of those would be in a range of $10^{-7} \dots 10^{-6}$.
-The sample length histogram shows that most of the files consist of 16000 samples, but many others have a smaller number of samples. 
-This is important and has to be regarded in the pre-processing of audio files, because inputs to neural networks must often be prepared to fixed size inputs if no sequential neural networks, such as RNNs, are used.
+The sample length histogram shows that most of the files consist of 16000 samples but many others have a smaller number of samples. 
+This is important and has to be regarded in the pre-processing of audio files because inputs to neural networks must often be prepared to fixed size inputs if no sequential neural networks, such as RNNs, are used.
 
 
 % --
@@ -104,7 +106,7 @@ The recording devices of the speakers, who contributed examples to the dataset, 
 The personal experiments obtained by listened to the examples in the dataset, were as follows:
 \begin{itemize}
   \item The quality of the examples in the dataset are ranging from good and understandable to very bad, noisy, unrecognizable and cut off, though most of the examples are provided with good quality.
-  \item Different accents had been perceived, that suggests that people from several nationalities were involved.
+  \item Different accents had been perceived that suggests that people from several nationalities were involved.
   However the bias was laid on American English, as noted in the paper.
   \item No children speakers had been found.
 \end{itemize}
@@ -116,7 +118,8 @@ In many recordings the background noise is imminent, such as traffic noise, chat
 A quality check of the recorded files in the dataset had been done beforehand to ensure that bad samples are rejected.
 However there are still some existing flaws such as extremely loud or silent recordings, examples with inconsistent sample numbers, recordings that are including too much noise or in the worst case noise only (very rarely), and cut off signals capturing only half of a word.
 Those quality issues in the dataset can for most cases be neglected or fixed, such as inconsistent sample numbers. 
-Other more problematic cases, for instance noise-only examples, should actually be filtered out, but since their occurrence is very rare, it is not worth the effort.
+Other more problematic cases, such as noise-only examples, should ideally be removed.
+But since their occurrence is very rare it is not worth the effort.
 Usually it is not a problem for neural networks to cope with noisy datasets. 
 Actually it is favorable when a dataset contains many noisy samples, so that neural networks can learn invariance against noise, loudness differences and other nuisances during training.
 Further if the training dataset is large enough and the test and validation sets do not contain very bad examples, there should be no problem in the training and evaluation of different models.
@@ -190,7 +193,7 @@ The same examples extracted to MFCC features are shown in \rfig{exp_dataset_my_m
 \FloatBarrier
 \noindent
 It turned out that it is a very hard task for neural networks to achieve a \SI{100}{\percent} classification score upon it, despite the fact that all examples correspond to the same speaker.
-This is a bit worrying, because acoustically each of the examples per word is perfectly understandable for humans and for instance in the classification of the five examples of \enquote{left} from the \enquote{my dataset}, neural networks may classify 4 examples as \enquote{left} and one as \enquote{right}.
+This is slightly worrying because acoustically each of the examples per word is perfectly understandable for humans and for instance in the classification of the five examples of \enquote{left} from the \enquote{my dataset}, neural networks may classify 4 examples as \enquote{left} and one as \enquote{right}.
 It is difficult to examine why exactly this single example is wrongly classified.
 
 
@@ -198,7 +201,8 @@ It is difficult to examine why exactly this single example is wrongly classified
 % preparation for neural networks
 
 \subsection{Data preparation for neural networks}\label{sec:exp_data_prep}
-The neural network architectures are trained with supervised learning, that means a class label $y_i \in \{0, 1, \dots, L\}$ correspondence to each data example $x_i \in \mathcal{X}$ must exist, where $L$ is the total number of classes and $\mathcal{X}$ is the input space of the data example.
+The neural network architectures are trained with supervised learning.
+This implies that a class label $y_i \in \{0, 1, \dots, L\}$ correspondence to each data example $x_i \in \mathcal{X}$ must exist, where $L$ is the total number of classes and $\mathcal{X}$ is the input space of the data example.
 The input space for MFCC features is for example $\mathcal{X} = \R^{C \times M}$ with $C$ cepstral coefficients and $M$ frames.
 Selected examples including their labels form a set $S$, for example for training or testing, which can be written as:
 \begin{equation}\label{eq:exp_dataset}
@@ -206,7 +210,7 @@ Selected examples including their labels form a set $S$, for example for trainin
 \end{equation}
 where $n$ is the total number of examples within this set.
 Class labels $y_i$ are usually translated to integer numbers that are referencing to indices in a class dictionary, for instance $y_1 = 0$ of example $i=1$ refers to the label \enquote{left} in the dictionary \{0: \enquote{left}, 1: \enquote{right}\}.
-It is important that the enumeration of class labels in the class dictionary starts from zero, because they should correspond to the output nodes in the used neural network.
+It is important that the enumeration of class labels in the class dictionary starts from zero because they should correspond to the output nodes in the used neural network.
 
 \rsec{signal_mfcc} already showed how to extract MFCC features, however it is important that each individual $x_i$ for all $i$ has the same dimension $\mathcal{X}$, so that a data preparation for the training of neural networks is possible.
 It could happen that the sample numbers of the waveform files are inconsistent, as described in \rsec{exp_dataset_speech_cmd}, and therefore different dimension of individual data examples may be obtained.

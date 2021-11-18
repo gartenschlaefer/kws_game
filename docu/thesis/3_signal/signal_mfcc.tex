@@ -15,15 +15,16 @@ The processing scheme of MFCCs \cite{Mermelstein1980} is as follows:
 Raw audio samples are transformed into the frequency domain with the STFT.
 Afterwards the power spectrum of the STFT is computed and segmented into frequency bands through equidistantly spaced triangular window functions on the Mel scale.
 The unit of \enquote{Mel} shares a non-linear relationship to the frequency scale and is described in detail in \rsec{signal_mfcc_pipeline}.
-The Mel scale was developed in psycho-acoustic experiments, where researchers found out, that high frequency sounds (above approximately \SI{500}{\hertz}) are perceived lower than they actual are in the musical or mathematical sense of an pitch interval.
-In the musical or mathematical sense, a pitch interval of an octave is the doubling of a fundamental frequency, but human hearing is different in its perception and frequency doubling does not necessarily mean a doubling of the perceived pitch.
+The Mel scale was developed in psycho-acoustic experiments, where researchers learned that high frequency sounds (above approximately \SI{500}{\hertz}) are perceived lower than they actual are in the musical or mathematical sense of an pitch interval.
+In the musical or mathematical sense, a pitch interval of an octave is the doubling of a fundamental frequency.
+However, human hearing is different in its perception and frequency doubling does not necessarily mean a doubling of the perceived pitch.
 The Mel scale is therefore suited to the perception of human hearing of pitch and separating the frequency space into equidistant Mel bands is a reasonable approach.
 
 Another important processing step is the logarithmic scaling of the power spectrum's value space, motivated by the logarithmic perception of loudness by humans.
 The last step is a technique widely used in image processing and compression, called the Discrete Cosine Transform (DCT).
 Note that the DCT for the processing of MFCCs is kind of a decorrelation process to mix filter bands in different constellations together.
 
-These processing steps seem rather complicated, but are merely consecutive steps of appropriate scaling and data compression.
+These processing steps seem rather complicated but are merely consecutive steps of appropriate scaling and data compression.
 
 
 % --
@@ -63,12 +64,13 @@ The equidistantly spaced triangular window functions on the Mel scale and their 
 \FloatBarrier
 \noindent
 Note that the maximum frequency of the filter bands is $\SI{8}{\kilo\hertz}$ corresponding to the half of the sampling frequency $f_s = \SI{16}{\kilo\hertz}$.
-The creation of those filter bands is not described mathematically, because the graphical showcase is much more intuitive and easier to understand.
+The creation of those filter bands is not described mathematically because the graphical showcase is much more intuitive and easier to understand.
 For further calculations, those filter bands are notated in a weight matrix $W_m \in \R^{B \times K}$, where $B$ is the amount of used filter bands and $K$ the amount of frequency bins of the DFT transformed input signal.
 
 % dct
-The DCT is very similar to the Fourier transform and projects the input signal to a set of sinusoidal basis functions, however the transformed signal remains real instead of complex valued.
-Different types of DCT formulations exist, but most commonly the \enquote{type 2} DCT is applied by its following definition:
+The DCT is very similar to the Fourier transform and projects the input signal to a set of sinusoidal basis functions. 
+However, the transformed signal remains real instead of complex valued.
+Different types of DCT formulations exist but most commonly the \enquote{type 2} DCT is applied by its following definition:
 \begin{equation}\label{eq:signal_mfcc_dct}
   \hat{x}[c] = \sum_{n=0}^{N-1} x[n] \cos{\left[ \frac{\pi}{N} \left( n + \frac{1}{2} \right) c \right]}
 \end{equation}
@@ -101,7 +103,7 @@ Note that the rows of $U$ represent the cepstral coefficients and the columns th
 The required parameters for the computations of MFCCs are therefore the amount of filter bands $B$ and the amount of cepstral coefficients $C$.
 
 Another important aspect is the visualization of MFCC features.
-MFCCs computed as shown above, are not well intended for visualizations, because their individual coefficients value space differs strongly from each other.
+MFCCs computed as described above, are not well intended for visualizations because their individual coefficients value space differs strongly from each other.
 For example, the first coefficient equals a summation of all filter bands of the spectrogram and is therefore some kind of energy measure, while the other coefficients are different weighted sum combinations of the filter bands.
 Further the most of the signal energy is located in the lower frequency bands, which impacts the value space of the coefficients with strongly weighted low frequency bands.
 The differences in the value space lead to a problem in the visualization with a linear color scheme, such that the changes of some coefficients cannot be presented appropriately.
@@ -184,7 +186,7 @@ The computation of 39 MFCCs from the showcase examples are shown in \rfig{signal
 
 \subsection{Computational Complexity}\label{sec:signal_mfcc_complexity}
 The computational complexity is evaluated on the amount of operations required to process a specific computation task, such as the feature extraction of MFCCs.
-The energy consumption is related to the computational complexity, but it is much harder to define and depends on many parameters and actual hardware implementations, which is especially important for handheld devices.
+The energy consumption is related to the computational complexity but it is much harder to define and depends on many parameters and actual hardware implementations, which is especially important for handheld devices.
 The count of operations is sufficient for this thesis and provides a comparison to the benchmark models mentioned in \rsec{prev_kws_benchmark}.
 The computational complexity for the extraction of MFCC features is the amount of operations required to process a \SI{1}{\second} time signal sampled with $f_s = \SI{16}{\kilo\hertz}$.
 All MFCC specific extraction details are collected in \rtab{signal_mfcc_extraction_params}.
@@ -209,12 +211,12 @@ This of course are too many operations for a real time system, luckily a more so
 The FFT has therefore roughly $\mathcal{T}(\mathcal{F} \bm{x}) = \SI{27.7}{\kilo\ops}$ and is a huge improvement to the trivial method.
 The DFT is computed $M$ times, where $M$ is the total number frames calculated in \req{signal_spec_hop}, which gives $M = 98$ frames in regards of the evaluated parameters.
 So for the whole STFT the total number of frames $M$ is multiplied with the number of operations of each DFT, which results in approximately $\mathcal{T}(\tilde{X}) = \SI{2.71}{\mega\ops}$.
-Note that only the half-band of each individual FFT can be used, because of the mirroring effect at $\frac{f_s}{2} = \SI{8}{\kilo\hertz}$.
+Note that only the half-band of each individual FFT is applicable because of the mirroring effect at $\frac{f_s}{2} = \SI{8}{\kilo\hertz}$.
 The Fourier coefficients are therefore reduced to $K = 201$ for the following operations.
 
-The computation of the power spectrum and the log scaling are disregarded, so that two matrix multiplications remain:
+The computation of the power spectrum and the log scaling are disregarded so that two matrix multiplications remain:
 $W_m P$ is a matrix multiplication of $\R^{B \times K}$ and $\R^{K \times M}$, which has $B K M$ real multiplications and approximately $B K M$ real additions, which give about $2 B K M = 2 \cdot 32 \cdot 201 \cdot 98 =  \SI{1.26}{\mega\ops}$.
-The resulting band weighted power spectrum $\R^{B \times M}$ is further multiplied with the DCT operator, representing a matrix of $\R^{C \times B}$, that gives $2 C B M = 2 \cdot 12 \cdot 32 \cdot 98 = \SI{75}{\kilo\ops}$.
+Further, the resulting band weighted power spectrum $\R^{B \times M}$ is multiplied with the DCT operator representing a matrix of $\R^{C \times B}$ that gives $2 C B M = 2 \cdot 12 \cdot 32 \cdot 98 = \SI{75}{\kilo\ops}$.
 Altogether the matrix multiplications are approximately $\SI{1.26}{\mega\ops} + \SI{75}{\kilo\ops} = \SI{1.34}{\mega\ops}$.
 
 The summary of the estimated operations is listed in \rtab{signal_mfcc_operations}.
@@ -226,7 +228,8 @@ The summary of the estimated operations is listed in \rtab{signal_mfcc_operation
 
 \subsection{Criticism}
 MFCC are widely used for speech recognition tasks and perform very well upon them, however the processing pipeline of MFCCs leave some disadvantages.
-One disadvantage is, as already mentioned, that MFCCs are not intended for visualization, because of their broad value space of individual MFCC coefficients.
-Another disadvantage is, that MFCC are not directly invertible to raw audio samples, because of the computation of the spectrogram and its Mel band weighting.
-Inversion techniques for MFCCs exist, such as described in \cite{Boucheron2008}, however it is still very difficult to obtain good estimations when the phase information of the original signal is missing.
-The inversion of MFCCs would have been very interesting, when applied to the outputs of generative neural networks, such as GANs.
+One disadvantage is, as already mentioned, that MFCCs are not intended for visualization because of their broad value space of individual MFCC coefficients.
+Another disadvantage is that MFCC are not directly invertible to raw audio samples because of the computation of the spectrogram and its Mel band weighting.
+Inversion techniques for MFCCs exist, such as described in \cite{Boucheron2008}.
+However, it is still very difficult to obtain good estimations when the phase information of the original signal is missing.
+The inversion of MFCCs would have been very interesting when applied to the outputs of generative neural networks, such as GANs.

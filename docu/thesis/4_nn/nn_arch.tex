@@ -14,8 +14,7 @@ Generative models, such as GANs, were evaluated in regards of their ability to g
 Further the trained weights from the convolutional layers of GANs were applied as pre-trained weights to initialize the weights of a CNN networks with the same convolutional layer structure.
 A completely different approach, to the KWS task, was the evaluation of Wavenets operating on raw audio samples as input features.
 When deployed in an online system, the Wavenet architecture has no need to extract MFCC features.
-However it will be shown that the overall computations are not reduced, because the complexity of Wavenets require many operations.
-
+However, it will be shown that the overall computations are not reduced because the complexity of Wavenets require many operations.
 The amount of parameters and operations are listed for each architecture to provide a comparison between the used models regarding their computational footprint.
 
 
@@ -23,7 +22,7 @@ The amount of parameters and operations are listed for each architecture to prov
 % CNNs
 
 \subsection{Convolutional Neural Networks}\label{sec:nn_arch_cnn}
-Three different CNN designs were evaluated, with focus on the striding (shifting) properties of the convolutional filters.
+Three different CNN designs were evaluated with focus on the striding (shifting) properties of the convolutional filters.
 The \texttt{conv-fstride} model has a kernel size adjusted to the length of the frame (time) dimension of the input features and is therefore striding only in the cepstral (frequency) dimension.
 In contrast the \texttt{conv-jim} model has a kernel size adjusted to the feature dimension and therefore strides only in the frame (time) dimension.
 Also one traditional model named \texttt{conv-trad} is used and performs the striding of the convolutional filters in both dimensions.
@@ -33,7 +32,7 @@ The mentioned models summarizes as:
 	\item \texttt{conv-fstride}: from \cite{Sainath2015} (fstride4), striding only in frequency dimension.
 	\item \texttt{conv-jim}: self designed model, striding only in frame dimension.
 \end{itemize}
-The naming of the \texttt{conv-trad} and \texttt{conv-fstride} comes from their original papers, and the self defined network \texttt{conv-jim} was named bluntly after the astronaut avatar, that is used for the deployed video game.
+The naming of the \texttt{conv-trad} and \texttt{conv-fstride} comes from their original papers, and the self defined network \texttt{conv-jim} was named bluntly after the astronaut avatar that is used for the deployed video game.
 
 \rfig{nn_arch_cnn_trad} shows the network architecture of the traditional network (\texttt{conv-trad}).
 \begin{figure}[!ht]
@@ -81,8 +80,8 @@ The \texttt{conv-jim} model is shown in \rfig{nn_arch_cnn_jim} with footprint li
 \input{./4_nn/tables/tab_nn_arch_cnn_jim.tex}
 
 Note that the computational footprint of all three CNN models are different.
-The model with the lowest amount of computations, is the \texttt{conv-fstride} model, because of its stride of 4 only in the frequency dimension.
-The second lowest footprint is given by the \texttt{conv-jim} model and the \texttt{conv-trad} model requires the highest amount of operations.
+The model with the lowest amount of computations is the \texttt{conv-fstride} model because of its stride of 4 only in the frequency dimension.
+The second lowest footprint is given by the \texttt{conv-jim} model, while the \texttt{conv-trad} model requires the highest amount of operations.
 
 
 % --
@@ -136,12 +135,12 @@ In the paper it is mentioned that Wavenets can be applied for ASR tasks as well,
 \end{figure}
 \FloatBarrier
 \noindent
-It is important to mention that the convolutional layers in the residual blocks should not use bias terms, because they led to bad training results in the conducted experiments of this thesis.
+It is important to mention that the convolutional layers in the residual blocks should not use bias terms because they led to bad training results during the conduction in the experiments.
 The average filter has a window size of 160 samples and a stride of 80 samples.
-One residual block incorporates few parameters, but a huge amount of operations as listed in \rtab{nn_arch_wavenet_block}.
+One residual block incorporates few parameters but a huge amount of operations as listed in \rtab{nn_arch_wavenet_block}.
 \input{./4_nn/tables/tab_nn_arch_wavenet_block}
 Note that the dilated convolutional filters have a filter size of two with adjustable dilation parameter.
-Further, the filters stride merely in the time dimension, because the input is a one-dimensional time signal.
+Further, the filters stride merely in the time dimension because the input is a one-dimensional time signal.
 The $1 \times 1$ convolutions are a special type of convolutional filters and work in the same manner as usual convolutions, just with a filter size of one.
 The whole Wavenet architecture is composed of several consecutive Wavenet residual blocks with increasing dilation parameters for the first two convolutional layers (filter and gate) in the blocks.
 \rfig{nn_arch_wavenet_all} shows he whole Wavenet architecture adaption with an extension of a class prediction.
@@ -157,5 +156,5 @@ Note that the last convolutional layer in the sample prediction has a total amou
 More details about the used quantization technique is described in \cite{Oord2016}.
 The computational footprint of the whole Wavenet model is listed in \rtab{nn_arch_wavenet_whole}.
 \input{./4_nn/tables/tab_nn_arch_wavenet_whole}
-The amount of operations are quite large, because the convolutional filters have to be applied on each sample of the audio signal.
+The amount of operations are quite large because the convolutional filters have to be applied on each sample of the audio signal.
 Further the residual blocks do not decrease the dimensions of their output tensors.

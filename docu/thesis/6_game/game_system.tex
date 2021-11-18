@@ -25,10 +25,10 @@ Using this time duration however would have made the classification of key words
 In this thesis, the length of a key word was restricted to \SI{500}{\milli\second} or 8000 samples.
 Further some buffer samples were added for an improved detection of the highest energy region within the speech signal.
 Note that the input stream reads out the microphone data in chunks, where the length of each chunk had been chosen to be 160 samples, corresponding to exactly one frame with hop size of \SI{10}{\milli\second}.
-Ideally these buffer frames should not be necessary, but due to shift invariance problems in some network architectures (especially for the \texttt{fstride} model), it can be advantageous and improve the key word predictions when buffer frames are added.
+Ideally these buffer frames should not be necessary but due to shift invariance problems in some network architectures (especially for the \texttt{fstride} model) it can be advantageous and improve the key word predictions when buffer frames are added.
 
 The buffer frames are located prior and posterior to the dedicated key word frames and had been selected to both 5 frames for the prior and posterior buffer.
-The prior buffer consecutively collects the frames from the audio stream, but does not feed the output to the next buffer until a key word onset is detected. 
+The prior buffer consecutively collects the frames from the audio stream but does not feed the output to the next buffer until a key word onset is detected. 
 Each input chunk or frame is used for the detection of an online onset as described in \rsec{signal_onset_online}.
 If an onset is detected from one of these frames, subsequently the FIFO will be filled up to its full size including the posterior buffer frames.
 Afterwards the whole FIFO is read out and the obtained frames are passed to the feature extraction module already located in the classification system.
@@ -57,8 +57,8 @@ The trained weights of the  models are stored in the \texttt{.pth} format of the
 The class dictionary describes which output node of the neural network corresponds to which speech command and is especially important for the video game to trigger correct actions.
 After loading the parameters the classifier simply performs an inference to the most probable key word in its class dictionary.
 
-A game action is elicited, once a key word is present from the classification system.
-This can for example be implemented by using an input handler, similar to a keyboard input handler or event system, that is listening for new speech commands and triggers an action when one is available.
+A game action is elicited once a key word is present from the classification system.
+This can for example be implemented by using an input handler similar to a keyboard input handler or event system that is listening for new speech commands and triggers an action when one is available.
 A simple scheme of the classification system is shown in \rfig{game_system_classification}.
 \begin{figure}[!ht]
   \centering
