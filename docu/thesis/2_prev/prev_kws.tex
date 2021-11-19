@@ -28,14 +28,14 @@ This work also showed that a 1-bit quantization of the weights perform nearly as
 \subsection{Benchmark Networks for this Thesis}\label{sec:prev_kws_benchmark}
 First it is to mention that the speech command dataset \cite{Warden2018} exists in two versions (\texttt{v0.01} and \texttt{v0.02}) consisting of raw audio data in the \texttt{.wav} format and there is no pre-processing or feature extraction done beforehand.
 Also it is up to the users for which labels are to be selected.
-The main idea however, is to choose the \emph{core words} as classification labels and add an \enquote{unknown} label for the \emph{auxiliary words}.
+The intended concept is to choose the \emph{core words} as classification labels and add an \enquote{unknown} label for the \emph{auxiliary words}.
 Also a separate noise or \enquote{silence} label can be added from given noise data files.
 In most papers the core words were \{\enquote{left},  \enquote{right}, \enquote{up}, \enquote{down}, \enquote{go}, \enquote{stop}, \enquote{yes}, \enquote{no}, \enquote{on}, \enquote{off}\} and additional two labels for \enquote{silence} and \enquote{unknown} (all other words) used for comparison to previous papers.
-This constellation of selected key words is referred here as \texttt{L12}, the speech command dataset version is referenced with \texttt{V1} or \texttt{V2}.
+This constellation of selected key words is referred here as \texttt{L12} and the speech command dataset version is referenced by \texttt{V1} or \texttt{V2}.
 More details about the dataset is presented in \rsec{exp_dataset}.
 
 One benchmark is hold by \cite{Berg2021} introducing a Key Word Transformer (KWT) network, which performs accuracy scores of almost \SI{100}{\percent}.
-A good overview of continually updated benchmark scores regarding the speech command dataset, is provided in \cite{PaperswithcodeKWS}.
+A quick overview of continually updated benchmark scores regarding the speech command dataset, is provided in \cite{PaperswithcodeKWS}.
 
 All benchmark scores from the referenced work in this section are shown in \rtab{prev_kws_bench}.
 \input{./2_prev/tables/tab_prev_kws_bench.tex}

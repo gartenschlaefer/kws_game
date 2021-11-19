@@ -17,13 +17,13 @@ Those models were already described in \rsec{nn_arch}.
 % training GANs
 
 \subsection{Training Generative Adversarial Neural Networks}\label{sec:nn_adv_train}
-The interesting part in training GANs is how the Generator and Discriminator models are updated in each training step and which loss functions were used.
+The interesting part in training GANs is how the G and D models are updated in each training step and which loss functions were used.
 In \req{nn_theory_gan} the game is notated as min-max game, from which the loss of D, denoted as $l_D$, can be described for one specific training example $i$ of a batch as:
 \begin{equation}
   l_D(x_i, z_i, G) = l(D(x_i), y_r) + l(D(G(z_i)), y_f)
 \end{equation}
-where $l$ is the binary cross-entropy loss described in \req{nn_theory_binary_cross_entropy}, $D: \mathcal{X} \mapsto [0, 1]$ and $G: \mathcal{Z} \mapsto \mathcal{X}$ are the Discriminator and Generator model, $x_i \in \mathcal{X}$ is a data example, $z_i \in \mathcal{Z}$ is a randomly sampled latent variable, $y_r = 1$ is the real label and $y_f = 0$ the fake label for that specific example $i$.
-In contrast the loss of the Generators, denoted as $l_G$, is given by:
+where $l$ is the binary cross-entropy loss described in \req{nn_theory_binary_cross_entropy}, $D: \mathcal{X} \mapsto [0, 1]$ and $G: \mathcal{Z} \mapsto \mathcal{X}$ are the D and G model, $x_i \in \mathcal{X}$ is a data example, $z_i \in \mathcal{Z}$ is a randomly sampled latent variable, $y_r = 1$ is the real label and $y_f = 0$ the fake label for that specific example $i$.
+In contrast the loss of G, denoted as $l_G$, is given by:
 \begin{equation}
   l_G(z_i, D) =  l(D(G(z_i)), y_r)
 \end{equation}
@@ -43,11 +43,11 @@ Further, $\lambda$ is a trade-off factor between data similarity and fake loss f
 For the experiments in \rsec{exp_adv}, $\lambda = 5$ was chosen.
 
 The update of D and G performs in each training step by backpropagating the obtained losses.
-However it is more appealing to update D for a certain numbers of training steps with no update of G and then alternating to updates of G without updating D.
+However, it is more appealing to update D for a certain numbers of training steps with no update of G and then alternating to updates of G without updating D.
 This will give either D or G some update steps to improve in their specific adversarial task of either discriminating or generating.
-In this thesis the training steps for updating either D or G were selected to 2 epochs.
+In this thesis the training steps for updating either D or G were selected to 2 epochs for each model.
 Note that an epoch consists of several training steps depending on the batch size and amount of data.
-This can vary for the experiments, however it does not dramatically influence the overall end results.
+This can vary for the experiments but does not influence the overall end results dramatically.
 
 
 % --
@@ -78,7 +78,7 @@ To further investigate the adversarial label train, the training results of the 
 \end{figure}
 \FloatBarrier
 \noindent
-Note that the update of either the Discriminator or Generator model performs alternately every 2 training epochs, as described in \rsec{nn_adv_train}.
+Note that the update of either the D or G model performs alternately every 2 training epochs, as described in \rsec{nn_adv_train}.
 \rfig{nn_adv_fakes_label} shows the generation of fake images from G with different amounts of training epochs.
 \begin{figure}[!ht]
   \centering
@@ -109,10 +109,10 @@ Note that the update of either the Discriminator or Generator model performs alt
 \FloatBarrier
 \noindent
 The amount of training epochs is important because it determines how much the models learn during their adversarial training.
-With 100 training epochs, the Generator already creates similar convolutional filters for each label train instance because it does not need to be that accurate in creating different looking fakes.
-However the Discriminator gets better as well and the need of generating different looking fakes motivates G to match up.
-With 1000 epochs the Generator generates many different fakes, as already shown in \rfig{nn_adv_fakes_label} and the filters take on different structures. 
-Note that a second convolutional layer for the \texttt{adv-d-jim} and \texttt{adv-g-jim} exist as well, the corresponding weights are shown only for the 100 epoch examples in \rfig{nn_adv_label_weights_conv1}.
+With 100 training epochs, G already creates similar convolutional filters for each label train instance because it does not need to be that accurate in creating different looking fakes.
+Yet D improves as well and the need of generating different looking fakes motivates G to match up.
+By using 1000 training epochs, G generates many different fakes, as already shown in \rfig{nn_adv_fakes_label}, and the filters take on different structures.
+Note that a second convolutional layer for the \texttt{adv-d-jim} and \texttt{adv-g-jim} exist as well with corresponding weights shown, only for the 100 epoch training, in \rfig{nn_adv_label_weights_conv1}.
 \begin{figure}[!ht]
   \centering
   \subfigure[D with 100 epochs]{\includegraphics[width=0.25\textwidth]{./4_nn/figs/nn_adv_label_weights_conv1_d-100.png}}

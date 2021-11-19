@@ -16,7 +16,7 @@ The advantages and disadvantages of such a normalization technique are discussed
 
 Another large evaluation topic was the application of GANs on the MFCC extracted speech commands. 
 With frame-based normalization the Generator (G) network was able to learn to create convincing fakes to fool the Discriminator (D) network much faster.
-However it was found, when G and D are trained for too long, a noisy equilibrium state may emerge, where both networks generate random outputs of either fake images or decisions.
+Although it was found that when G and D are trained for too long, a noisy equilibrium state may emerge, where both networks generate random outputs of either fake images or decisions.
 To solve this problem, a second loss term for G was added that measures the similarity of the generated samples to the input data by applying the cosine distance.
 This helped to improve the generation of fake images and did not lead into noisy equilibrium states anymore.
 

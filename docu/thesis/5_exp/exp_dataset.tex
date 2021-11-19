@@ -35,7 +35,7 @@ In detail the core key words are \{\enquote{yes}, \enquote{no}, \enquote{up}, \e
 The auxiliary key words have the purpose to disturb the classification of the core key words.
 Therefore the auxiliary key words should be labeled separately with one single class label.
 In many papers those auxiliary key words are labeled as \enquote{unknown}.
-However in this thesis it is referred as \enquote{\_mixed} label, since it is a mixture of all auxiliary key words and core words that were not used for classification.
+However, in this thesis it is referred as \enquote{\_mixed} label, since it is a mixture of all auxiliary key words and core words that were not used for classification.
 The \enquote{\_mixed} key words represent all unknown words that a user might speak and are therefore a very important element in the KWS task for the identification of words that are not in the class dictionary.
 Note that the \enquote{\_mixed} label makes the classification task much more challenging because the network has to be more accurate in modeling each core key words against the other core key words, and additionally, to the auxiliary key words.
 In the creation of the examples for the \enquote{\_mixed} label, it is preferable to have an equal number of examples per individual auxiliary key word and unused core key words.
@@ -107,7 +107,7 @@ The personal experiments obtained by listened to the examples in the dataset, we
 \begin{itemize}
   \item The quality of the examples in the dataset are ranging from good and understandable to very bad, noisy, unrecognizable and cut off, though most of the examples are provided with good quality.
   \item Different accents had been perceived that suggests that people from several nationalities were involved.
-  However the bias was laid on American English, as noted in the paper.
+  However, the bias was laid on American English, as noted in the paper.
   \item No children speakers had been found.
 \end{itemize}
 Due to data privacy issues the information of individual speakers is not displayed.
@@ -116,7 +116,7 @@ The last would be especially interesting for a video games intended for children
 
 In many recordings the background noise is imminent, such as traffic noise, chattering people, office sounds, and many more.
 A quality check of the recorded files in the dataset had been done beforehand to ensure that bad quality examples are rejected.
-However, there are still some existing flaws such as extremely loud or silent recordings, examples with inconsistent sample numbers, recordings that include too much noise or in the worst case noise only (very rarely), and cut off signals capturing only half of a word.
+Nevertheless, there are still some existing flaws such as extremely loud or silent recordings, examples with inconsistent sample numbers, recordings that include too much noise or in the worst case noise only (very rarely), and cut off signals capturing only half of a word.
 Those quality issues in the dataset can for most cases be neglected or fixed, such as inconsistent sample numbers. 
 Other more problematic cases, such as noise-only examples, should ideally be removed.
 But since their occurrence is very rare it is not worth the effort.
@@ -136,7 +136,8 @@ To extract noise examples from those files with a sufficient number of examples 
 The noise examples were assigned to the label \enquote{\_noise}.
 
 Each waveform file from the key word folders is named by an 8-digit hexadecimal hash code for the speaker identification and followed by the utterance number, for instance \texttt{3b4f8f24\_nohash\_0.wav}.
-With the speaker identification code known, it is possible to distinguish between different speakers, however as mentioned above, no further information about the speakers is provided due to data privacy issues.
+With the speaker identification code known it is possible to distinguish between different speakers.
+However, as mentioned above, no further information about the speakers is provided due to data privacy issues.
 
 Moreover, the dataset contains a testing file list called \texttt{testing\_list.txt} and a validation file list \texttt{validation\_list.txt}, where each row entry in the text file refers to a file in the dataset, as for example \texttt{right/bb05582b\_nohash\_3.wav}.
 Those file lists should ensure the comparability between different neural network approaches from individual researchers.
@@ -212,7 +213,8 @@ where $n$ is the total number of examples within this set.
 Class labels $y_i$ are usually translated to integer numbers that are referencing to indices in a class dictionary, for instance $y_1 = 0$ of example $i=1$ refers to the label \enquote{left} in the dictionary \{0: \enquote{left}, 1: \enquote{right}\}.
 It is important that the enumeration of class labels in the class dictionary starts from zero because they should correspond to the output nodes in the used neural network.
 
-\rsec{signal_mfcc} already showed how to extract MFCC features, however it is important that each individual $x_i$ for all $i$ has the same dimension $\mathcal{X}$, so that a data preparation for the training of neural networks is possible.
+\rsec{signal_mfcc} already showed how to extract MFCC features.
+Nevertheless, it is important that each individual $x_i$ for all $i$ has the same dimension $\mathcal{X}$ so that a data preparation for the training of neural networks is possible.
 It could happen that the sample numbers of the waveform files are inconsistent, as described in \rsec{exp_dataset_speech_cmd}, and therefore different dimension of individual data examples may be obtained.
 To ensure that all $x_i$ have the same dimension, the audio files were adjusted to the same fixed sample length of a duration of \SI{1}{\second} and sampling frequency \SI{16}{\kilo\hertz}.
 This was achieved by zero-padding the signals to the desired fixed length of $n = 16000$ samples.

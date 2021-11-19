@@ -92,7 +92,7 @@ GANs, as already mentioned in \rsec{prev_nn_adv} and \rsec{nn_theory_gan} consis
 Being able to transfer the obtained weights from the training of the adversarial models requires that the layer parameters of the receiving network must coincide with the adversarial network layer parameters.
 This implies that the kernel size of the filters must be equal for each layer, the amount of filters does not necessarily have to be the same.
 The convolutional layer parameters of both D and G can be transferred, even though G performs a convolutional upsampling (transposed convolution) instead of a usual convolution.
-However it is preferred to use a normalization technique, such as the frame-based normalization. 
+However, it is preferred to use a normalization technique, such as the frame-based normalization. 
 Otherwise the transferring of weights might be disadvantageous for the classifier network.
 
 The only GAN model used for adversarial pre-training consists of the same convolutional layer structure as the \texttt{conv-jim} network and is therefore named as \texttt{adv-d-jim} for the D model and \texttt{adv-g-jim} for the G model. 

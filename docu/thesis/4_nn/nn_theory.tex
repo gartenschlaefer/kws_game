@@ -112,12 +112,12 @@ Usually these appended values are zeros such as applied in \emph{zero-padding}.
 To provide an example of \req{nn_theory_cnn_dim}, consider the convolution of a $16 \times 16$ image by a $5 \times 5$ kernel with stride $1$ in each direction and without any padding terms, will result in an output image of dimensions $12 \times 12$.
 
 A convolutional layer is therefore defined by the amount of input maps and resulting output channels (feature maps), the kernel size, the stride of the kernel, and some other specialties like padding and dilation.
-However it is not immediately clear from those parameters, how many convolutional filters are applied and how the output feature maps are calculated in detail.
-The number of convolutional filters $\#k$ is in most practical examples always:
+Although it is not immediately clear from those parameters, how many convolutional filters are applied, and how the output feature maps are calculated in detail.
+The number of convolutional filters $\#k$ is in most practical cases always:
 \begin{equation}\label{eq:nn_theory_n_filters}
   \#k = i \cdot j
 \end{equation}
-where $i$ and $j$ is the amount of input and output channels respectively.
+where $i$ and $j$ is denoted as the amount of input and output channels respectively.
 Each kernel produces a single feature map for each input channel, but the idea is to constraint the number of output maps $\#k$ to the defined output channels $j$.
 This is usually done by summing up all feature maps obtained from all input channels $i$ convoluted with kernel $k_{i, j}$ for one specific output channel $j$ as follows:
 \begin{equation}
@@ -134,8 +134,9 @@ where $o_j$ is the resulting j-th feature map or output channel, $x_i$ the i-th 
 \FloatBarrier
 \noindent
 
-The parameters of a convolutional layer consist of weights and bias terms in the convolutional filters, however the bias terms for each filter are optional.
-Ignoring the bias terms, the amount of parameters are $\#k \cdot d_{k_w} \cdot d_{k_h}$ for a two dimensional convolutional layer, which makes $3 \cdot 4 \cdot 5 \cdot 5 = 300$ parameters for the example in \rfig{nn_theory_cnn_basics}.
+The parameters of a convolutional layer consist of weights and bias terms in the convolutional filters.
+However, the bias terms for each filter are optional.
+By ignoring the bias terms, the amount of parameters are $\#k \cdot d_{k_w} \cdot d_{k_h}$ for a two dimensional convolutional layer, which makes $3 \cdot 4 \cdot 5 \cdot 5 = 300$ parameters for the example in \rfig{nn_theory_cnn_basics}.
 The amount of operations of a convolutional layer is given by all convolution operations for each filter and the summation to $j$ output channels.
 One convolution with a single two dimensional kernel $k$ and one input channel $x$ results in an approximate number of multiplication and addition operations:
 \begin{equation}
@@ -166,7 +167,7 @@ which can be achieved with the softmax function:
 in the last layer where $x$ presents here the output of any specific node.
 
 There are already plenty of different loss functions available for training neural networks, such as described in \cite{LeCun2006}. 
-However in this thesis only one kind of loss function is applied for all neural network architectures namely the \emph{cross-entropy loss}, which is in the case of two classes known as \emph{binary cross-entropy loss}.
+In this thesis however, only one kind of loss function is applied for all neural network architectures namely the \emph{cross-entropy loss}, which is in the case of two classes known as \emph{binary cross-entropy loss}.
 The formulation of the cross-entropy loss is similarly expressed as provided in the documentation of its implementation in the \texttt{Pytorch} framework \cite{Pytorch}.
 The binary cross-entropy is implemented as:
 \begin{equation}\label{eq:nn_theory_binary_cross_entropy}
@@ -174,7 +175,7 @@ The binary cross-entropy is implemented as:
 \end{equation}
 with the training pair $(x_i, y_i)$, where $x_i \in \R^{N \times 1}$ is the feature input and $y_i \in \{0, 1\}^N$ the corresponding label.
 During the training procedure a whole batch with a total number of $N$ examples is used for one update step.
-However the loss function should provide only a single output value, which can be achieved by calculating the mean value of all $l_i$ where $i = 0, \dots, N$ is the index of the examples in the actual batch.
+However, the loss function should provide only a single output value, which can be achieved by calculating the mean value of all $l_i$ where $i = 0, \dots, N$ is the index of the examples in the actual batch.
 
 The multi-class variant of the cross-entropy is defined by:
 \begin{equation}

@@ -59,12 +59,12 @@ More details about CNNs and how they transform input images to feature maps is p
 \subsection{Recurrent Neural Networks}\label{sec:prev_nn_rnn}
 Recurrent Neural Networks (RNN) are a type of neural networks that are using feedback loops from the output of each node back to its input.
 With those feedback loops it is possible to accumulate information of sequential input data and therefore might present a solution to overcome the restriction of fixed sized input data.
-However, RNNs are known to be hard to train because of the well known \emph{exploding or vanishing gradients} problem.
+Although RNNs are known to be hard to train because of the well known \emph{exploding or vanishing gradients} problem.
 This problem can be solved by using so called Long Short Time Memory (LSTM) that are incorporating gates for the information storage in each cell. 
-However the LSTM cell also increases the amount of parameters to train and backpropagation over a large amount of time steps is computationally intensive.
+However, the LSTM cell also increases the amount of parameters to train and backpropagation over a large amount of time steps is computationally intensive.
 
 Through their design to capture sequential data, RNNs are commonly applied in speech recognition tasks.
-However, RNNs are not subject of evaluation in this thesis due to their usually high computational footprint.
+Note that RNNs are not subject of evaluation in this thesis due to their usually high computational footprint.
 The interested reader is referred to the summary presented in \cite{Staudenmeyer2019} including further references upon the mentioned problems and architecture types.
 
 
@@ -81,8 +81,9 @@ The implementation of Wavenets should be more efficient compared to LSTMs, such 
 \begin{quote}
   ...With WaveNets we have shown that layers of dilated convolutions allow the receptive field to grow longer in a much cheaper way than using LSTM units...
 \end{quote}
-Classifications tasks with Wavenets are very seldom to be found, however a classification task of musical pieces to corresponding music artists presented in \cite{Zhang2020}, was done with a Wavenet model.
-However it is questionable, whether Wavenets are suited for the KWS task of speech commands, especially when considering only energy efficient solutions.
+Note that research papers on audio classification tasks with Wavenets are rarely to be found.
+Nevertheless, a classification task of musical pieces to corresponding music artists presented in \cite{Zhang2020}, was done with a Wavenet model.
+Regarding this thesis, it is questionable whether Wavenets are suited for the KWS task of speech commands especially when considering only energy efficient solutions.
 
 
 % --

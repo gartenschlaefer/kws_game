@@ -28,7 +28,7 @@ If there is no loud disturbance on the left or right hand-side of the energy piv
 
 \section{Neural Networks}
 The use of CNN models with low computational footprint composed of few layers allows researchers to investigate the processing of input features by observing the learned filters of the convolutional layers.
-However those models could not reach the high accuracy achievements obtained by the sophisticated benchmark models listed in \rsec{prev_kws_benchmark}.
+Although those models could not reach the high accuracy achievements obtained by the sophisticated benchmark models listed in \rsec{prev_kws_benchmark}.
 Still the evaluated models (apart from the Wavenet model) were sufficient for playing a video game with KWS providing enough accuracy in their prediction.
 The preferred CNN model was the self designed \texttt{conv-jim} model with strides only in the frame dimension.
 It provided a good trade-off between accuracy and computational footprint.
@@ -55,7 +55,7 @@ Including the prior and posterior buffer frames in the online system, a classifi
 Still it would be desirable to perform the detection of key words and triggering of actions even faster, so that the playing experience could be further improved.
 
 Considering the amount of computations for the feature extraction and the inference through the classifier, the deployed KWS game was playable and had no lacks in frames when played with 60 FPS.
-Still, a KWS system requires a significant amount of additional operations and can slow down a video game.
+Still a KWS system requires a significant amount of additional operations and can slow down a video game.
 Even if an efficient model is used, the calculations necessary for the feature extraction remain, such as the extraction of MFCCs and those are quite heavy, as shown in \rsec{signal_mfcc_complexity}.
 
 The overall playing experience with the augmented input control through the KWS system and the game mechanic of movable blocks, as described in \rsec{game_design_mechanics}, was a positive one.
@@ -78,12 +78,12 @@ This would enable the game to respond faster and allow the speaker to pronounce 
 
 Further research can be conducted on the value of the obtained weights from the Generator (G) model of a GAN training. 
 An adversarial training scheme, as presented in \cite{Oezdenizci2020}, that consists of both a G model and a classical CNN model operating on the very same convolutional layers, would be extremely interesting. 
-However one problem is the up-convolution performed by the G network, so that weight sharing is difficult to implement in this task.
+However, one problem is the up-convolution performed by the G network so that weight sharing is difficult to implement in this task.
 
 Much future work has to be done on creating a Wavenet architecture that is computationally lightweight and provides good classification accuracies, if that is even possible on raw audio samples.
 Also the influence of game sounds during playing the video game was not evaluated and could be problematic if a high amount of audio feedback feeds into the microphone input stream and alters the speech commands or even elicits them unintentionally.
 
 Regarding video game designs with KWS, only the imagination restricts its possibilities and there are most certainly countless great game ideas that can use such a technique.
-However it must be added that neural networks require large amounts of data and that every key word spotting demands many training samples.
-This suggests solutions in the direction of phoneme based recognition, to be more flexible in the selection of command words.
+Nevertheless, it must be added that neural networks require large amounts of data and that every key word spotting demands many training samples.
+This suggests solutions in the direction of phoneme based recognition techniques to be more flexible in the selection of command words.
 A comparison between ASR and KWS in video games would therefore be a very interesting topic for upcoming research as well.

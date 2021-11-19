@@ -43,9 +43,9 @@ Usually the presence of low background noise should not be a problem for neural 
 The game sounds might present a more difficult problem, when turned up too loud without the use of headphones. 
 Therefore, the microphone will not only capture the voice of a speaker but also a fair amount of game sounds. 
 This problem seems to be theoretically solvable as the shape of the nuisance is known and the amount of game sound in the audio stream could be attenuated sufficiently.
-However in practice this might be hard to solve without critically disturbing the signal of interest.
+In practice this might be hard to solve without critically disturbing the signal of interest.
 A solution to this problem would probably take too much time and effort and is therefore not evaluated within this thesis. 
-However playing a video game without game sound is unsatisfying and it would be a great contribution if this problem is tackled in future work.
+However, playing a video game without game sound is unsatisfying and it would be a great contribution to tackle this problem in future work.
 
 \textbf{Question \ref{it:q1-c}:} 
 The determination of meaningful features for speech signals is a classical problem in speech recognition.
@@ -80,13 +80,13 @@ The availability of a dataset for KWS video games can be answered right away, as
 The dataset consist of 35 labels and contains commands for movement and numbers.
 Further, it includes randomly selected words like \enquote{marvin} or \enquote{bird} intended to represent \emph{unknown} words for the KWS system.
 It has to be noted that not every game idea can be realized with a restricted vocabulary.
-However, with commands for movement like \enquote{left} or \enquote{go} it is possible to move objects within a game and this can already be used for many game mechanics.
+Nevertheless, with commands for movement like \enquote{left} or \enquote{go} it is possible to move objects within a game and this can already be used for many game mechanics.
 An aspect regarding efficiency, is to restrict the amount of key words in the vocabulary as much as possible such that a cheaper neural network architecture can be deployed, which of course should still be sufficiently good in its classification accuracy.
 
 \textbf{Question \ref{it:q2-b}:} 
 Without doubt, players will try out words that are not in the vocabulary (denoted as \emph{unknown} key words) and observe the response of the video game.
 The ideal response would be to shown an indication to the player that the word is not present in the vocabulary. 
-However, it might happen that the similarity of a unknown key word is too close to a key word and an unintended action is triggered in the game. 
+Nevertheless, it might happen that the similarity of a unknown key word is too close to a key word and an unintended action is triggered in the game. 
 At the same time the neural network should not classify key words as unknown key words to ensure a satisfying game experience.
 It is better to rely on that players are using key words for most of the time so that they are preferred over unknown key words.
 
