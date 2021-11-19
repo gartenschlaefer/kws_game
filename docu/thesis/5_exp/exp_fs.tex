@@ -33,9 +33,9 @@ The experiments were performed once with and once without frame-based normalizat
 Further, the trained models were evaluated regarding their noise and shift invariance, as described in \rsec{exp_details_tb}.
 The experiment uses the standard set of training hyperparameters, as listed in \rtab{exp_details_params_train}.
 \rtab{exp_fs_cepstral_l12} shows the results of the experiment with 2000 training epochs performed on all three CNN models.
-Note that the normalization is active if the table lists \enquote{1} in the \enquote{norm} column, otherwise the normalization is not applied, indicated with \enquote{0}.
+Note that the normalization is active if the table lists \enquote{1} in the \enquote{Norm.} column, otherwise the normalization is not applied and indicated with \enquote{0}.
 \input{./5_exp/tables/tab_exp_fs_cepstral_l12.tex}
-\rfig{exp_fs_cepstral_acc} shows the accuracies on the validation set of the best performing training instances for each model, where the accuracies are smoothed by a striding average filter with a length of 10 epochs for better visualization.
+\rfig{exp_fs_cepstral_acc} shows the accuracies on the validation set of the best performing training instances for each model where the accuracies are smoothed by a striding average filter with a length of 10 epochs for better visualization.
 \begin{figure}[!ht]
   \centering
   \subfigure[conv-trad]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_fs_cepstral_acc_conv-trad.png}}
@@ -46,11 +46,11 @@ Note that the normalization is active if the table lists \enquote{1} in the \enq
 \end{figure}
 \FloatBarrier
 \noindent
-From the provided results it can be observed that the usage of 32 cepstral coefficients does not improve the accuracies compared to the 12 coefficients.
+From the provided results, it can be observed that the usage of 32 cepstral coefficients does not improve the accuracies compared to the 12 coefficients.
 Also the overfitting effects are more prominent when 32 coefficients are applied.
 Moreover, they show that frame-based normalization usually achieves less accuracy and requires more epochs until convergence is reached.
 
-In the following the shift and noise invariance of each model is evaluated.
+In the following, the shift and noise invariance of each model is evaluated.
 The noise and shift invariance of the \texttt{conv-trad} model is shown in \rfig{exp_fs_cepstral_tb_noise_conv-trad} and \rfig{exp_fs_cepstral_tb_shift_conv-trad} respectively.
 \begin{figure}[!ht]
   \centering
