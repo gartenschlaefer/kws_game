@@ -52,13 +52,13 @@ The feature extractor computes the MFCCs according to its provided feature extra
 The feature extraction parameters provide information about the exact constellation of features used during training, for instance 12 MFCC coefficients with frame-based normalization and no feature enhancements.
 This ensures the application of the same feature extraction to new data frames from the online system.
 
-The classifier requires the unique name of the trained neural network model (for example \texttt{conv-jim}), the parameters of this model and the class dictionary.
-The trained weights of the  models are stored in the \texttt{.pth} format of the \texttt{Pytorch} framework and can simply be loaded to a corresponding model architecture.
+The classifier requires the unique name of the trained neural network model, such as \texttt{conv-jim}, the parameters of this model, and the class dictionary.
+The trained weights of the  models are stored in the \texttt{.pth} format used within the \texttt{Pytorch} framework and can simply be loaded to a corresponding model architecture.
 The class dictionary describes which output node of the neural network corresponds to which speech command and is especially important for the video game to trigger correct actions.
 After loading the parameters the classifier simply performs an inference to the most probable key word in its class dictionary.
 
 A game action is elicited once a key word is present from the classification system.
-This can for example be implemented by using an input handler similar to a keyboard input handler or event system that is listening for new speech commands and triggers an action when one is available.
+This can, for example, be implemented by using an input handler similar to a keyboard input handler or event system that is listening for new speech commands and triggers an action when one is available.
 A simple scheme of the classification system is shown in \rfig{game_system_classification}.
 \begin{figure}[!ht]
   \centering

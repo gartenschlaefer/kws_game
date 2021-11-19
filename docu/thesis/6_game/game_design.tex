@@ -17,7 +17,7 @@ Strangely, Jim is able to move parts of walls within this world by the use of hi
 
 \subsection{Menu}\label{sec:game_design_menu}
 The main menu is the first screen that appears when starting a video game. 
-It usually consists of several selectable buttons that are referencing for instance to the start of the actual game, a link to the help menu or the options menu for graphic and music settings of the game.
+It usually consists of several selectable buttons that are referencing, for instance, to the start of the actual game, to the help menu, or the options menu for graphic and music settings of the game.
 The main and help menu of the deployed video game is shown in \rfig{game_design_menu_mainhelp}.
 \begin{figure}[!ht]
   \centering
@@ -60,7 +60,7 @@ A simple adventure game in a 2D-platformer view (movement are left-right and jum
 The win and loose condition of the game describe the rules to either win or loose the game.
 To satisfy the win condition, the player has to collect a single object within each individual level.
 Where the levels had been designed such that the player has to use speech commands in order to collect the desired object.
-On the other hand to satisfy the loose condition, the player has to collide with an enemy which of course should be avoided.
+On the other hand to satisfy the loose condition, the player has to collide with an enemy, which of course should be avoided.
 If the player runs into an enemy, a loose screen appears and the same level has to be restarted from its initial state.
 
 
@@ -70,9 +70,9 @@ If the player runs into an enemy, a loose screen appears and the same level has 
 \subsection{Game Mechanics}\label{sec:game_design_mechanics}
 Game mechanics with KWS have to consider time delays because of the processing time speech signals require.
 In this thesis the KWS system was used as augmented input control, where the game does not depend entirely on the processing of speech commands as inputs.
-The controlling of the character is handled with standard keyboard keys for movement, so that the player receives immediate feedback. 
-The speech command control performs a two dimensional grid move upon a so called moveable block, by speaking the command word for the intended direction, as for instance \enquote{left} and \enquote{right} or \enquote{up} and \enquote{down}.
-A level can contain several moveable blocks and the switch between those is done by the command word \enquote{go}, until the desired moveable block is selected.
+The controlling of the character is handled with standard keyboard keys for movement so that the player receives immediate feedback. 
+The speech command control performs a two dimensional grid move upon a so called moveable block by speaking the command word for the intended direction, such as \enquote{left} and \enquote{right} or \enquote{up} and \enquote{down}.
+A level can contain several moveable blocks and the switch between those is done through the command word \enquote{go} until the desired moveable block is selected.
 The selected movable block is highlighted with a different color to distinguish it from the other moveable blocks.
 Furthermore, all movable blocks share the same base color to distinguish them from ordinary walls.
 At all times only one of all moveable block can be controlled by the player.
@@ -85,9 +85,9 @@ The moveable blocks, walls and the collectable object are shown in \rfig{game_de
 \end{figure}
 \FloatBarrier
 \noindent
-If a player speaks out a command word that does not correspond to a movement but is included in the class dictionary, as for instance \enquote{yes}, or a command word is spoken that is not in the dictionary, hence it corresponds to the \enquote{\_mixed} label, a small bubble with a question mark is shown next to the player character for a few frames.
+If a player speaks out a command word that does not correspond to a movement but is included in the class dictionary, for instance the word \enquote{yes}, or a command word is spoken that is not in the dictionary, hence it corresponds to the \enquote{\_mixed} label, a small bubble with a question mark is shown next to the player character for a few frames.
 The indication of the \enquote{\_noise} label is done similarly but with a bubble that includes a spiral intended as rubbish symbol.
-Both bubbles including the player character are shown in \rfig{game_design_mechanic_bubble}.
+\rfig{game_design_mechanic_bubble} shows both bubbles including the player character.
 \begin{figure}[!ht]
   \centering
   \subfigure[\enquote{\_mixed} label]{\includegraphics[height=0.13\textwidth]{./6_game/figs/game_design_mechanic_bubble_question.png}}
@@ -99,9 +99,9 @@ Both bubbles including the player character are shown in \rfig{game_design_mecha
 \FloatBarrier
 \noindent
 In order to provide a loose condition within the game, as already mentioned in \rsec{game_design_rules}, enemies were implemented.
-The player can perform jumps to dodge enemies.
-The enemies move from left to right and change their direction when an obstacle like a wall is hit.
-The enemy sprite sheet is shown in \rfig{game_design_mechanic_enemy}.
+The player can perform jumps to dodge the enemies.
+The enemies move from left to right and change their direction when an obstacle, like a wall, is hit.
+The enemy sprite sheet is provided in \rfig{game_design_mechanic_enemy}.
 \begin{figure}[!ht]
   \centering
   \includegraphics[height=0.07\textwidth]{./6_game/figs/game_design_mechanic_enemy.png}
@@ -119,7 +119,7 @@ The enemy sprite sheet is shown in \rfig{game_design_mechanic_enemy}.
 Two levels that use the game mechanic of movable blocks, as described previously in \rsec{game_design_mechanics}, were implemented.
 The first level introduces the player to the game.
 The player learns how the game mechanics work and how to command the moveable blocks out of the path to the collectable object.
-In the second level the player has to align the moveable blocks, such that by jumping upon them, higher plateaus can be reached.
+In the second level the player has to align the moveable blocks such that by jumping upon them, higher plateaus can be reached.
 The levels are both shown in \rfig{game_design_level}.
 \begin{figure}[!ht]
   \centering

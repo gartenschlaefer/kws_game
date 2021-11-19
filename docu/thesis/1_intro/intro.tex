@@ -16,18 +16,18 @@ A simple schematic of the whole process is shown in \rfig{intro_kws}.
 \FloatBarrier
 \noindent
 In the semantic perspective, the controlling of game objects, should be short, clear and best done with single command words, referred as speech commands.
-Single words are easier to detect in comparison to long sentences, for instance it is easier to recognize the word \enquote{left} than the sentence \enquote{missile target on position x, y}.
+Single words are easier to detect in comparison to long sentences, for instance, it is easier to recognize the word \enquote{left} than the sentence \enquote{missile target on position x, y}.
 The classification of those speech commands can be done with a KWS system composed of a neural network.
 KWS is restricted by a limited set of selected key words, referred as vocabulary or class dictionary.
-In terms of video games, the set of key words might have members like \enquote{left} or \enquote{right}, for instance to move an element within the game to either left or right respectively.
+In terms of video games, the set of key words might have members like \enquote{left} or \enquote{right}, for example, to move an element within the game to either left or right respectively.
 The limited set of key words is crucial to restrict the complexity of the recognition task, since in practical applications it is not necessary to cover all words in a natural language.
 Especially in video games, where the game environment is restricted by rules, technical limits and play-ability, KWS is suited perfectly as an alternative or augmented control system.
 The size of the vocabulary and the selected words are two parameters that influence on one hand the choice of the neural network architecture, evaluated on energy efficiency and accuracy performance and on the other hand the game experience over the controls a player can choose from.
 If the vocabulary of a KWS system would be too large, the chance of confusion between two different key words grows naturally.
 In many KWS applications it is absolutely necessary to include labels for \emph{background noise}, \emph{silence} and \emph{unknown words} in the vocabulary. 
 This is especially interesting in \emph{wake word} applications, where a single key word must be detected over the previously mentioned labels representing all other possible words that can be spoken.
-Also in video games those additional labels are useful to prevent the player from eliciting unintended commands accidentally, through for instance loud background noise.
-Therefore a KWS system has the demand of being very accurate and fast in its classification of key words.
+Also in video games those additional labels are useful to prevent the player from eliciting unintended commands accidentally through, for instance, loud background noise.
+Therefore, a KWS system has the demand of being very accurate and fast in its classification of key words.
 
 Nowadays KWS systems are considered no science-fiction anymore, assisting consumers in everyday situations, such as rendering simple control tasks as the triggering of a photo release button on a \emph{smartphone} with a single speech command.
 Application like this create more awareness of KWS, or generally speaking of speech recognition tasks, in human society.

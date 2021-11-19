@@ -67,7 +67,7 @@ A showcase on the performance of both energy onset detection methods is provided
 \end{figure}
 \FloatBarrier
 \noindent
-It can be observed that the MFCC onset method achieves better results especially for the \enquote{left} example, where a little noise peak shifts the sample energy onset too far to the left, so that the analytic window at this onset position does not capture the whole word.
+It can be observed that the MFCC onset method achieves better results especially for the \enquote{left} example, where a little noise peak shifts the sample energy onset too far to the left so that the analytic window at this onset position does not capture the whole word.
 Note that the dataset extraction in the experiments in \rsec{exp} apply the MFCC onset method for all CNN models and the sample energy method for the Wavenet model.
 
 
@@ -88,6 +88,7 @@ Mathematically the onset $o(\bm{x}) \in \{0, 1\}$ of an input chunk $\bm{x} \in 
 \end{equation}
 where the output value of $1$ represents the occurrence of an onset, $n$ is the total sample number of the input chunk and $\alpha$ the energy threshold.
 The energy threshold should be adjustable to the user's microphone and amplifier setup. 
-This can be done for instance in the video games at their option menu as described in \rsec{game_design_menu}.
-If an online onset is detected, the whole buffer is filled up first and afterwards read as a whole and passed to the MFCC feature extraction stage.
-The exact key word onset is calculated from the obtained MFCCs as described in \rsec{signal_onset_kw} and the \SI{500}{\milli\second} long feature vectors are sent to the classification system.
+This can be done, for instance, in the option menu of the video game, as described in \rsec{game_design_menu}.
+If an online onset is detected, the whole buffer fills up with consecutive frames from the input stream.
+The full buffer is then read out and passed to the MFCC feature extraction stage for further processing.
+The exact key word onset is calculated from the obtained MFCCs, as described in \rsec{signal_onset_kw}, and the \SI{500}{\milli\second} long feature vectors are sent to the classification system.

@@ -33,7 +33,7 @@ An extended approach, so that G produces samples specifically similar to the dat
 \begin{equation}
   s(\bm{x_1}, \bm{x_2}) = \frac{\bm{x_1}^T \bm{x_2}}{\norm{\bm{x_1}}_2 \cdot \norm{\bm{x_2}}_2 + \epsilon} 
 \end{equation}
-where $s : (\mathcal{X}, \mathcal{X}) \mapsto [0, 1]$ is the cosine similarity function, $\bm{x_1}$ and $\bm{x_2}$ are two vectors for similarity measure and $\epsilon$ is a small number, such that no division by zero is possible.
+where $s : (\mathcal{X}, \mathcal{X}) \mapsto [0, 1]$ is the cosine similarity function, $\bm{x_1}$ and $\bm{x_2}$ are two vectors for similarity measure and $\epsilon$ is a small number such that no division by zero is possible.
 With the similarity loss incorporated, $l_G$ gets:
 \begin{equation}
   l_G(x_i, z_i, D) =  l(D(G(z_i)), y_r) + \lambda \left(1 - \frac{1}{C} \sum_{c=0}^{C} s(\hat{\bm{e}}_c^T x_i , \hat{\bm{e}}_c^T G(z_i)) \right)
@@ -55,7 +55,7 @@ This can vary for the experiments but does not influence the overall end results
 
 \subsection{Adversarial Label Train}
 Adversarial label train is the transfer of weights of convolutional filters (kernels) trained on multiple GAN training instances on subsets of all labels.
-For instance if the label set in the class dictionary is \{\enquote{left}, \enquote{right}\} then a separate training instance may focus on the label \enquote{left} and another on the label \enquote{right}.
+For instance, if the label set in the class dictionary is \{\enquote{left}, \enquote{right}\}, then a separate training instance may focus on the label \enquote{left} and another on the label \enquote{right}.
 It is important to assign a specific number of filters to each label train instance.
 For example, each label train gets 8 filters in the first convolutional layer.
 \rfig{nn_adv_label_scheme} illustrates the label train scheme through 6 label train instances, such as used for the experiments in \rsec{exp_adv}.

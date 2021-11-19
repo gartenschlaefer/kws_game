@@ -34,8 +34,8 @@ In practical applications however, a fixed time interval for a single speech com
 By restricting the time duration of the key words, the speaker has to pronounce the words within this time span.
 For example, if a speaker pronounces the word \enquote{left} and requires a time duration of \SI{1}{\second}, hardly all is captured if the time interval is restricted to merely \SI{500}{\milli\second}.
 Whether this \SI{500}{\milli\second} is sufficient for a correct classification, is subject for evaluation.
-In the application of a video game, the user should preferably speak the commands with a short time duration, so that the game can respond fast.
-Problems might occur if the speech commands are spoken repeatedly and very hasty, so that the time interval of consecutive commands overlap each other.
+In the application of a video game, the user should preferably speak the commands with a short time duration so that the game can respond fast.
+Problems might occur if the speech commands are spoken repeatedly and very hasty such that the time interval of consecutive commands overlap each other.
 Ideally the time interval to represent a speech command would be flexible but this more difficult to implement than a fixed time interval.
 
 \textbf{Question \ref{it:q1-b}:}
@@ -51,10 +51,10 @@ However, playing a video game without game sound is unsatisfying and it would be
 The determination of meaningful features for speech signals is a classical problem in speech recognition.
 The essential composition of a word may help to understand the problematic better.
 A word is a sequential combination of either vowels, such as \enquote{a} and \enquote{e}, or consonants \enquote{k}, \enquote{l}, with a certain length. 
-In linguistics for instance, it is possible to distinguish vowels with frequency peaks in a spectrogram, where a spectrogram is the magnitude squared of the frequency response of small time chunks over the time duration of a signal.
+In linguistics, for instance, it is possible to distinguish vowels with frequency peaks in a spectrogram, where a spectrogram is the magnitude squared of the frequency response of small time chunks over the time duration of a signal.
 However, due to many different factors in voice generation involved in speakers, such as age, gender, nationality and physiology of the vocal tract, there is a huge variance in the pronunciation of words from different persons, which increases the difficulty of the problem.
 A very common approach is to use MFCCs as features for speech recognition tasks.
-Why MFCCs present good features for speech is described in detail in \rsec{signal_mfcc}.
+Why MFCCs present reasonable features for speech, is described in detail in \rsec{signal_mfcc}.
 
 
 % --

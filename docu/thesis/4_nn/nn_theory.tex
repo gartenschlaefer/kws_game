@@ -33,7 +33,7 @@ The most famous activation function nowadays, is the Rectified Linear Unit (ReLU
 \end{equation}
 with $a \in \R$ as input scalar.
 The great advantage of the ReLU function is that its sub-gradients are very easy and fast computable.
-Furthermore, two other well known activation functions, used for example in the Wavenet, are the sigmoid function:
+Furthermore, two other well known activation functions used, for example, in the Wavenet, are the sigmoid function:
 \begin{equation}\label{eq:nn_theory_sigmoid}
   h(a) = \frac{1}{1 + \exp{-a}}
 \end{equation}
@@ -78,7 +78,7 @@ Mathematically one node $i$ performs the following calculation:
   z_i = h(\bm{w_i}^T \bm{x} + b_i)
 \end{equation}
 with the same notations as described in \req{nn_theory_acti} and an additional bias term $b_i \in \R$.
-For all nodes in a current layer this equation of a single node can be summarized to a weight matrix $W \in \R^{m \times n}$ with $m$ as total amount of nodes in the current layer and a total number of $n$ nodes from the previous layer, so that an FC layer can be defined as:
+For all nodes in a current layer this equation of a single node can be summarized to a weight matrix $W \in \R^{m \times n}$ with $m$ as total amount of nodes in the current layer and a total number of $n$ nodes from the previous layer so that an FC layer can be defined as:
 \begin{equation}
   \bm{z} = h(W \bm{x} + \bm{b})
 \end{equation}
@@ -90,7 +90,7 @@ Disregarding the activation function leads to an amount of calculations of appro
 \begin{equation} 
   \mathcal{T}(W \bm{x} + \bm{b}) = 2 (m \cdot n) + m
 \end{equation}
-which would give for example with $n = 128$ and $m = 64$ roughly $\mathcal{T}(W \bm{x} + \bm{b}) = \SI{16.4}{\kilo\ops}$.
+which would give, for example, with $n = 128$ and $m = 64$ roughly $\mathcal{T}(W \bm{x} + \bm{b}) = \SI{16.4}{\kilo\ops}$.
 
 
 % --
@@ -102,13 +102,13 @@ Convolutional filters are applied on small areas of the input data to retrieve s
 Those convolutional filters are also denoted as kernels $k$.
 In the case the kernels operate on 2 dimensional input maps, they can be seen as 2 dimensional maps as well with kernel width $d_{k_w}$ and height $d_{k_h}$ typically smaller than the input maps.
 The \emph{stride} of a kernel, denoted as $s$, specifies the number of shifts a kernel moves on a specific axis over an input map to perform the next convolution operation.
-There are limited amounts of possible kernel strides over an input map in any specific axis which determines the dimension of the output map on that axis.
+There are limited amounts of possible kernel strides over an input map in any specific axis, which determines the dimension of the output map on that axis.
 The length $d_{o_z}$ of an output map of axis $z$ computes from an input map of length $d_{x_z}$ with a kernel striding along axis $z$ with $s_z$ and kernel size for that axis $d_{k_z}$ as follows:
 \begin{equation}\label{eq:nn_theory_cnn_dim}
   d_{o_z} = \floor*{\frac{d_{x_z} + p_z - d_{k_z}}{s_z} + 1}
 \end{equation}
 where $p_z$ is an additional \emph{padding} term on the $z$ axis, which appends a specified amount of values to the input image on both sides of the selected axis.
-Usually these appended values are zeros such as applied in \emph{zero-padding}.
+Usually these appended values are zeros, such as applied in \emph{zero-padding}.
 To provide an example of \req{nn_theory_cnn_dim}, consider the convolution of a $16 \times 16$ image by a $5 \times 5$ kernel with stride $1$ in each direction and without any padding terms, will result in an output image of dimensions $12 \times 12$.
 
 A convolutional layer is therefore defined by the amount of input maps and resulting output channels (feature maps), the kernel size, the stride of the kernel, and some other specialties like padding and dilation.
@@ -155,7 +155,7 @@ For the example in \rfig{nn_theory_cnn_basics}, this would result in $\mathcal{T
 \subsection{Loss Functions and Softmax}
 Loss functions, also called cost functions, are used to determine the difference between the predicted label $\hat{y}_i$ for class $i$ compared to the actual or ground truth label $y$ of one specific training data example.
 The predicted labels are usually presented by the output nodes in the last layer of a neural network.
-Therefore $\hat{\bm{y}} = [\hat{y_0}, \hat{y_1}, \dots, \hat{y_L}]^T$ has the dimension of the number of labels or classes $L$.
+Therefore, $\hat{\bm{y}} = [\hat{y_0}, \hat{y_1}, \dots, \hat{y_L}]^T$ has the dimension of the number of labels or classes $L$.
 Often it is preferred that $\hat{\bm{y}} \in \R^L$ provides a probability distribution such that:
 \begin{equation}
   \sum_{i=0}^L \hat{y}_i = 1
@@ -190,10 +190,10 @@ Note that $x_i[.]$ is denoted as indexing of $x_i$ of its class dimension $L$.
 
 \subsection{Dropout}
 Dropout \cite{Hinton2012} is a method to improve generalization and training of neural networks.
-The idea is to set the output of randomly selected nodes within a layer for one training step to zero, so that only the other nodes are updated.
+The idea is to set the output of randomly selected nodes within a layer for one training step to zero so that only the other nodes are updated.
 This can be done by multiplying all outputs of a current layer with a vector containing a specified number of zeros and ones places at random positions within the vector.
 The amount of zeros compared to ones can be sampled from a Bernoulli distribution by setting a probability value $p$.
-For instance $p=0.2$ means that there are \SI{20}{\percent} zeros and \SI{80}{\percent} ones randomly placed within the vector.
+For instance, $p=0.2$ means that there are \SI{20}{\percent} zeros and \SI{80}{\percent} ones randomly placed within the vector.
 
 
 % --
@@ -210,7 +210,7 @@ The run over all batches of a dataset is defined as \emph{epoch}.
 Note that the training of neural networks may take over thousands of epochs until convergence is reached.
 The general training techniques for neural networks and further details are not described because of many existing books and papers, such as \cite{LeCun2006}, \cite{Goodfellow2016}, \cite{DeepLearning}, that are already presenting this topic very well. 
 Moreover, it does not add any value to this thesis as the algorithms are well examined and run in the background of every neural network framework.
-The interesting elements are therefore only the neural network architecture design, the hyperparameters for training, and the used loss functions.
+Hence, the interesting elements are only the neural network architecture design, the hyperparameters for training, and the used loss functions.
 
 
 % --

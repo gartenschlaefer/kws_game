@@ -7,7 +7,7 @@ The self made dataset is denoted as \enquote{my dataset} and it is merely intend
 The training, validation, and testing of the neural network architectures performs on the speech commands dataset.
 Both datasets consists of raw waveform files in the \texttt{.wav} format without any feature extraction done beforehand.
 As already mentioned in \rsec{prev_kws_benchmark}, the direct comparisons between different neural network approaches is difficult if the feature extraction is left alone to the user.
-Some datasets provide feature extraction beforehand, so that the comparability of individual neural network architectures performances is not influenced on it.
+Some datasets provide feature extraction beforehand so that the comparability of individual neural network architectures performances is not influenced on it.
 The speech commands dataset does not explicitly separate each \texttt{.wav} file into train, test, and validation sets, but provides file lists that refers to distinct waveform files that should be used for testing and validation. 
 Hence provides means for comparison to researchers.
 
@@ -26,7 +26,7 @@ In this thesis, the experiments are solely performed on the second version \text
 All available speech command key words with their separation in training, test, and validation set are shown in \rtab{exp_dataset_all_labels} located in the appendix.
 Some key words have a significantly higher number of examples per class than others.
 This inconsistency of examples per classes, emerged from the recording settings as described in \cite{Warden2018}, where the main key words were recorded with a higher number of examples from the same speaker.
-For instance the same speaker creates five samples of \enquote{go} and two of \enquote{marvin}.
+For instance, the same speaker creates five samples of \enquote{go} and two of \enquote{marvin}.
 This makes the key words separable into so called \emph{core key words} and \emph{auxiliary key words}.
 The core key words are the main classification objective and each core key word should correspond to one individual class label.
 Therefore the core key words have the higher count of samples with about 3700 to 4000 examples each.
@@ -62,7 +62,8 @@ Two histograms were created to observe the quality of all recorded files in the 
 Those histograms present an energy measure and a count of the sample length for each file.
 The energy of a recorded file provides information about a recordings amplification setting and is an indicator for too silent or too loud (overdrive distortions) samples.
 In the first version of the speech command dataset (\texttt{v0.01}) too silent files were a problem.
-This had been fixed in the second version by rejecting those silent files, therefore \texttt{v0.01} is slightly more unclean than \texttt{v0.02}.
+This had been fixed in the second version by rejecting those silent files.
+Therefore, the version \texttt{v0.01} is slightly more unclean than \texttt{v0.02}.
 The energy value $e \in \R$ can be computed as:
 \begin{equation}\label{eq:exp_dataset_energy}
   e = \frac{1}{n} \left( \bm{x}^T \bm{x} \right)
@@ -84,8 +85,8 @@ This however, is enough for words like \enquote{go} where the reduced samples le
 \end{figure}
 \FloatBarrier
 \noindent
-The histogram of the energy measure has one main lobe, which is good, so it means that there are no clusters of extremely silent or loud files.
-For comparison, if silent files were extracted from for instance the given background files, the energy of some of those would be in a range of $10^{-7} \dots 10^{-6}$.
+The histogram of the energy measure has one main lobe, which implies that there are no clusters of extremely silent or loud files.
+For instance, if silent files were extracted from the given background files, the energy of some of those would be in a range of $10^{-7} \dots 10^{-6}$ indicating that those files are too silent.
 The sample length histogram shows that most of the files consist of 16000 samples but many others have a smaller number of samples. 
 This is important and has to be regarded in the pre-processing of audio files because inputs to neural networks must often be prepared to fixed size inputs if no sequential neural networks, such as RNNs, are used.
 
@@ -95,13 +96,13 @@ This is important and has to be regarded in the pre-processing of audio files be
 
 \subsubsection{Recording Quality and Personal Experience}
 The examples of the speech commands dataset \cite{Warden2018} were not recorded by professionals with high-end recording equipment.
-In fact the recordings had been done in an amateur kind of fashion, so that the dataset is more suited to realistic environments intended for user applications.
+In fact the recordings had been done in an amateur kind of fashion so that the dataset is more suited to realistic environments intended for user applications.
 This is also noted in the paper \cite{Warden2018}:
 \begin{quote}
 ...This meant that the use of studio-captured samples seemed unrealistic, since that audio would lack background noise, would be captured with high-quality microphones, and in a formal setting. 
 Successful models would need to cope with noisy environments, poor quality recording equipment, and people talking in a natural, chatty way...
 \end{quote}
-The recording devices of the speakers, who contributed examples to the dataset, were in most cases simple consumer microphones, as for instance embedded microphones in laptops or mobile phones.
+The recording devices of the speakers, who contributed examples to the dataset, were in most cases simple consumer microphones, as for instance, embedded microphones in laptops or mobile phones.
 
 The personal experiments obtained by listened to the examples in the dataset, were as follows:
 \begin{itemize}
@@ -116,9 +117,9 @@ The last would be especially interesting for a video games intended for children
 
 In many recordings the background noise is imminent, such as traffic noise, chattering people, office sounds, and many more.
 A quality check of the recorded files in the dataset had been done beforehand to ensure that bad quality examples are rejected.
-Nevertheless, there are still some existing flaws such as extremely loud or silent recordings, examples with inconsistent sample numbers, recordings that include too much noise or in the worst case noise only (very rarely), and cut off signals capturing only half of a word.
+Nevertheless, there are still some existing flaws, such as extremely loud or silent recordings, examples with inconsistent sample numbers, recordings that include too much noise or in the worst case noise only (very rarely), and cut off signals capturing only half of a word.
 Those quality issues in the dataset can for most cases be neglected or fixed, such as inconsistent sample numbers. 
-Other more problematic cases, such as noise-only examples, should ideally be removed.
+Other more problematic cases, like noise-only examples, should ideally be removed.
 But since their occurrence is very rare it is not worth the effort.
 Besides, it is usually not a problem for neural networks to cope with noisy datasets.
 In many cases it is favorable when a dataset contains many noisy samples so that neural networks can learn invariance against noise, loudness differences, and other nuisances during training.
@@ -172,9 +173,9 @@ Samples from the extracted MFCCs with frame-based normalization, as explained in
 This dataset was created by the author of this thesis and contains five examples for each of the following key words \{\enquote{left}, \enquote{right}, \enquote{up}, \enquote{down} and \enquote{go}\}.
 The datasets purpose is mainly to have an additional test set for evaluating trained models on the authors own voice.
 The examples per key word are spoken with different emphasis and stress on individual phonemes for each key word.
-Also the prolongation of the words are different, for instance that in one example the word is spoken very hasty and in the other it is spoken slowly.
+Also the prolongation of the words are different, for instance, in one example the word is spoken very hasty and in the other it is spoken slowly.
 The emphasis and prolongation ensure the diversity of the dataset.
-It is important to mention that none of the self recorded files were used within the training set, so that the neural networks performance is evaluated on unseen data.
+It is important to mention that none of the self recorded files were used within the training set so that the neural networks performance is evaluated on unseen data.
 All examples of \enquote{my dataset} are illustrated in \rfig{exp_dataset_my_wav_grid} in raw audio format.
 \begin{figure}[!ht]
   \centering
@@ -194,8 +195,9 @@ The same examples extracted to MFCC features are shown in \rfig{exp_dataset_my_m
 \FloatBarrier
 \noindent
 It turned out that it is a very hard task for neural networks to achieve a \SI{100}{\percent} classification score upon it, despite the fact that all examples correspond to the same speaker.
-This is slightly worrying because acoustically each of the examples per word is perfectly understandable for humans and for instance in the classification of the five examples of \enquote{left} from the \enquote{my dataset}, neural networks may classify 4 examples as \enquote{left} and one as \enquote{right}.
-It is difficult to examine why exactly this single example is wrongly classified.
+This is slightly worrying because acoustically each of the examples per word is perfectly understandable for humans.
+For instance, in the classification of the five examples of \enquote{left} from the \enquote{my dataset}, the trained models may classify 4 examples as \enquote{left} and one as \enquote{right}.
+It is difficult to examine why exactly this single example was wrongly classified.
 
 
 % --
@@ -204,13 +206,14 @@ It is difficult to examine why exactly this single example is wrongly classified
 \subsection{Data preparation for neural networks}\label{sec:exp_data_prep}
 The neural network architectures are trained with supervised learning.
 This implies that a class label $y_i \in \{0, 1, \dots, L\}$ correspondence to each data example $x_i \in \mathcal{X}$ must exist, where $L$ is the total number of classes and $\mathcal{X}$ is the input space of the data example.
-The input space for MFCC features is for example $\mathcal{X} = \R^{C \times M}$ with $C$ cepstral coefficients and $M$ frames.
+The input space for MFCC features is, for example, $\mathcal{X} = \R^{C \times M}$ with $C$ cepstral coefficients and $M$ frames.
 Selected examples including their labels form a set $S$, for example for training or testing, which can be written as:
 \begin{equation}\label{eq:exp_dataset}
   S = \{ (x_i, y_i) \mid i = 0, 1, \dots, n \}
 \end{equation}
 where $n$ is the total number of examples within this set.
-Class labels $y_i$ are usually translated to integer numbers that are referencing to indices in a class dictionary, for instance $y_1 = 0$ of example $i=1$ refers to the label \enquote{left} in the dictionary \{0: \enquote{left}, 1: \enquote{right}\}.
+Class labels $y_i$ are usually translated to integer numbers that are referencing to indices in a class dictionary.
+For instance, $y_1 = 0$ of example $i=1$ refers to the label \enquote{left} in the dictionary \{0: \enquote{left}, 1: \enquote{right}\}.
 It is important that the enumeration of class labels in the class dictionary starts from zero because they should correspond to the output nodes in the used neural network.
 
 \rsec{signal_mfcc} already showed how to extract MFCC features.

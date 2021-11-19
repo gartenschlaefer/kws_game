@@ -111,10 +111,10 @@ The accuracy $a \in [0, 1]$ can therefore be written as:
 \end{equation}
 Another more unconventional evaluation technique used, is the evaluation on noise and shift invariance.
 For this one sample of each class label is taken from the self recorded files of the \enquote{my dataset} and used as test signal.
-The length of those audio files is cut, such that by applying a fixed input frame of \SI{500}{\milli\second}, both end positions consists of at least the half of the audio file information, which is especially important for the shift invariance.
+The length of those audio files is cut such that by applying a fixed input frame of \SI{500}{\milli\second}, both end positions consists of at least the half of the audio file information, which is especially important for the shift invariance.
 The evaluation results are plotted in figures of correct classification upon shift and noise level changes.
 Note that the noise and shift invariance are tested on only 5 test signals.
-Therefore they are not a reliable measure for the trained models.
+Therefore, they are not a reliable measure for the trained models.
 Yet it is interesting to observe how different models perform upon these tests.
 In the following, the shift and noise invariance tests are explained in more detail.
 
@@ -123,7 +123,8 @@ In the following, the shift and noise invariance tests are explained in more det
 % shift invariance
 
 \subsubsection{Shift invariance}
-Shift invariance is a very important property for speech recognition, for instance the classification of a waveform should still be the same regardless of little shifts in time, as long there is enough and valuable information present necessary for a correct classification.
+Shift invariance is a very important property for speech recognition. 
+For instance, a waveform of a command word should still be classified to the same label regardless of little shifts in time, as long as the analytic window includes enough and valuable information of this command word.
 However, the restricted frame size of \SI{500}{\milli\second} might increase the difficulty in this task.
 Not all relevant information of the speech signals can be captured by the analytic window, like the \enquote{t} in \enquote{left} or \enquote{right} is often missed.
 An example of the application of the shift invariance test is shown in \rfig{exp_details_tb_shift_left} with a beginning, middle, and end frame shift.
@@ -170,7 +171,7 @@ Rewriting the formula of the SNR, the standard deviation can be obtained by:
   \sigma = \sqrt{\frac{\frac{1}{n}\bm{x}^T \bm{x}}{10^{\frac{S}{10}}}}
 \end{equation}
 for requested SNR values $S$ in decibel (dB).
-A SNR level of zero means that there is equal energy of the added noise $\bm{v}$ and the test signal $\bm{x}$, therefore the resulting signal is already strong disturbed with noise.
+A SNR level of zero means that there is equal energy of the added noise $\bm{v}$ and the test signal $\bm{x}$, therefore, the resulting signal is already strong disturbed with noise.
 \rfig{exp_details_tb_noise_left} provides an example of the noise invariance test with a low, middle and high SNR value.
 \begin{figure}[!ht]
   \centering

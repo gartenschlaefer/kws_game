@@ -52,7 +52,7 @@ The time to process a single speech command is one of the most important aspects
 The restriction of the time interval to \SI{500}{\milli\second} for a single key word was a good decision.
 It increased the responsiveness of the deployed KWS video game.
 Including the prior and posterior buffer frames in the online system, a classification usually took about \SI{600}{\milli\second}.
-Still it would be desirable to perform the detection of key words and triggering of actions even faster, so that the playing experience could be further improved.
+Still, it would be desirable to perform the detection of key words and triggering of actions even faster so that the playing experience could be further improved.
 
 Considering the amount of computations for the feature extraction and the inference through the classifier, the deployed KWS game was playable and had no lacks in frames when played with 60 FPS.
 Still a KWS system requires a significant amount of additional operations and can slow down a video game.
@@ -73,7 +73,7 @@ Even though \cite{Zhang2017} and \cite{Peter2020} provide excellent solutions to
 It is worth to evaluate the increase of the hop time from the used \SI{10}{\milli\second} to \SI{20}{\milli\second}, as applied in \cite{Peter2020}.
 This would reduce the computations approximately by half (both for the feature extraction and the classifier).
 Further, it would be interesting to evaluate an even smaller time interval that should represent a key word below \SI{500}{\milli\second} for a fast paced gaming experience.
-Also it might be preferable to switch from a fixed sized input to a flexible one, so that no spoken key word will be missed, regardless of its duration.
+Also it might be preferable to switch from a fixed sized input to a flexible one so that no spoken key word will be missed, regardless of its duration.
 This would enable the game to respond faster and allow the speaker to pronounce the key words with a short time duration.
 
 Further research can be conducted on the value of the obtained weights from the Generator (G) model of a GAN training. 
