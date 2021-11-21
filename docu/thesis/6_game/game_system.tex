@@ -29,7 +29,7 @@ Ideally these buffer frames should not be necessary but due to shift invariance 
 
 The buffer frames are located prior and posterior to the dedicated key word frames and had been selected to both 5 frames for the prior and posterior buffer.
 The prior buffer consecutively collects the frames from the audio stream but does not feed the output to the next buffer until a key word onset is detected. 
-Each input chunk or frame is used for the detection of an online onset as described in \rsec{signal_onset_online}.
+Each input chunk or frame is used for the detection of an online onset, as described in \rsec{signal_onset_online}.
 If an onset is detected from one of these frames, subsequently the FIFO will be filled up to its full size including the posterior buffer frames.
 Afterwards the whole FIFO is read out and the obtained frames are passed to the feature extraction module already located in the classification system.
 The scheme of the online system with integrated FIFO buffer is illustrated in \rfig{game_system_online}.

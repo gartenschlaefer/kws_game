@@ -92,7 +92,7 @@ GANs, as already mentioned in \rsec{prev_nn_adv} and \rsec{nn_theory_gan} consis
 Being able to transfer the obtained weights from the training of the adversarial models requires that the layer parameters of the receiving network have to coincide with the adversarial network layer parameters.
 This implies that the kernel size of the filters has to be equal for each layer.
 But the amount of filters does not necessarily have to be the same.
-The convolutional layer parameters of both D and G can be transferred, even though G performs a convolutional upsampling (transposed convolution) instead of a usual convolution.
+The convolutional layer parameters of both D and G can be transferred, even though G performs a convolutional upsampling (transposed convolution) instead of an usual convolution.
 However, it is preferred to use a normalization technique, such as the frame-based normalization. 
 Otherwise the transferring of weights might be disadvantageous for the classifier network.
 
@@ -141,7 +141,7 @@ The average filter has a window size of 160 samples and a stride of 80 samples.
 One residual block incorporates few parameters but a huge amount of operations as listed in \rtab{nn_arch_wavenet_block}.
 \input{./4_nn/tables/tab_nn_arch_wavenet_block}
 Note that the dilated convolutional filters have a filter size of two with adjustable dilation parameter.
-Further, the filters stride merely in the time dimension because the input is a one-dimensional time signal.
+Further, the filters stride merely in the time dimension because the input is an one-dimensional time signal.
 The $1 \times 1$ convolutions are a special type of convolutional filters and work in the same manner as usual convolutions, just with a filter size of one.
 The whole Wavenet architecture is composed of several consecutive Wavenet residual blocks with increasing dilation parameters for the first two convolutional layers (filter and gate) in the blocks.
 \rfig{nn_arch_wavenet_all} shows he whole Wavenet architecture adaption with an extension of a class prediction.

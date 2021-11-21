@@ -25,7 +25,7 @@ The transfer of the obtained weights (transfer learning) from either D or G was 
 The experiments show that the obtained weights of G can be very valuable, when frame-based normalization was applied.
 
 A completely different approach for the KWS task, was the evaluation of a Wavenet \cite{Oord2016} model for classification.
-However, the initial assumption that without feature extraction less computations might be required in the application of an online system for video games, finally turned out to be wrong.
+However, the initial assumption that without feature extraction a lower amount of computations might be required in the application of an online system for video games, finally turned out to be wrong.
 Wavenets have to run a huge amount of operations by processing each sample of the audio files from the dataset through dilated convolutional filters over many layers.
 Furthermore, the accuracy performance of a reasonable sized Wavenet turned out to be very poor compared to the CNN approaches.
 Nevertheless, this model with an extension for class predictions was evaluated and the obtained results are now provided for future research.

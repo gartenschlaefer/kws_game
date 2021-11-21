@@ -7,7 +7,7 @@ The Wavenet model requires a generous amount of time and energy consumption for 
 Furthermore, the experiments showed poor results on the accuracy of classifying speech commands.
 This architecture is therefore left for future research.
 Nevertheless, this section presents the best performing Wavenet model on the KWS task.
-The training details for this model were 500 examples per each one of the L12 labels, 100 epochs, a learning rate of $0.001$ for 10 epochs and a changing to a learning rate of $0.0001$ and a usual batch size of 32.
+The training details for this model were 500 examples per each one of the L12 labels, 100 epochs, a learning rate of $0.001$ for 10 epochs that changes aftwerwards to $0.0001$, and a batch size of 32.
 \rfig{exp_wavenet_acc} shows the accuracy score for the training and \rfig{exp_wavenet_confusion} provides the confusion matrix on the test set.
 However, the best achieved accuracy on the test set was merely \SI{38.83}{\percent}.
 \begin{figure}[!ht]

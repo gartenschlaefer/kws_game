@@ -27,7 +27,7 @@ In contrast the loss of G, denoted as $l_G$, is given by:
 \begin{equation}
   l_G(z_i, D) =  l(D(G(z_i)), y_r)
 \end{equation}
-with $y_r$ as real label to perform maximization of $\log D(G(\bm{z}))$ as described in \rsec{nn_theory_gan}.
+with $y_r$ as real label to perform maximization of $\log D(G(\bm{z}))$, as described in \rsec{nn_theory_gan}.
 
 An extended approach, so that G produces samples specifically similar to the data distribution and does not drift off into creating unrealistic fakes of noisy samples to fake D, is to incorporate a similarity term with the \emph{cosine similarity} defined by:
 \begin{equation}
@@ -38,7 +38,7 @@ With the similarity loss incorporated, $l_G$ gets:
 \begin{equation}
   l_G(x_i, z_i, D) =  l(D(G(z_i)), y_r) + \lambda \left(1 - \frac{1}{C} \sum_{c=0}^{C} s(\hat{\bm{e}}_c^T x_i , \hat{\bm{e}}_c^T G(z_i)) \right)
 \end{equation}
-where $\hat{\bm{e}}_c \in \{1, 0\}^C$ is a unit vector representing one cepstral coefficient of the Mel Frequency Cepstral Coefficient (MFCC) data $x_i \in \mathcal{X} = \R^{C \times M}$ with a total number of $C$ MFCC coefficients and $M$ frames.
+where $\hat{\bm{e}}_c \in \{1, 0\}^C$ is an unit vector representing one cepstral coefficient of the Mel Frequency Cepstral Coefficient (MFCC) data $x_i \in \mathcal{X} = \R^{C \times M}$ with a total number of $C$ MFCC coefficients and $M$ frames.
 Further, $\lambda$ is a trade-off factor between data similarity and fake loss from D.
 For the experiments in \rsec{exp_adv}, $\lambda = 5$ was chosen.
 

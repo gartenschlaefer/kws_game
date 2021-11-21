@@ -6,7 +6,7 @@ The implementation describes the used software tools for the experiments on the 
 The training details provide commonly used sets of hyperparameters applied to train neural networks.
 Note that the training details can vary between different experiments and models and that the listing provide merely an overview of all available parameters to choose from with recommendations of parameters for the speech command dataset.
 If parameters are varying in some experiments, they are usually noted, otherwise the parameters listed were used.
-The evaluation details of the models is described separately and evaluates the trained models upon accuracy and noise and shift invariance.
+The evaluation details of the models is described separately and evaluates the trained models upon accuracy performance, and noise and shift invariance.
 
 
 % --
@@ -29,7 +29,7 @@ They can be looked up in the open source repository of the project, if requested
 % training details
 
 \subsection{Neural Network Training Details}\label{sec:exp_details_training}
-The training details of the used neural networks described in \rsec{nn_arch}, can be split into following parameters:
+The training details of the used neural networks, described in \rsec{nn_arch}, can be split into following parameters:
 \begin{enumerate}
   \item Feature extraction parameters
   \item Dataset parameters
@@ -109,8 +109,8 @@ The accuracy $a \in [0, 1]$ can therefore be written as:
 \begin{equation}
   a = \frac{1}{n} \sum_{i=0}^n c(\hat{y}_i, y_i)
 \end{equation}
-Another more unconventional evaluation technique used, is the evaluation on noise and shift invariance.
-For this one sample of each class label is taken from the self recorded files of the \enquote{my dataset} and used as test signal.
+Another, more unconventional evaluation technique, is the evaluation upon noise and shift invariance of dedicated test signals.
+For this, one example of each class label was taken from the self recorded files of the \enquote{my dataset} and used as test signal.
 The length of those audio files is cut such that by applying a fixed input frame of \SI{500}{\milli\second}, both end positions consists of at least the half of the audio file information, which is especially important for the shift invariance.
 The evaluation results are plotted in figures of correct classification upon shift and noise level changes.
 Note that the noise and shift invariance are tested on only 5 test signals.

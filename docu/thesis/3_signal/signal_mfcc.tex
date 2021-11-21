@@ -15,7 +15,7 @@ The processing scheme of MFCCs \cite{Mermelstein1980} is as follows:
 Raw audio samples are transformed into the frequency domain with the STFT.
 Afterwards the power spectrum of the STFT is computed and segmented into frequency bands through equidistantly spaced triangular window functions on the Mel scale.
 The unit of \enquote{Mel} shares a non-linear relationship to the frequency scale and is described in detail in \rsec{signal_mfcc_pipeline}.
-The Mel scale was developed in psycho-acoustic experiments, where researchers learned that high frequency sounds (above approximately \SI{500}{\hertz}) are perceived lower than they actual are in the musical or mathematical sense of an pitch interval.
+The Mel scale was developed in psycho-acoustic experiments, where researchers learned that high frequency sounds (above approximately \SI{500}{\hertz}) are perceived lower than they actual are in the musical or mathematical sense of a pitch interval.
 In the musical or mathematical sense, a pitch interval of an octave is the doubling of a fundamental frequency.
 However, human hearing is different in its perception and frequency doubling does not necessarily mean a doubling of the perceived pitch.
 The Mel scale is therefore suited to the perception of human hearing of pitch and separating the frequency space into equidistant Mel bands is a reasonable approach.
@@ -33,7 +33,7 @@ These processing steps seem rather complicated but are merely consecutive steps 
 \subsection{Processing Pipeline in Detail}\label{sec:signal_mfcc_pipeline}
 The frequency spectrum is separated into filter bands through triangular window functions.
 Those window functions are equidistantly placed onto the Mel scale and therefore result in a varying number of frequency bins in the frequency scale for each window.
-The lower frequency bands receive less frequency bins, than the higher frequency bands.
+The lower frequency bands receive fewer frequency bins, than the higher frequency bands.
 Sometimes the height of the individual triangular windows is scaled down such that the effect of unequal amounts frequency bins is equalized.
 However, high frequency signals usually carry less energy and therefore this scaling is in most cases neglected or not preferred.
 

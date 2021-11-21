@@ -3,11 +3,12 @@
 
 \section{Experiments on Adversarial Pre-Training}\label{sec:exp_adv}
 Adversarial pre-training, as already described in detail in \rsec{nn_adv}, is the transfer of learned weights obtained from an adversarial training between a Generator (G) and a Discriminator (D) network from a GAN.
-The target neural network architecture used for adversarial pre-training is the \texttt{conv-jim} model, described in \rsec{nn_arch_cnn}, obtaining pre-trained weights from its GAN versions, namely the \texttt{adv-d-jim} and \texttt{adv-g-jim}, described in \rsec{nn_arch_adv}.
+The neural network architecture used for adversarial pre-training is the \texttt{conv-jim} model, as described in \rsec{nn_arch_cnn}.
+The \texttt{conv-jim} model initializes its weights from pre-trained weights of its GAN versions, namely the \texttt{adv-d-jim} and \texttt{adv-g-jim}, which are described in \rsec{nn_arch_adv}.
 Note that frame-based normalization was applied, which made the training of GANs considerably more easy and the weights from G applicable.
 Both adversarial pre-training techniques, the adversarial label and dual train explained in \rsec{nn_adv} were evaluated.
 
-Note that the experiments in this section, like in the previous section, are not meant for comparison to the benchmark networks because of a usage of 500 examples per class instead of the whole dataset.
+Note that the experiments in this section, like in the previous section, are not meant for comparison to the benchmark networks because of an usage of 500 examples per class instead of the whole dataset.
 Also no overfitting mechanism was applied in this experiments.
 
 
@@ -46,7 +47,7 @@ The noise and shift invariance test is shown in \rfig{exp_adv_label_tb_noise_con
 \end{figure}
 \FloatBarrier
 \noindent
-In many experiments the shift and noise invariance show improvements when adversarial pre-training was applied. 
+In many experiments the noise and shift invariance show improvements when adversarial pre-training was applied. 
 
 
 % --
@@ -57,5 +58,5 @@ The adversarial dual training experiments were similar to the adversarial label 
 The experiments are presented in \rtab{exp_adv_dual_l12}.
 \input{./5_exp/tables/tab_exp_adv_dual_l12}
 The dual experiments achieved worse accuracies for the transfer of Discriminator weights compared to the initializing of the target model with random weights.
-The Generator weights however, could increase the average accuracy by at least \SI{1}{\percent}.
-The dual training is not further evaluated regarding shift and noise invariance because the adv-label-train performed in most cases better.
+The Generator weights however could increase the average accuracy by at least \SI{1}{\percent}.
+The dual training is not further evaluated regarding noise and shift invariance because the adv-label-train performed in most cases better.

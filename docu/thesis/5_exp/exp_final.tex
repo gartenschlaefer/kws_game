@@ -1,7 +1,7 @@
 % --
 % Experiments on whole dataset
 
-\section{Experiments on whole dataset}\label{sec:exp_final}
+\section{Experiments on the whole Dataset}\label{sec:exp_final}
 The final experiments were performed on the whole dataset with 3500 examples per labels and are therefore used for comparison to the benchmark models listed in \rsec{prev_kws_benchmark}.
 All CNN architectures were evaluated with 12 MFCC coefficients and the application of either frame-based normalization or no normalization.
 A single run with 2000 epochs was performed for all experiments to save computational effort.
@@ -9,7 +9,7 @@ The evaluation on the adversarial pre-training, as described in \rsec{exp_adv}, 
 \rtab{exp_final_l12} shows the results of the experiments.
 \input{./5_exp/tables/tab_exp_final_l12.tex}
 Note that there are some overfitting effects happening, especially showing up in the not normalized training of the \texttt{conv-trad} model in \rfig{exp_final_loss_conv-trad}.
-It is therefore useful to use an early stopping technique for better generalization that obtains the model parameters at the best performing training epoch evaluated on the validation set.
+It is therefore useful to apply an early stopping technique for better generalization, that obtains the model parameters at the best performing training epoch evaluated on the validation set.
 \begin{figure}[!ht]
   \centering
   \subfigure[norm0]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_final_loss_norm0_conv-trad.png}}
@@ -19,7 +19,7 @@ It is therefore useful to use an early stopping technique for better generalizat
 \end{figure}
 \FloatBarrier
 \noindent
-The training of models with frame-based normalization usually had less problems with overfitting compared to when no normalization was applied.
+The training of models with frame-based normalization has usually fewer problems with overfitting compared to the case when no normalization was applied.
 The accuracy performance on the validation set of all models with and without frame-based normalization is shown in \rfig{exp_final_acc}.
 \begin{figure}[!ht]
   \centering
@@ -36,19 +36,19 @@ For instance, the \texttt{conv-trad} without frame-based normalization could hav
 
 There is a large gap between the evaluated models and the benchmark models in \rsec{prev_kws_benchmark}.
 With \SI{84.62}{\percent} the \texttt{conv-jim} model with adversarial pre-training performs about \SI{10}{\percent} worse than the benchmark model (DS-CNN-S \cite{Zhang2017}) with \SI{94.4}{\percent}.
-Although it has to be considered that the amount of operations for the \texttt{conv-jim} model are about 6 times less than the DS-CNN-S and that not the whole audio file of \SI{1}{\second} was processed but a shorter time interval of \SI{500}{\milli\second}.
-With this in mind, the results do not look that poorly.
+Although it has to be considered that the amount of operations for the \texttt{conv-jim} model are about 6 times lower than the DS-CNN-S and that not the whole audio file of \SI{1}{\second} was processed but a shorter time interval of \SI{500}{\milli\second}.
+With this in mind, the results do not look that poor.
 To observe the problems in classification, a confusion matrix from the \texttt{conv-jim} model with adversarial label train on the Generator weights, is shown in \rfig{exp_final_confusion}.
 \begin{figure}[!ht]
   \centering
   \includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_final_confusion.png}
-  \caption{Confusion matrix of the \texttt{conv-jim} model pre-trained with adversarial label train of 100 epochs using the Generator weights, and 2000 epochs of usual training, with frame-based normalization applied.}
+  \caption{Confusion matrix of the \texttt{conv-jim} model pre-trained with adversarial label train of 100 epochs using the Generator weights and 2000 training epochs applied with frame-based normalization.}
   \label{fig:exp_final_confusion}
 \end{figure}
 \FloatBarrier
 \noindent
-From the confusion matrix it can be observed that most classifications are done correctly and that misconceptions usually happens at similar words with the same used phonemes, like \enquote{go} and \enquote{no}.
+From the confusion matrix it can be observed that most classifications are done correctly and that misconceptions usually happens at similar words with the same used phonemes like \enquote{go} and \enquote{no}.
 The mixed labels also add more difficulty to the classification task and drags the scores down.
 
 The weights of the first convolutional layers of the trained model weights are visualized in \rsec{appendix_weights}.
-All in all the obtained scores should be sufficient for a video game application.
+All in all, the obtained scores should be sufficient for a video game application.
