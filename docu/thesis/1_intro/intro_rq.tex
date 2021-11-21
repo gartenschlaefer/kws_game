@@ -94,7 +94,7 @@ It is better to rely on that players are using key words for most of the time so
 In the ideal case, video games with KWS do not slow down during the inference process of unknown input data.
 The restriction of the amount of computations and time for the classification of key words is given by the minimum Frames Per Second (FPS) a video game is perceived as fluent.
 That requires the FPS to not fall under a certain limit (usually 30 FPS in video games), otherwise the fluidity of the game is not guaranteed.
-Several different neural network approaches with a low computational footprint must therefore be tested and compared against each other regarding classification rate and energy efficiency.
+Therefore, several different neural network approaches with a low computational footprint have to be tested and compared against each other regarding classification rate and energy efficiency.
 The transfer of weights from GANs is an interesting approach to evaluate whether the trained parameters are also useful for pure classification tasks in CNNs.
 Wavenets have the advantage that they do not need a feature extraction stage but it is questionable whether the network design achieves a reasonable computational footprint.
 
@@ -103,7 +103,7 @@ Wavenets have the advantage that they do not need a feature extraction stage but
 % video games
 
 \subsection{Video Games with KWS Research Questions}\label{sec:intro_rq_games}
-Video games that use KWS can create a unique playing experience but must face certain challenges.
+Video games that use KWS can create a unique playing experience but have to face certain challenges.
 Following questions can be stated:
 \begin{enumerate}[label={Q.3.\alph*)}, leftmargin=1.75cm]
   \item How should the onset of a key word be detected, so to reduce computations?\label{it:q3-a}

@@ -24,7 +24,7 @@ Activation functions for neural networks are usually present in each node and de
 \end{equation}
 where $h$ is the activation function, $\bm{w} \in \R^n$ is a weight vector and $\bm{x} \in \R^n$ an input vector representing the connections from a total number of $n$ nodes in the previous layer.
 The output of each node in a current layer further connects to other nodes in the next layer, hence builds up the neural network.
-The constraint of an activation function is that an easy computable derivative must exist.
+The constraint of an activation function is that an easy computable derivative has to exist.
 This allows the backpropagation of gradients from the activation function.
 
 The most famous activation function nowadays, is the Rectified Linear Unit (ReLU) \cite{Zeiler2013_relu} function:

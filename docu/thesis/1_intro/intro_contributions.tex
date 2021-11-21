@@ -2,32 +2,32 @@
 % contributions
 
 \section{Contributions}
-A KWS system for video games requires fast response times, therefore, it was necessary to reduce the classification time interval from the examples of the used speech commands dataset \cite{Warden2018} from \SI{1}{\second} to at most \SI{500}{\milli\second}.
+A KWS system for video games requires fast response times, therefore, it was essential to reduce the classification time interval from the examples of the used speech commands dataset \cite{Warden2018} from \SI{1}{\second} to at most \SI{500}{\milli\second}.
 The reduction of the time interval was achieved by determining the onset of the highest energy region within the speech signal, by extracting the MFCCs and using the first cepstral coefficient as energy measure.
 
 CNN models with low computational footprints, such as examined in \cite{Sainath2015}, were the main evaluation subject within this thesis.
-Besides a low computational footprint of the CNN models, the amount of neural network layers was hold to a minimum such that information retrieval of the learned filters from the convolutional layers was still possible and illustrative.
-MFCCs were used as input features to the CNN models with experiments upon the number of cepstral coefficients and possible enhancement, such as delta and energy features.
-It is explained why a reduction and sparing of enhancements are often preferred, especially for an energy efficient solution.
+Besides a low computational footprint of the CNN models, the aim was to minimize the amount of neural network layers such that information retrieval of the learned filters from the convolutional layers was still possible and illustrative.
+The use of MFCC features for the CNN models required the conduction of experiments upon the number of cepstral coefficients and possible enhancements of MFCCs, such as delta, double delta, and energy features.
+It is explained why a reduction and sparing of enhancements are often preferred, especially for a computationally efficient solution.
 
 A frame-based normalization (normalization regarding the time dimension) was introduced and performed on MFCCs to suite them better for visualization and to use them for GAN training.
-Evaluation of the frame-based normalization was done in terms of accuracy, shift and noise invariance on conventional CNN models.
-The advantages and disadvantages of such a normalization technique are discussed.
+Evaluation of the frame-based normalization was done in terms of accuracy, and shift and noise invariance on conventional CNN models.
+Moreover, the advantages and disadvantages of such a normalization technique were discussed.
 
 Another large evaluation topic was the application of GANs on the MFCC extracted speech commands. 
-With frame-based normalization the Generator (G) network was able to learn to create convincing fakes to fool the Discriminator (D) network much faster.
+With frame-based normalization the Generator (G) network was able to learn to create convincing fakes in order to fool the Discriminator (D) network much faster.
 Although it was found that when G and D are trained for too long, a noisy equilibrium state may emerge, where both networks generate random outputs of either fake images or decisions.
 To solve this problem, a second loss term for G was added that measures the similarity of the generated samples to the input data by applying the cosine distance.
 This helped to improve the generation of fake images and did not lead into noisy equilibrium states anymore.
 
-From the adversarial training of GAN networks, it was examined on how their obtained weights can contribute in the performance of an equivalent CNN model with same convolutional layer structures.
+From the adversarial training of GANs, it was examined on how their obtained weights can contribute to the performance of an equivalent CNN model with same convolutional layer structures.
 The transfer of the obtained weights (transfer learning) from either D or G was used to initialize the target CNN model for the KWS task.
 The experiments show that the obtained weights of G can be very valuable, when frame-based normalization was applied.
 
 A completely different approach for the KWS task, was the evaluation of a Wavenet \cite{Oord2016} model for classification.
-However, with the initial hope that without feature extraction less computations are required in the application of an online system for video games, turned out to be wrong.
+However, the initial assumption that without feature extraction less computations might be required in the application of an online system for video games, finally turned out to be wrong.
 Wavenets have to run a huge amount of operations by processing each sample of the audio files from the dataset through dilated convolutional filters over many layers.
-Furthermore, the performance of a reasonable sized Wavenet turned out to be very bad compared to the CNN approaches.
-Nevertheless, this model with an extension for class predictions was evaluated and results are provided for future research.
+Furthermore, the accuracy performance of a reasonable sized Wavenet turned out to be very poor compared to the CNN approaches.
+Nevertheless, this model with an extension for class predictions was evaluated and the obtained results are now provided for future research.
 
 A complete game design and deployment of a KWS video game with a game mechanic of moving blocks was done, where the incorporated KWS system consists of an online system for capturing the microphone input stream and a classification system to render speech commands to certain actions in the game.

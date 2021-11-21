@@ -15,15 +15,15 @@ With the abstract formulation:
 	\hat{s} = \underset{s_i \in S}{\arg \min} \, \mathcal{D}(t, s_i)
 \end{equation}
 the most probable key word $\hat{s}$ can be predicted, where $\mathcal{D}$ is some kind of distance measure between two words.
-The formulation in \req{intro_kws_task} is merely semantic but KWS in computer systems must cope with various transformations of raw input samples of audio data denoted as $\bm{x} \in \R^n$ with a total number of $n$ samples.
+The formulation in \req{intro_kws_task} is merely semantic but KWS in computer systems have to cope with various transformations of raw input samples of audio data denoted as $\bm{x} \in \R^n$ with a total number of $n$ samples.
 An inference from audio data to output class probabilities $\bm{y} \in \R^L$ can, for example, be achieved by the use of a neural network containing a softmax function at its last layer (transforming the output of the last layer to probability values).
 The most probable key word can therefore be picked by:
 \begin{equation}\label{eq:intro_kws_class}
 	\hat{s} = \{s_i \mid \underset{i = 0, 1, \dots, L}{\arg \max} \, y_i\}
 \end{equation}
-where the index $i$ of the output class probability $y_i$ must correspond to the intended key word $s_i$ in the vocabulary.
+where the index $i$ of the output class probability $y_i$ corresponds to the intended key word $s_i$ in the vocabulary.
 
 In comparison to full Automatic Speech Recognition (ASR), where whole sentences need to be identified, KWS operates merely on the word level.
 Therefore, KWS is a bit easier to deploy and less complex than ASR.
-On the other hand KWS systems must run very energy efficiently on low energy devices, such as mobile phones, and provide immediate and accurate responses to the users.
+On the other hand KWS systems have to run very energy efficiently on low energy devices, such as mobile phones, and provide immediate and accurate responses to the users.
 A good elaboration on the requirements of KWS systems can be found in the motivation section of \cite{Warden2018}.

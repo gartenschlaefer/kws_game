@@ -89,8 +89,9 @@ The second lowest footprint is given by the \texttt{conv-jim} model, while the \
 
 \subsection{Generative Adversarial Neural Networks}\label{sec:nn_arch_adv}
 GANs, as already mentioned in \rsec{prev_nn_adv} and \rsec{nn_theory_gan} consist of two separate neural network architectures, denoted as Discriminator (D) and Generator (G).
-Being able to transfer the obtained weights from the training of the adversarial models requires that the layer parameters of the receiving network must coincide with the adversarial network layer parameters.
-This implies that the kernel size of the filters must be equal for each layer, the amount of filters does not necessarily have to be the same.
+Being able to transfer the obtained weights from the training of the adversarial models requires that the layer parameters of the receiving network have to coincide with the adversarial network layer parameters.
+This implies that the kernel size of the filters has to be equal for each layer.
+But the amount of filters does not necessarily have to be the same.
 The convolutional layer parameters of both D and G can be transferred, even though G performs a convolutional upsampling (transposed convolution) instead of a usual convolution.
 However, it is preferred to use a normalization technique, such as the frame-based normalization. 
 Otherwise the transferring of weights might be disadvantageous for the classifier network.

@@ -19,7 +19,7 @@ More detailed descriptions of the individual sub systems are provided below.
 
 \subsection{Online System}
 The online system is mainly composed of a FIFO buffer for input data storage and an energy onset detection.
-The length of the FIFO buffer must be at least as large as the sample length of the speech command examples used to train the neural networks for classification.
+The length of the FIFO buffer has to be at least as large as the sample length of the speech command examples used to train the neural networks for classification.
 The recorded files in the speech command dataset have a time duration of \SI{1}{\second}. 
 Using this time duration however would have made the classification of key words very slow and influenced the gaming experience.
 In this thesis, the length of a key word was restricted to \SI{500}{\milli\second} or 8000 samples.
