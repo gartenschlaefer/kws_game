@@ -9,30 +9,30 @@ Historical remarks on neural networks are presented as well as a brief overview 
 % prev history
 
 \subsection{Historical Remarks on Neural Networks}\label{sec:prev_nn_history}
-The first step towards computational neural networks, as they are known today, was the introduction of the so called \enquote{Perceptron} by Rosenblatt in the year 1958 \cite{Rosenblatt1958}. 
-The idea of the Perceptron emerged from physiologists, trying to model a physiological neural network in computational terms. 
+The first great advance towards computational neural networks, as they are known today, was the introduction of the so called \enquote{Perceptron} by Rosenblatt in the year 1958 \cite{Rosenblatt1958}. 
+The idea of the Perceptron emerged from physiologists trying to model a physiological neural network in computational terms. 
 This first model was based on the information processing of the retina (input nodes), which passes through several physiological neural networks (hidden nodes) and finally elicit an action or decision (output nodes).
-Publishing his work and implementing those ideas in an actual computer system (at those time computers were huge boxes), Rosenblatt kicked of the domain of computational learning systems.
-The race of finding best neural network architectures for specific regression or classification tasks had begun.
+By publishing his work and implementing those ideas in an actual computer system (at those time computers were huge boxes), Rosenblatt initiated the domain of computational learning systems regarding neural networks.
+The competition of finding best neural network architectures for specific regression or classification tasks had begun.
 
-Another great advance in the history of neural networks, was the introduction of a very famous learning algorithm known as \enquote{backpropagation}, evolved by several authors at the same time \cite{LeCun1986} and \cite{Rumelhart1986} in the late 80s. 
+Another great advance in the history of neural networks, was the introduction of a very famous learning algorithm known as \enquote{backpropagation} evolved by several authors at the same time \cite{LeCun1986} and \cite{Rumelhart1986} in the late 80s. 
 Even nowadays, 35 years after introducing backpropagation, it is still the \emph{de facto} standard in training neural networks.
 Nowadays backpropagation is implemented in every machine learning framework for neural networks as its core element.
 Such frameworks are, for instance, \texttt{Pytorch} \cite{Pytorch} or \texttt{Tensorflow} \cite{Tensorflow}, which are capable of handling the gradient calculation (automatic differentiation) and backpropagation algorithm of those gradients in the background.
 
-The neural networks reputation during the time until now, was not always seen that splendid.
-The general problem of handling overfitting (prevent networks from learning data samples by heart) and improve generalization on unseen data, is still an unsolved problem in many applications.
+The neural network reputation during the time until now, was not always seen that splendid.
+The general problems of handling overfitting (models learn data samples by heart) and generalization on unseen data, are still present in many applications.
 Some mathematicians working in the field of statistical methods in learning theory for pattern recognition, regard neural networks as being not meaningful in the advance of learning theory, such as one quote from \cite{Vapnik1995} of Vapnik's book in 1995 about natural learning theory states:
 \begin{quote}
 ...In spite of important achievements in some specific applications using neural networks, the theoretical results obtained did not contribute much to general learning theory...
 \end{quote}
 This quote is true in the sense of that the complexity of neural networks consisting of many layers makes the tracing of the learning process very difficult.
-No concrete formulas apart from the calculation of gradients exactly explains what neural networks are learning.
+No concrete formulas apart from the calculation of gradients can exactly explain what neural networks are learning.
 Therefore, many researchers remained using the classical statistical learning methods, such as the famous Support Vector Machines (SVM) \cite{Cortes1995}.
 Over a long time, SVMs were preferred over neural networks because they were better understood due to their profound mathematical formulations and their achievements of state of the art performances by applying sophisticated feature extraction stages in between.
 Not until 2012, neural networks gained more popularity again by scoring new benchmarks in image classification tasks with one famous paper \cite{Krizhevsky2012} where the previous benchmark of the best statistical method was bested by a significant score.
-Deep Learning was the new key to success, where neural network architectures consist of many layers and large amounts of parameters to train.
-Also in audio and language processing tasks, such as KWS, ASR and Natural Language Processing (NLP), the famous Hidden Markov Models (HMM) and other statistical methods get more and more replaced by neural networks.
+Deep Learning was the new key to success, where the neural network architectures consist of many layers and large amounts of parameters to train.
+Also in audio and language processing tasks, such as KWS, ASR, and Natural Language Processing (NLP), the famous Hidden Markov Models (HMM) and other statistical methods get more and more replaced by neural networks.
 
 
 % --
