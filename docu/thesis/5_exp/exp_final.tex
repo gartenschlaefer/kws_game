@@ -36,7 +36,7 @@ For instance, the \texttt{conv-trad} without frame-based normalization could hav
 
 There is a large gap between the evaluated models and the benchmark models in \rsec{prev_kws_benchmark}.
 With \SI{84.62}{\percent} the \texttt{conv-jim} model with adversarial pre-training performs about \SI{10}{\percent} worse than the benchmark model (DS-CNN-S \cite{Zhang2017}) with \SI{94.4}{\percent}.
-Although it has to be considered that the amount of operations for the \texttt{conv-jim} model are about 6 times lower than the DS-CNN-S and that not the whole audio file of \SI{1}{\second} was processed but a shorter time interval of \SI{500}{\milli\second}.
+Although it has to be considered that the amount of operations for the \texttt{conv-jim} model is about 6 times lower than the DS-CNN-S and that not the whole audio file of \SI{1}{\second} was processed but a shorter time interval of \SI{500}{\milli\second}.
 With this in mind, the results do not look that poor.
 To observe the problems in classification, a confusion matrix from the \texttt{conv-jim} model with adversarial label train on the Generator weights, is shown in \rfig{exp_final_confusion}.
 \begin{figure}[!ht]

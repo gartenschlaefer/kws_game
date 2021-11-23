@@ -19,7 +19,7 @@ However, for this thesis, it is enough to use trivial methods that do not requir
 
 \subsection{Key Word Onset Detection}\label{sec:signal_onset_kw}
 An intuitive method to detect the onsets of key words in a fixed time signal is to simply use the signal energy.
-Consider a fixed time signal $\bm{x} \in \R^n$ with a total number of $n$ samples that is windowed with a striding frame of sample length $N$ corresponding to a time duration of \SI{500}{\milli\second}, the energy of each windowed signal calculates as:
+Considering a fixed time signal $\bm{x} \in \R^n$ with a total number of $n$ samples that is windowed with a striding frame of sample length $N$ corresponding to a time duration of \SI{500}{\milli\second}, the energy of each windowed signal calculates as:
 \begin{equation}\label{eq:e_win}
   e[m] = \sum_{i=0}^{N-1} \abs{x[m + i]}^2
 \end{equation}
@@ -68,7 +68,7 @@ A showcase on the performance of both energy onset detection methods is provided
 \FloatBarrier
 \noindent
 It can be observed that the MFCC onset method achieves better results especially for the \enquote{left} example, where a little noise peak shifts the sample energy onset too far to the left so that the analytic window at this onset position does not capture the whole word.
-Note that the dataset extraction in the experiments in \rsec{exp} apply the MFCC onset method for all CNN models and the sample energy method for the Wavenet model.
+Note that the dataset extraction in the experiments in \rsec{exp} applies the MFCC onset method for all CNN models and the sample energy method for the Wavenet model.
 
 
 % --

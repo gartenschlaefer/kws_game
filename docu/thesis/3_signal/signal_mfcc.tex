@@ -15,7 +15,7 @@ The processing scheme of MFCCs \cite{Mermelstein1980} is as follows:
 Raw audio samples are transformed into the frequency domain with the STFT.
 Afterwards the power spectrum of the STFT is computed and segmented into frequency bands through equidistantly spaced triangular window functions on the Mel scale.
 The unit of \enquote{Mel} shares a non-linear relationship to the frequency scale and is described in detail in \rsec{signal_mfcc_pipeline}.
-The Mel scale was developed in psycho-acoustic experiments, where researchers learned that high frequency sounds (above approximately \SI{500}{\hertz}) are perceived lower than they actual are in the musical or mathematical sense of a pitch interval.
+The Mel scale was developed in psycho-acoustic experiments, where researchers learned that high frequency sounds (above approximately \SI{500}{\hertz}) are perceived lower than they actually are in the musical or mathematical sense of a pitch interval.
 In the musical or mathematical sense, a pitch interval of an octave is the doubling of a fundamental frequency.
 However, human hearing is different in its perception and frequency doubling does not necessarily mean a doubling of the perceived pitch.
 The Mel scale is therefore suited to the perception of human hearing of pitch and separating the frequency space into equidistant Mel bands is a reasonable approach.
@@ -116,7 +116,7 @@ where $c$ is the individual MFCC coefficient, $m$ the frame (time) index, and $\
 This equation results in a value space between $[0, 1]$ for each feature vector $\bm{u}_c$.
 This normalization technique is denoted as \emph{frame-based normalization} and will be an important evaluation subject in the following sections.
 
-A visualization of MFCC features with 32 filter bands and 32 cepstral coefficients and frame-based normalization of each coefficient is shown in \rfig{signal_mfcc_showcase_mfcc32}.
+A visualization of MFCC features with 32 filter bands, 32 cepstral coefficients, and frame-based normalization of each coefficient, is shown in \rfig{signal_mfcc_showcase_mfcc32}.
 \begin{figure}[!ht]
   \centering
     \subfigure[left]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_mfcc_showcase_mfcc32_left0.png}}
@@ -132,7 +132,7 @@ A visualization of MFCC features with 32 filter bands and 32 cepstral coefficien
 The frame-based normalization is an interesting technique to improve the visualization of MFCC features.
 Nevertheless, this normalization technique can be critical. 
 A normalization that operates only in one dimension changes important structures within the other dimensions, and it cannot be answered yet, whether this is a problem for the classification task in the later sections.
-One more research question arises here: Is it possible to use frame-based normalized MFCC features as inputs to neural network models and what is the impact on the classification accuracy.
+One more research question arises here: Is it possible to use frame-based normalized MFCC features as inputs to neural network models and what is the impact on the classification accuracy?
 
 
 % --
@@ -141,12 +141,12 @@ One more research question arises here: Is it possible to use frame-based normal
 \subsection{MFCC Feature Usage and Enhancement}\label{sec:signal_mfcc_enhancement}
 After MFCCs are computed by choosing the amount of filter bands $B$ and cepstral coefficients $C$, they can already be used as input features for neural networks.
 The question arises, whether feature enhancements can improve the performance in classification.
-The best practice, applied in many papers, is to use $B=32$, $C=12$, compute derivatives of those 12 MFCC coefficients, named as \emph{deltas} (first derivative regarding the frame dimension) and \emph{double deltas} (second derivative) and add \emph{energy vectors} of the 12 coefficients and each one of the deltas.
+The best practice, applied in many papers, is to use $B=32$, $C=12$, compute derivatives of those 12 MFCCs, denoted as \emph{deltas} (first derivative regarding the frame dimension) and \emph{double deltas} (second derivative) and add \emph{energy vectors} of the 12 coefficients and each one of the deltas.
 The deltas are simply computed as frame difference of the MFCCs by:
 \begin{equation}\label{eq:signal_mfcc_delta}
   \Delta u_c[m] = \frac{u_c[m - 1] + u_c[m + 1]}{2}
 \end{equation}
-where $u_c[m]$ is the c-th MFCC coefficient at frame $m$, where $m = 0, 1, \dots, M$ is therefore the frame index of a total number of $M$ frames.
+where $u_c[m]$ is the c-th MFCC coefficient at frame $m$, where $m = 0, 1, \dots, M$ is the frame index of a total number of $M$ frames.
 Note that the computation of the deltas at the edges $m=0$ and $m=M$ is not possible and that the same value is obtained from the neighbor at this specific positions.
 The second derivative of MFCC features, known as double deltas, are the frame differences of the deltas and likewise computed as in \req{signal_mfcc_delta}.
 Another enhancement is the computation of an energy feature vector of the MFCCs expressed by:
@@ -193,19 +193,19 @@ The count of operations is sufficient for this thesis and provides a comparison 
 The computational complexity for the extraction of MFCC features is the amount of operations required to process a \SI{1}{\second} time signal sampled with $f_s = \SI{16}{\kilo\hertz}$.
 All MFCC specific extraction details are collected in \rtab{signal_mfcc_extraction_params}.
 \input{./3_signal/tables/tab_signal_mfcc_extraction_params}
-The amount of operations are the total number of additions and multiplications necessary to fulfill the process.
+The amount of operations is the total number of additions and multiplications necessary to fulfill the process.
 The major components of the MFCC are, as described in \rsec{signal_mfcc_pipeline} and summarized in \req{signal_mfcc_mfcc}, the transformation to the STFT, the weighting with the filter bands, and the DCT transform.
 The most costly component is of course the STFT, which again is composed of the DFT.
 Note that the DFT uses complex multiplications and additions.
 One complex multiplication equals to 4 real multiplication and 2 additions, so one complex multiplication consists of 6 operations.
 For one complex addition, two real additions are necessary and equals therefore to 2 operations.
-A general matrix multiplication with a vector $y = A \bm{x}$, where $A \in \R^{m \times n}$ and $\bm{x} \in \R^n$ is composed of $m \cdot n$ multiplications and $m \cdot (n - 1)$ additions, where for simplicity the amount of additions is also approximated to $m \cdot n$.
+A general matrix multiplication with a vector $y = A \bm{x}$, where $A \in \R^{m \times n}$ and $\bm{x} \in \R^n$ is composed of $m \cdot n$ multiplications and $m \cdot (n - 1)$ additions, where for simplicity the amount of additions is also approximated with $m \cdot n$.
 
 The amount of operations, denoted as $\mathcal{T(.)}$, for a trivial DFT transform with operator $\mathcal{F} \in \C^{K \times N}$ and $K$ Fourier coefficients on a windowed signal $\bm{x} \in \R^N$ with a total sample number of $N$ is:
 \begin{equation}
   \mathcal{T}(\mathcal{F} \bm{x}) = 6 (N K) + 2 (N K)
 \end{equation}
-and give for $N = K = 400$ the amount of operations $\mathcal{T}(\mathcal{F} \bm{x}) = \SI{1.28}{\mega\ops}$ for a single DFT.
+and gives for $N = K = 400$ the amount of operations $\mathcal{T}(\mathcal{F} \bm{x}) = \SI{1.28}{\mega\ops}$ for a single DFT.
 This of course are too many operations for a real time system, luckily a more sophisticated Fourier transform can be applied with the Fast Fourier Transform (FFT) algorithm \cite{Brigham1967}, which gives a linear complexity as follows:
 \begin{equation}
   \mathcal{T}(\mathcal{F} \bm{x}) = 6 (\mathcal{O}(N \cdot \log_2 N)) + 2 (\mathcal{O}(N \cdot \log_2 N)).

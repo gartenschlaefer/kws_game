@@ -84,9 +84,9 @@ For all nodes in a current layer this equation of a single node can be summarize
 \end{equation}
 where $\bm{b} \in \R^m$ are the bias terms and $\bm{z} \in \R^m$ the outputs of all nodes in the current layer $m$.
 With the matrix representation it is easy to obtain the number of training parameters and amount of operations needed for a FC layer.
-The amount of parameters are clearly $m \cdot n$ for $W$ and $m$ for $\bm{b}$, so in total this results in $m \cdot n + m$ parameters.
-The amount of operations are the matrix vector multiplication with approximated amounts of multiplication and additions, plus the additive bias terms.
-Disregarding the activation function leads to an amount of calculations of approximately:
+The amount of parameters is clearly $m \cdot n$ for $W$ and $m$ for $\bm{b}$, so in total this results in $m \cdot n + m$ parameters.
+The amount of operations includes the matrix vector multiplication with approximated amounts of multiplication and additions, plus the additive bias terms.
+By disregarding the activation function, this leads to an amount of operations of approximately:
 \begin{equation} 
   \mathcal{T}(W \bm{x} + \bm{b}) = 2 (m \cdot n) + m
 \end{equation}
@@ -136,7 +136,7 @@ where $o_j$ is the resulting j-th feature map or output channel, $x_i$ the i-th 
 
 The parameters of a convolutional layer consist of weights and bias terms in the convolutional filters.
 However, the bias terms for each filter are optional.
-By ignoring the bias terms, the amount of parameters are $\#k \cdot d_{k_w} \cdot d_{k_h}$ for a two dimensional convolutional layer, which makes $3 \cdot 4 \cdot 5 \cdot 5 = 300$ parameters for the example in \rfig{nn_theory_cnn_basics}.
+By ignoring the bias terms, the amount of parameters is $\#k \cdot d_{k_w} \cdot d_{k_h}$ for a two dimensional convolutional layer, which makes $3 \cdot 4 \cdot 5 \cdot 5 = 300$ parameters for the example in \rfig{nn_theory_cnn_basics}.
 The amount of operations of a convolutional layer is given by all convolution operations for each filter and the summation to $j$ output channels.
 One convolution with a single two dimensional kernel $k$ and one input channel $x$ results in an approximate number of multiplication and addition operations:
 \begin{equation}

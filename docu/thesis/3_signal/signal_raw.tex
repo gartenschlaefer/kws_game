@@ -13,7 +13,7 @@ The restriction of the frequency range is given by the Nyquist-Shannon sampling 
 in order to avoid aliasing effects in the sampled signal.
 For that reason the compact disc (CD) format uses a sampling frequency of \SI{44.1}{\kilo\hertz}, resulting in a maximum signal frequency of \SI{22.05}{\kilo\hertz}, exploiting the fact that humans do not hear above \SI{20}{\kilo\hertz} frequencies.
 Although it is affordable to go far beyond those \SI{44.1}{\kilo\hertz} in the application of speech signals. 
-For instance, the telephone systems uses a sampling rate of \SI{8}{\kilo\hertz}.
+For instance, the telephone systems use a sampling rate of \SI{8}{\kilo\hertz}.
 Speech signals usually do not require such a high sampling frequency to result in sufficient quality and being perceived as understandable.
 Music on the other hand, requires a high sampling frequency for being enjoyable to listen to.
 
@@ -41,10 +41,10 @@ One example of each of those speech commands is contained in the showcase exampl
 From the shown recordings it can be estimated how long a speech command out of this vocabulary may take in terms of duration.
 The observation of those examples suggests that usually a duration of \SI{1}{\second} is too much.
 The pronunciation of words can of course deviate strongly in duration.
-But usually when using commands words, it is preferred to speak short and well pronounced.
-When a time interval of \SI{500}{\milli\second} is used to capture a speech command (this time interval is used in the feature extraction stage of the experiments), it might happen that not every phoneme of the spoken words are captured.
+But usually when using commands words, it is preferred to speak shortly and well pronounced.
+When a time interval of \SI{500}{\milli\second} is used to capture a speech command (this time interval is used in the feature extraction stage in the experiments), it might happen that not every phoneme of the spoken words is captured.
 Often this might occur for words with glottal stops before consonants, for example, the phoneme \enquote{t} in \enquote{left} or \enquote{right}, hence the input features may only contain information of the first phonemes and miss the \enquote{t}.
-However, since KWS is restricted in its vocabulary and no similar words are contained within, it should be no problem in distinguishing those.
+However, since KWS is restricted in its vocabulary and no similar words are contained within, it should be no problem in distinguishing them.
 
 Another important aspect of using limited time intervals for key words is to detect an appropriate onset (beginning of the key word) position on the time axis of the signal.
 In \rfig{signal_raw_showcase} it is easy to spot the beginning and ending of the showcase examples but usually not all recordings are as clean as those.
