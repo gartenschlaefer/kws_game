@@ -141,15 +141,14 @@ class CanvasHelpMenu(Canvas):
 
     # add text
     self.interactable_dict.update({'text_title': Text(self.canvas_surf, message='Help', position=(270, 20), font_size='small', color=self.color_bag.text_menu)})
-    self.interactable_dict.update({'text_project': Text(self.canvas_surf, message='Key Word Spotting Game, MA thesis project @TUGraz.', position=(40, 75 + 25*0 + 10*0), font_size='tiny_small', color=self.color_bag.text_menu)})
+    self.interactable_dict.update({'text_project': Text(self.canvas_surf, message='Keyword Spotting Game, MA thesis project @TUGraz.', position=(40, 75 + 25*0 + 10*0), font_size='tiny_small', color=self.color_bag.text_menu)})
     self.interactable_dict.update({'text_controls': Text(self.canvas_surf, message='Controls:', position=(40, 75 + 25*1 + 10*1), font_size='tiny_small', color=self.color_bag.text_menu)})
     self.interactable_dict.update({'text_help1': Text(self.canvas_surf, message='Movement: [Arrow keys], Jump: [Space], End: [ESC]', position=(40, 75 + 25*2 + 10*1), font_size='tiny_small', color=self.color_bag.text_menu)})
     self.interactable_dict.update({'text_help2': Text(self.canvas_surf, message='Speech commands: [left, right, up, down, go]', position=(40, 75 + 25*3 + 10*1), font_size='tiny_small', color=self.color_bag.text_menu)})
     self.interactable_dict.update({'text_help3': Text(self.canvas_surf, message='A microphone is necessary to play this game.', position=(40, 75 + 25*4 + 10*2), font_size='tiny_small', color=self.color_bag.text_menu)})
-    self.interactable_dict.update({'text_help4': Text(self.canvas_surf, message='Checkout the option menu for your mircrophone settings.', position=(40, 75 + 25*5 + 10*2), font_size='tiny_small', color=self.color_bag.text_menu)})
+    self.interactable_dict.update({'text_help4': Text(self.canvas_surf, message='Checkout the option menu for your microphone settings.', position=(40, 75 + 25*5 + 10*2), font_size='tiny_small', color=self.color_bag.text_menu)})
     self.interactable_dict.update({'text_help5': Text(self.canvas_surf, message='Collect spaceship parts to win the game.', position=(40, 75 + 25*6 + 10*3), font_size='tiny_small', color=self.color_bag.text_menu)})
     self.interactable_dict.update({'text_help6': Text(self.canvas_surf, message='Game Version: 1.0', position=(40, 75 + 25*7 + 10*4), font_size='tiny_small', color=self.color_bag.text_menu)})
-    #self.interactable_dict.update({'text_credits': Text(self.canvas_surf, message='Credits: Christian Walter', position=(40, 50 + 200), font_size='tiny_small', color=self.color_bag.text_menu)})
 
     # end button
     self.interactable_dict.update({'end_button': EndButton(self.canvas_surf, position=(30, 375), scale=(3, 3))})
@@ -252,7 +251,7 @@ class CanvasCommand(Canvas):
     self.interactable_dict.update({'text_class{}'.format(v): Text(self.canvas_surf, message='{}'.format(k), position=(30 + 90 * int(v > 5), (5 + 30 + 18*2) + 15 * v - (15 * 6) * int(v > 5)), font_size='tiny', color=self.color_bag.text_menu) for (k, v) in self.mic.classifier.class_dict.items()})
 
     # kws text
-    self.interactable_dict.update({'text_kws': Text(self.canvas_surf, message='Key Word Spotting', position=(10, 190), font_size='tiny_small', color=self.color_bag.text_menu_active, enabled=False)})    
+    self.interactable_dict.update({'text_kws': Text(self.canvas_surf, message='Keyword Spotting', position=(10, 190), font_size='tiny_small', color=self.color_bag.text_menu_active, enabled=False)})    
     self.interactable_dict.update({'text_cmd{}'.format(i): Text(self.canvas_surf, message='_', position=(30, 190 + 30 + 18 * i), font_size='tiny', color=self.color_bag.text_menu_active, enabled=False) for i in range(0, self.num_kws_cmds)})
 
 

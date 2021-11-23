@@ -3,10 +3,10 @@
 
 \section{Research Questions for this Thesis}\label{sec:intro_rq}
 This section formulates relevant research questions regarding KWS in video games.
-Those research questions can be split into 3 parts:
+They can be split into three parts:
 \begin{enumerate}[label={Q.\arabic*)}, leftmargin=1.4cm]
   \item Signal processing and feature extraction of speech signals.
-  \item Neural network training and classification for KWS.
+  \item Training of neural networks and classification for KWS.
   \item Video games with KWS.
 \end{enumerate}
 Note that the terms \enquote{key word} and \enquote{speech command} are often named interchangeably because speech commands are used as key words in the KWS system.
@@ -18,12 +18,12 @@ Nevertheless, those questions can be asked and some solution concepts discussed.
 % signal
 
 \subsection{Signal Processing and Feature Extraction Research Questions}\label{sec:intro_rq_signal}
-Acquiring meaningful features from speech signals is essential for neural networks to operate on. 
+It is essential for neural networks to input meaningful features that are extracted from the speech signals. 
 The features are extracted from raw audio samples of a microphone input stream in a specific time interval.
 Those retrieved features are further input to a neural network for the classification of speech commands.
 The following Questions arise here:
 \begin{enumerate}[label={Q.1.\alph*)}, leftmargin=1.75cm]
-  \item Which time interval should be captured to represent a speech command?\label{it:q1-a}
+  \item Which time interval should be used to capture a speech command?\label{it:q1-a}
   \item Does the signal processing have to be invariant to background noise and especially to game sounds?\label{it:q1-b}
   \item What are meaningful features for speech recognition?\label{it:q1-c}
 \end{enumerate}
@@ -39,7 +39,7 @@ Problems might occur if the speech commands are spoken repeatedly and very hasty
 Ideally the time interval to represent a speech command would be flexible but this more difficult to implement than a fixed time interval.
 
 \textbf{Question \ref{it:q1-b}:}
-Usually the presence of low background noise should not be a problem for neural networks trained on a large enough data set. 
+Usually the presence of weak background noise should not be a problem for neural networks trained on a large enough data set. 
 The game sounds might present a more difficult problem, when turned up too loud without the use of headphones. 
 Therefore, the microphone will not only capture the voice of a speaker but also a fair amount of game sounds. 
 This problem seems to be theoretically solvable as the shape of the nuisance is known and the amount of game sound in the audio stream could be attenuated sufficiently.
@@ -52,7 +52,7 @@ The determination of meaningful features for speech signals is a classical probl
 The essential composition of a word may help to understand the problematic better.
 A word is a sequential combination of either vowels, such as \enquote{a} and \enquote{e}, or consonants \enquote{k}, \enquote{l}, with a certain length. 
 In linguistics, for instance, it is possible to distinguish vowels with frequency peaks in a spectrogram, where a spectrogram is the magnitude squared of the frequency response of small time chunks over the time duration of a signal.
-However, due to many different factors in voice generation involved in speakers, such as age, gender, nationality and physiology of the vocal tract, there is a huge variance in the pronunciation of words from different persons, which increases the difficulty of the problem.
+However, due to many different factors in voice generation involved in speakers, such as age, gender, nationality, and physiology of the vocal tract, there is a huge variance in the pronunciation of words from different persons, which increases the difficulty of the problem.
 A very common approach is to use MFCCs as features for speech recognition tasks.
 Why MFCCs present reasonable features for speech, is described in detail in \rsec{signal_mfcc}.
 
@@ -60,7 +60,7 @@ Why MFCCs present reasonable features for speech, is described in detail in \rse
 % --
 % neural networks
 
-\subsection{Neural Network Implementation Research Questions}\label{sec:intro_rq_nn}
+\subsection{Neural Network Research Questions}\label{sec:intro_rq_nn}
 Neural networks for video games should ideally be very efficient and provide accurate classifications of input features.
 The vocabulary in a KWS task has to be specified for the individual game and chosen from all class labels available in the dataset.
 Each key word of the vocabulary is presented by one output node of the neural network architecture.
@@ -81,7 +81,7 @@ The dataset consist of 35 labels and contains commands for movement and numbers.
 Further, it includes randomly selected words like \enquote{marvin} or \enquote{bird} intended to represent \emph{unknown} words for the KWS system.
 It has to be noted that not every game idea can be realized with a restricted vocabulary.
 Nevertheless, with commands for movement like \enquote{left} or \enquote{go} it is possible to move objects within a game and this can already be used for many game mechanics.
-An aspect regarding efficiency, is to restrict the amount of key words in the vocabulary as much as possible such that a cheaper neural network architecture can be deployed, which of course should still be sufficiently good in its classification accuracy.
+An aspect regarding efficiency, is to restrict the amount of key words in the vocabulary as much as possible such that a lightweight neural network architecture can be deployed, which of course should still be sufficiently good in its classification accuracy.
 
 \textbf{Question \ref{it:q2-b}:} 
 Without doubt, players will try out words that are not in the vocabulary (denoted as \emph{unknown} key words) and observe the response of the video game.
@@ -112,7 +112,7 @@ Following questions can be stated:
 \end{enumerate}
 \noindent
 \textbf{Question \ref{it:q3-a}:} 
-It is crucial to reduce computations in a video game in order to keep it running fluently during high performance peaks.
+It is crucial to reduce the computational complexity in a video game in order to keep it running fluently during high performance peaks.
 Also the unnecessary processing of meaningless input data should be avoided as much as possible.
 Ideally the key word classification is activated, when there is actually a speech command present, which however is not always trivial.
 One possibility to indicate the onset of a key word is to perform the relatively efficient calculation of an energy value within a certain time interval of the raw input data stream and have a simple threshold value decide, whether a speech command is available. 

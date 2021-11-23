@@ -173,7 +173,7 @@ The binary cross-entropy is implemented as:
 \begin{equation}\label{eq:nn_theory_binary_cross_entropy}
   l(x_i, y_i) = y_i \cdot \log x_i + (1 - y_i) \cdot \log (1 - x_i)
 \end{equation}
-with the training pair $(x_i, y_i)$, where $x_i \in \R^{N \times 1}$ is the feature input and $y_i \in \{0, 1\}^N$ the corresponding label.
+with the training pair $(x_i, y_i)$, where $x_i \in \R^{N \times 1}$ is the feature input, and $y_i \in \{0, 1\}^N$ the corresponding label.
 During the training procedure a whole batch with a total number of $N$ examples is used for one update step.
 However, the loss function should provide only a single output value, which can be achieved by calculating the mean value of all $l_i$ where $i = 0, \dots, N$ is the index of the examples in the actual batch.
 

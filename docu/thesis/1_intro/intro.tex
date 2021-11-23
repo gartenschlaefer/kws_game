@@ -23,8 +23,8 @@ In terms of video games, the set of key words might have members like \enquote{l
 The limited set of key words is crucial to restrict the complexity of the recognition task, since in practical applications it is not necessary to cover all words of a natural language.
 Especially in video games, where the game environment is limited by rules, technical limits, and play-ability, KWS is perfectly suited as an alternative or augmented control system.
 The size of the vocabulary and the selected words are two parameters that influence on the one hand the choice of the neural network architectures, which are evaluated on their computational efficiency and accuracy performance, and on the other hand the game interaction limited by the controls a player can choose from.
-If the vocabulary of a KWS system would be too large, the chance of confusion between two different key words grows naturally.
-In many KWS applications it is absolutely necessary to include labels for \emph{background noise}, \emph{silence} and \emph{unknown words} in the vocabulary. 
+If the vocabulary of a KWS system would be too large, it would be harder to distinguish between two similar key words.
+In many KWS applications it is absolutely necessary to include labels for \emph{background noise}, \emph{silence}, and \emph{unknown words} in the vocabulary. 
 This is especially interesting in \emph{wake word} applications, where a single key word has to be detected over the previously mentioned labels representing all other possible words that can be spoken.
 Also in video games those additional labels are useful to prevent the player from eliciting unintended commands accidentally through, for instance, loud background noise.
 Therefore, a KWS system demands to be very accurate and fast in its classification of key words.

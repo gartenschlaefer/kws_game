@@ -2,7 +2,7 @@
 % game design
 
 \section{Game Design}\label{sec:game_design}
-The game design includes essentially all considerations regarding rules, game mechanics, ideas, level and character designs, story and many more. 
+The game design includes essentially all considerations regarding rules, game mechanics, ideas, level and character designs, story, and many more. 
 Prior to explaining the game and its rules, it is important to mention the game menu and its vital settings for the input microphone device.
 The game rules explain the win and loose condition of the video game.
 Game mechanics define how the player interacts in the world and how to create actions that change the states of dedicated game objects.
@@ -21,9 +21,9 @@ It usually consists of several selectable buttons that are referencing, for inst
 The main and help menu of the deployed video game is shown in \rfig{game_design_menu_mainhelp}.
 \begin{figure}[!ht]
   \centering
-  \subfigure[Main Menu]{\includegraphics[width=0.45\textwidth]{./6_game/figs/game_design_menu_main.png}}
+  \subfigure[Main menu]{\includegraphics[width=0.45\textwidth]{./6_game/figs/game_design_menu_main.png}}
   \qquad
-  \subfigure[Help Menu]{\includegraphics[width=0.45\textwidth]{./6_game/figs/game_design_menu_help.png}}
+  \subfigure[Help menu]{\includegraphics[width=0.45\textwidth]{./6_game/figs/game_design_menu_help.png}}
   \caption{Main and help menu of the KWS game.}
   \label{fig:game_design_menu_mainhelp}
 \end{figure}
@@ -56,11 +56,12 @@ All option menu screens are shown in \rfig{game_design_menu_options}.
 % game rules
 
 \subsection{Game Rules}\label{sec:game_design_rules}
-A simple adventure game in a 2D-platformer view (movement are left-right and jump, like the classical \enquote{Super Mario} games) was implemented, where the player has to collect objects and dodge enemies.
-The win and loose condition of the game describe the rules to either win or loose the game.
+The implemented video game uses a simple 2D-platformer view, where the movement of the players is limited to left, right, and jump, similar to the classical \enquote{Super Mario} games.
+A win and loose condition describes the rules to either win or loose the game.
 In an attempt to satisfy the win condition, the player has to collect a single object within each individual level.
 Where the levels had been designed such that the player has to use speech commands in order to collect the desired object.
-Conversely, the player satisfies the loose condition by colliding with an enemy, which of course should be avoided.
+If all objects are successfully collected, the game ends and shows the credit screen.
+Conversely, the player satisfies the loose condition by colliding with an enemy, which of course should be avoided by dodging them.
 If the player runs into an enemy, a loose screen appears and the same level has to be restarted from its initial state.
 
 
@@ -76,7 +77,7 @@ A level can contain several moveable blocks and the switch between those is done
 The selected movable block is highlighted with a different color to distinguish it from the other moveable blocks.
 Furthermore, all movable blocks share the same base color to distinguish them from ordinary walls.
 At all times only one of all moveable block can be controlled by the player.
-The moveable blocks, walls and the collectable object are shown in \rfig{game_design_mechanic_thing} from a section of Level One.
+The moveable blocks, walls, and the collectable object are shown in \rfig{game_design_mechanic_thing} from a section of Level One.
 \begin{figure}[!ht]
   \centering
   \includegraphics[height=0.25\textwidth]{./6_game/figs/game_design_mechanic_thing.png}

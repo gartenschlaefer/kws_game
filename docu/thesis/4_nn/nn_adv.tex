@@ -22,7 +22,7 @@ In \req{nn_theory_gan} the game is notated as min-max game, from which the loss 
 \begin{equation}
   l_D(x_i, z_i, G) = l(D(x_i), y_r) + l(D(G(z_i)), y_f)
 \end{equation}
-where $l$ is the binary cross-entropy loss described in \req{nn_theory_binary_cross_entropy}, $D: \mathcal{X} \mapsto [0, 1]$ and $G: \mathcal{Z} \mapsto \mathcal{X}$ are the D and G model, $x_i \in \mathcal{X}$ is a data example, $z_i \in \mathcal{Z}$ is a randomly sampled latent variable, $y_r = 1$ is the real label and $y_f = 0$ the fake label for that specific example $i$.
+where $l$ is the binary cross-entropy loss described in \req{nn_theory_binary_cross_entropy}, $D: \mathcal{X} \mapsto [0, 1]$ and $G: \mathcal{Z} \mapsto \mathcal{X}$ are the D and G model, $x_i \in \mathcal{X}$ is a data example, $z_i \in \mathcal{Z}$ is a randomly sampled latent variable, $y_r = 1$ is the real label, and $y_f = 0$ the fake label for that specific example $i$.
 In contrast the loss of G, denoted as $l_G$, is given by:
 \begin{equation}
   l_G(z_i, D) =  l(D(G(z_i)), y_r)
@@ -33,7 +33,7 @@ An extended approach, so that G produces samples specifically similar to the dat
 \begin{equation}
   s(\bm{x_1}, \bm{x_2}) = \frac{\bm{x_1}^T \bm{x_2}}{\norm{\bm{x_1}}_2 \cdot \norm{\bm{x_2}}_2 + \epsilon} 
 \end{equation}
-where $s : (\mathcal{X}, \mathcal{X}) \mapsto [0, 1]$ is the cosine similarity function, $\bm{x_1}$ and $\bm{x_2}$ are two vectors for similarity measure and $\epsilon$ is a small number such that no division by zero is possible.
+where $s : (\mathcal{X}, \mathcal{X}) \mapsto [0, 1]$ is the cosine similarity function, $\bm{x_1}$ and $\bm{x_2}$ are two vectors for similarity measure, and $\epsilon$ is a small number such that no division by zero is possible.
 With the similarity loss incorporated, $l_G$ gets:
 \begin{equation}
   l_G(x_i, z_i, D) =  l(D(G(z_i)), y_r) + \lambda \left(1 - \frac{1}{C} \sum_{c=0}^{C} s(\hat{\bm{e}}_c^T x_i , \hat{\bm{e}}_c^T G(z_i)) \right)
@@ -62,7 +62,7 @@ For example, each label train gets 8 filters in the first convolutional layer.
 \begin{figure}[!ht]
   \centering
     \includegraphics[width=0.85\textwidth]{./4_nn/figs/nn_adv_label_scheme.pdf}
-  \caption{Label train scheme showing the first convolutional layers of \texttt{adv-d-jim}, \texttt{adv-g-jim} and \texttt{conv-jim} with 6 label subset as separate training instances using 100 epochs.}
+  \caption{Label train scheme showing the first convolutional layers of \texttt{adv-d-jim}, \texttt{adv-g-jim} and \texttt{conv-jim} with 6 label subsets as separate training instances using 100 epochs.}
   \label{fig:nn_adv_label_scheme}
 \end{figure}
 \FloatBarrier

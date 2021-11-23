@@ -35,7 +35,7 @@ The frequency spectrum is separated into filter bands through triangular window 
 Those window functions are equidistantly placed onto the Mel scale and therefore result in a varying number of frequency bins in the frequency scale for each window.
 The lower frequency bands receive fewer frequency bins, than the higher frequency bands.
 Sometimes the height of the individual triangular windows is scaled down such that the effect of unequal amounts frequency bins is equalized.
-However, high frequency signals usually carry less energy and therefore this scaling is in most cases neglected or not preferred.
+However, high frequency signals usually carry less energy so that this scaling is in most cases neglected or not preferred.
 
 The Mel - frequency relation can be approximated by:
 % mel
@@ -112,7 +112,7 @@ A solution to this problem is to normalize the feature vectors over each frame d
 \begin{equation}\label{eq:signal_mfcc_norm}
   U[c, m] \gets \frac{U[c, m] + \vert \underset{m \in \mathcal{M}}{\min} \bm{u}_c \vert}{\norm{\bm{u}_c + \vert \underset{m \in \mathcal{M}}{\min} \bm{u}_c \vert}_\infty} \quad \forall \, c, m = (0, 1, \dots, C - 1), (0, 1, \dots, M - 1)
 \end{equation}
-where $c$ is the individual MFCC coefficient, $m$ the frame (time) index and $\bm{u}_c \in \R^M$ the individual MFCC coefficient vector over all frames $M$.
+where $c$ is the individual MFCC coefficient, $m$ the frame (time) index, and $\bm{u}_c \in \R^M$ the individual MFCC coefficient vector over all frames $M$.
 This equation results in a value space between $[0, 1]$ for each feature vector $\bm{u}_c$.
 This normalization technique is denoted as \emph{frame-based normalization} and will be an important evaluation subject in the following sections.
 
@@ -147,7 +147,7 @@ The deltas are simply computed as frame difference of the MFCCs by:
   \Delta u_c[m] = \frac{u_c[m - 1] + u_c[m + 1]}{2}
 \end{equation}
 where $u_c[m]$ is the c-th MFCC coefficient at frame $m$, where $m = 0, 1, \dots, M$ is therefore the frame index of a total number of $M$ frames.
-Note that the computation of the deltas at the edges $m=0$ and $m=M$, is not possible and the same value is obtained from the neighbor at this specific positions.
+Note that the computation of the deltas at the edges $m=0$ and $m=M$ is not possible and that the same value is obtained from the neighbor at this specific positions.
 The second derivative of MFCC features, known as double deltas, are the frame differences of the deltas and likewise computed as in \req{signal_mfcc_delta}.
 Another enhancement is the computation of an energy feature vector of the MFCCs expressed by:
 \begin{equation}
@@ -156,7 +156,7 @@ Another enhancement is the computation of an energy feature vector of the MFCCs 
 where $\bm{u}[m] \in \R^C$ is the MFCC feature vector of frame $m$.
 The same energy computation may also be applied to the deltas and double deltas.
 
-A concatenation of all features vectors and their enhancements into a single feature matrix, is usually performed by simply stacking the MFCCs, their deltas, double deltas and energy vectors at top of each other.
+A concatenation of all features vectors and their enhancements into a single feature matrix, is usually performed by simply stacking the MFCCs, their deltas, double deltas, and energy vectors at top of each other.
 In this thesis the stacking of features and enhancements is done in following constellation:
 \begin{enumerate}
     \item 12 MFCCs
@@ -176,7 +176,7 @@ The computation of 39 MFCCs from the showcase examples are shown in \rfig{signal
     \subfigure[up]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_mfcc_showcase_mfcc39_up0.png}}
     \subfigure[down]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_mfcc_showcase_mfcc39_down0.png}}
     \subfigure[go]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_mfcc_showcase_mfcc39_go0.png}}
-  \caption{MFCCs extracted from the showcase examples with 32 filter bands and 12 cepstral coefficients, deltas, double deltas and energy vector visualized with frame-based normalization.}
+  \caption{MFCCs extracted from the showcase examples with 32 filter bands and 12 cepstral coefficients, deltas, double deltas, and energy vector visualized with frame-based normalization.}
   \label{fig:signal_mfcc_showcase_mfcc39}
 \end{figure}
 \FloatBarrier
@@ -194,7 +194,7 @@ The computational complexity for the extraction of MFCC features is the amount o
 All MFCC specific extraction details are collected in \rtab{signal_mfcc_extraction_params}.
 \input{./3_signal/tables/tab_signal_mfcc_extraction_params}
 The amount of operations are the total number of additions and multiplications necessary to fulfill the process.
-The major components of the MFCC are, as described in \rsec{signal_mfcc_pipeline} and summarized in \req{signal_mfcc_mfcc}, the transformation to the STFT, the weighting with the filter bands and the DCT transform.
+The major components of the MFCC are, as described in \rsec{signal_mfcc_pipeline} and summarized in \req{signal_mfcc_mfcc}, the transformation to the STFT, the weighting with the filter bands, and the DCT transform.
 The most costly component is of course the STFT, which again is composed of the DFT.
 Note that the DFT uses complex multiplications and additions.
 One complex multiplication equals to 4 real multiplication and 2 additions, so one complex multiplication consists of 6 operations.

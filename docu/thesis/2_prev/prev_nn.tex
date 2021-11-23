@@ -93,12 +93,13 @@ Regarding this thesis, it is questionable whether Wavenets are suited for the KW
 GANs emerged from Goodfellow et al. in 2014 \cite{Goodfellow2014} and was initially motivated by Game Theory of a two player zero-sum game with the Min-Max-Theorem as solution concept \cite{VonNeumann1944}.
 The game in terms of GANs is as follows: Two neural networks try to outperform the other in an adversary task, where the task of one network, denoted as Generator (G), is to counterfeit fake images, while the other network, denoted as Discriminator (D), has the task to discriminate, whether its been given real or fake images.
 In \cite{Radford2016} some practical guidelines for designing and training deep GAN architectures are provided by applying the Deep Convolutional Generative Adversarial Network (DCGAN) model.
-However, DCGANs merely consider image data and not speech signals but still were the first starting point for developing GANs in this thesis.
+Note that DCGANs merely consider image data and not speech signals, yet they were the first starting point for developing GANs in this thesis.
 
-The G network, has to perform a so called \emph{transposed convolution}, \emph{up-convolution} or \emph{de-convolution} for upsampling the low-dimensional image to the desired output dimensions of real sample images from a dataset.
+The G network has to perform a so called \emph{transposed convolution}, \emph{up-convolution}, or \emph{de-convolution} for upsampling the low-dimensional image to the desired output dimensions of real sample images from a dataset.
 The transposed convolution and some problems regarding GANs are described in \cite{Durall2020}.
 
-GANs are not the only application of adversarial neural networks, in \cite{Oezdenizci2020} it is shown how an adversarial network improves generalization over invariance of subject specific samples from Electroencephalogram (EEG) data.
+GANs are not the only application of adversarial neural networks. 
+In \cite{Oezdenizci2020} it is shown how an adversarial network improves generalization over invariance of subject specific samples from Electroencephalogram (EEG) data.
 The adversarial network in this paper is connected to a convolutional encoder network, which is also input to a classifier network.
 The update of the encoder network is therefore done via the adversarial network and the classifier network at the same time and specified in a collective loss function.
 

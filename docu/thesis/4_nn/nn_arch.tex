@@ -12,10 +12,10 @@ The fundamental neural network architecture types were:
 where CNNs had been used for the classification of MFCC features and are therefore the main architecture type within this thesis.
 Generative models, such as GANs, were evaluated in regards of their ability to generate samples from the data distribution.
 Further, the trained weights from the convolutional layers of GANs were applied as pre-trained weights to initialize the weights of a CNN networks with the same convolutional layer structure.
-A completely different approach to the KWS task was the evaluation of Wavenets operating on raw audio samples as input features.
+In contrast to CNNs, Wavenets are using raw audio samples as input features.
 When deployed in an online system, the Wavenet architecture has no need to extract MFCC features.
-However, it will be shown that the overall computations are not reduced because the complexity of Wavenets require many operations.
-The amount of parameters and operations are listed for each architecture to provide a comparison between the used models regarding their computational footprint.
+However, it will be shown that the overall computations are not reduced because of the complexity of Wavenets.
+The amount of parameters and operations for each architecture are listed to provide a comparison between the used models regarding their computational footprint.
 
 
 % --
