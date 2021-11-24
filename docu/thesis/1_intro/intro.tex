@@ -4,13 +4,13 @@
 \chapter{Introduction}\label{sec:intro}
 Controlling video games by using the voice of a player in order to render certain actions within the game, is an interdisciplinary challenge between speech signal processing, machine learning, and game design.
 A microphone is required to capture the voice of a player providing a speech signal of a potential command for the video game.
-The speech signal is usually extracted from raw audio samples to meaningful features, such as the Mel Frequency Cepstral Coefficients (MFCC) and being used as inputs to a Key Word Spotting (KWS) system, which has the task to classify those features to the most probable command.
+The speech signal is usually extracted from raw audio samples to meaningful features, such as the Mel Frequency Cepstral Coefficients (MFCC) and being used as inputs to a Keyword Spotting (KWS) system, which has the task to classify those features to the most probable command.
 The spoken command should change states of specific game objects and therefore ideally enhance and extend the gaming experience of the players.
 A simple schematic of the whole process is shown in \rfig{intro_kws}.
 \begin{figure}[!ht]
   \centering
     \includegraphics[width=0.95\textwidth]{./1_intro/figs/intro_kws.pdf}
-  \caption{Simplified process of key word spotting for video games.}
+  \caption{Simplified process of keyword spotting for video games.}
   \label{fig:intro_kws}
 \end{figure}
 \FloatBarrier
@@ -18,16 +18,16 @@ A simple schematic of the whole process is shown in \rfig{intro_kws}.
 From a semantic perspective, the controlling of game objects should be short, clear, and best done with single command words, which are referred in the following as \emph{speech commands}.
 Single words can easier be identified in comparison to long sentences, for instance, it is easier to recognize the word \enquote{left} than the sentence \enquote{missile target on position x, y}.
 Further, those speech commands can be classified through a KWS system composed of a neural network.
-KWS is restricted by a limited set of selected key words, referred as \emph{vocabulary}.
-In terms of video games, the set of key words might have members like \enquote{left} or \enquote{right}, for example, to move an element within the game to either left or right respectively.
-The limited set of key words is crucial to restrict the complexity of the recognition task, since in practical applications it is not necessary to cover all words of a natural language.
+KWS is restricted by a limited set of selected keywords, referred to as \emph{vocabulary}.
+For example, in terms of video games the set of keywords might have members like \enquote{left} or \enquote{right} to move an element within the game to either left or right, respectively.
+The limited set of keywords is crucial to restrict the complexity of the recognition task, since in practical applications it is not necessary to cover all words of a natural language.
 Especially in video games, where the game environment is limited by rules, technical limits, and play-ability, KWS is perfectly suited as an alternative or augmented control system.
 The size of the vocabulary and the selected words are two parameters that influence on the one hand the choice of the neural network architectures, which are evaluated on their computational efficiency and accuracy performance, and on the other hand the game interaction limited by the controls a player can choose from.
-If the vocabulary of a KWS system would be too large, it would be harder to distinguish between two similar key words.
+If the vocabulary of a KWS system would be too large, it would be harder to distinguish between two similar keywords.
 In many KWS applications it is absolutely necessary to include labels for \emph{background noise}, \emph{silence}, and \emph{unknown words} in the vocabulary. 
-This is especially interesting in \emph{wake word} applications, where a single key word has to be detected over the previously mentioned labels representing all other possible words that can be spoken.
+This is especially interesting in \emph{wake word} applications, where a single keyword has to be detected over the previously mentioned labels representing all other possible words that can be spoken.
 Also in video games those additional labels are useful to prevent the player from eliciting unintended commands accidentally through, for instance, loud background noise.
-Therefore, a KWS system demands to be very accurate and fast in its classification of key words.
+Therefore, a KWS system demands to be very accurate and fast in its classification of keywords.
 
 Nowadays KWS systems are considered no science-fiction anymore, assisting consumers in everyday situations by rendering simple control tasks, such as triggering a photo release button on a \enquote{smartphone} with a single speech command.
 Application like this leads to more and more awareness of KWS and other speech recognition tasks in human society.

@@ -37,14 +37,12 @@ The lower frequency bands receive fewer frequency bins, than the higher frequenc
 Sometimes the height of the individual triangular windows is scaled down such that the effect of unequal amounts frequency bins is equalized.
 However, high frequency signals usually carry less energy so that this scaling is in most cases neglected or not preferred.
 
-The Mel - frequency relation can be approximated by:
-% mel
+The Mel - frequency relation can be approximated by
 \begin{equation}\label{eq:signal_mfcc_mel}
-  m(f) = 2595 \cdot \log_{10} \left(1 + \frac{f}{700} \right) 
+  m(f) = 2595 \cdot \log_{10} \left(1 + \frac{f}{700} \right),
 \end{equation}
 where $m$ is the result in Mel scale as function of the frequency $f$.
 The Mel scale plotted against the frequency scale is illustrated in \rfig{signal_mfcc_mel_scale}.
-% mel fig
 \begin{figure}[!ht]
   \centering
   \includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_mfcc_mel_scale.png}
@@ -73,18 +71,18 @@ The DCT is very similar to the Fourier transform and projects the input signal t
 However, the transformed signal remains real instead of complex valued.
 Different types of DCT formulations exist but most commonly the \enquote{type 2} DCT is applied by its following definition:
 \begin{equation}\label{eq:signal_mfcc_dct}
-  \hat{x}[c] = \sum_{n=0}^{N-1} x[n] \cos{\left[ \frac{\pi}{N} \left( n + \frac{1}{2} \right) c \right]}
+  \hat{x}[c] = \sum_{n=0}^{N-1} x[n] \cos{\left[ \frac{\pi}{N} \left( n + \frac{1}{2} \right) c \right]},
 \end{equation}
 where $c$ is the DCT coefficient index and $n$ the sample index of a signal vector $\bm{x} \in \R^N$ with total length of $N$.
-Again this can be conveniently written in matrix notation with a total number of $C$ DCT coefficients as follows:
+Again this can be conveniently written in matrix notation with a total number of $C$ DCT coefficients as
 \begin{equation}\label{eq:signal_mfcc_dct_matrix}
   \begin{aligned}
     \hat{\bm{x}} = \mathcal{D} \bm{x} \quad \mathrm{with} 
     \quad &\mathcal{D}[c, n] = \cos{\left[ \frac{\pi}{N} \left( n + \frac{1}{2} \right) c  \right]},\\
     &c, n = (0, 1, \dots, C - 1), (0, 1, \dots, N - 1) 
-  \end{aligned}
+  \end{aligned},
 \end{equation}
-with the DCT matrix $\mathcal{D} \in \R^{C \times N}$ and the transformed signal $\hat{\bm{x}} \in \R^C$.
+where $\mathcal{D} \in \R^{C \times N}$ is the DCT matrix and $\hat{\bm{x}} \in \R^C$ the transformed signal.
 The DCT basis functions are illustrated in \rfig{signal_mfcc_dct} in two different color schemes.
 \begin{figure}[!ht]
   \centering
@@ -96,7 +94,7 @@ The DCT basis functions are illustrated in \rfig{signal_mfcc_dct} in two differe
 \end{figure}
 \FloatBarrier
 \noindent
-The MFCCs $U \in \R^{C \times M}$ are calculated from the power spectrum of the STFT $P \in \R^{K \times M}$, as computed in \req{signal_spec_spec}, the filter band weights collected in the matrix $W_m \in \R^{B \times K}$ and the DCT transformation matrix $\mathcal{D} \in \R^{C \times B}$ as follows:
+The MFCCs $U \in \R^{C \times M}$ are calculated from the power spectrum of the STFT $P \in \R^{K \times M}$, the filter band weights collected in the matrix $W_m \in \R^{B \times K}$, and the DCT transformation matrix $\mathcal{D} \in \R^{C \times B}$ by following equation:
 \begin{equation}\label{eq:signal_mfcc_mfcc}
   U = \mathcal{D} \log{ \left( W_m   P \right) }.
 \end{equation}
@@ -110,7 +108,7 @@ Furthermore, the most of the signal energy is located in the lower frequency ban
 The differences in the value space lead to a problem in the visualization with a linear color scheme such that the changes of some coefficients cannot be presented appropriately.
 A solution to this problem is to normalize the feature vectors over each frame dimension with the infinity norm as follows:
 \begin{equation}\label{eq:signal_mfcc_norm}
-  U[c, m] \gets \frac{U[c, m] + \vert \underset{m \in \mathcal{M}}{\min} \bm{u}_c \vert}{\norm{\bm{u}_c + \vert \underset{m \in \mathcal{M}}{\min} \bm{u}_c \vert}_\infty} \quad \forall \, c, m = (0, 1, \dots, C - 1), (0, 1, \dots, M - 1)
+  U[c, m] \gets \frac{U[c, m] + \vert \underset{m \in \mathcal{M}}{\min} \bm{u}_c \vert}{\norm{\bm{u}_c + \vert \underset{m \in \mathcal{M}}{\min} \bm{u}_c \vert}_\infty} \quad \forall \, c, m = (0, 1, \dots, C - 1), (0, 1, \dots, M - 1),
 \end{equation}
 where $c$ is the individual MFCC coefficient, $m$ the frame (time) index, and $\bm{u}_c \in \R^M$ the individual MFCC coefficient vector over all frames $M$.
 This equation results in a value space between $[0, 1]$ for each feature vector $\bm{u}_c$.
@@ -141,17 +139,17 @@ One more research question arises here: Is it possible to use frame-based normal
 \subsection{MFCC Feature Usage and Enhancement}\label{sec:signal_mfcc_enhancement}
 After MFCCs are computed by choosing the amount of filter bands $B$ and cepstral coefficients $C$, they can already be used as input features for neural networks.
 The question arises, whether feature enhancements can improve the performance in classification.
-The best practice, applied in many papers, is to use $B=32$, $C=12$, compute derivatives of those 12 MFCCs, denoted as \emph{deltas} (first derivative regarding the frame dimension) and \emph{double deltas} (second derivative) and add \emph{energy vectors} of the 12 coefficients and each one of the deltas.
-The deltas are simply computed as frame difference of the MFCCs by:
+The best practice, applied in many papers, is to use $B=32$, $C=12$, compute derivatives of those 12 MFCCs, referred to as \emph{deltas} (first derivative regarding the frame dimension) and \emph{double deltas} (second derivative) and add \emph{energy vectors} of the 12 coefficients and each one of the deltas.
+The deltas are simply computed as frame difference of the MFCCs by
 \begin{equation}\label{eq:signal_mfcc_delta}
-  \Delta u_c[m] = \frac{u_c[m - 1] + u_c[m + 1]}{2}
+  \Delta u_c[m] = \frac{u_c[m - 1] + u_c[m + 1]}{2},
 \end{equation}
 where $u_c[m]$ is the c-th MFCC coefficient at frame $m$, where $m = 0, 1, \dots, M$ is the frame index of a total number of $M$ frames.
 Note that the computation of the deltas at the edges $m=0$ and $m=M$ is not possible and that the same value is obtained from the neighbor at this specific positions.
 The second derivative of MFCC features, known as double deltas, are the frame differences of the deltas and likewise computed as in \req{signal_mfcc_delta}.
-Another enhancement is the computation of an energy feature vector of the MFCCs expressed by:
+Another enhancement is the computation of an energy feature vector of the MFCCs expressed by
 \begin{equation}
-  e[m] = \bm{u}[m]^T \bm{u}[m] 
+  e[m] = \bm{u}[m]^T \bm{u}[m],
 \end{equation}
 where $\bm{u}[m] \in \R^C$ is the MFCC feature vector of frame $m$.
 The same energy computation may also be applied to the deltas and double deltas.
@@ -159,12 +157,12 @@ The same energy computation may also be applied to the deltas and double deltas.
 A concatenation of all features vectors and their enhancements into a single feature matrix, is usually performed by simply stacking the MFCCs, their deltas, double deltas, and energy vectors at top of each other.
 In this thesis the stacking of features and enhancements is done in following constellation:
 \begin{enumerate}
-    \item 12 MFCCs
-    \item 1 Energy feature of the 12 MFCCs
-    \item 12 Deltas
-    \item 1 Energy feature of the 12 Deltas
-    \item 12 Double Deltas
-    \item 1 Energy feature of the 12 Double Deltas
+    \item 12 MFCCs,
+    \item 1 energy feature of the 12 MFCCs,
+    \item 12 deltas,
+    \item 1 energy feature of the 12 deltas,
+    \item 12 double deltas, and
+    \item 1 energy feature of the 12 Double Deltas,
 \end{enumerate}
 which sums up to a 39-dimensional feature vector, very commonly used in the literature.
 Many papers do not explicitly explain how the 39 MFCCs are calculated in detail, in most cases however, this constellation is applied.
@@ -201,12 +199,12 @@ One complex multiplication equals to 4 real multiplication and 2 additions, so o
 For one complex addition, two real additions are necessary and equals therefore to 2 operations.
 A general matrix multiplication with a vector $y = A \bm{x}$, where $A \in \R^{m \times n}$ and $\bm{x} \in \R^n$ is composed of $m \cdot n$ multiplications and $m \cdot (n - 1)$ additions, where for simplicity the amount of additions is also approximated with $m \cdot n$.
 
-The amount of operations, denoted as $\mathcal{T(.)}$, for a trivial DFT transform with operator $\mathcal{F} \in \C^{K \times N}$ and $K$ Fourier coefficients on a windowed signal $\bm{x} \in \R^N$ with a total sample number of $N$ is:
+The amount of operations, denoted as $\mathcal{T(.)}$, for a trivial DFT transform with operator $\mathcal{F} \in \C^{K \times N}$ and $K$ Fourier coefficients on a windowed signal $\bm{x} \in \R^N$ with a total sample number of $N$ is
 \begin{equation}
   \mathcal{T}(\mathcal{F} \bm{x}) = 6 (N K) + 2 (N K)
 \end{equation}
 and gives for $N = K = 400$ the amount of operations $\mathcal{T}(\mathcal{F} \bm{x}) = \SI{1.28}{\mega\ops}$ for a single DFT.
-This of course are too many operations for a real time system, luckily a more sophisticated Fourier transform can be applied with the Fast Fourier Transform (FFT) algorithm \cite{Brigham1967}, which gives a linear complexity as follows:
+This of course are too many operations for a real time system, luckily a more sophisticated Fourier transform can be applied with the Fast Fourier Transform (FFT) algorithm \cite{Brigham1967}, which gives a linear complexity of
 \begin{equation}
   \mathcal{T}(\mathcal{F} \bm{x}) = 6 (\mathcal{O}(N \cdot \log_2 N)) + 2 (\mathcal{O}(N \cdot \log_2 N)).
 \end{equation}

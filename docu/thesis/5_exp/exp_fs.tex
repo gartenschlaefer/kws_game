@@ -4,7 +4,7 @@
 \section{Experiments on MFCC Feature Selection}\label{sec:exp_fs}
 Feature selection is a very important step prior to neural network training.
 A reduction of input features always means a reduction of computations, hence it is a crucial point to evaluate for finding energy efficient models.
-Unfortunately it is not always clear which feature are contributing to good classification scores and which do not or even worsen them.
+Unfortunately it is not always clear which feature are contributing to enhance classification scores and which do not or even worsen them.
 In this section only MFCCs and their enhancements, as described in \rsec{signal_mfcc}, are the focus in the experiments.
 A feature selection for raw audio samples, such as used in the Wavenet architecture, would not make any sense because each sample is a feature itself.
 Another important aspect in the feature selection experiments is the evaluation of the proposed frame-based normalization \req{signal_mfcc_norm} originally intended to improve the visualization of MFCCs and making the Generator network of GANs easier and faster to train.
@@ -51,7 +51,7 @@ Also the overfitting effects are more prominent when 32 coefficients are applied
 Moreover, they show that frame-based normalization usually achieves a lower accuracy and requires more epochs until convergence is reached.
 
 In the following, the shift and noise invariance of each model is evaluated.
-The noise and shift invariance of the \texttt{conv-trad} model is shown in \rfig{exp_fs_cepstral_tb_noise_conv-trad} and \rfig{exp_fs_cepstral_tb_shift_conv-trad} respectively.
+The noise and shift invariance of the \texttt{conv-trad} model is shown in \rfig{exp_fs_cepstral_tb_noise_conv-trad} and \rfig{exp_fs_cepstral_tb_shift_conv-trad}, respectively.
 \begin{figure}[!ht]
   \centering
   \subfigure[mfcc12, norm0]{\includegraphics[width=0.35\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_noise_conv-trad_mfcc12_norm0.png}}
@@ -74,7 +74,7 @@ The noise and shift invariance of the \texttt{conv-trad} model is shown in \rfig
 \end{figure}
 \FloatBarrier
 \noindent
-The noise and shift invariance of the \texttt{conv-fstride} model is shown in \rfig{exp_fs_cepstral_tb_noise_conv-fstride} and \rfig{exp_fs_cepstral_tb_shift_conv-fstride} respectively.
+The noise and shift invariance of the \texttt{conv-fstride} model is shown in \rfig{exp_fs_cepstral_tb_noise_conv-fstride} and \rfig{exp_fs_cepstral_tb_shift_conv-fstride}, respectively.
 \begin{figure}[!ht]
   \centering
   \subfigure[mfcc12, norm0]{\includegraphics[width=0.35\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_noise_conv-fstride_mfcc12_norm0.png}}
@@ -97,7 +97,7 @@ The noise and shift invariance of the \texttt{conv-fstride} model is shown in \r
 \end{figure}
 \FloatBarrier
 \noindent
-The noise and shift invariance of the \texttt{conv-jim} model is shown in \rfig{exp_fs_cepstral_tb_noise_conv-jim} and \rfig{exp_fs_cepstral_tb_shift_conv-jim} respectively.
+The noise and shift invariance of the \texttt{conv-jim} model is shown in \rfig{exp_fs_cepstral_tb_noise_conv-jim} and \rfig{exp_fs_cepstral_tb_shift_conv-jim}, respectively.
 \begin{figure}[!ht]
   \centering
   \subfigure[mfcc12, norm0]{\includegraphics[width=0.35\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_noise_conv-jim_mfcc12_norm0.png}}
@@ -121,10 +121,10 @@ The noise and shift invariance of the \texttt{conv-jim} model is shown in \rfig{
 \FloatBarrier
 \noindent
 While the results of the invariance tests do not allow a general conclusion, following patterns can be observed regardless:
-The frame-based normalization does certainly increase the invariance in noise, which is logical because the model has to focus more on learning patterns of the individual key words and is less prone to overfitting.
+The frame-based normalization does certainly increase the invariance in noise, which is logical because the model has to focus more on learning patterns of the individual keywords and is less prone to overfitting.
 The \texttt{conv-fstride} model does unexpectedly well upon the shift invariance test, even though its strides perform merely on the frequency axis.
 Although it usually does not achieve that good shift invariance results compared to the other models and often holes appear in the classification with the shift invariance test.
-The \texttt{conv-trad} model performs best on all tests yet also requires a higher computational footprint so that the preferred model is the \texttt{conv-jim} model by providing a good trade-off between computational footprint and classification results.
+The \texttt{conv-trad} model performs best on all tests yet also requires a higher computational footprint so that the preferred model is the \texttt{conv-jim} model.
 The usage of 32 MFCC coefficients does not improve the invariance against shift or noise and very often worsens the results.
 
 

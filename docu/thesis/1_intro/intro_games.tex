@@ -1,27 +1,27 @@
 % --
 % video games with speech commands
 
-\section{Video Games with Key Word Spotting}\label{sec:intro_games}
-Video games with KWS, or in general any speech input, are rarely seen gems in the gaming industry, though KWS is an exciting and immersive manner to interact.
+\section{Video Games with Keyword Spotting}\label{sec:intro_games}
+Video games with KWS, or in general any speech input, are rarely seen gems in the gaming industry although KWS is an exciting and immersive tool to interact within video games.
 Technically the voice of the player has to be recorded by a microphone, hence one additional requirement to play the video game is to own a microphone, which however does not need to be high-end.
 The input stream of a microphone can be processed through an online or real-time system to extract the input features for the classification system.
 The classification system, such as a neural network, is supposed to infer the input information to the intended action within the game.
 
-The processing scheme is easy to define but not that easy to implement compared to other more hardware based input channels, such as pressing buttons on a keyboard.
+The processing scheme is easy to define but much harder to implement compared to other more hardware based input channels, such as pressing buttons on a keyboard.
 Also speech input is very slow compared to hardware input, where players are able to interact within tens of milliseconds (the input lag of gaming controllers should ideally be under \SI{50}{\milli\second}).
 This fast response time is not possible with speech, where the player has to physically form a waveform representing the action in the game.
-Further, the waveform captured from the online system has to be pre-processed, feature extracted, and classified to the best estimation of all the available key words in the game's vocabulary.
+Further, the waveform captured from the online system has to be pre-processed, feature extracted, and classified to the best estimation of all the available keywords in the game's vocabulary.
 Concluding this, a good estimate to create and process a speech input should ideally be under one second. 
 The less the better for the playing experience.
 
 Another important consideration has to be made upon the size of the vocabulary.
-A high number of key words will increase the chance of confusion and a small number of key words restrict the possible actions a player can choose from.
+A high number of keywords will increase the chance of confusion and a small number of keywords restrict the possible actions a player can choose from.
 The possibility to create separate classifiers with different sets of smaller vocabularies of speech commands arises, depending on which commands the player needs in the actual scene of the video game.
 For instance, if the player is in a dialogue with a Non Player Character (NPC), it makes sense to reduce the vocabulary to only \{\enquote{yes}, \enquote{no}\}, if those are the only actions to choose from.
 
 The use of labels for background noise, silence, and unknown words depends on the game and how the classification process is activated.
-If the assumption is made that a player chooses only from the key words in the dictionary, then the label of unknown words is not necessarily required.
-Nevertheless, the unknown label would be very interesting when key words are not that common to a player, such as words from a different language or fantasy words.
+If the assumption is made that a player chooses only from the keywords in the dictionary, then the label of unknown words is not necessarily required.
+Nevertheless, the unknown label would be very interesting when keywords are not that common to a player, such as words from a different language or fantasy words.
 The unknown label will therefore motivate the player to correctly pronounce the word itself, which could be also used in language learning games.
 The labels for background noise and silence are useful in the case of initializing the classification process by the energy value of the input stream of the microphone.
 A small impact on the microphone or loud background sound may elicit an unwanted command within the game, if those labels do not exist in the vocabulary.

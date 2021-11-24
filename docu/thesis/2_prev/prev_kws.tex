@@ -1,7 +1,7 @@
 % --
-% prev key word spotting
+% prev keyword spotting
 
-\section{Work on Key Word Spotting with Neural Networks}\label{sec:prev_kws}
+\section{Work on Keyword Spotting with Neural Networks}\label{sec:prev_kws}
 The presented work on KWS with neural networks were selected to energy efficient solutions and benchmark networks for the speech command dataset \cite{Warden2018}.
 
 
@@ -19,7 +19,7 @@ Different neural network architectures were evaluated regarding their memory usa
 The work showed that 32-bit to 8-bit quantization does not reduce the classification accuracy and that the depthwise separable CNN (DS-CNN) was the best choice with regards to limited amounts of memory and operations in comparison to the other evaluated models.
 
 Another highly optimized resource efficient Deep Neural Network (DNN) based on CNNs with parameters obtained by a Neural Architecture Search (NAS), is described by \cite{Peter2020}.
-This work also showed that a 1-bit quantization of the weights perform nearly as good as the 8-bit quantization, which decreases the memory usage even further.
+This work also showed that a 1-bit quantization of the weights perform nearly as well as the 8-bit quantization, which decreases the memory usage even further.
 
 
 % --
@@ -31,10 +31,10 @@ Also it is up to the users for which labels are to be selected.
 The intended concept is to choose the \emph{core words} as classification labels and add an \enquote{unknown} label for the \emph{auxiliary words}.
 Also a separate noise or \enquote{silence} label can be added from given noise data files.
 In most papers the core words were \{\enquote{left},  \enquote{right}, \enquote{up}, \enquote{down}, \enquote{go}, \enquote{stop}, \enquote{yes}, \enquote{no}, \enquote{on}, \enquote{off}\} and additional two labels for \enquote{silence} and \enquote{unknown} (all other words) used for comparison to previous papers.
-This constellation of selected key words is referred here as \texttt{L12} and the speech command dataset version is referenced by \texttt{V1} or \texttt{V2}.
+This constellation of selected keywords is referred here as \texttt{L12} and the speech command dataset version is referenced by \texttt{V1} or \texttt{V2}.
 More details about the dataset is presented in \rsec{exp_dataset}.
 
-One benchmark is hold by \cite{Berg2021} introducing a Key Word Transformer (KWT) network, which performs accuracy scores of almost \SI{100}{\percent}.
+One benchmark is hold by \cite{Berg2021} introducing a Keyword Transformer (KWT) network, which performs accuracy scores of almost \SI{100}{\percent}.
 A quick overview of continually updated benchmark scores regarding the speech command dataset, is provided in \cite{PaperswithcodeKWS}.
 
 All benchmark scores from the referenced work in this section are shown in \rtab{prev_kws_bench}.

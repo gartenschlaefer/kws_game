@@ -36,7 +36,7 @@ Furthermore, a small visualization bar of the input signal energy from the selec
 An option for adjusting the energy threshold, by which the online system triggers the onset of a speech command, has to be added if this property is used within the video game.
 Further, the threshold has to be adjustable because of varying recording amplification factors in different microphone set-ups.
 Another useful screen in the option menu is the visualization of the class dictionary and the output of the actual KWS system.
-This screen writes the identified key word onto the display once the onset detection triggers the beginning of a new key word.
+This screen writes the identified keyword onto the display once the onset detection triggers the beginning of a new keyword.
 All option menu screens are shown in \rfig{game_design_menu_options}.
 \begin{figure}[!ht]
   \centering
@@ -56,7 +56,7 @@ All option menu screens are shown in \rfig{game_design_menu_options}.
 % game rules
 
 \subsection{Game Rules}\label{sec:game_design_rules}
-The implemented video game uses a simple 2D-platformer view, where the movement of the players is limited to left, right, and jump, similar to the classical \enquote{Super Mario} games.
+The implemented video game uses a 2D-platformer view, where the movement of the players is limited to left, right, and jump, similar to the classical \enquote{Super Mario} games.
 A win and loose condition describes the rules to either win or loose the game.
 In an attempt to satisfy the win condition, the player has to collect a single object within each individual level.
 Where the levels had been designed such that the player has to use speech commands in order to collect the desired object.
@@ -70,7 +70,7 @@ If the player runs into an enemy, a loose screen appears and the same level has 
 
 \subsection{Game Mechanics}\label{sec:game_design_mechanics}
 Game mechanics with KWS have to consider time delays because of the processing time speech signals require.
-In this thesis the KWS system was used as augmented input control, where the game does not depend entirely on the processing of speech commands as inputs.
+This thesis applies the KWS system as augmented input control, where the game does not depend entirely on the processing of speech commands as inputs.
 The controlling of the character is handled with standard keyboard keys for movement so that the player receives immediate feedback. 
 The speech command control performs a two dimensional grid move upon a so called moveable block by speaking the command word for the intended direction, such as \enquote{left} and \enquote{right} or \enquote{up} and \enquote{down}.
 A level can contain several moveable blocks and the switch between those is done through the command word \enquote{go} until the desired moveable block is selected.
@@ -134,7 +134,7 @@ The levels are both shown in \rfig{game_design_level}.
 \noindent
 The completion of a level is done by collecting one part of the spaceship that is placed in the level.
 A screen that shows the spaceship plus the collected spaceship part appears and the player has to press enter to continue to the next level.
-If the player collides with an enemy, a simple loosing screen appears and the player has to retry the same level.
+If the player collides with an enemy, a loosing screen appears and the player has to retry the same level.
 Both scenarios with both complete and loose screen of Level One is shown in \rfig{game_design_level_complete}.
 \begin{figure}[!ht]
   \centering

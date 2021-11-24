@@ -9,7 +9,7 @@ They can be split into three parts:
   \item Training of neural networks and classification for KWS.
   \item Video games with KWS.
 \end{enumerate}
-Note that the terms \enquote{key word} and \enquote{speech command} are often named interchangeably because speech commands are used as key words in the KWS system.
+Note that the terms \enquote{keyword} and \enquote{speech command} are often named interchangeably because speech commands are used as keywords in the KWS system.
 Not all research questions can be answered within the scope of this thesis.
 Nevertheless, those questions can be asked and some solution concepts discussed.
 
@@ -31,7 +31,7 @@ The following Questions arise here:
 \textbf{Question \ref{it:q1-a}:} 
 The time required to fully pronounce a speech command is not fixed and varies from speaker to speaker, depending also on the intended prolongation a speaker adds to the word.
 In practical applications however, a fixed time interval for a single speech command is convenient.
-By restricting the time duration of the key words, the speaker has to pronounce the words within this time span.
+By restricting the time duration of the keywords, the speaker has to pronounce the words within this time span.
 For example, if a speaker pronounces the word \enquote{left} and requires a time duration of \SI{1}{\second}, hardly all is captured if the time interval is restricted to merely \SI{500}{\milli\second}.
 Whether this \SI{500}{\milli\second} is sufficient for a correct classification, is subject for evaluation.
 In the application of a video game, the user should preferably speak the commands with a short time duration so that the game can respond fast.
@@ -63,11 +63,11 @@ Why MFCCs present reasonable features for speech, is described in detail in \rse
 \subsection{Neural Network Research Questions}\label{sec:intro_rq_nn}
 Neural networks for video games should ideally be very efficient and provide accurate classifications of input features.
 The vocabulary in a KWS task has to be specified for the individual game and chosen from all class labels available in the dataset.
-Each key word of the vocabulary is presented by one output node of the neural network architecture.
+Each keyword of the vocabulary is presented by one output node of the neural network architecture.
 Following Questions can be asked in general:
 \begin{enumerate}[label={Q.2.\alph*)}, leftmargin=1.75cm]
   \item Is there an appropriate dataset suited for KWS video games and with sufficient diversity available?\label{it:q2-a}
-  \item What happens if an input feature represents a spoken word, which is not in the vocabulary (unknown key word) and how should this exception be handled?\label{it:q2-b}
+  \item What happens if an input feature represents a spoken word, which is not in the vocabulary (unknown keyword) and how should this exception be handled?\label{it:q2-b}
   \item What is the best neural network architecture regarding classification accuracy and energy efficiency?\label{it:q2-c}
   \begin{enumerate}[label=(\roman*)]
     \item Can adversarial networks improve generalization?
@@ -81,18 +81,18 @@ The dataset consist of 35 labels and contains commands for movement and numbers.
 Further, it includes randomly selected words like \enquote{marvin} or \enquote{bird} intended to represent \emph{unknown} words for the KWS system.
 It has to be noted that not every game idea can be realized with a restricted vocabulary.
 Nevertheless, with commands for movement like \enquote{left} or \enquote{go} it is possible to move objects within a game and this can already be used for many game mechanics.
-An aspect regarding efficiency, is to restrict the amount of key words in the vocabulary as much as possible such that a lightweight neural network architecture can be deployed, which of course should still be sufficiently good in its classification accuracy.
+An aspect regarding efficiency, is to restrict the amount of keywords in the vocabulary as much as possible such that a lightweight neural network architecture can be deployed, which of course should still perform sufficiently well in classification.
 
 \textbf{Question \ref{it:q2-b}:} 
-Without doubt, players will try out words that are not in the vocabulary (denoted as \emph{unknown} key words) and observe the response of the video game.
+Without doubt, players will try out words that are not in the vocabulary (denoted as \emph{unknown} keywords) and observe the response of the video game.
 The ideal response would be to shown an indication to the player that the word is not present in the vocabulary. 
-Nevertheless, it might happen that the similarity of an unknown key word is too close to a key word and an unintended action is triggered in the game. 
-At the same time the neural network should not classify key words as unknown key words to ensure a satisfying game experience.
-It is better to rely on that players are using key words for most of the time so that they are preferred over unknown key words.
+Nevertheless, it might happen that the similarity of an unknown keyword is too close to a keyword and an unintended action is triggered in the game. 
+At the same time the neural network should not classify keywords as unknown keywords to ensure a satisfying game experience.
+It is better to rely on that players are using keywords for most of the time so that they are preferred over unknown keywords.
 
 \textbf{Question \ref{it:q2-c}:}
 In the ideal case, video games with KWS do not slow down during the inference process of unknown input data.
-The restriction of the amount of computations and time for the classification of key words is given by the minimum Frames Per Second (FPS) a video game is perceived as fluent.
+The restriction of the amount of computations and time for the classification of keywords is given by the minimum Frames Per Second (FPS) a video game is perceived as fluent.
 That requires the FPS to not fall under a certain limit (usually 30 FPS in video games), otherwise the fluidity of the game is not guaranteed.
 Therefore, several different neural network approaches with a low computational footprint have to be tested and compared against each other regarding classification rate and energy efficiency.
 The transfer of weights from GANs is an interesting approach to evaluate whether the trained parameters are also useful for pure classification tasks in CNNs.
@@ -106,7 +106,7 @@ Wavenets have the advantage that they do not need a feature extraction stage but
 Video games that use KWS can create an unique playing experience but have to face certain challenges.
 Following questions can be stated:
 \begin{enumerate}[label={Q.3.\alph*)}, leftmargin=1.75cm]
-  \item How should the onset of a key word be detected, so to reduce computations?\label{it:q3-a}
+  \item How should the onset of a keyword be detected, so to reduce computations?\label{it:q3-a}
   \item What is the added value of KWS in the gaming experience of players?\label{it:q3-b}
   \item What do game developers have to consider, when designing a game with KWS?\label{it:q3-c}
 \end{enumerate}
@@ -114,11 +114,11 @@ Following questions can be stated:
 \textbf{Question \ref{it:q3-a}:} 
 It is crucial to reduce the computational complexity in a video game in order to keep it running fluently during high performance peaks.
 Also the unnecessary processing of meaningless input data should be avoided as much as possible.
-Ideally the key word classification is activated, when there is actually a speech command present, which however is not always trivial.
-One possibility to indicate the onset of a key word is to perform the relatively efficient calculation of an energy value within a certain time interval of the raw input data stream and have a simple threshold value decide, whether a speech command is available. 
+Ideally the keyword classification is activated, when there is actually a speech command present, which however is not always trivial.
+One possibility to indicate the onset of a keyword is to perform the relatively efficient calculation of an energy value within a certain time interval of the raw input data stream and let a threshold value decide whether a speech command is available. 
 To avoid the consecutive triggering of onsets at each energy measure, the microphone and amplifier noise floor and the background sound (including the game sound) have to be less energy intensive than the speech signal obtained from the player.
-Another approach similar to the push and talk principle, would be to indicate the onset of a key word with the click of a certain button on the keyboard.
-The player is therefore able to control the exact onset of a key word and its length but requires an additional hardware based input channel.
+Another approach similar to the push and talk principle, would be to indicate the onset of a keyword with the click of a certain button on the keyboard.
+The player is therefore able to control the exact onset of a keyword and its length but requires an additional hardware based input channel.
 
 \textbf{Question \ref{it:q3-b}:}
 In certain video game scenarios, speech commands can be useful, interesting and enhancing for the gaming experience, in others they might even disturb the game play or even spoil it completely.
