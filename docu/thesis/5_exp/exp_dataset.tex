@@ -57,7 +57,7 @@ To examine the recorded examples from the speech command dataset, \rfig{exp_data
 % --
 % statistics
 
-\subsubsection{Observations of all examples in the dataset}
+\subsubsection{Observations of all Examples in the Dataset}
 Two histograms were created to observe the quality of all recorded files in the dataset.
 Those histograms present an energy measure and a count of the sample length for each file.
 The energy of a recorded file provides information about a recordings amplification setting and is an indicator for too silent or too loud (overdrive distortions) samples.
@@ -153,11 +153,11 @@ This has the practicability that features do not have to be extracted each time 
 Samples from the extracted MFCCs with frame-based normalization, as explained in \rsec{signal_mfcc}, are shown in \rfig{exp_dataset_speech_cmd_mfcc}.
 \begin{figure}[!ht]
   \centering
-    \subfigure[left]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_dataset_speech_cmd_mfcc_left.png}}
-    \subfigure[right]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_dataset_speech_cmd_mfcc_right.png}}
-    \subfigure[up]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_dataset_speech_cmd_mfcc_up.png}}
-    \subfigure[down]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_dataset_speech_cmd_mfcc_down.png}}
-    \subfigure[go]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_dataset_speech_cmd_mfcc_go.png}}
+    \subfigure[left]{\includegraphics[width=0.48\textwidth]{./5_exp/figs/exp_dataset_speech_cmd_mfcc_left.png}}
+    \subfigure[right]{\includegraphics[width=0.48\textwidth]{./5_exp/figs/exp_dataset_speech_cmd_mfcc_right.png}}
+    \subfigure[up]{\includegraphics[width=0.48\textwidth]{./5_exp/figs/exp_dataset_speech_cmd_mfcc_up.png}}
+    \subfigure[down]{\includegraphics[width=0.48\textwidth]{./5_exp/figs/exp_dataset_speech_cmd_mfcc_down.png}}
+    \subfigure[go]{\includegraphics[width=0.48\textwidth]{./5_exp/figs/exp_dataset_speech_cmd_mfcc_go.png}}
   \caption{MFCC extraction of randomly selected 30 samples per class label, obtained from the training set of the speech commands dataset \texttt{v0.02}. The corresponding class labels are written below the plots.}
   \label{fig:exp_dataset_speech_cmd_mfcc}
 \end{figure}
@@ -202,7 +202,7 @@ It is difficult to examine why exactly this single example was wrongly classifie
 % --
 % preparation for neural networks
 
-\subsection{Data preparation for neural networks}\label{sec:exp_data_prep}
+\subsection{Data Preparation for Neural Networks}\label{sec:exp_data_prep}
 The neural network architectures are trained with supervised learning.
 This implies that a class label $y_i \in \{0, 1, \dots, L\}$ correspondence to each data example $x_i \in \mathcal{X}$ exists, where $L$ is the total number of classes and $\mathcal{X}$ is the input space of the data example.
 The input space for MFCC features is, for example, $\mathcal{X} = \R^{C \times M}$ with $C$ cepstral coefficients and $M$ frames.

@@ -22,7 +22,7 @@ It can be observed that the weights from the Generator network achieves better p
 \rfig{exp_adv_label_acc_conv-jim} shows in one single accuracy plot the best performing models in the experiments.
 \begin{figure}[!ht]
   \centering
-  \includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_adv_label_acc_conv-jim.png}
+  \includegraphics[width=0.48\textwidth]{./5_exp/figs/exp_adv_label_acc_conv-jim.png}
   \caption{Accuracies of the \texttt{conv-jim} model with different adversarial label training and frame-based normalization. Smoothing was applied  with a 10 epoch average filter.}
   \label{fig:exp_adv_label_acc_conv-jim}
 \end{figure}
@@ -32,6 +32,7 @@ The noise and shift invariance test is shown in \rfig{exp_adv_label_tb_noise_con
 \begin{figure}[!ht]
   \centering
   \subfigure[D]{\includegraphics[width=0.35\textwidth]{./5_exp/figs/exp_adv_label_tb_noise_conv-jim_d-100.png}}
+  \qquad
   \subfigure[G]{\includegraphics[width=0.35\textwidth]{./5_exp/figs/exp_adv_label_tb_noise_conv-jim_g-100.png}}
   \caption{Noise invariance of the \texttt{conv-jim} model with adversarial label training of 100 epochs and using either the Generator (G) or Discriminator (D) weights.}
   \label{fig:exp_adv_label_tb_noise_conv-jim}
@@ -40,8 +41,9 @@ The noise and shift invariance test is shown in \rfig{exp_adv_label_tb_noise_con
 \noindent
 \begin{figure}[!ht]
   \centering
-  \subfigure[D]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_adv_label_tb_shift_conv-jim_d-100.png}}
-  \subfigure[G]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_adv_label_tb_shift_conv-jim_g-100.png}}
+  \subfigure[D]{\includegraphics[width=0.48\textwidth]{./5_exp/figs/exp_adv_label_tb_shift_conv-jim_d-100.png}}
+  \quad
+  \subfigure[G]{\includegraphics[width=0.48\textwidth]{./5_exp/figs/exp_adv_label_tb_shift_conv-jim_g-100.png}}
   \caption{Shift invariance of the \texttt{conv-jim} model with adversarial label training of 100 epochs and using either the Generator (G) or Discriminator (D) weights.}
   \label{fig:exp_adv_label_tb_shift_conv-jim}
 \end{figure}

@@ -3,12 +3,8 @@
 
 \section{Keyword Spotting System Integration}
 The use of KWS in a video game requires the integration of a dedicated system within the game framework.
-The KWS system deployed in this thesis consists of two essential parts:
-\begin{itemize}
-	\item online system
-	\item classification system
-\end{itemize}
-where the online system captures the audio stream input from a microphone in real-time and stores it in a FIFO (First In First Out) buffer for subsequent calculations of features and keyword prediction in the classification system.
+The KWS system deployed in this thesis consists of two essential parts: An online system and a classification system.
+The online system captures the audio stream input from a microphone in real-time and stores it in a FIFO (First In First Out) buffer for subsequent calculations of features and keyword prediction in the classification system.
 The classification system consists of a feature extractor and the neural network architecture for the KWS task.
 The video game interprets the commands from the classification systems and performs the resulting actions within the game.
 More detailed descriptions of the individual sub systems are provided below.

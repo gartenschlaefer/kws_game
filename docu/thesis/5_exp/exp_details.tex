@@ -29,23 +29,17 @@ They can be looked up in the open source repository of the project, if requested
 % training details
 
 \subsection{Neural Network Training Details}\label{sec:exp_details_training}
-The training details of the used neural networks, described in \rsec{nn_arch}, can be split into following parameters:
-\begin{enumerate}
-  \item Feature extraction parameters
-  \item Dataset parameters
-  \item Training hyperparameters
-  \item Pre-Training details
-\end{enumerate}
-The feature extraction parameters provide information about how the MFCC features were extracted in detail.
+The training details and parameters of the used neural networks can be split into following components: Feature extraction, dataset, training, and pre-training.
+The feature extraction parameters provide information about the extraction of MFCC features.
 The dataset parameters are the selected labels and the number of examples per labels for training.
-With the training hyperparameters, the neural network training is specified, such as the learning rate or batch size.
-The pre-training details describe a separate training of GANs to use the obtained weights for transfer learning on an equivalent CNN.
+To specify the training of neural networks, the training hyperparameters, such as the learning rate or batch size, are applied.
+Further, the pre-training details describe a separate training of GANs to use the obtained weights for transfer learning on an equivalent CNN.
 
 
 % --
 % feature
 
-\subsubsection{Feature extraction parameters}
+\subsubsection{Feature Extraction Parameters}
 During the feature selection experiments in \rsec{exp_fs}, the feature extraction parameters for cepstral coefficients with enhancements were varying.
 If not other stated, the feature extraction parameters in \rtab{exp_details_params_feature} were used.
 \input{./5_exp/tables/tab_exp_details_params_feature}
@@ -54,7 +48,7 @@ If not other stated, the feature extraction parameters in \rtab{exp_details_para
 % --
 % dataset
 
-\subsubsection{Dataset parameters}
+\subsubsection{Dataset Parameters}
 The labels for training are selected to the same 12 labels (L12) that were also used in the benchmark networks, described in \rsec{prev_kws_benchmark}, to provide a comparison for the performed experiments in this section and the previous work.
 
 The maximum number of examples per label for training is given by the minimum examples per selected label for each label and each set.
@@ -70,7 +64,7 @@ Note that the actions set of the deployed video game in \rsec{game} uses only a 
 % --
 % training hyperparameters
 
-\subsubsection{Training hyperparameters}
+\subsubsection{Training Hyperparameters}
 \rtab{exp_details_params_train} shows the hyperparameters for the training of the used CNNs models, described in \rsec{nn_arch}.
 \input{./5_exp/tables/tab_exp_details_params_train}
 From the following experiments it can be observed that epochs of 2000 yield into small overfitting effects regarding certain models.
@@ -83,7 +77,7 @@ Note that the hyperparameters for the Wavenet model are described in the corresp
 % --
 % training parameters
 
-\subsubsection{Pre-Training details}
+\subsubsection{Pre-Training Details}
 The pre-training parameters describe the training of the GANs with their models presented in \rsec{nn_arch_adv} and \rsec{nn_adv}.
 The hyperparameters shown in \rtab{exp_details_params_pre_train} are the same as for usual training but the Discriminator (D) and Generator (G) network can have each different values.
 \input{./5_exp/tables/tab_exp_details_params_pre_train}
@@ -93,7 +87,7 @@ The selection of the epochs is important, as it was already pointed out in \rsec
 % --
 % evaluation details
 
-\subsection{Evaluation details}\label{sec:exp_details_tb}
+\subsection{Evaluation Details}\label{sec:exp_details_tb}
 The main evaluation score of the trained models is the computation of the accuracy on the test sets.
 The accuracy is simply obtained by counting all correct classifications and dividing it by the number of classified samples $n$.
 A score function $c(\hat{y}_i, y_i)$ for the accuracy can be defined by
@@ -122,7 +116,7 @@ In the following, the shift and noise invariance tests are explained in more det
 % --
 % shift invariance
 
-\subsubsection{Shift invariance}
+\subsubsection{Shift Invariance}
 Shift invariance is a very important property in speech recognition tasks. 
 For instance, a waveform of a command word should still be classified to the same label regardless of little shifts in time, as long as the analytic window includes enough and valuable information of this command word.
 However, the restricted frame size of \SI{500}{\milli\second} might increase the difficulty in this task.
@@ -130,9 +124,10 @@ Not all relevant information of the speech signals can be captured by the analyt
 An example of the application of the shift invariance test is shown in \rfig{exp_details_tb_shift_left} with a beginning, middle, and end frame shift.
 \begin{figure}[!ht]
   \centering
-    \subfigure[frame shift 0]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_details_tb_shift_left_frame0.png}}
-    \subfigure[frame shift 30]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_details_tb_shift_left_frame30.png}}
-    \subfigure[frame shift 59]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_details_tb_shift_left_frame59.png}}
+    \subfigure[frame shift 0]{\includegraphics[width=0.48\textwidth]{./5_exp/figs/exp_details_tb_shift_left_frame0.png}}
+    \quad
+    \subfigure[frame shift 30]{\includegraphics[width=0.48\textwidth]{./5_exp/figs/exp_details_tb_shift_left_frame30.png}}
+    \subfigure[frame shift 59]{\includegraphics[width=0.48\textwidth]{./5_exp/figs/exp_details_tb_shift_left_frame59.png}}
   \caption{Shifting a self recorded example of the label \enquote{left} with certain amounts of frame shifts and provided classification results in the title annotations.}
   \label{fig:exp_details_tb_shift_left}
 \end{figure}
@@ -158,7 +153,7 @@ A well performing model usually has a wide region of correct classifications wit
 % --
 % noise invariance
 
-\subsubsection{Noise invariance}
+\subsubsection{Noise Invariance}
 The classification of speech signals often requires noise invariance because a significant amount of noise usually is added from the use of poor microphones or recording set-ups and therefore might disturb the classification accuracy.
 To create a test upon noise invariance, AWGN was added to the test signal $\bm{x} \in \R^n$ by
 \begin{equation}
@@ -175,9 +170,10 @@ A SNR level of zero means that there is equal energy of the added noise $\bm{v}$
 \rfig{exp_details_tb_noise_left} provides an example of the noise invariance test with a low, middle, and high SNR value.
 \begin{figure}[!ht]
   \centering
-    \subfigure[\SI{16}{\dB}]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_details_tb_noise_left_snr16.png}}
-    \subfigure[\SI{0}{\dB}]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_details_tb_noise_left_snr0.png}}
-    \subfigure[\SI{-16}{\dB}]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_details_tb_noise_left_snr-16.png}}
+    \subfigure[\SI{16}{\dB}]{\includegraphics[width=0.48\textwidth]{./5_exp/figs/exp_details_tb_noise_left_snr16.png}}
+    \quad
+    \subfigure[\SI{0}{\dB}]{\includegraphics[width=0.48\textwidth]{./5_exp/figs/exp_details_tb_noise_left_snr0.png}}
+    \subfigure[\SI{-16}{\dB}]{\includegraphics[width=0.48\textwidth]{./5_exp/figs/exp_details_tb_noise_left_snr-16.png}}
   \caption{Adding noise to a self recorded example of \enquote{left} with certain SNR values and provided classification results in the title annotations.}
   \label{fig:exp_details_tb_noise_left}
 \end{figure}

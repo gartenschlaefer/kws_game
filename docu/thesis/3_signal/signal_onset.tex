@@ -3,13 +3,9 @@
 
 \section{Onset Detection}\label{sec:signal_onset}
 Onset detection of keywords is an essential part in KWS systems and describes the starting time of an actual keyword.
-In this thesis the onset detection is separated into:
-\begin{itemize}
-  \item keyword onset detection (within a fixed time span)
-  \item online onset detection.
-\end{itemize}
-The keyword onset detection performs on already extracted time signals, such as the raw data examples from the speech command dataset.
-The online onset detection runs during the recording of potential keywords from a microphone input stream in a real time system.
+In this thesis the onset detection is separated into: Keyword onset detection and online onset detection.
+The keyword onset detection performs on the raw data examples from the speech command dataset and detects an accurate onset position of the keywords.
+The online onset detection runs during the recording of potential keywords from a microphone input stream within a real time system.
 Note that onset detection in general can be quite challenging and is of some sorts an own research subject.
 However, for this thesis, it is enough to use trivial methods that do not require a high computational effort.
 
@@ -58,8 +54,10 @@ A showcase on the performance of both energy onset detection methods is provided
 \begin{figure}[!ht]
   \centering
     \subfigure[left]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_onset_showcase_left0.png}}
+    \quad
     \subfigure[right]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_onset_showcase_right0.png}}
     \subfigure[up]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_onset_showcase_up0.png}}
+    \quad
     \subfigure[down]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_onset_showcase_down0.png}}
     \subfigure[go]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_onset_showcase_go0.png}}
   \caption{Onsets (vertical colored lines) obtained from the maximum of either the sample energy or first MFCC coefficient energy method with an analytic window length of \SI{500}{\milli\second}.}

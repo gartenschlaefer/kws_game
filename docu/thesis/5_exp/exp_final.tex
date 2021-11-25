@@ -12,8 +12,9 @@ Note that there are some overfitting effects happening, especially showing up in
 It is therefore useful to apply an early stopping technique for better generalization, that obtains the model parameters at the best performing training epoch evaluated on the validation set.
 \begin{figure}[!ht]
   \centering
-  \subfigure[norm0]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_final_loss_norm0_conv-trad.png}}
-  \subfigure[norm1]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_final_loss_norm1_conv-trad.png}}
+  \subfigure[Norm.: 0]{\includegraphics[width=0.48\textwidth]{./5_exp/figs/exp_final_loss_norm0_conv-trad.png}}
+  \quad
+  \subfigure[Norm.: 1]{\includegraphics[width=0.48\textwidth]{./5_exp/figs/exp_final_loss_norm1_conv-trad.png}}
   \caption{Training loss of the \texttt{conv-trad} model showing overfitting effects on the whole dataset.}
   \label{fig:exp_final_loss_conv-trad}
 \end{figure}
@@ -23,8 +24,9 @@ The training of models with frame-based normalization has usually fewer problems
 The accuracy performance on the validation set of all models with and without frame-based normalization is shown in \rfig{exp_final_acc}.
 \begin{figure}[!ht]
   \centering
-  \subfigure[norm0]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_final_acc_norm0.png}}
-  \subfigure[norm1]{\includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_final_acc_norm1.png}}
+  \subfigure[Norm.: 0]{\includegraphics[width=0.48\textwidth]{./5_exp/figs/exp_final_acc_norm0.png}}
+  \quad
+  \subfigure[Norm.: 1]{\includegraphics[width=0.48\textwidth]{./5_exp/figs/exp_final_acc_norm1.png}}
   \caption{Training accuracies of all models with and without frame-based normalization performed on the whole dataset, averaged over 10 epochs for better visualization.}
   \label{fig:exp_final_acc}
 \end{figure}
@@ -41,7 +43,7 @@ With this in mind, the results do not look that poor.
 To observe the problems in classification, a confusion matrix from the \texttt{conv-jim} model with adversarial label train on the Generator weights, is shown in \rfig{exp_final_confusion}.
 \begin{figure}[!ht]
   \centering
-  \includegraphics[width=0.45\textwidth]{./5_exp/figs/exp_final_confusion.png}
+  \includegraphics[width=0.65\textwidth]{./5_exp/figs/exp_final_confusion.png}
   \caption{Confusion matrix of the \texttt{conv-jim} model pre-trained with adversarial label train of 100 epochs using the Generator weights and 2000 training epochs applied with frame-based normalization.}
   \label{fig:exp_final_confusion}
 \end{figure}

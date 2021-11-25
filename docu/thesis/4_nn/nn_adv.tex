@@ -9,7 +9,7 @@ This thesis considers the transfer of trained filter weights of the convolutiona
 Note that the convolutional layer structure, such as the filter size and striding properties, of G and D has to be the same as in the target CNN, however, the amounts of filters in those layers can vary.
 One method, denoted as \emph{adversarial dual train}, is to let G and D have the same amount of filters as the target CNN and to consider all available class labels in the vocabulary for training.
 The other method, referred to as \emph{adversarial label train}, creates several separate training instances of G and D on small subsets of class labels, where G and D gets fewer amounts of filters compared to the target CNN.
-
+Those methods are abbreviated in some experiments as \enquote{adv-dual} and \enquote{adv-label} for the adversarial dual and adversarial label train, respectively.
 Only the adversarial label train is explained in detail because the adversarial dual train is straight forward once the adversarial label train is understood.
 Note that the adversarial pre-training methods perform only on the \texttt{adv-d-jim}, \texttt{adv-g-jim}, and \texttt{conv-jim} models, which are described in \rsec{nn_arch}.
 
@@ -72,8 +72,9 @@ To further investigate the adversarial label train, the training results of the 
 \rfig{nn_adv_loss_label} shows the training loss of an actual GAN training for the label subset \{\enquote{left}, \enquote{go}\}.
 \begin{figure}[!ht]
   \centering
-  \subfigure[100 epochs]{\includegraphics[width=0.45\textwidth]{./4_nn/figs/nn_adv_loss_label_it-100.png}}
-  \subfigure[1000 epochs]{\includegraphics[width=0.45\textwidth]{./4_nn/figs/nn_adv_loss_label_it-1000.png}}
+  \subfigure[100 epochs]{\includegraphics[width=0.48\textwidth]{./4_nn/figs/nn_adv_loss_label_it-100.png}}
+  \quad
+  \subfigure[1000 epochs]{\includegraphics[width=0.48\textwidth]{./4_nn/figs/nn_adv_loss_label_it-1000.png}}
   \caption{Adversarial training loss of the label subset \{\enquote{left}, \enquote{go}\}.}
   \label{fig:nn_adv_loss_label}
 \end{figure}
@@ -83,8 +84,9 @@ Note that the update of either D or G performs alternately every 2 training epoc
 \rfig{nn_adv_fakes_label} shows the generation of fake images from G with different amounts of training epochs.
 \begin{figure}[!ht]
   \centering
-  \subfigure[100 epochs]{\includegraphics[width=0.45\textwidth]{./4_nn/figs/nn_adv_fakes_label_it-100.png}}
-  \subfigure[1000 epochs]{\includegraphics[width=0.45\textwidth]{./4_nn/figs/nn_adv_fakes_label_it-1000.png}}
+  \subfigure[100 epochs]{\includegraphics[width=0.48\textwidth]{./4_nn/figs/nn_adv_fakes_label_it-100.png}}
+  \quad
+  \subfigure[1000 epochs]{\includegraphics[width=0.48\textwidth]{./4_nn/figs/nn_adv_fakes_label_it-1000.png}}
   \caption{Generation of fake images of the label subset \{\enquote{left}, \enquote{go}\} with different amounts of epochs.}
   \label{fig:nn_adv_fakes_label}
 \end{figure}
@@ -94,8 +96,9 @@ Note that the update of either D or G performs alternately every 2 training epoc
 Those were obtained from an adversarial label train with different amount of epochs.
 \begin{figure}[!ht]
   \centering
-  \subfigure[D with 100 epochs]{\includegraphics[width=0.45\textwidth]{./4_nn/figs/nn_adv_label_weights_d-100.png}}
-  \subfigure[D with 1000 epochs]{\includegraphics[width=0.45\textwidth]{./4_nn/figs/nn_adv_label_weights_d-1000.png}}
+  \subfigure[D with 100 epochs]{\includegraphics[width=0.48\textwidth]{./4_nn/figs/nn_adv_label_weights_d-100.png}}
+  \quad
+  \subfigure[D with 1000 epochs]{\includegraphics[width=0.48\textwidth]{./4_nn/figs/nn_adv_label_weights_d-1000.png}}
   \caption{Concatenated label weights of the filters in the first convolutional layer from the Discriminator model with different amounts of epochs.}
   \label{fig:nn_adv_label_weights_d}
 \end{figure}
@@ -103,8 +106,9 @@ Those were obtained from an adversarial label train with different amount of epo
 \noindent
 \begin{figure}[!ht]
   \centering
-  \subfigure[G with 100 epochs]{\includegraphics[width=0.45\textwidth]{./4_nn/figs/nn_adv_label_weights_g-100.png}}
-  \subfigure[G with 1000 epochs]{\includegraphics[width=0.45\textwidth]{./4_nn/figs/nn_adv_label_weights_g-1000.png}}
+  \subfigure[G with 100 epochs]{\includegraphics[width=0.48\textwidth]{./4_nn/figs/nn_adv_label_weights_g-100.png}}
+  \quad
+  \subfigure[G with 1000 epochs]{\includegraphics[width=0.48\textwidth]{./4_nn/figs/nn_adv_label_weights_g-1000.png}}
   \caption{Concatenated label weights of the filters in the first convolutional layer from the Generator model with different amounts of epochs.}
   \label{fig:nn_adv_label_weights_g}
 \end{figure}
