@@ -122,7 +122,7 @@ The noise and shift invariance of the \texttt{conv-jim} model is shown in \rfig{
 \noindent
 While the results of the invariance tests do not allow a general conclusion, following patterns can be observed regardless:
 The frame-based normalization does certainly increase the invariance in noise, which is logical because the model has to focus more on learning patterns of the individual keywords and is less prone to overfitting.
-The \texttt{conv-fstride} model does unexpectedly well upon the shift invariance test, even though its strides perform merely on the frequency axis.
+The \texttt{conv-fstride} model does unexpectedly well upon the shift invariance test, even though its strides perform only on the frequency axis.
 Although it usually does not achieve that good shift invariance results compared to the other models and often holes appear in the classification with the shift invariance test.
 The \texttt{conv-trad} model performs best on all tests yet also requires a higher computational footprint so that the preferred model is the \texttt{conv-jim} model.
 The usage of 32 MFCC coefficients does not improve the invariance against shift or noise and very often worsens the results.

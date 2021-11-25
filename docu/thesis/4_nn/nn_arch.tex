@@ -16,7 +16,7 @@ The amount of parameters and operations for each architecture are listed to prov
 % CNNs
 
 \subsection{Convolutional Neural Networks}\label{sec:nn_arch_cnn}
-Three different CNN designs were evaluated with focus on the striding (shifting) properties of the convolutional filters.
+Three different CNN designs were evaluated with focus on the striding (shifting) properties of the convolutional filters that are also referred to as kernels.
 The \texttt{conv-fstride} model has a kernel size adjusted to the length of the frame (time) dimension of the input features and is therefore striding only in the cepstral (frequency) dimension.
 In contrast the \texttt{conv-jim} model has a kernel size adjusted to the feature dimension and therefore strides only in the frame (time) dimension.
 Also one traditional model named \texttt{conv-trad} is used and performs the striding of the convolutional filters in both dimensions.
@@ -60,7 +60,7 @@ The kernel height of 8 and vertical stride of 4 creates only two dimensions in t
 \input{./4_nn/tables/tab_nn_arch_cnn_fstride.tex}
 
 The self designed \texttt{conv-jim} consists of two convolutional layers, where the first layer consists of an adaptive kernel size in the feature (frequency) dimension and is therefore striding only in frame (time) dimension.
-The kernel width of the convolutional filters in the first layer is set to $20$ similarly as in the \texttt{conv-trad} model.
+The kernel width in the first layer convolutional layer is set to $20$ similarly as in the \texttt{conv-trad} model.
 The convolutional filters of the second layer have a width of $5$ intended for temporal variations.
 The \texttt{conv-jim} model is shown in \rfig{nn_arch_cnn_jim} with footprint listed in \rtab{nn_arch_cnn_jim}.
 \begin{figure}[!ht]
@@ -84,7 +84,7 @@ The second lowest footprint is given by the \texttt{conv-jim} model, while the \
 \subsection{Generative Adversarial Neural Networks}\label{sec:nn_arch_adv}
 GANs, as already mentioned in \rsec{prev_nn_adv} and \rsec{nn_theory_gan} consist of two separate neural network architectures, denoted as Discriminator (D) and Generator (G).
 Being able to transfer the obtained weights from the training of the adversarial models requires that the layer parameters of the receiving network have to coincide with the adversarial network layer parameters.
-This implies that the kernel size of the filters has to be equal for each layer.
+This implies that the kernel size has to be equal for each layer.
 But the amount of filters does not necessarily have to be the same.
 The convolutional layer parameters of both D and G can be transferred, even though G performs a convolutional upsampling (transposed convolution) instead of an usual convolution.
 However, it is preferred to use a normalization technique, such as the frame-based normalization. 
@@ -132,10 +132,10 @@ In the paper it is mentioned that Wavenets can be applied for ASR tasks as well 
 \noindent
 It is important to mention that the convolutional layers in the residual blocks should not use bias terms because they led to poor training results during the conduction in the experiments.
 The average filter has a window size of 160 samples and a stride of 80 samples.
-One residual block incorporates few parameters but a huge amount of operations as listed in \rtab{nn_arch_wavenet_block}.
+One residual block contains few parameters but requires a huge amount of operations, as listed in \rtab{nn_arch_wavenet_block}.
 \input{./4_nn/tables/tab_nn_arch_wavenet_block}
 Note that the dilated convolutional filters have a filter size of two with adjustable dilation parameter.
-Further, the filters stride merely in the time dimension because the input is an one-dimensional time signal.
+Further, the filters stride only in the time dimension because the input is an one-dimensional time signal.
 The $1 \times 1$ convolutions are a special type of convolutional filters and work in the same manner as usual convolutions, just with a filter size of one.
 The whole Wavenet architecture is composed of several consecutive Wavenet residual blocks with increasing dilation parameters for the first two convolutional layers (filter and gate) in the blocks.
 \rfig{nn_arch_wavenet_all} shows he whole Wavenet architecture adaption with an extension of a class prediction.

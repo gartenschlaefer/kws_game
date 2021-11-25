@@ -40,9 +40,9 @@ Also in audio and language processing tasks, such as KWS, ASR, and Natural Langu
 
 \subsection{Convolutional Neural Networks}\label{sec:prev_nn_cnn}
 CNNs are a special type of neural networks that are consisting of so called convolutional layers.
-Convolutional layers are able to incorporate spatial information from the input data through the application of convolutional filters.
+Convolutional layers are able to learn spatial information from the input data through the application of convolutional filters.
 Those convolutional filters create so called feature maps as outputs.
-Spatial information is very important in images, where neighboring pixels are correlated to each other, such as edges or homogeneous regions within an image.
+Spatial information is very important in images, where neighboring pixels are strongly correlated to each other, such as edges or homogeneous regions.
 Convolutional filters are very commonly applied in image processing tasks, such as denoising and other enhancements.
 A classical application of convolutional filters in audio processing, is a simple average filter applied on the signal's energy representation over time, to determine onsets such as the start of a speech signal.
 
@@ -93,7 +93,7 @@ Regarding this thesis, it is questionable whether Wavenets are suited for the KW
 GANs emerged from Goodfellow et al. in 2014 \cite{Goodfellow2014} and was initially motivated by Game Theory of a two player zero-sum game with the Min-Max-Theorem as solution concept \cite{VonNeumann1944}.
 The game in terms of GANs is as follows: Two neural networks try to outperform the other in an adversary task, where the task of one network, denoted as Generator (G), is to counterfeit fake images, while the other network, denoted as Discriminator (D), has the task to discriminate whether its been given real or fake images.
 In \cite{Radford2016} some practical guidelines for designing and training deep GAN architectures are provided by applying the Deep Convolutional Generative Adversarial Network (DCGAN) model.
-Note that DCGANs merely consider image data and not speech signals, yet they were the first starting point for developing GANs in this thesis.
+Note that DCGANs were designed for image data and not speech signals, yet they were the first starting point for developing GANs in this thesis.
 
 The G network has to perform a so called \emph{transposed convolution}, \emph{up-convolution}, or \emph{de-convolution} for upsampling the low-dimensional image to the desired output dimensions of real sample images from a dataset.
 The transposed convolution and some problems regarding GANs are described in \cite{Durall2020}.

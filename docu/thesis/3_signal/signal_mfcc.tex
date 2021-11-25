@@ -129,7 +129,7 @@ A visualization of MFCC features with 32 filter bands, 32 cepstral coefficients,
 \noindent
 The frame-based normalization is an interesting technique to improve the visualization of MFCC features.
 Nevertheless, this normalization technique can be critical. 
-A normalization that operates only in one dimension changes important structures within the other dimensions, and it cannot be answered yet, whether this is a problem for the classification task in the later sections.
+A normalization that operates only in one dimension changes valuable structures within the other dimensions, and it cannot be answered yet, whether this is a problem for the classification task in the later sections.
 One more research question arises here: Is it possible to use frame-based normalized MFCC features as inputs to neural network models and what is the impact on the classification accuracy?
 
 
@@ -186,7 +186,7 @@ The computation of 39 MFCCs from the showcase examples are shown in \rfig{signal
 
 \subsection{Computational Complexity}\label{sec:signal_mfcc_complexity}
 The computational complexity is evaluated on the amount of operations required to process a specific computation task, such as the feature extraction of MFCCs.
-The energy consumption is related to the computational complexity but it is much harder to define and depends on many parameters and actual hardware implementations, which is especially important for handheld devices.
+The energy consumption is related to the computational complexity but it is much harder to define and depends on many parameters and actual hardware implementations, which is especially relevant to handheld devices.
 The count of operations is sufficient for this thesis and provides a comparison to the benchmark models mentioned in \rsec{prev_kws_benchmark}.
 The computational complexity for the extraction of MFCC features is the amount of operations required to process a \SI{1}{\second} time signal sampled with $f_s = \SI{16}{\kilo\hertz}$.
 All MFCC specific extraction details are collected in \rtab{signal_mfcc_extraction_params}.

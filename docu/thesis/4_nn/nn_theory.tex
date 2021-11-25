@@ -4,7 +4,7 @@
 \section{Theory}\label{sec:nn_theory}
 The most basic element in neural networks is referred to as \emph{node}, an abstract element that defines input and output connections from and to other nodes within a network.
 The edges of the connections from and to a node represents a multiplication with a scalar value, denoted as \emph{weight}.
-Each node usually incorporates an additive term, referred to as \emph{bias term}.
+Each node usually includes an additive term, referred to as \emph{bias term}.
 All weights and bias terms are forming the parameters of a network and can be trained through backpropagation.
 The output of a node is a scalar computed from all inputs and mapped with a non-linear function denoted as \emph{activation function}.
 A neural network can consist of thousand of nodes in each possible constellation of connections.
@@ -100,7 +100,7 @@ which would give, for example, with $n = 128$ and $m = 64$ roughly $\mathcal{T}(
 \subsection{Convolutional Layers}\label{sec:nn_theory_cnn}
 Convolutional layers are the fundamental building block of every CNN, as already discussed in \rsec{prev_nn_cnn}.
 Convolutional filters are applied on small areas of the input data to retrieve spatial information, where the input data may consist of multiple channels or input maps.
-Those convolutional filters are also denoted as kernels $k$.
+Those convolutional filters are also referred to as kernels $k$.
 In the case the kernels operate on 2 dimensional input maps, they can be seen as 2 dimensional maps as well with kernel width $d_{k_w}$ and height $d_{k_h}$ typically smaller than the input maps.
 The \emph{stride} $s$ of a kernel specifies the number of shifts a kernel moves on a specific axis over an input map to perform the next convolution operation.
 There are limited amounts of possible kernel strides over an input map in any specific axis, which determines the dimension of the output map on that axis.

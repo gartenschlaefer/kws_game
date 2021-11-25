@@ -3,7 +3,7 @@
 
 \section{Dataset}\label{sec:exp_dataset}
 This thesis uses two datasets, one is the second version of the speech commands dataset \cite{Warden2018} and the other is self made consisting of only 5 labels (speech commands) that are especially valuable for movement in video games.
-The self made dataset is denoted as \enquote{my dataset} and it is merely intended for evaluation.
+The self made dataset is referred to as \enquote{my dataset} and is used as additional evaluation set.
 The training, validation, and testing of the neural network architectures performs on the speech commands dataset.
 Both datasets consists of raw waveform files in the \texttt{.wav} format without any feature extraction done beforehand.
 As already mentioned in \rsec{prev_kws_benchmark}, the direct comparisons between different neural network approaches is difficult, if the feature extraction is left alone to the user.
@@ -87,7 +87,7 @@ This however, is enough for words like \enquote{go}, where the reduced samples l
 The histogram of the energy measure has one main lobe, which implies that there are no clusters of extremely silent or loud files.
 For comparison, if silent files were extracted from the given background files, the energy of some of those would be in a range of $10^{-7} \dots 10^{-6}$ indicating that those files are too silent.
 The sample length histogram shows that most of the files consist of 16000 samples but many others have a smaller number of samples. 
-This is important and has to be regarded in the pre-processing of audio files because inputs to neural networks often have to be prepared to fixed size inputs if no sequential neural networks, such as RNNs, are used.
+This is relevant and has to be considered in the pre-processing of audio files because inputs to neural networks often have to be prepared to fixed size inputs if no sequential neural networks, such as RNNs, are used.
 
 
 % --
@@ -174,7 +174,7 @@ The datasets purpose is mainly to have an additional test set for evaluating tra
 The examples per keyword are spoken with different emphasis and stress on individual phonemes for each keyword.
 Also the prolongation of the words are different, for instance, in one example the word is spoken very hasty and in the other it is spoken slowly.
 The emphasis and prolongation ensure the diversity of the dataset.
-It is important to mention that none of the self recorded files were used within the training set so that the neural networks performance is evaluated on unseen data.
+It is relevant to mention that none of the self recorded files were used within the training set so that the neural networks performance is evaluated on unseen data.
 All examples of \enquote{my dataset} are illustrated in \rfig{exp_dataset_my_wav_grid} in raw audio format.
 \begin{figure}[!ht]
   \centering
@@ -213,7 +213,7 @@ Selected examples including their labels form a set $S$, for example for trainin
 where $n$ is the total number of examples within this set.
 Class labels $y_i$ are usually translated to integer numbers that are referencing to indices in a class dictionary.
 For instance, $y_1 = 0$ of example $i=1$ refers to the label \enquote{left} in the dictionary \{0: \enquote{left}, 1: \enquote{right}\}.
-It is important that the enumeration of class labels in the class dictionary starts from zero because they should correspond to the output nodes in the used neural network.
+It is essential that the enumeration of class labels in the class dictionary starts from zero because they should correspond to the output nodes in the used neural network.
 
 \rsec{signal_mfcc} already showed how to extract MFCC features.
 Nevertheless, it is important that each individual $x_i$ for all $i$ has the same dimension $\mathcal{X}$ so that a data preparation for the training of neural networks is possible.

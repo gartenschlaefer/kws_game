@@ -10,7 +10,7 @@ Yet supervised learning is more commonly applied.
 \emph{Inference} is simply the forward pass of input data samples through an already trained network to output their estimated class labels.
 
 The main advantage of neural networks is that they are able to cope with large amounts of input variables per data example.
-Considering a raw waveform file of merely \SI{1}{s} time duration, sampled with \SI{16}{\kilo\hertz} would give an input size of 16000 features.
+Considering a raw waveform file of \SI{1}{s} time duration sampled with \SI{16}{\kilo\hertz}, would give an input size of 16000 features.
 This huge amount of input features is even difficult for neural networks to learn from with restricted computational resources and usually a feature extraction stage is placed in between to reduce the input dimension.
 For instance, the computation of MFCCs with 12 coefficients and a time duration of \SI{0.5}{s} with a time shift of \SI{10}{\milli\second} reduces the input feature size dramatically to $12 \times 50 = 600$, which is still a high number of input features but much more affordable and faster to train.
 

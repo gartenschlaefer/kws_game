@@ -4,7 +4,7 @@
 \section{Implementation and Experiment Details}\label{sec:exp_details}
 The implementation describes the used software tools for the experiments on the neural networks, such as the programming language and packages for the source code.
 The training details provide commonly used sets of hyperparameters applied to train neural networks.
-Note that the training details can vary between different experiments and models and that the listing provide merely an overview of all available parameters to choose from with recommendations of parameters for the speech command dataset.
+Note that the training details can vary between different experiments and models and that the listing provide an overview of all available parameters to choose from with recommendations of parameters for the speech command dataset.
 If parameters are varying in some experiments, they are usually noted, otherwise the parameters listed were used.
 The evaluation details of the models is described separately and evaluates the trained models upon accuracy performance, and noise and shift invariance.
 
@@ -14,7 +14,7 @@ The evaluation details of the models is described separately and evaluates the t
 
 \subsection{Implementation Notes}\label{sec:exp_details_implementation}
 The source code for this thesis was entirely written in \texttt{Python} with version $>3.8$ evaluated on a Linux operating system and is open source available at \cite{KWSGame}.
-The operating system might be important if someone tries to run the python code on a \enquote{Windows} machine, where unexpected errors might occur (especially regarding path variables).
+The operating system might be relevant, if someone tries to run the python code on a \enquote{Windows} machine, where unexpected errors might occur (especially regarding path variables).
 Also the project does not download the speech command dataset by its own and a path to the dataset has to be specified in the \texttt{config.yaml} file of the project.
 More information about how to run the project is described in the \texttt{README.txt} file of the project.
 The training and implementation of all used neural networks were done with the \texttt{Pytorch} \cite{Pytorch} framework of version $1.7.0$. 
@@ -123,7 +123,7 @@ In the following, the shift and noise invariance tests are explained in more det
 % shift invariance
 
 \subsubsection{Shift invariance}
-Shift invariance is a very important property for speech recognition. 
+Shift invariance is a very important property in speech recognition tasks. 
 For instance, a waveform of a command word should still be classified to the same label regardless of little shifts in time, as long as the analytic window includes enough and valuable information of this command word.
 However, the restricted frame size of \SI{500}{\milli\second} might increase the difficulty in this task.
 Not all relevant information of the speech signals can be captured by the analytic window, like the \enquote{t} in \enquote{left} or \enquote{right} is often missed.
