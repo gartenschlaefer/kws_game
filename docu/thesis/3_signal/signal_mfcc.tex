@@ -185,13 +185,13 @@ The computation of 39 MFCCs from the showcase examples are shown in \rfig{signal
 % energy consumption
 
 \subsection{Computational Complexity}\label{sec:signal_mfcc_complexity}
-The computational complexity is evaluated on the amount of operations required to process a specific computation task, such as the feature extraction of MFCCs.
-The energy consumption is related to the computational complexity but it is much harder to define and depends on many parameters and actual hardware implementations, which is especially relevant to handheld devices.
-The count of operations is sufficient for this thesis and provides a comparison to the benchmark models mentioned in \rsec{prev_kws_benchmark}.
+The energy consumption is related to the computational complexity but much harder to define and depends on many parameters and actual hardware implementations, which is especially relevant to handheld devices.
+The computational complexity in this thesis is evaluated on the amount of operations required to process a specific computational task, such as the feature extraction of MFCCs.
+The amount of operations is composed of the total number of additions and multiplications necessary to fulfill this task.
+Further, it provides a comparison to the benchmark models mentioned in \rsec{prev_kws_benchmark}.
 The computational complexity for the extraction of MFCC features is the amount of operations required to process a \SI{1}{\second} time signal sampled with $f_s = \SI{16}{\kilo\hertz}$.
 All MFCC specific extraction details are collected in \rtab{signal_mfcc_extraction_params}.
 \input{./3_signal/tables/tab_signal_mfcc_extraction_params}
-The amount of operations is the total number of additions and multiplications necessary to fulfill the process.
 The major components of the MFCC are, as described in \rsec{signal_mfcc_pipeline} and summarized in \req{signal_mfcc_mfcc}, the transformation to the STFT, the weighting with the filter bands, and the DCT transform.
 The most costly component is of course the STFT, which again is composed of the DFT.
 Note that the DFT uses complex multiplications and additions.
@@ -232,5 +232,5 @@ Still the processing pipeline of MFCCs leave some disadvantages.
 One disadvantage is, as already mentioned, that MFCCs are not intended for visualization because of their broad value space of individual MFCC coefficients.
 Another disadvantage is that MFCC are not directly invertible to raw audio samples because of the computation of the spectrogram and its Mel band weighting.
 Inversion techniques for MFCCs exist, such as described in \cite{Boucheron2008}.
-However, it is still very difficult to obtain good estimations when the phase information of the original signal is missing.
+However, it is still very difficult to obtain good approximations when the phase information of the original signal is missing.
 The inversion of MFCCs would have been very interesting when applied to the outputs of generative neural networks, such as GANs.

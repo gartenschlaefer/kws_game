@@ -7,7 +7,7 @@ In this thesis the onset detection is separated into: Keyword onset detection an
 The keyword onset detection performs on the raw data examples from the speech command dataset and detects an accurate onset position of the keywords.
 The online onset detection runs during the recording of potential keywords from a microphone input stream within a real time system.
 Note that onset detection in general can be quite challenging and is of some sorts an own research subject.
-However, for this thesis, it is enough to use trivial methods that do not require a high computational effort.
+However, for this thesis, it is sufficient to use trivial methods that do not require a high computational effort.
 
 
 % --
@@ -28,7 +28,7 @@ for all windowed signal energies $e[m]$.
 Note that it is assumed that most of the information of a keyword in each signal is captured by the window length $N$ and that no noise peaks are present before and after the keyword. 
 Otherwise the onset $o$ would be shifted to either the left or right-hand side of the actual keyword onset depending on where the noise peak was located.
 It is most certainly that this onset detection is not the most reliable one. 
-Yet it is the simplest and most energy efficient method that performs on raw audio data.
+Yet it is the simplest and most computationally efficient method that performs on raw audio data.
 
 A better approach is to use energy values from the frequency response of the signal.
 Since the MFCCs are extracted to obtain features for neural networks, it is straight forward to use them for onset detection as well.
@@ -73,10 +73,10 @@ Note that the dataset extraction in the experiments in \rsec{exp} applies the MF
 % keyword onset detection
 
 \subsection{Online Onset Detection}\label{sec:signal_onset_online}
-The onset detection of online speech signals is processed by evaluating consecutive input chunks that are stored in an input buffer.
-From those input chunks the energy level can be computed and compared with an energy threshold that should indicate the presence of an onset.
-It is not the purpose to detect keyword onsets by its correct starting time but to signalize whether a signal with enough energy is available for a potential keyword classification.
-Mathematically the onset $o(\bm{x}) \in \{0, 1\}$ of an input chunk $\bm{x} \in \R^n$ from an actual microphone input stream can be obtained by
+The online onset detection evaluates consecutive input chunks from online speech signals that are stored, for instance, in an data buffer.
+Further, from each of the those input chunks the energy level is computed and compared with an energy threshold that indicates the presence of an onset.
+It is not the purpose to detect keyword onsets by its correct starting time but to signalize whether a signal with sufficient energy is available for a potential keyword classification.
+Mathematically the onset $o(\bm{x}) \in \{0, 1\}$ of an input chunk $\bm{x} \in \R^n$ from a microphone input stream can be obtained by
 \begin{equation}
   o(\bm{x}) = 
   \begin{cases}
@@ -84,9 +84,6 @@ Mathematically the onset $o(\bm{x}) \in \{0, 1\}$ of an input chunk $\bm{x} \in 
     0, & \text{otherwise} 
   \end{cases},
 \end{equation}
-where the output value of $1$ represents the occurrence of an onset, $n$ is the total sample number of the input chunk and $\alpha$ the energy threshold.
+where the output value of $1$ represents the presence of an onset, $n$ is the total sample number of the input chunk, and $\alpha$ the energy threshold.
 The energy threshold should be adjustable to the user's microphone and amplifier setup. 
 This can be done, for instance, in the option menu of the video game, as described in \rsec{game_design_menu}.
-If an online onset is detected, the whole buffer fills up with consecutive frames from the input stream.
-The full buffer is then read out and passed to the MFCC feature extraction stage for further processing.
-The exact keyword onset is calculated from the obtained MFCCs, as described in \rsec{signal_onset_kw}, and the \SI{500}{\milli\second} long feature vectors are sent to the classification system.

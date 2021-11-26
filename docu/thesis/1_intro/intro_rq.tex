@@ -39,7 +39,7 @@ Problems might occur if the speech commands are spoken repeatedly and very hasty
 Ideally the time interval to represent a speech command would be flexible but this more difficult to implement than a fixed time interval.
 
 \textbf{Question \ref{it:q1-b}:}
-Usually the presence of weak background noise should not be a problem for neural networks trained on a large enough data set. 
+Usually the presence of weak background noise should not be a problem for neural networks trained on a sufficiently large data set. 
 The game sounds might present a more difficult problem, when turned up too loud without the use of headphones. 
 Therefore, the microphone will not only capture the voice of a speaker but also a fair amount of game sounds. 
 This problem seems to be theoretically solvable as the shape of the nuisance is known and the amount of game sound in the audio stream could be attenuated sufficiently.
@@ -68,7 +68,7 @@ Following Questions can be asked in general:
 \begin{enumerate}[label={Q.2.\alph*)}, leftmargin=1.75cm]
   \item Is there an appropriate dataset suited for KWS video games and with sufficient diversity available?\label{it:q2-a}
   \item What happens if an input feature represents a spoken word, which is not in the vocabulary (unknown keyword) and how should this exception be handled?\label{it:q2-b}
-  \item What is the best neural network architecture regarding classification accuracy and energy efficiency?\label{it:q2-c}
+  \item What is the best neural network architecture regarding classification accuracy and computational efficiency?\label{it:q2-c}
   \begin{enumerate}[label=(\roman*)]
     \item Can adversarial networks improve generalization?
     \item Are Wavenets a solution to this task?
@@ -76,12 +76,13 @@ Following Questions can be asked in general:
 \end{enumerate}
 \noindent
 \textbf{Question \ref{it:q2-a}:} 
-The availability of a dataset for KWS video games can be answered right away, as there exists a speech commands dataset \cite{Warden2018} with enough and diverse data.
-The dataset consist of 35 labels and contains commands for movement and numbers.
-Further, it includes randomly selected words like \enquote{marvin} or \enquote{bird} intended to represent \emph{unknown} words for the KWS system.
-It has to be noted that not every game idea can be realized with a restricted vocabulary.
-Nevertheless, with commands for movement like \enquote{left} or \enquote{go} it is possible to move objects within a game and this can already be used for many game mechanics.
-An aspect regarding efficiency, is to restrict the amount of keywords in the vocabulary as much as possible such that a lightweight neural network architecture can be deployed, which of course should still perform sufficiently well in classification.
+The availability of a dataset for KWS video games can be answered immediately. 
+The speech commands dataset \cite{Warden2018} contains a sufficient amount of data examples from many different speakers to ensure diversity.
+Further, the dataset consists of 35 labels including command words for movement and numbers as well as randomly selected words like \enquote{marvin} or \enquote{bird} intended to represent \emph{unknown} words for the KWS system.
+It has to be noted that not every game idea can be realized with a limited vocabulary.
+Nevertheless, using command words for movement, such as \enquote{left} or \enquote{go}, can already be used for many game mechanics.
+For instance, to move objects within a game.
+An aspect regarding efficiency, is to reduce the amount of keywords in the vocabulary as much as possible such that a lightweight neural network architecture can be deployed, which of course should still perform sufficiently well in classification.
 
 \textbf{Question \ref{it:q2-b}:} 
 Without doubt, players will try out words that are not in the vocabulary (denoted as \emph{unknown} keywords) and observe the response of the video game.

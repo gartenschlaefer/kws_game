@@ -72,7 +72,7 @@ where $\bm{x} \in \R^n$ represents a single recorded file with a total number of
 The division through the sample length $n$ of each individual audio recording is required because not every file has a duration of \SI{1}{\second} (16000 samples).
 For an unknown reason, many of the recordings consist of less than 16000 samples, which would be problematic if the sample length is too short to fully capture a keyword.
 So the minimum duration of all examples was determined and found to last about \SI{0.4}{\second}.
-This however, is enough for words like \enquote{go}, where the reduced samples length often shows up.
+This however, is adequate for words like \enquote{go}, where the reduced samples length often shows up.
 \rfig{exp_dataset_hist} shows the mentioned histograms of all available examples in the dataset.
 \begin{figure}[!ht]
   \centering
@@ -122,7 +122,7 @@ Other more problematic cases, like noise-only examples, should ideally be remove
 But since their occurrence is very rare it is not worth the effort.
 Besides, it is usually not a problem for neural networks to cope with noisy datasets.
 In many cases it is favorable when a dataset contains many noisy samples so that neural networks can learn invariance against noise, loudness differences, and other nuisances during training.
-Moreover, if the training dataset is large enough, and the test and validation sets do not contain very poor examples, there should be no problem in the training and evaluation of different models.
+Moreover, if the training dataset is sufficiently large, and the test and validation sets do not contain very poor examples, there should be no problem in the training and evaluation of different models.
 Finally, it has to be acknowledged that the dataset is published under the creative common license, hence it is freely available to everyone, which is simply fabulous.
 
 

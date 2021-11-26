@@ -4,7 +4,7 @@
 \section{Keyword Spotting System Integration}
 The use of KWS in a video game requires the integration of a dedicated system within the game framework.
 The KWS system deployed in this thesis consists of two essential parts: An online system and a classification system.
-The online system captures the audio stream input from a microphone in real-time and stores it in a FIFO (First In First Out) buffer for subsequent calculations of features and keyword prediction in the classification system.
+The online system captures the audio stream input from a microphone in real-time and stores it in a FIFO (First In First Out) queue for subsequent calculations of features and keyword prediction in the classification system.
 The classification system consists of a feature extractor and the neural network architecture for the KWS task.
 The video game interprets the commands from the classification systems and performs the resulting actions within the game.
 More detailed descriptions of the individual sub systems are provided below.
@@ -14,21 +14,23 @@ More detailed descriptions of the individual sub systems are provided below.
 % online
 
 \subsection{Online System}
-The online system is mainly composed of a FIFO buffer for input data storage and an energy onset detection.
-The length of the FIFO buffer has to be at least as large as the sample length of the speech command examples used to train the neural networks for classification.
+The online system is mainly composed of a FIFO queue for input data storage and an energy onset detection method.
+The length of the FIFO queue has to be at least as large as the sample length of the speech command examples used to train the neural networks for classification.
 The recorded files in the speech command dataset have a time duration of \SI{1}{\second}. 
 Using this time duration however would have made the classification of keywords very slow and influenced the gaming experience.
-In this thesis, the length of a keyword was restricted to \SI{500}{\milli\second} or 8000 samples.
-Further, some buffer samples were added for an improved detection of the highest energy region within the speech signal.
+In this thesis, the length of a keyword was limited to \SI{500}{\milli\second} or 8000 samples.
+Furthermore, some buffer samples were added for an improved detection of the highest energy region within the speech signal.
 Note that the input stream reads out the microphone data in chunks, where the length of each chunk had been chosen to be 160 samples, corresponding to exactly one frame with hop size of \SI{10}{\milli\second}.
 Ideally these buffer frames should not be necessary but due to shift invariance problems in some network architectures (especially for the \texttt{fstride} model) it can be advantageous and improve the keyword predictions when buffer frames are added.
 
-The buffer frames are located prior and posterior to the dedicated keyword frames and had been selected to both 5 frames for the prior and posterior buffer.
-The prior buffer consecutively collects the frames from the audio stream but does not feed the output to the next buffer until a keyword onset is detected. 
+The buffer frames are located prior and posterior to the dedicated keyword frames and were both selected to have a length of 5 frames.
+Essentially, the buffer frames extend the keyword frames but can also be seen as queues by themselves.
+Therefore, the whole FIFO queue consist of three individual queues: the prior buffer queue, the key word queue, and the posterior buffer queue.
+The prior buffer queue consecutively collects the frames from the audio stream but does not feed the output to the key word queue as long as there is no keyword onset detected.
 Each input chunk or frame is used for the detection of an online onset, as described in \rsec{signal_onset_online}.
-If an onset is detected from one of these frames, subsequently the FIFO will be filled up to its full size including the posterior buffer frames.
-Afterwards the whole FIFO is read out and the obtained frames are passed to the feature extraction module already located in the classification system.
-The scheme of the online system with integrated FIFO buffer is illustrated in \rfig{game_system_online}.
+If an onset is detected from one of these frames, subsequently the whole FIFO queue will be filled up to its full size including the posterior buffer frames.
+Afterwards the frames contained in the FIFO queue are read out and passed to the feature extraction module, which is already located in the classification system.
+The scheme of the online system with integrated FIFO queue is illustrated in \rfig{game_system_online}.
 \begin{figure}[!ht]
   \centering
   \includegraphics[width=0.9\textwidth]{./6_game/figs/game_system_online.pdf}

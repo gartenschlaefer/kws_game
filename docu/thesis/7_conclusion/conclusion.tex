@@ -29,7 +29,7 @@ If there is no loud disturbance on the left or right hand-side of the energy piv
 \section{Neural Networks}
 The use of CNN models with low computational footprint composed of few layers allows researchers to investigate the processing of input features by observing the learned filters of the convolutional layers.
 Although those models could not reach the high accuracy achievements obtained by the sophisticated benchmark models listed in \rsec{prev_kws_benchmark}.
-Still the evaluated models (apart from the Wavenet model) were sufficient for playing a video game with KWS providing enough accuracy in their prediction.
+Still the evaluated models, apart from the Wavenet model, performed sufficiently well in the prediction of keywords when applied in a video game with integrated KWS system.
 The preferred CNN model was the self designed \texttt{conv-jim} model with strides only in the frame dimension.
 It provided a well balanced trade-off between accuracy and computational footprint.
 The traditional model \texttt{conv-trad} achieved the best accuracy scores but also required the most computational effort of all three models and it was more prone to overfitting effects during training.
@@ -51,7 +51,7 @@ But considering the lower amount of computations and the restricted time interva
 The time to process a single speech command is one of the most important aspects in KWS video games, apart from the accurateness of the keyword predictions.
 The restriction of the time interval to \SI{500}{\milli\second} for a single keyword increased the responsiveness of the deployed KWS video game.
 Including the prior and posterior buffer frames in the online system, a classification usually took about \SI{600}{\milli\second}.
-Still, it would be desirable to perform the detection of keywords and triggering of actions even faster so that the playing experience could be further improved.
+Still it would be desirable to perform the detection of keywords and triggering of actions even faster so that the playing experience could be further improved.
 
 Considering the amount of computations for the feature extraction and the inference through the classifier, the deployed KWS game was playable and had no lacks in frames when played with 60 FPS.
 Still a KWS system requires a significant amount of additional operations and can slow down a video game.

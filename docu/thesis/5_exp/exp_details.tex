@@ -118,7 +118,7 @@ In the following, the shift and noise invariance tests are explained in more det
 
 \subsubsection{Shift Invariance}
 Shift invariance is a very important property in speech recognition tasks. 
-For instance, a waveform of a command word should still be classified to the same label regardless of little shifts in time, as long as the analytic window includes enough and valuable information of this command word.
+For instance, a waveform of a command word should still be classified to the same label regardless of little shifts in time, as long as the analytic window includes sufficiently valuable information of this command word.
 However, the restricted frame size of \SI{500}{\milli\second} might increase the difficulty in this task.
 Not all relevant information of the speech signals can be captured by the analytic window, like the \enquote{t} in \enquote{left} or \enquote{right} is often missed.
 An example of the application of the shift invariance test is shown in \rfig{exp_details_tb_shift_left} with a beginning, middle, and end frame shift.
