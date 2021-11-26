@@ -16,7 +16,8 @@ The amount of parameters and operations for each architecture are listed to prov
 % CNNs
 
 \subsection{Convolutional Neural Networks}\label{sec:nn_arch_cnn}
-Three different CNN designs were evaluated with focus on the striding (shifting) properties of the convolutional filters that are also referred to as kernels.
+Three different CNN designs were evaluated with focus on their striding (shifting) properties of the convolutional filters.
+Note that the convolutional filters are also referred to as kernels.
 The \texttt{conv-fstride} model has a kernel size adjusted to the length of the frame (time) dimension of the input features and is therefore striding only in the cepstral (frequency) dimension.
 In contrast the \texttt{conv-jim} model has a kernel size adjusted to the feature dimension and therefore strides only in the frame (time) dimension.
 Also one traditional model named \texttt{conv-trad} is used and performs the striding of the convolutional filters in both dimensions.

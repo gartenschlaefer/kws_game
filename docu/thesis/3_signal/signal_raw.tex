@@ -46,9 +46,10 @@ The pronunciation of words can of course deviate strongly in duration.
 But usually when using commands words, it is preferred to speak shortly and well pronounced.
 When a time interval of \SI{500}{\milli\second} is used to capture a speech command (this time interval is used in the feature extraction stage in the experiments), it might happen that not every phoneme of the spoken words is captured.
 Often this might occur for words with glottal stops before consonants, for example, the phoneme \enquote{t} in \enquote{left} or \enquote{right}, hence the input features may only contain information of the first phonemes and miss the \enquote{t}.
-However, since KWS is restricted in its vocabulary and no similar words are contained within, it should be no problem in distinguishing them.
+However, since KWS is limited by its vocabulary and no similar words are contained within, it should be no problem in distinguishing them.
 
-Another important aspect of using limited time intervals for keywords is to detect an appropriate onset (beginning of the keyword) position on the time axis of the signal.
+Another important aspect is to detect an appropriate onset (beginning of the keyword) position on the time axis of the speech signal.
+This is useful to fit the keyword examples into a smaller time interval that should represent most of the keyword's information within.
 In \rfig{signal_raw_showcase} it is easy to spot the beginning and ending of the showcase examples but usually not all recordings are as clean as those.
 There might be a large noise floor, imminent background sound, or cut off signals so that the detection of the right onset position for the \SI{500}{\milli\second} time interval within the \SI{1}{\second} recordings is not always accurate.
 The applied onset detection is therefore separately discussed in \rsec{signal_onset}.
