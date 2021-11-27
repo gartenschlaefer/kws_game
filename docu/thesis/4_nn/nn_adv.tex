@@ -8,7 +8,7 @@ The application of GANs, as already explained in \rsec{prev_nn_adv} and \rsec{nn
 This thesis considers the transfer of trained filter weights of the convolutional layers from either G or D to initialize an equivalent CNN by using two different pre-training methods.
 Note that the convolutional layer structure, such as the filter size and striding properties, of G and D has to be the same as in the target CNN, however, the amounts of filters in those layers can vary.
 One method, denoted as \emph{adversarial dual train}, is to let G and D have the same amount of filters as the target CNN and to consider all available class labels in the vocabulary for training.
-The other method, referred to as \emph{adversarial label train}, creates several separate training instances of G and D on small subsets of class labels, where G and D gets fewer amounts of filters compared to the target CNN.
+The other method, referred to as \emph{adversarial label train}, applies several separate training instances of G and D on small subsets of class labels, where G and D gets fewer amounts of filters compared to the target CNN.
 Those methods are abbreviated in some experiments as \enquote{adv-dual} and \enquote{adv-label} for the adversarial dual and adversarial label train, respectively.
 Only the adversarial label train is explained in detail because the adversarial dual train is straight forward once the adversarial label train is understood.
 Note that the adversarial pre-training methods perform only on the \texttt{adv-d-jim}, \texttt{adv-g-jim}, and \texttt{conv-jim} models, which are described in \rsec{nn_arch}.

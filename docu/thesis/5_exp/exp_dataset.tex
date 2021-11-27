@@ -47,7 +47,7 @@ To examine the recorded examples from the speech command dataset, \rfig{exp_data
 \begin{figure}[!ht]
   \centering
     \includegraphics[width=0.65\textwidth]{./5_exp/figs/exp_dataset_speech_cmd_wav_grid.png}
-  \caption{One random sample of each individual speech command in the speech command dataset, presented in normalized audio waveform.}
+  \caption{One random sample of each individual speech command in the speech command dataset presented in normalized audio waveform.}
   \label{fig:exp_dataset_speech_cmd_wav_grid}
 \end{figure}
 \FloatBarrier
@@ -57,7 +57,7 @@ To examine the recorded examples from the speech command dataset, \rfig{exp_data
 % --
 % statistics
 
-\subsubsection{Observations of all Examples in the Dataset}
+\subsubsection{Observations of all available Examples in the Dataset}
 Two histograms were created to observe the quality of all recorded files in the dataset.
 Those histograms present an energy measure and a count of the sample length for each file.
 The energy of a recorded file provides information about a recordings amplification setting and is an indicator for too silent or too loud (overdrive distortions) samples.
@@ -79,7 +79,7 @@ This however, is adequate for words like \enquote{go}, where the reduced samples
     \subfigure[energy measure]{\includegraphics[width=0.42\textwidth]{./5_exp/figs/exp_dataset_hist_energy_overall.png}}
     \qquad
     \subfigure[count of sample length]{\includegraphics[width=0.42\textwidth]{./5_exp/figs/exp_dataset_hist_sample_overall.png}}
-  \caption{Histograms of all examples in the speech commands dataset \texttt{v0.02}, where one histogram shows an energy measure in log-log scale and the other a count of the sample length in log scale.}
+  \caption{Histograms of all available examples in the speech commands dataset \texttt{v0.02}, where one histogram shows an energy measure in log-log scale and the other a count of the sample length in log scale.}
   \label{fig:exp_dataset_hist}
 \end{figure}
 \FloatBarrier
@@ -158,7 +158,7 @@ Samples from the extracted MFCCs with frame-based normalization, as explained in
     \subfigure[up]{\includegraphics[width=0.48\textwidth]{./5_exp/figs/exp_dataset_speech_cmd_mfcc_up.png}}
     \subfigure[down]{\includegraphics[width=0.48\textwidth]{./5_exp/figs/exp_dataset_speech_cmd_mfcc_down.png}}
     \subfigure[go]{\includegraphics[width=0.48\textwidth]{./5_exp/figs/exp_dataset_speech_cmd_mfcc_go.png}}
-  \caption{MFCC extraction of randomly selected 30 samples per class label, obtained from the training set of the speech commands dataset \texttt{v0.02}. The corresponding class labels are written below the plots.}
+  \caption{MFCC extraction of randomly selected 30 samples per class label obtained from the training set of the speech commands dataset \texttt{v0.02}. The corresponding class labels are written below the plots.}
   \label{fig:exp_dataset_speech_cmd_mfcc}
 \end{figure}
 \FloatBarrier

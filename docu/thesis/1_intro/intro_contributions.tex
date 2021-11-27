@@ -2,32 +2,33 @@
 % contributions
 
 \section{Contributions}
-A KWS system for video games requires fast response times, therefore, it was essential to reduce the classification time interval from the examples of the used speech commands dataset \cite{Warden2018} from \SI{1}{\second} to at most \SI{500}{\milli\second}.
-The reduction of the time interval was achieved by determining the onset of the highest energy region within the speech signal, by extracting the MFCCs and using the first cepstral coefficient as energy measure.
+A KWS system for video games requires fast response times, therefore, it is essential to reduce the classification time interval from the examples of the used speech commands dataset \cite{Warden2018} from \SI{1}{\second} to at most \SI{500}{\milli\second}.
+This can be achieved by determining the onset of the highest energy region within the speech signal by extracting the MFCCs and using the first cepstral coefficient as energy measure.
+From the determined onset, the desired time interval is cut out of the original data example and used for further processing.
 
-CNN models with low computational footprints, such as examined in \cite{Sainath2015}, were the main evaluation subject within this thesis.
-Besides a low computational footprint of the CNN models, the aim was to minimize the amount of neural network layers such that information retrieval of the learned filters from the convolutional layers was still possible and illustrative.
+CNN models with low computational footprints, such as examined in \cite{Sainath2015}, are the main evaluation subject within this thesis.
+Besides a low computational footprint of the CNN models, the aim is to minimize the amount of neural network layers such that information retrieval of the learned filters from the convolutional layers is still possible and illustrative.
 The use of MFCC features as inputs to the CNN models required the conduction of experiments upon the number of cepstral coefficients and possible enhancements of MFCCs, such as delta, double delta, and energy features.
 It is explained why a reduction and sparing of enhancements are often preferred, especially for a computationally efficient solution.
 
-A frame-based normalization (normalization regarding the time dimension) was introduced and performed on MFCCs to suite them better for visualization and to use them for GAN training.
-Evaluation of the frame-based normalization was done in terms of accuracy, and shift and noise invariance on conventional CNN models.
-Moreover, the advantages and disadvantages of such a normalization technique were discussed.
+A frame-based normalization (normalization regarding the time dimension) is introduced and performs on MFCCs to suite them better for visualization and GAN training.
+Evaluation of the frame-based normalization is done in terms of accuracy, and shift and noise invariance on conventional CNN models.
+Moreover, the advantages and disadvantages of such a normalization technique are discussed.
 
-Another large evaluation topic was the application of GANs on the MFCC extracted speech commands. 
-With frame-based normalization the Generator (G) network was able to learn to create convincing fakes in order to fool the Discriminator (D) network much faster.
-Although it was found that when G and D are trained for too long, a noisy equilibrium state may emerge, where both networks generate random outputs of either fake images or decisions.
+Another large evaluation topic within this thesis is the application of GANs on the MFCC extracted speech commands. 
+With frame-based normalization, the Generator (G) network is able to learn to produce convincing fakes in order to fool the Discriminator (D) network much faster.
+Although it was found that when G and D were trained for too long, a noisy equilibrium state may emerge, where both networks generate random outputs of either fake images or decisions.
 To solve this problem, a second loss term for G was added that measures the similarity of the generated samples to the input data by applying the cosine distance.
 This helped to improve the generation of fake images and did not lead into noisy equilibrium states anymore.
 
-From the adversarial training of GANs, it was examined on how their obtained weights can contribute to the performance of an equivalent CNN model with same convolutional layer structures.
-The transfer of the obtained weights (transfer learning) from either D or G was used to initialize the target CNN model for the KWS task.
-The experiments show that the obtained weights of G can be very valuable, when frame-based normalization was applied.
+From the adversarial training of GANs, it is examined on how their obtained weights can contribute to the performance of an equivalent CNN model with the same convolutional layer structures.
+The transfer of the obtained weights (transfer learning) from either D or G is used to initialize the target CNN model for the KWS task.
+The experiments show that the obtained weights of G can be very valuable, when frame-based normalization is applied.
 
-A completely different approach for the KWS task was the evaluation of a Wavenet \cite{Oord2016} model for classification.
-However, the initial assumption that without feature extraction a lower amount of computations might be required in the application of an online system for video games, finally turned out to be wrong.
+A completely different approach to the KWS task was the evaluation of a Wavenet \cite{Oord2016} model for classification.
+However, the initial assumption that without feature extraction a lower amount of computations is required in the application of an online system for video games, finally turned out to be wrong.
 Wavenets have to run a huge amount of operations by processing each sample of the audio files from the dataset through dilated convolutional filters over many layers.
 Furthermore, the accuracy performance of a reasonable sized Wavenet turned out to be very poor compared to the CNN approaches.
 Nevertheless, this model with an extension for class predictions was evaluated and the obtained results are now provided for future research.
 
-A complete game design and deployment of a KWS video game with a game mechanic of moving blocks was done, where the integrated KWS system consists of an online system for capturing the microphone input stream and a classification system to render speech commands to certain actions in the game.
+An entire game design and deployment of a KWS video game with a game mechanic of moving blocks was done, where the integrated KWS system consists of an online system for capturing the microphone input stream and a classification system to render speech commands to certain actions within the game.

@@ -26,20 +26,20 @@ Especially in video games, where the game environment is constrained by rules, t
 The size of the vocabulary and the selected words are two parameters that influence on the one hand the choice of the neural network architectures, which are evaluated on their computational efficiency and accuracy performance, and on the other hand the game interaction limited by the controls a player can choose from.
 If the vocabulary of a KWS system would be too large, it would be harder to distinguish between two similar keywords.
 In many KWS applications it is absolutely necessary to include labels for \emph{background noise}, \emph{silence}, and \emph{unknown words} in the vocabulary. 
-This is especially interesting in \emph{wake word} applications, where a single keyword has to be detected over the previously mentioned labels representing either noise or any other possible word that can be spoken by a user.
+This is especially interesting in \emph{wake word} applications, where a single keyword has to be detected over the previously mentioned labels representing either noise or any other possible word that a user might speak.
 Also in video games those additional labels are useful to prevent the player from eliciting unintended commands accidentally through, for instance, loud background noise.
 Therefore, a KWS system demands to be very accurate and fast in its classification of keywords.
 
 Nowadays KWS systems are considered no science-fiction anymore, assisting consumers in everyday situations by rendering simple control tasks, such as triggering a photo release button on a \enquote{smartphone} with a single speech command.
-Application like this leads to more and more awareness of KWS and other speech recognition tasks in human society.
+Applications like this lead to more and more awareness of KWS and other speech recognition tasks in human society.
 Unfortunately some consumer applications with integrated speech recognition systems cause some unpleasant side effects in data privacy and energy consumption due to an externally and extensive computational processing pipeline over corporate servers \cite{Tang2018}.
-It is therefore important to create KWS systems that respect private user data and provide an efficient implementation in order to save energy consumption.
+It is therefore important to design KWS systems that respect private user data and provide an efficient implementation in order to save energy consumption.
 
-Video games are a potential application for KWS although until now, however, there exist only very few of them taking advantage of this special feature.
-Reasons for that might be found in the history of video games itself, where players find themselves in fast paced arcade games and speech recognition was simply too slow.
-Additionally the complexity of KWS and lack of training data are often two valid arguments for not considering the deployment of a KWS system in a video game.
+Video games are a potential application for KWS although until now, there exist only very few of them taking advantage of this special feature.
+Reasons for that might be found in the history of video games itself, where players find themselves in fast paced arcade games and speech recognition is simply too slow.
+Additionally the complexity of KWS and lack of training data are often two valid arguments for not considering the deployment of a KWS system into a video game.
 
-The following two sections in this introduction will briefly show the contributions of this thesis and give an overview of upcoming sections.
+The following two sections in this introduction will briefly explain the contributions of this thesis and give an overview of upcoming sections.
 In summary, this thesis concentrates on KWS with neural networks trained by supervised learning on the speech command dataset \cite{Warden2018}.
 The best suitable solutions for speech commands classification regarding video games are presented and evaluated with special interests in Convolutional Neural Networks (CNN), Generative Adversarial Neural Networks (GAN), and Wavenets.
 
@@ -57,7 +57,7 @@ The best suitable solutions for speech commands classification regarding video g
 This section provides fundamental background information regarding KWS, neural networks and video games.
 The KWS task is described mathematically to express the actual speech recognition problem.
 Notes on neural networks explain common properties and terms in their application.
-Research questions are listed and give a deeper insight in common challenges of implementing a KWS system into a video game.
+Research questions are listed and give a deeper insight in common challenges concerning the implementation of a KWS system into a video game.
 
 % disciplines
 \input{./1_intro/intro_kws.tex}

@@ -128,7 +128,7 @@ An example of the application of the shift invariance test is shown in \rfig{exp
     \quad
     \subfigure[frame shift 30]{\includegraphics[width=0.48\textwidth]{./5_exp/figs/exp_details_tb_shift_left_frame30.png}}
     \subfigure[frame shift 59]{\includegraphics[width=0.48\textwidth]{./5_exp/figs/exp_details_tb_shift_left_frame59.png}}
-  \caption{Shifting a self recorded example of the label \enquote{left} with certain amounts of frame shifts and provided classification results in the title annotations.}
+  \caption{Shifting a self recorded example of the label \enquote{left} with certain amounts of frame shifts. The classification results are provided in the title annotations.}
   \label{fig:exp_details_tb_shift_left}
 \end{figure}
 \FloatBarrier
@@ -138,7 +138,7 @@ The figures in this section present a correct classification with a colored pixe
 \begin{figure}[!ht]
   \centering
     \includegraphics[width=0.65\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_shift_conv-jim_mfcc12_norm0.png}
-  \caption{Shift invariance test example selected from on of the trained models in the experiments.}
+  \caption{Shift invariance test example selected from one of the trained models in the experiments.}
   \label{fig:exp_details_tb_shift}
 \end{figure}
 \FloatBarrier
@@ -155,12 +155,12 @@ A well performing model usually has a wide region of correct classifications wit
 
 \subsubsection{Noise Invariance}
 The classification of speech signals often requires noise invariance because a significant amount of noise usually is added from the use of poor microphones or recording set-ups and therefore might disturb the classification accuracy.
-To create a test upon noise invariance, AWGN was added to the test signal $\bm{x} \in \R^n$ by
+To provide a test upon noise invariance, AWGN is added to the test signal $\bm{x} \in \R^n$ by
 \begin{equation}
   \bm{\tilde{x}} = \bm{x} + \bm{v}, \quad \bm{v} \sim \mathcal{N}(\mu, \sigma),
 \end{equation}
 where $\bm{v} \in \R^n$ is the additive normal noise sampled from $\mathcal{N}(\mu, \sigma)$ with mean $\mu = 0$ and standard deviation $\sigma$.
-The AWGN is parametrized with the standard deviation $\sigma$ to create a certain Signal to Noise Ratio (SNR), denoted as $S$.
+The AWGN is parametrized by the standard deviation $\sigma$ to create a certain Signal to Noise Ratio (SNR), denoted as $S$.
 Rewriting the formula of the SNR, the standard deviation can be obtained by
 \begin{equation}
   \sigma = \sqrt{\frac{\frac{1}{n}\bm{x}^T \bm{x}}{10^{\frac{S}{10}}}}
@@ -174,7 +174,7 @@ A SNR level of zero means that there is equal energy of the added noise $\bm{v}$
     \quad
     \subfigure[\SI{0}{\dB}]{\includegraphics[width=0.48\textwidth]{./5_exp/figs/exp_details_tb_noise_left_snr0.png}}
     \subfigure[\SI{-16}{\dB}]{\includegraphics[width=0.48\textwidth]{./5_exp/figs/exp_details_tb_noise_left_snr-16.png}}
-  \caption{Adding noise to a self recorded example of \enquote{left} with certain SNR values and provided classification results in the title annotations.}
+  \caption{Adding noise to a self recorded example of \enquote{left} with certain SNR values. The classification results are provided in the title annotations.}
   \label{fig:exp_details_tb_noise_left}
 \end{figure}
 \FloatBarrier

@@ -48,7 +48,7 @@ Assuming that the input will be of shape $d_x = (1 \times 12 \times 50)$ the res
 \input{./4_nn/tables/tab_nn_arch_cnn_trad.tex}
 
 The \texttt{conv-fstride} has the kernel size adapted to the input frame size and is therefore striding only in the frequency dimension.
-The kernel height of 8 and vertical stride of 4 creates only two dimensions in the vertical direction for an input size of $(1 \times 12 \times 50)$, which is remarkably efficient.
+The kernel height of 8 and vertical stride of 4 produces only two output dimensions in the vertical direction for an input size of $(1 \times 12 \times 50)$, which is remarkably efficient.
 \rfig{nn_arch_cnn_fstride} shows the \texttt{conv-fstride} model and \rtab{nn_arch_cnn_fstride} lists its footprint.
 \begin{figure}[!ht]
   \centering
