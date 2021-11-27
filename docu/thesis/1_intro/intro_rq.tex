@@ -2,7 +2,7 @@
 % research questions
 
 \section{Research Questions for this Thesis}\label{sec:intro_rq}
-This section formulates relevant research questions regarding KWS in video games.
+This section formulates relevant research questions regarding KWS for video games.
 They can be split into three parts:
 \begin{enumerate}[label={Q.\arabic*)}, leftmargin=1.4cm]
   \item Signal processing and feature extraction of speech signals.
@@ -11,7 +11,7 @@ They can be split into three parts:
 \end{enumerate}
 Note that the terms \enquote{keyword} and \enquote{speech command} are often named interchangeably because speech commands are used as keywords in the KWS system.
 Not all research questions can be answered within the scope of this thesis.
-Nevertheless, those questions can be asked and some solution concepts discussed.
+Nevertheless, those questions are stated and some solution concepts discussed.
 
 
 % --
@@ -19,56 +19,56 @@ Nevertheless, those questions can be asked and some solution concepts discussed.
 
 \subsection{Signal Processing and Feature Extraction Research Questions}\label{sec:intro_rq_signal}
 It is essential for neural networks to input meaningful features that are extracted from the speech signals. 
-The features are extracted from raw audio samples of a microphone input stream in a specific time interval.
-Those retrieved features are further input to a neural network for the classification of speech commands.
+The speech signals are represented by raw audio samples from a microphone input stream in a specific time interval.
+Note that the retrieved features are further input to a neural network for the classification of speech commands.
 The following Questions arise here:
 \begin{enumerate}[label={Q.1.\alph*)}, leftmargin=1.75cm]
   \item Which time interval should be used to capture a speech command?\label{it:q1-a}
-  \item Does the signal processing have to be invariant to background noise and especially to game sounds?\label{it:q1-b}
+  \item Does the signal processing of speech signals have to be invariant to background noise and especially to game sounds?\label{it:q1-b}
   \item What are meaningful features for speech recognition?\label{it:q1-c}
 \end{enumerate}
 \noindent
 \textbf{Question \ref{it:q1-a}:} 
-The time required to fully pronounce a speech command is not fixed and varies from speaker to speaker, depending also on the intended prolongation a speaker adds to the word.
+The time it takes to fully generate a speech command is not fixed and varies from speaker to speaker, depending also on the intended prolongation a speaker adds to the word.
 In practical applications however, a fixed time interval for a single speech command is convenient.
 By restricting the time duration of the keywords, the speaker has to pronounce the words within this time span.
-For example, if a speaker pronounces the word \enquote{left} with a time duration of \SI{1}{\second}, hardly all is captured if the time interval is restricted to \SI{500}{\milli\second}.
+For example, when a speaker pronounces the word \enquote{left} with a time duration of \SI{1}{\second}, hardly all is captured if the time interval is restricted to \SI{500}{\milli\second}.
 Whether this \SI{500}{\milli\second} is sufficient for a correct classification, is subject for evaluation.
 In the application of a video game, the user should preferably speak the commands with a short time duration so that the game can respond fast.
-Problems might occur if the speech commands are spoken repeatedly and very hasty such that the time interval of consecutive commands overlap each other.
-Ideally the time interval to represent a speech command would be flexible but this more difficult to implement than a fixed time interval.
+Problems might occur when the speech commands are spoken repeatedly and very hasty such that the time interval of consecutive commands overlap each other.
+Ideally the time interval to represent a speech command would be flexible but this more difficult to implement than a fixed one.
 
 \textbf{Question \ref{it:q1-b}:}
 Usually the presence of weak background noise should not be a problem for neural networks trained on a sufficiently large data set. 
-The game sounds might present a more difficult problem, when turned up too loud without the use of headphones. 
+The game sounds might present a more difficult problem when turned up too loud without the use of headphones. 
 Therefore, the microphone will not only capture the voice of a speaker but also a fair amount of game sounds. 
-This problem seems to be theoretically solvable as the shape of the nuisance is known and the amount of game sound in the audio stream could be attenuated sufficiently.
+This problem seems to be theoretically solvable as the shape of the nuisance is known and the amount of game sound in the audio stream could be attenuated.
 In practice this might be hard to solve without critically disturbing the signal of interest.
 A solution to this problem would probably take too much time and effort and is therefore not evaluated within this thesis. 
 However, playing a video game without game sound is unsatisfying and it would be a great contribution to tackle this problem in future work.
 
 \textbf{Question \ref{it:q1-c}:} 
 The determination of meaningful features for speech signals is a classical problem in speech recognition.
-The essential composition of a word may help to understand the problematic better.
+The essential composition of a word may help to comprehend the problematic better.
 A word is a sequential combination of either vowels, such as \enquote{a} and \enquote{e}, or consonants \enquote{k}, \enquote{l}, with a certain length. 
-In linguistics, for instance, it is possible to distinguish vowels with frequency peaks in a spectrogram, where a spectrogram is the magnitude squared of the frequency response of small time chunks over the time duration of a signal.
-However, due to many different factors in voice generation involved in speakers, such as age, gender, nationality, and physiology of the vocal tract, there is a huge variance in the pronunciation of words from different persons, which increases the difficulty of the problem.
+In linguistics, for instance, it is possible to distinguish vowels through frequency peaks or certain movements in a spectrogram, where a spectrogram is the magnitude squared of the frequency response of small time chunks over the time duration of a signal.
+However, due to many different factors in voice generation involved in speakers, such as age, gender, nationality, and physiology of the vocal tract, there is a huge variance in the pronunciation of words from different persons, which increases the difficulty of the recognition problem.
 A very common approach is to use MFCCs as features for speech recognition tasks.
-Why MFCCs present reasonable features for speech, is described in detail in \rsec{signal_mfcc}.
+Why MFCCs present reasonable features for speech is described in detail in \rsec{signal_mfcc}.
 
 
 % --
 % neural networks
 
 \subsection{Neural Network Research Questions}\label{sec:intro_rq_nn}
-Neural networks for video games should ideally be very efficient and provide accurate classifications of input features.
+Neural networks for video games should present a low computational footprint and provide accurate classifications of input features.
 The vocabulary in a KWS task has to be specified for the individual game and chosen from all class labels available in the dataset.
-Each keyword of the vocabulary is presented by one output node of the neural network architecture.
-Following Questions can be asked in general:
+Each keyword in the vocabulary is presented by one output node of the neural network architecture.
+Following Questions can be stated in general:
 \begin{enumerate}[label={Q.2.\alph*)}, leftmargin=1.75cm]
-  \item Is there an appropriate dataset suited for KWS video games and with sufficient diversity available?\label{it:q2-a}
-  \item What happens if an input feature represents a spoken word, which is not in the vocabulary (unknown keyword) and how should this exception be handled?\label{it:q2-b}
-  \item What is the best neural network architecture regarding classification accuracy and computational efficiency?\label{it:q2-c}
+  \item Is there an appropriate dataset suited for the training of neural networks that are intended for KWS video games available?\label{it:q2-a}
+  \item What happens when a spoken keyword is not in the vocabulary (unknown keyword) and how should this exception be handled?\label{it:q2-b}
+  \item What is the best neural network architecture regarding classification accuracy and computational efficiency in video games?\label{it:q2-c}
   \begin{enumerate}[label=(\roman*)]
     \item Can adversarial networks improve generalization?
     \item Are Wavenets a solution to this task?
@@ -92,12 +92,12 @@ At the same time the neural network should not classify keywords as unknown keyw
 It is better to rely on that players are using keywords for most of the time so that they are preferred over unknown keywords.
 
 \textbf{Question \ref{it:q2-c}:}
-In the ideal case, video games with KWS do not slow down during the inference process of unknown input data.
+In the ideal case, video games with KWS should not slow down during the inference process of speech signals.
 The restriction of the amount of computations and time for the classification of keywords is given by the minimum Frames Per Second (FPS) a video game is perceived as fluent.
 That requires the FPS to not fall under a certain value (usually 30 FPS in video games), otherwise the fluidity of the game is not guaranteed.
-Therefore, several different neural network approaches with a low computational footprint have to be tested and compared against each other regarding classification rate and energy efficiency.
+Therefore, several different neural network approaches with a low computational footprint should be tested and compared against each other regarding classification rate and energy efficiency.
 The transfer of weights from GANs is an interesting approach to evaluate whether the trained parameters are also useful for pure classification tasks in CNNs.
-Wavenets have the advantage that they do not need a feature extraction stage but it is questionable whether the network design achieves a reasonable computational footprint.
+Wavenets have the advantage that they do not need a feature extraction stage but it is questionable whether its network design achieves a reasonable computational footprint.
 
 
 % --
@@ -107,29 +107,29 @@ Wavenets have the advantage that they do not need a feature extraction stage but
 Video games that use KWS can create an unique playing experience but have to face certain challenges.
 Following questions can be stated:
 \begin{enumerate}[label={Q.3.\alph*)}, leftmargin=1.75cm]
-  \item How should the onset of a keyword be detected, so to reduce computations?\label{it:q3-a}
+  \item How should the onset of a keyword be detected in order to reduce computations?\label{it:q3-a}
   \item What is the added value of KWS in the gaming experience of players?\label{it:q3-b}
-  \item What do game developers have to consider, when designing a game with KWS?\label{it:q3-c}
+  \item What do video game developers have to consider when designing a game with KWS?\label{it:q3-c}
 \end{enumerate}
 \noindent
 \textbf{Question \ref{it:q3-a}:} 
-It is crucial to reduce the computational complexity in a video game in order to keep it running fluently during high performance peaks.
-Also the unnecessary processing of meaningless input data should be avoided as much as possible.
-Ideally the keyword classification is activated, when there is actually a speech command present, which however is not always trivial.
-One possibility to indicate the onset of a keyword is to perform the relatively efficient calculation of an energy value within a certain time interval of the raw input data stream and let a threshold value decide whether a speech command is available. 
+The unnecessary processing of meaningless input data should be avoided as much as possible while playing the video game.
+Ideally the keyword classification should be activated when there is actually a speech command present, which however is not always trivial.
+One possibility is to indicate the presence of a keyword by performing the relatively efficient calculation of an energy value within a certain time interval of the raw input data stream and let a threshold value decide whether a speech command is available.
 To avoid the consecutive triggering of onsets at each energy measure, the microphone and amplifier noise floor and the background sound (including the game sound) have to be less energy intensive than the speech signal obtained from the player.
-Another approach similar to the push and talk principle, would be to indicate the onset of a keyword with the click of a certain button on the keyboard.
+Another approach, similar to the push and talk principle, is to indicate the onset of a keyword through the click of a certain button on the keyboard.
 The player is therefore able to control the exact onset of a keyword and its length but requires an additional hardware based input channel.
 
 \textbf{Question \ref{it:q3-b}:}
-In certain video game scenarios, speech commands can be useful, interesting and enhancing for the gaming experience, in others they might even disturb the game play or even spoil it completely.
-It cannot be generally stated whether it is worth to deploy a KWS system into a game, this depends on the game it is intended for.
+In certain video game scenarios speech commands can be useful, interesting, and enhancing for the gaming experience, while in others they might disturb or spoil the game completely.
+It cannot be generally stated whether it is worth to deploy a KWS system into a video game.
+This depends on the video game itself and which kind of game experience the game developers intend to convey to the players.
 As already noted in \rsec{intro_games}, KWS might be a great augmented control system for special kind of games to increase the immersion experience, especially for VR applications.
-Also language learning games are an interesting application but usually require a huge vocabulary and therefore a phoneme based ASR system would be the better choice.
+Also language learning games are an interesting application but usually require a huge vocabulary and therefore a phoneme based ASR system would be the better approach.
 
 \textbf{Question \ref{it:q3-c}:}
 Apart from the technical requirements involved in KWS systems, also the general game design with KWS has to be considered.
-It certainly can be stated that KWS systems are not always reliable and therefore a main game mechanic solely based on it is not always preferred.
+It certainly can be stated that KWS systems are not always reliable and therefore a main game mechanic solely based on it is not always preferable.
 Furthermore, the time lag required to process speech commands to actual actions within the game should not be ignored.
 The player should get on the one hand immediate and accurate feedback from the game and on the other hand be challenged while playing.
 Further, by achieving both criteria it ensures that the game experience does not suffer from getting frustrating or tiresome.
