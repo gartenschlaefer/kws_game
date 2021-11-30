@@ -2,11 +2,11 @@
 % dataset
 
 \section{Dataset}\label{sec:exp_dataset}
-This thesis uses two datasets, one is the second version of the speech commands dataset \cite{Warden2018} and the other is self made consisting of only 5 labels (speech commands) that are especially valuable for movement in video games.
+This thesis uses two datasets, one is the second version of the speech commands dataset \cite{Warden2018} and the other is self made consisting of only 5 labels that are especially valuable for movement in video games.
 The self made dataset is referred to as \enquote{my dataset} and is used as additional evaluation set.
 The training, validation, and testing of the neural network architectures performs on the speech commands dataset.
 Both datasets consists of raw waveform files in the \texttt{.wav} format without any feature extraction done beforehand.
-As already mentioned in \rsec{prev_kws_benchmark}, the direct comparisons between different neural network approaches is difficult, if the feature extraction is left alone to the user.
+Note that the direct comparisons between different neural network approaches is difficult, if the feature extraction is left alone to the user.
 Some datasets provide feature extraction beforehand so that the comparability of individual neural network architectures performances is not influenced on it.
 The speech commands dataset does not explicitly separate each \texttt{.wav} file into train, test, and validation sets, but provides file lists that refer to distinct waveform files that should be used for testing and validation. 
 That means, when the same test and validation sets are used in different research projects, it provides means for comparison to the individual researchers.

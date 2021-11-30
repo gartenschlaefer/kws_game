@@ -6,7 +6,7 @@ All neural network architectures evaluated on the KWS task of speech commands ar
 The fundamental neural network architecture types were CNNs, GANs, and Wavenets.
 CNNs were used for the classification of MFCC features and are therefore the main architecture type within this thesis.
 Generative models, such as GANs, were evaluated in regards of their ability to generate samples from the data distribution.
-Further, the trained weights from the convolutional layers of GANs were applied as pre-trained weights to initialize the weights of a CNN networks with the same convolutional layer structure.
+Further, the trained weights from the convolutional layers of GANs were applied as pre-trained weights to initialize the weights of CNNs with the same convolutional layer structure.
 In contrast to CNNs, Wavenets are using raw audio samples as input features and do not require to extract MFCC features, which saves those computations.
 However, it will be shown that the overall computations are quite high because of the complexity of Wavenets.
 The amount of parameters and operations for each architecture are listed to provide a comparison between the used models regarding their computational footprint.
@@ -19,21 +19,21 @@ The amount of parameters and operations for each architecture are listed to prov
 Three different CNN designs were evaluated with focus on their striding (shifting) properties of the convolutional filters.
 Note that the convolutional filters are also referred to as kernels.
 The \texttt{conv-fstride} model has a kernel size adjusted to the length of the frame (time) dimension of the input features and is therefore striding only in the cepstral (frequency) dimension.
-In contrast the \texttt{conv-jim} model has a kernel size adjusted to the feature dimension and therefore strides only in the frame (time) dimension.
-Also one traditional model named \texttt{conv-trad} is used and performs the striding of the convolutional filters in both dimensions.
+In contrast the \texttt{conv-jim} model has a kernel size adjusted to the feature dimension and therefore strides only in the frame dimension.
+Furthermore, a traditional model named \texttt{conv-trad} is used and performs the striding of the convolutional filters in both dimensions.
 The mentioned models summarizes as:
 \begin{itemize}
-	\item \texttt{conv-trad}: from \cite{Sainath2015} a traditional CNN network, striding in both dimensions.
+	\item \texttt{conv-trad}: from \cite{Sainath2015} a traditional CNN, striding in both dimensions.
 	\item \texttt{conv-fstride}: from \cite{Sainath2015} (fstride4), striding only in frequency dimension.
 	\item \texttt{conv-jim}: self designed model, striding only in frame dimension.
 \end{itemize}
-The naming of the \texttt{conv-trad} and \texttt{conv-fstride} comes from their original papers, and the self defined network \texttt{conv-jim} was named bluntly after the astronaut avatar that is used for the deployed video game.
+The naming of the \texttt{conv-trad} and \texttt{conv-fstride} comes from their original papers, and the self defined network \texttt{conv-jim} was named bluntly after the astronaut avatar that is used for the deployed video game in this thesis.
 
 \rfig{nn_arch_cnn_trad} shows the network architecture of the traditional network (\texttt{conv-trad}).
 \begin{figure}[!ht]
   \centering
     \includegraphics[height=0.23\textwidth]{./4_nn/figs/nn_arch_cnn_trad.pdf}
-  \caption{Traditional CNN network design from \cite{Sainath2015} named \texttt{conv-trad}.}
+  \caption{Traditional CNN design from \cite{Sainath2015} named \texttt{conv-trad}.}
   \label{fig:nn_arch_cnn_trad}
 \end{figure}
 \FloatBarrier
@@ -41,7 +41,7 @@ The naming of the \texttt{conv-trad} and \texttt{conv-fstride} comes from their 
 The \texttt{conv-trad} network consists of 2 convolutional layers and one max pooling layer in between.
 The architecture was adapted from \cite{Sainath2015} as a baseline network with slightly modified kernel sizes to adapt on reduced input feature sizes.
 A length of 20 frames in the first convolutional layer is reasonable and corresponds approximately to the length of a vowel sound.
-Note that the \enquote{Flatten} layer simply flattens the output tensor of the last convolutional layer to one dimension in order to append consecutive FC layers.
+Note that the \enquote{Flatten} layer reduces the output tensor of the last convolutional layer to one dimension in order to append consecutive FC layers.
 The first two FC layers use Dropout to improve generalization in training.
 The last FC layer has $L$ nodes corresponding to $L$ output class labels depending on the amount of chosen keywords in the vocabulary.
 Assuming that the input will be of shape $d_x = (1 \times 12 \times 50)$ the resulting dimensions, amount of parameters, and operations for each layer are listed in \rtab{nn_arch_cnn_trad}.
@@ -60,8 +60,8 @@ The kernel height of 8 and vertical stride of 4 produces only two output dimensi
 \noindent
 \input{./4_nn/tables/tab_nn_arch_cnn_fstride.tex}
 
-The self designed \texttt{conv-jim} consists of two convolutional layers, where the first layer consists of an adaptive kernel size in the feature (frequency) dimension and is therefore striding only in frame (time) dimension.
-The kernel width in the first layer convolutional layer is set to $20$ similarly as in the \texttt{conv-trad} model.
+The self designed \texttt{conv-jim} consists of two convolutional layers, where the first layer applies an adaptive kernel size in the feature (frequency) dimension and is therefore striding only in frame dimension.
+The kernel width in the first convolutional layer is set to $20$, similarly as in the \texttt{conv-trad} model.
 The convolutional filters of the second layer have a width of $5$ intended for temporal variations.
 The \texttt{conv-jim} model is shown in \rfig{nn_arch_cnn_jim} with footprint listed in \rtab{nn_arch_cnn_jim}.
 \begin{figure}[!ht]
@@ -91,7 +91,7 @@ The convolutional layer parameters of both D and G can be transferred, even thou
 However, it is preferred to use a normalization technique, such as the frame-based normalization. 
 Otherwise the transferring of weights might be disadvantageous for the classifier network.
 
-The only GAN model used for adversarial pre-training consists of the same convolutional layer structure as the \texttt{conv-jim} network and is therefore named as \texttt{adv-d-jim} for the D model and \texttt{adv-g-jim} for the G model. 
+The GAN model used for adversarial pre-training consists of the same convolutional layer structure as the \texttt{conv-jim} network and is therefore named as \texttt{adv-d-jim} for the D model and \texttt{adv-g-jim} for the G model. 
 Both models are shown in \rfig{nn_arch_adv_d_jim} and \rfig{nn_arch_adv_g_jim}.
 \begin{figure}[!ht]
   \centering
@@ -120,7 +120,7 @@ This enhances the model training speed since the Generator model is able to prod
 
 \subsection{Wavenets}\label{sec:nn_arch_wavenet}
 Wavenets, as introduced in \cite{Oord2016}, were originally intended for speech generation.
-In the paper it is mentioned that Wavenets can be applied for ASR tasks as well although it is described very briefly.
+The paper mentions that Wavenets can be applied for ASR tasks as well although it is described very briefly.
 \cite{Herrmann2018} provides a classical implementation of a Wavenet and motivated the following model structure.
 \rfig{nn_arch_wavenet_block} illustrates the residual block, which is one of the fundamental building blocks of the Wavenet architecture.
 \begin{figure}[!ht]
@@ -131,7 +131,7 @@ In the paper it is mentioned that Wavenets can be applied for ASR tasks as well 
 \end{figure}
 \FloatBarrier
 \noindent
-It is important to mention that the convolutional layers in the residual blocks should not use bias terms because they led to poor training results during the conduction in the experiments.
+It is important to mention that the convolutional layers in the residual blocks should not use bias terms because they led to poor training results during the conduction of the experiments.
 The average filter has a window size of 160 samples and a stride of 80 samples.
 One residual block contains few parameters but requires a huge amount of operations, as listed in \rtab{nn_arch_wavenet_block}.
 \input{./4_nn/tables/tab_nn_arch_wavenet_block}
@@ -148,7 +148,7 @@ The whole Wavenet architecture is composed of several consecutive Wavenet residu
 \end{figure}
 \FloatBarrier
 \noindent
-Note that the last convolutional layer in the sample prediction has a total amount of feature maps ($1 \times 256$) selected to the quantized audio representation of 256 possible values.
+Note that the last convolutional layer in the sample prediction has a total amount of feature maps, which is selected to the quantized audio representation of 256 possible values.
 More details about the used quantization technique is described in \cite{Oord2016}.
 The computational footprint of the whole Wavenet model is listed in \rtab{nn_arch_wavenet_whole}.
 \input{./4_nn/tables/tab_nn_arch_wavenet_whole}

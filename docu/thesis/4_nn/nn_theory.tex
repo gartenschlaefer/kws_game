@@ -6,9 +6,10 @@ The most basic element in neural networks is referred to as \emph{node}, an abst
 The edges of the connections from and to a node represents a multiplication with a scalar value, denoted as \emph{weight}.
 Each node usually includes an additive term, referred to as \emph{bias term}.
 All weights and bias terms are forming the parameters of a network and can be trained through backpropagation.
-The output of a node is a scalar computed from all inputs and mapped with a non-linear function denoted as \emph{activation function}.
+The output of a node is a scalar computed from all inputs and mapped with a non-linear function, denoted as \emph{activation function}.
 A neural network can consist of thousand of nodes in each possible constellation of connections.
-The structure of a neural network is defined by its layers where a layer is a set of nodes with specific connection properties that receives input connections from the previous layer and outputs connections to the next layer.
+The structure of a neural network is defined by its layers.
+A layer is a set of nodes with specific connection properties that receives input connections from the previous layer and outputs connections to the next layer.
 For example, a neural network may consist of one convolutional layer followed by three fully-connected layers.
 The last layer of a neural network usually represents the class labels regarding classification tasks.
 A loss function computes the difference between the predicted and the actual class label during training and is essential for the backpropagation algorithm that updates each parameter in the network through the gradients of the obtained error.
@@ -24,7 +25,6 @@ They map the sum of the weighted input values from nodes in a previous layer to 
   z = h(\bm{w}^T \bm{x}),
 \end{equation}
 where $h$ is the activation function, $\bm{w} \in \R^n$ is a weight vector and $\bm{x} \in \R^n$ an input vector representing the connections from a total number of $n$ nodes in the previous layer.
-The output of each node in a current layer further connects to other nodes in the next layer, hence builds up the neural network.
 The constraint of an activation function is that a computable derivative has to exist.
 This allows the backpropagation of gradients from the activation function.
 
@@ -42,7 +42,7 @@ and the tanh function
 \begin{equation}\label{eq:nn_theory_tanh}
   h(a) = \frac{\exp{a} - \exp{-a}}{\exp{a} + \exp{-a}}
 \end{equation}
-that map the input to a range of $[0, 1]$ for the sigmoid and $[-1, 1]$ for the tanh activation function.
+that map the output to a range of $[0, 1]$ and $[-1, 1]$ for the sigmoid and the tanh activation function, respectively.
 \rfig{nn_theory_activation} illustrates the mentioned activation functions.
 \begin{figure}[!ht]
   \centering
@@ -79,12 +79,13 @@ Mathematically one node $i$ performs the following calculation:
   z_i = h(\bm{w_i}^T \bm{x} + b_i)
 \end{equation}
 with the same notations as described in \req{nn_theory_acti} and an additional bias term $b_i \in \R$.
-For all nodes in a current layer this equation of a single node can be summarized to a weight matrix $W \in \R^{m \times n}$ with $m$ as total amount of nodes in the current layer and a total number of $n$ nodes from the previous layer so that a FC layer can be defined by
+For all nodes in a current layer, the equation of a single node can be summarized in a weight matrix $W \in \R^{m \times n}$, where $m$ is the total amount of nodes in the current layer and $n$ is the total number of nodes from the previous layer.
+Through this weight matrix, a FC layer can be defined by
 \begin{equation}
   \bm{z} = h(W \bm{x} + \bm{b}),
 \end{equation}
-where $\bm{b} \in \R^m$ are the bias terms and $\bm{z} \in \R^m$ the outputs of all nodes in the current layer $m$.
-With the matrix representation it is straight forward to obtain the number of training parameters and amount of operations needed for a FC layer.
+where $\bm{b} \in \R^m$ are the bias terms and $\bm{z} \in \R^m$ the outputs of all nodes in the current layer.
+Subsequently it is straight forward to obtain the number of training parameters and amount of operations needed for a FC layer.
 The amount of parameters is $m \cdot n$ for $W$ and $m$ for $\bm{b}$, so in total this results in $m \cdot n + m$ parameters.
 The amount of operations includes the matrix vector multiplication with approximated amounts of multiplication and additions, plus the additive bias terms.
 By disregarding the activation function, this leads to an amount of operations of approximately
@@ -101,10 +102,11 @@ which would give, for example, with $n = 128$ and $m = 64$ roughly $\mathcal{T}(
 Convolutional layers are the fundamental building block of every CNN, as already discussed in \rsec{prev_nn_cnn}.
 Convolutional filters are applied on small areas of the input data to retrieve spatial information, where the input data may consist of multiple channels or input maps.
 Those convolutional filters are also referred to as kernels $k$.
-In the case the kernels operate on 2 dimensional input maps, they can be seen as 2 dimensional maps as well with kernel width $d_{k_w}$ and height $d_{k_h}$ typically smaller than the input maps.
+The kernels have the same dimensional axes as the input maps on which they operate on.
+In the case of 2 dimensional input maps, the kernel is a map of width $d_{k_w}$ and height $d_{k_h}$ that is typically smaller than the input maps.
 The \emph{stride} $s$ of a kernel specifies the number of shifts a kernel moves on a specific axis over an input map to perform the next convolution operation.
 There are limited amounts of possible kernel strides over an input map in any specific axis, which determines the dimension of the output map on that axis.
-The length $d_{o_z}$ of an output map of axis $z$ is computed from an input map of length $d_{x_z}$ with a kernel striding $s_z$ along axis $z$ and kernel size $d_{k_z}$ for that axis as follows:
+The length $d_{o_z}$ of an output map of axis $z$ is computed from an input map of length $d_{x_z}$ with a kernel stride $s_z$ along axis $z$ and kernel size $d_{k_z}$ for that axis as follows:
 \begin{equation}\label{eq:nn_theory_cnn_dim}
   d_{o_z} = \floor*{\frac{d_{x_z} + p_z - d_{k_z}}{s_z} + 1},
 \end{equation}
@@ -116,10 +118,10 @@ A convolutional layer is therefore defined by the amount of input maps and resul
 Although it is not immediately clear from those parameters, how many convolutional filters are applied, and how the output feature maps are calculated in detail.
 The number of convolutional filters $\#k$ is in most practical cases always
 \begin{equation}\label{eq:nn_theory_n_filters}
-  \#k = i \cdot j,
+  \#k = \#i \cdot \#j,
 \end{equation}
-where $i$ and $j$ is denoted as the amount of input and output channels, respectively.
-Each kernel produces a single feature map for each input channel, but the idea is to constraint the number of output maps $\#k$ to the defined output channels $j$.
+where $\#i$ and $\#j$ are denoted as the amount of input and output channels, respectively.
+Each kernel produces a single feature map for each input channel $i$ but the idea is to constraint the number of output maps $\#k$ to the defined amount of output channels $\#j$.
 This is usually achieved by summing up all feature maps obtained from all input channels $i$ convolved with kernel $k_{i, j}$ for one specific output channel $j$ as follows:
 \begin{equation}
   o_j = \sum_{i} k_{i, j} \ast x_i,
@@ -137,7 +139,7 @@ where $o_j$ is the resulting j-th feature map or output channel, $x_i$ the i-th 
 
 The parameters of a convolutional layer are the weights and optional bias terms of the convolutional filters.
 By ignoring the bias terms, the amount of parameters is $\#k \cdot d_{k_w} \cdot d_{k_h}$ for a two dimensional convolutional layer, which makes $3 \cdot 4 \cdot 5 \cdot 5 = 300$ parameters for the example in \rfig{nn_theory_cnn_basics}.
-The amount of operations of a convolutional layer is given by all convolution operations for each filter and the summation to $j$ output channels.
+The amount of operations of a convolutional layer is given by all convolution operations for each filter and the summation to $\#j$ output channels.
 One convolution with a single two dimensional kernel $k$ and one input channel $x$ results in an approximate number of multiplication and addition operations
 \begin{equation}
   \mathcal{T}(k * x) = 2(d_{k_w} \cdot d_{k_h}) (d_{o_w} \cdot d_{o_h}).
@@ -153,14 +155,14 @@ For the example in \rfig{nn_theory_cnn_basics}, this would result in $\mathcal{T
 % loss functions
 
 \subsection{Loss Functions and Softmax}
-Loss functions, also called cost functions, are used to determine the difference between the predicted label $\hat{y}_i$ for class $i$ and the actual or ground truth label $y$ of one specific training data example.
+Loss functions, also known as cost functions, are used to determine the difference between the predicted label $\hat{y}_i$ for class $i$ and the actual or ground truth label $y$ of one specific training data example.
 The predicted labels are usually presented by the output nodes in the last layer of a neural network.
 Therefore, $\hat{\bm{y}} = [\hat{y_0}, \hat{y_1}, \dots, \hat{y_L}]^T$ has the dimension of the number of labels or classes $L$.
 Often it is preferred that $\hat{\bm{y}} \in \R^L$ provides a probability distribution such that
 \begin{equation}
   \sum_{i=0}^L \hat{y}_i = 1,
 \end{equation}
-which can be achieved with the softmax function
+which can be achieved by the softmax function
 \begin{equation}\label{eq:nn_theory_softmax}
   \hat{y}_i = \frac{\exp{x_i}}{\sum_{j=0}^{L}\exp{x_j}}
 \end{equation}
@@ -175,7 +177,7 @@ The binary cross-entropy is implemented as
 \end{equation}
 with the training pair $(x_i, y_i)$, where $x_i \in \R^{N \times 1}$ is the feature input, and $y_i \in \{0, 1\}^N$ the corresponding label.
 During the training procedure a whole batch with a total number of $N$ examples is used for one update step.
-However, the loss function should provide only a single output value, which can be achieved by calculating the mean value of all $l_i$ where $i = 0, \dots, N$ is the index of the examples in the actual batch.
+However, the loss function should provide only a single output value, which can be achieved by calculating the mean value of all $l_i$, where $i = 0, \dots, N$ is the index of the examples in the actual batch.
 
 The multi-class variant of the cross-entropy is defined by
 \begin{equation}
@@ -200,15 +202,15 @@ For instance, $p=0.2$ means that there are \SI{20}{\percent} zeros and \SI{80}{\
 % training
 
 \subsection{Training of a Neural Network}
-The training of a neural network is usually done by updating each parameter of the model with back-propagated gradients from the obtained loss at the output nodes.
+The training of a neural network is usually done by updating each parameter of the model with backpropagated gradients from the obtained loss at the output nodes.
 The loss is calculated by a specific loss function comparing the predicted labels to the targets of the actual training samples.
 To update the parameters of the network, an update rule, such as Stochastic Gradient Descend (SGD) or Adam \cite{Kingma2015} is applied.
 Note that a single update step is usually not performed on the whole dataset, unless it is a very small dataset. 
-In the normal case the update is performed on small chunks of the dataset called \emph{batches}.
+In the normal case, the update is performed on small chunks of the dataset called \emph{batches}.
 One training iteration is therefore the update of parameters for a single batch.
 The run over all batches of a dataset is defined as \emph{epoch}.
 Note that the training of neural networks may take over thousands of epochs until convergence is reached.
-The general training techniques for neural networks and further details are not described but can be found, for instance, in \cite{LeCun2006}, \cite{Goodfellow2016}, and \cite{DeepLearning}.
+The general training techniques for neural networks are not described but can be found, for instance, in \cite{LeCun2006}, \cite{Goodfellow2016}, and \cite{DeepLearning}.
 The interesting elements are therefore only the neural network architecture design, the hyperparameters for training, and the used loss functions.
 
 
@@ -216,11 +218,11 @@ The interesting elements are therefore only the neural network architecture desi
 % GANs
 
 \subsection{Generative Adversarial Neural Network Game}\label{sec:nn_theory_gan}
-GANs \cite{Goodfellow2014}, as already mentioned in \rsec{prev_nn_adv} consist of two neural networks: a Generator (G) network for generating fake images and a Discriminator (D) network for discriminating between fake and real images.
+GANs, as already mentioned in \rsec{prev_nn_adv} consist of two neural networks: a Generator network for generating fake images and a Discriminator network for discriminating between fake and real images.
 The min-max game both networks are playing is defined by
 \begin{equation}\label{eq:nn_theory_gan}
   \underset{G}{\min} \, \underset{D}{\max} \, V(D, G) = \E_{\bm{x} \sim p_{data}(\bm{x})}\left[ \log D(\bm{x}) \right] + 
     \E_{\bm{z} \sim p_{\bm{z}}(\bm{z})}\left[ \log (1 - D(G(\bm{z}))) \right],
 \end{equation}
-where $\bm{x} \in \mathcal{X}$ are samples from the training data $p_{data}$, $\bm{z} \in \mathcal{Z}$ is a latent variable sampled from $p_{\bm{z}}$, $D: \mathcal{X} \mapsto [0, 1]$ is the discriminator network and $G: \mathcal{Z} \mapsto \mathcal{X}$ the generator network.
+where $\bm{x} \in \mathcal{X}$ are samples from the training data $p_{data}$, $\bm{z} \in \mathcal{Z}$ is a latent variable sampled from $p_{\bm{z}}$, $D: \mathcal{X} \mapsto [0, 1]$ is the Discriminator network and $G: \mathcal{Z} \mapsto \mathcal{X}$ the Generator network.
 The advise from the original paper is not to minimize G with $\log (1 - D(G(\bm{z})))$ but to maximize $\log D(G(\bm{z}))$ instead.

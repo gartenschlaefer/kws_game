@@ -4,9 +4,10 @@
 \section{Adversarial Pre-Training}\label{sec:nn_adv}
 In adversarial neural network training, two separate neural networks are competing against each other in an adversary task.
 This competition of the two networks motivates them to improve their performance and beat the other network.
-The application of GANs, as already explained in \rsec{prev_nn_adv} and \rsec{nn_theory_gan}, is an interesting subject in research and the questions whether the obtained weights from the separate training of the Generator (G) and Discriminator (D) network can contribute to better the performances in equivalent models, arises.
-This thesis considers the transfer of trained filter weights of the convolutional layers from either G or D to initialize an equivalent CNN by using two different pre-training methods.
-Note that the convolutional layer structure, such as the filter size and striding properties, of G and D has to be the same as in the target CNN, however, the amounts of filters in those layers can vary.
+The application of GANs, as already explained in \rsec{prev_nn_adv} and \rsec{nn_theory_gan}, is an interesting subject in research and the questions whether the obtained weights from the separate training of the Generator and Discriminator network can contribute to better the performances in equivalent models, arises.
+
+This thesis evaluates the transfer of trained filter weights of the convolutional layers from either G or D to initialize an equivalent CNN by using two different pre-training methods.
+As already mentioned in \rsec{prev_nn_adv}, the convolutional layer structure, such as the filter size and striding properties, of G and D has to be the same as in the target CNN, however, the amounts of filters in those layers can vary.
 One method, denoted as \emph{adversarial dual train}, is to let G and D have the same amount of filters as the target CNN and to consider all available class labels in the vocabulary for training.
 The other method, referred to as \emph{adversarial label train}, applies several separate training instances of G and D on small subsets of class labels, where G and D gets fewer amounts of filters compared to the target CNN.
 Those methods are abbreviated in some experiments as \enquote{adv-dual} and \enquote{adv-label} for the adversarial dual and adversarial label train, respectively.
@@ -28,7 +29,7 @@ In contrast the loss of G, denoted as $l_G$, is given by
 \begin{equation}
   l_G(z_i, D) =  l(D(G(z_i)), y_r),
 \end{equation}
-which is rewritten to perform a maximization of $\log D(G(\bm{z}))$, as noted in \rsec{nn_theory_gan}.
+which is rewritten in order to perform a maximization of $\log D(G(\bm{z}))$, as noted in \rsec{nn_theory_gan}.
 
 An extended approach so that G produces samples specifically similar to the data distribution and does not drift off into creating unrealistic fakes of noisy samples to fake D, is to add a similarity term such as the \emph{cosine similarity} defined by
 \begin{equation}
@@ -41,12 +42,12 @@ With the additional similarity loss, $l_G$ gets
 \end{equation}
 where $\hat{\bm{e}}_c \in \{1, 0\}^C$ is an unit vector representing one cepstral coefficient of the Mel Frequency Cepstral Coefficient (MFCC) data $x_i \in \mathcal{X} = \R^{C \times M}$ with a total number of $C$ MFCC coefficients and $M$ frames.
 Further, $\lambda$ is a trade-off factor between data similarity and fake loss from D.
-For the experiments in \rsec{exp_adv}, $\lambda = 5$ was chosen.
+Note that the experiments in \rsec{exp_adv} choose $\lambda = 5$.
 
 The update of D and G is performed in each training step by backpropagating the obtained losses.
 However, it is more appealing to update D for a certain numbers of training steps with no update of G and then switching to updates of G without updating D.
 This will give either D or G some update steps to improve in their specific adversarial task of either discriminating or generating.
-In this thesis, the training steps for updating either D or G were 2 epochs for each model.
+In this thesis, the training steps for updating either D or G are 2 epochs for each model.
 Note that an epoch consists of several training steps depending on the batch size and amount of data.
 This can vary in the experiments but does not influence the overall end results dramatically.
 
@@ -68,7 +69,7 @@ For example, each label train gets 8 filters in the first convolutional layer.
 \end{figure}
 \FloatBarrier
 \noindent
-To further investigate the adversarial label train, the training results of the models \texttt{adv-d-jim} and \texttt{adv-g-jim} is provided in the following.
+To further investigate the adversarial label train, the training results of the models \texttt{adv-d-jim} and \texttt{adv-g-jim} are provided in the following.
 \rfig{nn_adv_loss_label} shows the training loss of an actual GAN training for the label subset \{\enquote{left}, \enquote{go}\}.
 \begin{figure}[!ht]
   \centering
@@ -117,8 +118,9 @@ Those were obtained from an adversarial label train with different amount of epo
 The amount of training epochs is essential because it determines how much the models learn during their adversarial training.
 With 100 training epochs, G already creates similar convolutional filters for each label train instance because it does not need to be that accurate in creating different looking fakes.
 Yet D improves as well and the need of generating different looking fakes motivates G to match up.
-By using 1000 training epochs, G generates many different fakes, as already shown in \rfig{nn_adv_fakes_label}, and the filters take on different structures.
-Note that a second convolutional layer for the \texttt{adv-d-jim} and \texttt{adv-g-jim} exist as well with corresponding weights shown, only for the 100 epoch training, in \rfig{nn_adv_label_weights_conv1}.
+By using 1000 training epochs, G generates many different looking fakes, as already shown in \rfig{nn_adv_fakes_label}, and the filters take on various structures.
+Note that a second convolutional layer for the \texttt{adv-d-jim} and \texttt{adv-g-jim} exist as well.
+\rfig{nn_adv_label_weights_conv1} shows their corresponding weights for 100 training epochs.
 \begin{figure}[!ht]
   \centering
   \subfigure[D with 100 epochs]{\includegraphics[width=0.25\textwidth]{./4_nn/figs/nn_adv_label_weights_conv1_d-100.png}}
