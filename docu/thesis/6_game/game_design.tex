@@ -17,8 +17,8 @@ Strangely, Jim is able to move parts of walls within this world by the use of hi
 
 \subsection{Menu}\label{sec:game_design_menu}
 The main menu is the first screen that appears when starting a video game. 
-It usually consists of several selectable buttons that are referencing, for instance, to the start of the actual game, to the help menu, or the options menu for graphic and music settings of the game.
-The main and help menu of the deployed video game is shown in \rfig{game_design_menu_mainhelp}.
+It usually consists of several selectable buttons that are referencing, for instance, to the start of the actual game, to the help menu, or the options menu for graphic and music settings.
+\rfig{game_design_menu_mainhelp} shows the main and help menu of the deployed video game.
 \begin{figure}[!ht]
   \centering
   \subfigure[Main menu]{\includegraphics[width=0.48\textwidth]{./6_game/figs/game_design_menu_main.png}}
@@ -59,9 +59,9 @@ All option menu screens are shown in \rfig{game_design_menu_options}.
 The implemented video game uses a 2D-platformer view, where the movement of the players is reduced to left, right, and jump, similar to the classical \enquote{Super Mario} games.
 A win and loose condition describes the rules to either win or loose the game.
 In an attempt to satisfy the win condition, the player has to collect a single object within each individual level.
-Where the levels had been designed such that the player has to use speech commands in order to collect the desired object.
+Where the levels were designed such that the player has to use speech commands in order to collect the desired object.
 If all objects are successfully collected, the game ends and shows the credit screen.
-Conversely, the player satisfies the loose condition by colliding with an enemy, which of course should be avoided by dodging them.
+Conversely, the player satisfies the loose condition by colliding with an enemy, which of course should be avoided by dodging.
 If the player runs into an enemy, a loose screen appears and the same level has to be restarted from its initial state.
 
 
@@ -120,7 +120,7 @@ The enemy sprite sheet is provided in \rfig{game_design_mechanic_enemy}.
 Two levels that use the game mechanic of movable blocks, as described previously in \rsec{game_design_mechanics}, were implemented.
 The first level introduces the player to the game.
 The player learns how the game mechanics work and how to command the moveable blocks out of the path to the collectable object.
-In the second level the player has to align the moveable blocks such that by jumping upon them, higher plateaus can be reached.
+In the second level the player has to align the moveable blocks such that by jumping upon them higher plateaus can be reached.
 The levels are both shown in \rfig{game_design_level}.
 \begin{figure}[!ht]
   \centering

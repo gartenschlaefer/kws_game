@@ -2,25 +2,27 @@
 % training details
 
 \section{Implementation and Experiment Details}\label{sec:exp_details}
-The implementation describes the used software tools for the experiments on the neural networks, such as the programming language and packages for the source code.
-The training details provide commonly used sets of hyperparameters applied to train neural networks.
-Note that the training details can vary between different experiments and models and that the listing provide an overview of all available parameters to choose from with recommendations of parameters for the speech command dataset.
-If parameters are varying in some experiments, they are usually noted, otherwise the parameters listed were used.
-The evaluation details of the models is described separately and evaluates the trained models upon accuracy performance, and noise and shift invariance.
+The implementation details describe the used software tools in the experiments, such as the programming language and packages for the source code.
+The experiment details are separated into training details of the used neural networks and evaluation details of the trained models.
+The training details provide the used sets of hyperparameters for training the neural networks on the speech commands dataset.
+Note that the training details can vary in different experiments.
+If they do so, they are usually noted in the description of the corresponding experiment, otherwise the parameters listed are used.
+The evaluation details describe how the trained models are evaluated in regards of accuracy performance and noise and shift invariance.
 
 
 % --
 % implementation notes
 
 \subsection{Implementation Notes}\label{sec:exp_details_implementation}
-The source code for this thesis was entirely written in \texttt{Python} with version $>3.8$ evaluated on a Linux operating system and is open source available at \cite{KWSGame}.
-The operating system might be relevant, if someone tries to run the python code on a \enquote{Windows} machine, where unexpected errors might occur (especially regarding path variables).
-Also the project does not download the speech command dataset by its own and a path to the dataset has to be specified in the \texttt{config.yaml} file of the project.
-More information about how to run the project is described in the \texttt{README.txt} file of the project.
-The training and implementation of all used neural networks were done with the \texttt{Pytorch} \cite{Pytorch} framework of version $1.7.0$. 
-Usually it should not be a problem if a newer version of \texttt{Pytorch} is used, during the work on the thesis the version changed to $1.9.0$ without any version depending problems.
-The feature extraction of MFCCs was self implemented but uses already existing and efficient code for signal transformations, such as the STFT or DCT, with packages from \texttt{Scipy}.
-All matrix-vector computations were done with the well known package \texttt{Numpy} or with \texttt{Pytorch}.
+The source code for this thesis was written in \texttt{Python} with version $>3.8$ and tested on a Linux operating system.
+Further, the source code is open source available in \cite{KWSGame}.
+The operating system might be relevant if someone tries to run the python code on a \enquote{Windows} machine, where unexpected errors might occur (especially regarding path variables).
+Note that the project does not explicitly download the speech commands dataset.
+A path variable to the downloaded dataset has to be specified in the \texttt{config.yaml} file of the project, where users may also change several other useful parameters.
+More information about how to run the project is described in the \texttt{README.txt} file.
+The training and implementation of all used neural networks were done with the \texttt{Pytorch} \cite{Pytorch} framework of version $>1.7.0$. 
+The feature extraction of MFCCs was self implemented but used already existing and efficient code for signal transformations, such as the STFT or DCT provided by the \texttt{Scipy} package.
+All matrix-vector computations were done with the well known \texttt{Numpy} package or with \texttt{Pytorch}.
 Several other \texttt{Python} packages were used within the project but are not named explicitly.
 They can be looked up in the open source repository of the project, if requested.
 
@@ -31,9 +33,9 @@ They can be looked up in the open source repository of the project, if requested
 \subsection{Neural Network Training Details}\label{sec:exp_details_training}
 The training details and parameters of the used neural networks can be split into following components: Feature extraction, dataset, training, and pre-training.
 The feature extraction parameters provide information about the extraction of MFCC features.
-The dataset parameters are the selected labels and the number of examples per labels for training.
-To specify the training of neural networks, the training hyperparameters, such as the learning rate or batch size, are applied.
-Further, the pre-training details describe a separate training of GANs to use the obtained weights for transfer learning on an equivalent CNN.
+The dataset parameters are specified by the selected labels and the number of examples per labels for training.
+The training part lists hyperparameters, such as the learning rate or the batch size.
+Furthermore, the pre-training details describe a separate training of GANs to use the obtained weights for transfer learning on an equivalent CNN.
 
 
 % --
@@ -49,16 +51,19 @@ If not other stated, the feature extraction parameters in \rtab{exp_details_para
 % dataset
 
 \subsubsection{Dataset Parameters}
-The labels for training are selected to the same 12 labels (L12) that were also used in the benchmark networks, described in \rsec{prev_kws_benchmark}, to provide a comparison for the performed experiments in this section and the previous work.
+The labels for training are selected to the same 12 labels (L12) that were also used in the benchmark models in \rsec{prev_kws_benchmark}.
+Therefore, the L12 labels ensure a valid comparison between the performed experiments in this section and the benchmark models.
 
-The maximum number of examples per label for training is given by the minimum examples per selected label for each label and each set.
-This is provided by the validation set of \enquote{go} with \{train: 2948, test: 425, validation: 350 \} shown in \rtab{exp_dataset_all_labels}, with 350 examples per label in the validation set, considering a \SI{10}{\percent} split of both test and validation set.
-This gives a maximum amount of 3500 examples per label to represent the whole dataset because the number of examples per label should not be chosen to higher values than 3500 for training.
-Otherwise the equal amount of examples per label is not provided.
-
+The maximum number of examples per label for training and evaluation is given by the minimum examples of each selected label in each set.
+This is provided by the label \enquote{go} with following amount of examples in the sets: \{train: 2948, test: 425, validation: 350 \} from \rtab{exp_dataset_all_labels}.
+Hence, the validation set consists of 350 examples of the label \enquote{go}.
+By considering a \SI{10}{\percent} split of both test and validation set, this gives a maximum amount of 3500 examples per label to represent the whole dataset.
+Therefore, the number of examples per label should not exceed the value 3500, otherwise the equal amount of examples per label is not provided.
+Note that in order to reduce computations in some experiments, the number of examples were reduced to only 500 per label.
 \rtab{exp_details_params_dataset} lists the L12 labels and their number of examples per label used for training.
 \input{./5_exp/tables/tab_exp_details_params_dataset}
 Note that the actions set of the deployed video game in \rsec{game} uses only a subset of the L12 labels, namely the set: \{\enquote{left},  \enquote{right}, \enquote{up}, \enquote{down}, \enquote{go}, \enquote{\_mixed}, \enquote{\_noise}\}.
+Still the video game operates with the models trained on the L12 labels and thus might increase the change in confusing keywords.
 
 
 % --
@@ -67,8 +72,8 @@ Note that the actions set of the deployed video game in \rsec{game} uses only a 
 \subsubsection{Training Hyperparameters}
 \rtab{exp_details_params_train} shows the hyperparameters for the training of the used CNNs models, described in \rsec{nn_arch}.
 \input{./5_exp/tables/tab_exp_details_params_train}
-From the following experiments it can be observed that epochs of 2000 yield into small overfitting effects regarding certain models.
-This might result into smaller accuracy scores if the set of parameters is used at the last epoch and no early stopping mechanism was applied.
+From the following experiments, it can be observed that epochs of 2000 yield into small overfitting effects regarding certain models.
+This might result into a decrease of the accuracy performance if the set of parameters is used at the last epoch and no early stopping mechanism was applied.
 The batch size of 32 is selected to a low number because it worked well on the KWS task of speech commands.
 Further, the amount of classes is at maximum 12 (L12 labels) and therefore a batch size of 32 would include most of the individual labels.
 Note that the hyperparameters for the Wavenet model are described in the corresponding experiment section.
@@ -78,8 +83,8 @@ Note that the hyperparameters for the Wavenet model are described in the corresp
 % training parameters
 
 \subsubsection{Pre-Training Details}
-The pre-training parameters describe the training of the GANs with their models presented in \rsec{nn_arch_adv} and \rsec{nn_adv}.
-The hyperparameters shown in \rtab{exp_details_params_pre_train} are the same as for usual training but the Discriminator (D) and Generator (G) network can have each different values.
+The pre-training parameters describe the training of the GANs with their models presented in \rsec{nn_arch_adv}.
+The hyperparameters, shown in \rtab{exp_details_params_pre_train}, are the same as for usual training but the Discriminator and Generator network can have each different values.
 \input{./5_exp/tables/tab_exp_details_params_pre_train}
 The selection of the epochs is important, as it was already pointed out in \rsec{nn_adv}.
 
@@ -88,8 +93,8 @@ The selection of the epochs is important, as it was already pointed out in \rsec
 % evaluation details
 
 \subsection{Evaluation Details}\label{sec:exp_details_tb}
-The main evaluation score of the trained models is the computation of the accuracy on the test sets.
-The accuracy is simply obtained by counting all correct classifications and dividing it by the number of classified samples $n$.
+The main evaluation score of the trained models is the accuracy performance on the test sets.
+The accuracy is obtained by counting all correct classifications and dividing it by the number of classified samples $n$.
 A score function $c(\hat{y}_i, y_i)$ for the accuracy can be defined by
 \begin{equation}
   c(\hat{y}_i, y_i) = 
@@ -105,8 +110,9 @@ The accuracy $a \in [0, 1]$ therefore formulates as
 \end{equation}
 Another, more unconventional evaluation technique, is the evaluation upon noise and shift invariance of dedicated test signals.
 For this, one example of each class label was taken from the self recorded files of the \enquote{my dataset} and used as test signal.
-The length of those audio files is cut such that by applying a fixed input frame of \SI{500}{\milli\second}, both end positions consists of at least the half of the audio file information, which is especially important for the shift invariance.
-The evaluation results are plotted in figures of correct classification upon shift and noise level changes.
+The length of those audio files is cut such that by applying a fixed input frame of \SI{500}{\milli\second} both end positions consist of at least the half of the audio file's information.
+This is especially relevant to the shift invariance test.
+The evaluation results are plotted in figures of correct classification upon noise level and shift index changes of the test signals.
 Note that the noise and shift invariance are tested on only 5 test signals.
 Therefore, they are not a reliable measure for the trained models.
 Yet it is interesting to observe how different models perform upon these tests.
@@ -133,7 +139,7 @@ An example of the application of the shift invariance test is shown in \rfig{exp
 \end{figure}
 \FloatBarrier
 \noindent
-The figures in this section present a correct classification with a colored pixel and an incorrect with a white pixel.
+The figures in this section present a correct classification with a colored pixel and an incorrect with a white one.
 \rfig{exp_details_tb_shift} provides one example of a shift invariance test.
 \begin{figure}[!ht]
   \centering
@@ -143,10 +149,10 @@ The figures in this section present a correct classification with a colored pixe
 \end{figure}
 \FloatBarrier
 \noindent
-The purpose of the shift invariance test is not to achieve a full classification score upon each test example because this is hardly possible when not all of a keyword's information is captured within the shifted frame.
-But to analyze whether there are consecutive correct classifications within a certain region on the shift index.
+The purpose of the shift invariance test is not to achieve a full classification score upon each test example because this is hardly possible if not all of a keyword's information is captured within the shifted frame.
+Conversely, the shift invariance test analyzes whether there are consecutive correct classifications within a certain region on the shift index.
 Holes in this region are not a good indicator for the trained model.
-If one example could not be classified at all it does not necessarily imply that the trained model performs poorly but that this special example is not recognized with this specific model.
+If one example could not be classified at all, it does not necessarily imply that the trained model performs poorly but that this specific example is not recognized with this specific model.
 A well performing model usually has a wide region of correct classifications with no holes in it.
 
 
@@ -154,13 +160,14 @@ A well performing model usually has a wide region of correct classifications wit
 % noise invariance
 
 \subsubsection{Noise Invariance}
-The classification of speech signals often requires noise invariance because a significant amount of noise usually is added from the use of poor microphones or recording set-ups and therefore might disturb the classification accuracy.
+The classification of speech signals often requires noise invariance.
+This is because a significant amount of noise may be added from the use of poor microphones or recording set-ups and therefore might disturb the classification accuracy.
 To construct a test upon noise invariance, AWGN is added to the test signal $\bm{x} \in \R^n$ by
 \begin{equation}
   \bm{\tilde{x}} = \bm{x} + \bm{v}, \quad \bm{v} \sim \mathcal{N}(\mu, \sigma),
 \end{equation}
-where $\bm{v} \in \R^n$ is the additive normal noise sampled from $\mathcal{N}(\mu, \sigma)$ with mean $\mu = 0$ and standard deviation $\sigma$.
-The AWGN is parametrized by the standard deviation $\sigma$ to create a certain Signal to Noise Ratio (SNR), denoted as $S$.
+where $\bm{v} \in \R^n$ is the additive noise sampled from the normal distribution $\mathcal{N}(\mu, \sigma)$ with mean $\mu = 0$ and standard deviation $\sigma$.
+The AWGN is parametrized through the standard deviation $\sigma$ to create a certain Signal to Noise Ratio (SNR), denoted as $S$.
 Rewriting the formula of the SNR, the standard deviation can be obtained by
 \begin{equation}
   \sigma = \sqrt{\frac{\frac{1}{n}\bm{x}^T \bm{x}}{10^{\frac{S}{10}}}}
@@ -179,7 +186,7 @@ A SNR level of zero means that there is equal energy of the added noise $\bm{v}$
 \end{figure}
 \FloatBarrier
 \noindent
-The plots for the noise invariance indicate the added noise by the SNR value on the x-axis.
+The plots for the noise invariance test indicate the added noise through the SNR value on the x-axis.
 \rfig{exp_details_tb_noise} shows an example of a noise invariance test.
 \begin{figure}[!ht]
   \centering

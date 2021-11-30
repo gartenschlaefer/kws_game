@@ -14,12 +14,12 @@ The end of this section presents possible future work.
 In the experiments in \rsec{exp_fs}, certain constellations of MFCC features and enhancements were evaluated.
 It was observed that 12 cepstral coefficients were performing better than 32 cepstral coefficients on the used models and therefore the experiments were continued with 12 cepstral coefficients.
 The enhancements of the MFCC features with delta and energy vectors did not significantly improve the classification accuracies in consideration of the added computational footprint they require in the feature extraction and neural network model inference. 
-These feature enhancements were therefore not included.
+These feature enhancements were therefore not included in the following experiments.
 The frame-based normalization yielded worse accuracy scores on the test and validation set but increased the noise invariance upon the test signals and reduced overfitting effects.
 Further, it led to faster training times of GANs.
 This allowed the use of valuable weights of convolutional layers from the Generator network as pre-trained weights for a conventional CNN.
 
-The energy onset detection for keywords, applied on the first cepstral coefficient of the MFCC features, was an efficient and accurate method for the detection of keyword onsets within the speech signal.
+The energy onset detection for keywords applied on the first cepstral coefficient of the MFCC features was an efficient and accurate method for the detection of keyword onsets within the speech signal.
 If there is no loud disturbance on the left or right hand-side of the energy pivot point of the spoken command within the speech signal and the neural network model is robust to shift invariance, there should be no problem with this simple onset method.
 
 
@@ -27,7 +27,7 @@ If there is no loud disturbance on the left or right hand-side of the energy piv
 % neural networks
 
 \section{Neural Networks}
-The use of CNN models with low computational footprint composed of few layers allows researchers to investigate the processing of input features by observing the learned filters of the convolutional layers.
+The use of CNN models with low computational footprint and few layers, allows researchers to investigate the processing of input features by observing the learned filters of the convolutional layers.
 Although those models could not reach the high accuracy achievements obtained by the sophisticated benchmark models listed in \rsec{prev_kws_benchmark}.
 Still the evaluated models, apart from the Wavenet model, performed sufficiently well in the prediction of keywords when applied in a video game with integrated KWS system.
 The preferred CNN model was the self designed \texttt{conv-jim} model with strides only in the frame dimension.
@@ -36,7 +36,7 @@ The traditional model \texttt{conv-trad} achieved the best accuracy scores but a
 The \texttt{conv-fstride} also performed well despite its very small computational footprint yet often struggled with shift invariance.
 
 It was shown that GANs could be valuable for obtaining initial pre-trained weights for an equivalent CNN classifier.
-The weights from the Generator (G) network were useful even though an up-convolution instead of a normal convolution was performed.
+The weights from the Generator network were useful even though an up-convolution instead of a normal convolution was performed.
 The trade-off is that a normalization scheme such as the frame-based normalization has to be applied in order to make the weights of G applicable.
 Nevertheless, by applying the pre-trained weights from G it was possible to increase the accuracies slightly.
 
@@ -48,7 +48,7 @@ But considering the lower amount of computations and the restricted time interva
 % game
 
 \section{KWS Video Game}
-The time to process a single speech command is one of the most important aspects in KWS video games, apart from the accurateness of the keyword predictions.
+The time to process a single speech command is one of the most important aspects in KWS video games apart from the accurateness of the keyword predictions.
 The restriction of the time interval to \SI{500}{\milli\second} for a single keyword increased the responsiveness of the deployed KWS video game.
 Including the prior and posterior buffer frames in the online system, a classification usually took about \SI{600}{\milli\second}.
 Still it would be desirable to perform the detection of keywords and triggering of actions even faster so that the playing experience could be further improved.
@@ -58,7 +58,8 @@ Still a KWS system requires a significant amount of additional operations and ca
 Even if an efficient model is used, the calculations necessary for the feature extraction remain, such as the extraction of MFCCs and those are quite heavy, as shown in \rsec{signal_mfcc_complexity}.
 
 The overall playing experience with the augmented input control through the KWS system and the game mechanic of movable blocks, as described in \rsec{game_design_mechanics}, was a positive one.
-Controlling elements in a game with voice is kind of magical and fun, as it is usually not that common to players, yet can also end up in frustration when a speech command is wrongly classified or the responded actions happen not in time.
+Controlling elements in a game with voice is kind of magical and fun as it is usually not that common to players.
+On the other hand, it can also end up in frustration when speech commands are wrongly classified or the responded actions do not happen in time.
 More game mechanics and level designs that would increase the tension within the game would have been exciting.
 Yet as a proof of concept, the two levels with moveable blocks are a good starting point for more sophisticated game mechanics and ideas using KWS.
 
@@ -68,21 +69,21 @@ Yet as a proof of concept, the two levels with moveable blocks are a good starti
 
 \section{Future Work}
 The goal to find the most computationally efficient model that obtains at the same time satisfying accuracies in the KWS task of speech commands, is still a topic for future research.
-Even though \cite{Zhang2017} and \cite{Peter2020} already provide excellent solutions to this problem, it is desirable to further elaborate on it and derive a minimal model so that each layer can be analyzed and comprehended by the researchers.
+Even though \cite{Zhang2017} and \cite{Peter2020} already provide excellent solutions to this problem, it is desirable to further elaborate on it and derive a minimal model so that each layer can be analyzed and understood by the researchers.
 It is worth to evaluate the increase of the hop time from the used \SI{10}{\milli\second} to \SI{20}{\milli\second}, as applied in \cite{Peter2020}.
 This would reduce the computations approximately by half (both for the feature extraction and the classifier).
 Further, it would be interesting to evaluate an even smaller time interval that should represent a keyword below \SI{500}{\milli\second} for a fast paced gaming experience.
-Also it might be preferable to switch from a fixed sized input to a flexible one so that no spoken keyword will be missed, regardless of its duration.
+Also it might be preferable to switch from a fixed sized input to a flexible one so that no spoken keyword will be missed regardless of its duration.
 This would enable the game to respond faster and allow the speaker to pronounce the keywords with a short time duration.
 
-Further research can be conducted on the value of the obtained weights from the Generator (G) model of a GAN training. 
-An adversarial training scheme, as presented in \cite{Oezdenizci2020}, that consists of both a G model and a classical CNN model operating on the very same convolutional layers, would be extremely interesting. 
-However, one problem is the up-convolution performed by the G network so that weight sharing is difficult to implement in this task.
+Further research can be conducted on the value of the obtained weights from the Generator model of a GAN training. 
+An adversarial training scheme, as presented in \cite{Oezdenizci2020}, that consists of both a G and a classical CNN model operating on the very same convolutional layers, would be extremely interesting. 
+However, one problem is the up-convolution performed by G so that weight sharing is difficult to implement in this task.
 
-Much future work has to be done on creating a Wavenet architecture that is computationally lightweight and provides acceptable classification accuracies, if that is even possible on raw audio samples.
+Much future work has to be done on creating a Wavenet architecture that is computationally lightweight and achieves acceptable classification accuracies, if that is even possible on raw audio samples.
 Also the influence of game sounds during playing the video game was not evaluated and could be problematic if a high amount of audio feedback feeds into the microphone input stream and alters the speech commands or even elicits them unintentionally.
 
-Regarding video game designs with KWS, only the imagination restricts its possibilities and there are most certainly countless great game ideas that can use such a technique.
+Regarding video game designs with KWS, only the imagination restricts its possibilities and there are most certainly countless great game ideas that can bring such a technique to use.
 Nevertheless, it must be added that neural networks require large amounts of data and that every keyword spotting demands many training samples.
 This suggests solutions in the direction of phoneme based recognition techniques to be more flexible in the selection of command words.
 A comparison between ASR and KWS in video games would therefore be a very interesting topic for upcoming research as well.
