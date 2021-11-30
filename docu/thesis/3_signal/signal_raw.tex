@@ -53,9 +53,10 @@ However, since KWS is limited by its vocabulary and no similar words are contain
 
 Another important aspect is to detect an appropriate onset (beginning of the keyword) position on the time axis of the speech signal.
 This is useful to fit the keyword examples into a smaller time interval that should represent most of the keyword's information.
-In \rfig{signal_raw_showcase} it is easy to spot the beginning and ending of the showcase examples but usually not all recordings are as clean as those.
-There might be a large noise floor, imminent background sound, or cut off signals so that the detection of the right onset position for the \SI{500}{\milli\second} time interval within the \SI{1}{\second} recordings is not always accurate.
-The applied onset detection is therefore separately discussed in \rsec{signal_onset}.
+In \rfig{signal_raw_showcase}, the spotting of the beginning and ending of the showcase examples is not demanding but note that usually not all recordings are as clean as those.
+There might be a large noise floor, imminent background sound, or cut off signals present in the recordings.
+This leads to difficulties in the detection of the correct onset position for the \SI{500}{\milli\second} time interval within the \SI{1}{\second} recordings.
+The applied onset detection methods are therefore, separately discussed in \rsec{signal_onset}.
 
 Moreover, it is worth mentioning that the value range of audio recordings heavily depends on the used microphone, amplifier, and post processing stage.
 It is therefore strongly recommended to normalize all recordings to a defined value range before applying the feature extraction.

@@ -48,7 +48,7 @@ Also the overfitting effects are more prominent when 32 coefficients are applied
 Moreover, they show that frame-based normalization usually achieves a lower accuracy and requires more epochs until convergence is reached.
 
 In the following, the shift and noise invariance of each model is evaluated.
-The noise and shift invariance of the \texttt{conv-trad} model is shown in \rfig{exp_fs_cepstral_tb_noise_conv-trad} and \rfig{exp_fs_cepstral_tb_shift_conv-trad}, respectively.
+The noise and shift invariance tests of the \texttt{conv-trad} model are shown in \rfig{exp_fs_cepstral_tb_noise_conv-trad} and \rfig{exp_fs_cepstral_tb_shift_conv-trad}, respectively.
 \begin{figure}[!ht]
   \centering
   \subfigure[\#MFCC: 12, Norm.: 0]{\includegraphics[width=0.35\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_noise_conv-trad_mfcc12_norm0.png}}
@@ -75,7 +75,7 @@ The noise and shift invariance of the \texttt{conv-trad} model is shown in \rfig
 \end{figure}
 \FloatBarrier
 \noindent
-The noise and shift invariance of the \texttt{conv-fstride} model is shown in \rfig{exp_fs_cepstral_tb_noise_conv-fstride} and \rfig{exp_fs_cepstral_tb_shift_conv-fstride}, respectively.
+The noise and shift invariance tests of the \texttt{conv-fstride} model are shown in \rfig{exp_fs_cepstral_tb_noise_conv-fstride} and \rfig{exp_fs_cepstral_tb_shift_conv-fstride}, respectively.
 \begin{figure}[!ht]
   \centering
   \subfigure[\#MFCC: 12, Norm.: 0]{\includegraphics[width=0.35\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_noise_conv-fstride_mfcc12_norm0.png}}
@@ -100,7 +100,7 @@ The noise and shift invariance of the \texttt{conv-fstride} model is shown in \r
 \end{figure}
 \FloatBarrier
 \noindent
-The noise and shift invariance of the \texttt{conv-jim} model is shown in \rfig{exp_fs_cepstral_tb_noise_conv-jim} and \rfig{exp_fs_cepstral_tb_shift_conv-jim}, respectively.
+The noise and shift invariance tests of the \texttt{conv-jim} model are shown in \rfig{exp_fs_cepstral_tb_noise_conv-jim} and \rfig{exp_fs_cepstral_tb_shift_conv-jim}, respectively.
 \begin{figure}[!ht]
   \centering
   \subfigure[\#MFCC: 12, Norm.: 0]{\includegraphics[width=0.35\textwidth]{./5_exp/figs/exp_fs_cepstral_tb_noise_conv-jim_mfcc12_norm0.png}}
@@ -145,7 +145,7 @@ Note that a \enquote{1} in the columns of the cepstral coefficients and enhancem
 \input{./5_exp/tables/tab_exp_fs_mfcc_l12.tex}
 The best two feature enhancements were the full MFCC-39 features (c1d1dd1e1) and the (c1d1dd0e1) features without double deltas.
 Those were used to examine the accuracy on the validation set during training, which is shown in \rfig{exp_fs_mfcc_tb_acc_conv-jim}.
-The noise and shift invariance are provided in \rfig{exp_fs_mfcc_tb_noise_conv-jim} and \rfig{exp_fs_mfcc_tb_shift_conv-jim}, respectively.
+The noise and shift invariance tests are provided in \rfig{exp_fs_mfcc_tb_noise_conv-jim} and \rfig{exp_fs_mfcc_tb_shift_conv-jim}, respectively.
 \begin{figure}[!ht]
   \centering
   \includegraphics[width=0.48\textwidth]{./5_exp/figs/exp_fs_mfcc_acc_conv-jim.png}

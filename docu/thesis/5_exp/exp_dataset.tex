@@ -24,7 +24,7 @@ Also the second version includes more class examples and a better quality check 
 
 In this thesis, the experiments are solely performed on the second version \texttt{v0.02} of the dataset with hard-facts listed in \rtab{exp_dataset_hard_facts}.
 \input{./5_exp/tables/tab_exp_dataset_hard_facts.tex}
-All available speech command keywords with their separation into training, test, and validation set, are shown in \rtab{exp_dataset_all_labels} located in the appendix.
+All available speech command keywords with their separation into training, test, and validation set, are listed in \rtab{exp_dataset_all_labels} located in the appendix.
 Some keywords have a significantly higher number of examples per class than others.
 This inconsistency of examples per classes emerged from the recording set-up, as described in \cite{Warden2018}, where the main keywords were recorded with a higher number of examples from the same speaker.
 For instance, the same speaker produces five examples of \enquote{go} and two of \enquote{marvin}.
@@ -142,7 +142,7 @@ However, as mentioned above, no further information about the speakers is provid
 
 Moreover, the dataset contains a testing file list called \texttt{testing\_list.txt} and a validation file list \texttt{validation\_list.txt}, where each row entry in the text files refer to a single file in the dataset, as for example \texttt{right/bb05582b\_nohash\_3.wav}.
 Those file lists should ensure the comparability between different neural network approaches from individual researchers.
-The testing and validation file lists are applied in this thesis and the separation into sets are shown in \rtab{exp_dataset_all_labels}.
+The testing and validation file lists are applied in this thesis and the separation into sets are noted in \rtab{exp_dataset_all_labels}.
 
 
 % --
@@ -151,7 +151,7 @@ The testing and validation file lists are applied in this thesis and the separat
 \subsubsection{Samples from the Feature Extraction}
 The feature extracted data examples are stored to separate files before using them for training.
 This has the practicability that features do not have to be extracted each time a new training instance of a neural network is performed.
-Samples from the extracted MFCCs with frame-based normalization, as explained in \rsec{signal_mfcc}, are shown in \rfig{exp_dataset_speech_cmd_mfcc}.
+\rfig{exp_dataset_speech_cmd_mfcc} visualizes samples from the extracted MFCCs with frame-based normalization.
 \begin{figure}[!ht]
   \centering
     \subfigure[left]{\includegraphics[width=0.48\textwidth]{./5_exp/figs/exp_dataset_speech_cmd_mfcc_left.png}}
@@ -185,7 +185,7 @@ It is relevant to mention that none of the self recorded files were used within 
 \end{figure}
 \FloatBarrier
 \noindent
-The same examples extracted to MFCC features are shown in \rfig{exp_dataset_my_mfcc}.
+The same examples extracted to MFCC features are visualized in \rfig{exp_dataset_my_mfcc}.
 \begin{figure}[!ht]
   \centering
     \includegraphics[width=0.65\textwidth]{./5_exp/figs/exp_dataset_my_mfcc.png}

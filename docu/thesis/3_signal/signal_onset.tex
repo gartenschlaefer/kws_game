@@ -40,8 +40,8 @@ The equivalent formulation of \req{e_win} for MFCCs in the cepstral and frame sp
 where $m$ and $N$ are indices in the frame space instead of the sample space.
 A conversion from sample to frame space can be achieved by dividing the sample variable with the hop size $h$ in samples and rounding it to an integer number.
 The onset frame $o$ is obtained from the highest value of the windowed energy measure $e[m]$, as already formulated in \req{onset}.
-An illustration of the onset detection by shifting an analytic window of size \SI{500}{\milli\second} is shown in \rfig{signal_onset_window}, where
-the beginning of the striding window marks the onset if it contains the highest energy value of all possible shifts.
+An illustration of the onset detection by shifting an analytic window of size \SI{500}{\milli\second} is provided in \rfig{signal_onset_window}.
+Note that the beginning of the striding window marks the onset if it contains the highest energy value of all possible shifts.
 \begin{figure}[!ht]
   \centering
     \includegraphics[width=0.65\textwidth]{./3_signal/figs/signal_onset_window.pdf}
@@ -50,7 +50,7 @@ the beginning of the striding window marks the onset if it contains the highest 
 \end{figure}
 \FloatBarrier
 \noindent
-A showcase on the performance of both energy onset detection methods is provided in \rfig{signal_onset_showcase}.
+\rfig{signal_onset_showcase} provides a showcase on the performance of both energy onset detection methods.
 \begin{figure}[!ht]
   \centering
     \subfigure[left]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_onset_showcase_left0.png}}
