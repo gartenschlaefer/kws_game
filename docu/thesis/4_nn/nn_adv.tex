@@ -25,13 +25,13 @@ In \req{nn_theory_gan} the game is notated as min-max game, from which the loss 
   l_D(x_i, z_i, G) = l(D(x_i), y_r) + l(D(G(z_i)), y_f),
 \end{equation}
 where $l$ is the binary cross-entropy loss, as described in \req{nn_theory_binary_cross_entropy}, $D: \mathcal{X} \mapsto [0, 1]$ and $G: \mathcal{Z} \mapsto \mathcal{X}$ are the D and G model, $x_i \in \mathcal{X}$ is a data example, $z_i \in \mathcal{Z}$ is a randomly sampled latent variable, $y_r = 1$ is the real label, and $y_f = 0$ the fake label.
-In contrast the loss of G, denoted as $l_G$, is given by
+In contrast, the loss of G, denoted as $l_G$, is given by
 \begin{equation}
   l_G(z_i, D) =  l(D(G(z_i)), y_r),
 \end{equation}
 which is rewritten in order to perform a maximization of $\log D(G(\bm{z}))$, as noted in \rsec{nn_theory_gan}.
 
-An extended approach so that G produces samples specifically similar to the data distribution and does not drift off into creating unrealistic fakes of noisy samples to fake D, is to add a similarity term such as the \emph{cosine similarity} defined by
+An extended approach, so that G produces samples specifically similar to the data distribution and does not drift off into creating unrealistic fakes of noisy samples to fake D, is to add a similarity term such as the \emph{cosine similarity} defined by
 \begin{equation}
   s(\bm{x_1}, \bm{x_2}) = \frac{\bm{x_1}^T \bm{x_2}}{\norm{\bm{x_1}}_2 \cdot \norm{\bm{x_2}}_2 + \epsilon},
 \end{equation}
@@ -93,8 +93,7 @@ Note that the update of either D or G performs alternately every 2 training epoc
 \end{figure}
 \FloatBarrier
 \noindent
-\rfig{nn_adv_label_weights_d} and \rfig{nn_adv_label_weights_g} show trained weights of the filters in the first convolutional layer of D and G, respectively.
-Those were obtained from an adversarial label train with different amount of epochs.
+\rfig{nn_adv_label_weights_d} and \rfig{nn_adv_label_weights_g} show the trained weights from an adversarial label train of the filters in the first convolutional layer of D and G, respectively.
 \begin{figure}[!ht]
   \centering
   \subfigure[D with 100 epochs]{\includegraphics[width=0.48\textwidth]{./4_nn/figs/nn_adv_label_weights_d-100.png}}
@@ -118,7 +117,8 @@ Those were obtained from an adversarial label train with different amount of epo
 The amount of training epochs is essential because it determines how much the models learn during their adversarial training.
 With 100 training epochs, G already creates similar convolutional filters for each label train instance because it does not need to be that accurate in creating different looking fakes.
 Yet D improves as well and the need of generating different looking fakes motivates G to match up.
-By using 1000 training epochs, G generates many different looking fakes, as already shown in \rfig{nn_adv_fakes_label}, and the filters take on various structures.
+By using 1000 training epochs, G generates many different looking fakes, as already shown in \rfig{nn_adv_fakes_label}.
+Further, the filters take on various structures.
 Note that a second convolutional layer for the \texttt{adv-d-jim} and \texttt{adv-g-jim} exist as well.
 \rfig{nn_adv_label_weights_conv1} shows their corresponding weights for 100 training epochs.
 \begin{figure}[!ht]

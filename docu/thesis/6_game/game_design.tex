@@ -61,7 +61,7 @@ A win and loose condition describes the rules to either win or loose the game.
 In an attempt to satisfy the win condition, the player has to collect a single object within each individual level.
 Where the levels were designed such that the player has to use speech commands in order to collect the desired object.
 If all objects are successfully collected, the game ends and shows the credit screen.
-Conversely, the player satisfies the loose condition by colliding with an enemy, which of course should be avoided by dodging.
+Conversely, the player satisfies the loose condition by colliding with an enemy, which of course should be avoided by dodging them.
 If the player runs into an enemy, a loose screen appears and the same level has to be restarted from its initial state.
 
 
@@ -69,11 +69,11 @@ If the player runs into an enemy, a loose screen appears and the same level has 
 % game mechanics
 
 \subsection{Game Mechanics}\label{sec:game_design_mechanics}
-Game mechanics with KWS have to consider time delays because of the processing time speech signals require.
+Game mechanics with KWS have to consider time delays because of the processing time of speech signals.
 This thesis applies the KWS system as augmented input control, where the game does not depend entirely on the processing of speech commands as inputs.
 The controlling of the character is handled with standard keyboard keys for movement so that the player receives immediate feedback. 
 The speech command control performs a two dimensional grid move upon a so called moveable block by speaking the command word for the intended direction, such as \enquote{left} and \enquote{right} or \enquote{up} and \enquote{down}.
-A level can contain several moveable blocks and the switch between those is done through the command word \enquote{go} until the desired moveable block is selected.
+A level can contain several moveable blocks and the switch between those is performed through the command word \enquote{go} until the desired moveable block is selected.
 The selected movable block is highlighted with a different color to distinguish it from the other moveable blocks.
 Furthermore, all movable blocks share the same base color to distinguish them from ordinary walls.
 At all times only one of all moveable block can be controlled by the player.
@@ -81,13 +81,13 @@ The moveable blocks, walls, and the collectable object are presented in \rfig{ga
 \begin{figure}[!ht]
   \centering
   \includegraphics[height=0.25\textwidth]{./6_game/figs/game_design_mechanic_thing.png}
-  \caption{A small section of Level One that shows the moveable blocks presented in a darker base color than the usual walls and the active moveable wall highlighted in red.}
+  \caption{A small section of Level One that shows the moveable blocks in a darker base color than the usual walls and the active moveable wall highlighted in red.}
   \label{fig:game_design_mechanic_thing}
 \end{figure}
 \FloatBarrier
 \noindent
 If a player speaks out a command word that does not correspond to a movement but is included in the class dictionary, for instance the word \enquote{yes}, or a command word is spoken that is not in the dictionary, hence it corresponds to the \enquote{\_mixed} label, a small bubble with a question mark is shown next to the player character for a few frames.
-The indication of the \enquote{\_noise} label is done similarly but with a bubble that includes a spiral intended as rubbish symbol.
+The indication of the \enquote{\_noise} label is implemented similarly but with a bubble that includes a spiral intended as rubbish symbol.
 \rfig{game_design_mechanic_bubble} shows both bubbles including the player character.
 \begin{figure}[!ht]
   \centering
@@ -100,9 +100,9 @@ The indication of the \enquote{\_noise} label is done similarly but with a bubbl
 \FloatBarrier
 \noindent
 In order to provide a loose condition within the game, as already mentioned in \rsec{game_design_rules}, enemies were implemented.
-The player can perform jumps to dodge the enemies.
+The player can perform jumps to dodge them.
 The enemies move from left to right and change their direction when an obstacle, like a wall, is hit.
-The enemy sprite sheet is provided in \rfig{game_design_mechanic_enemy}.
+\rfig{game_design_mechanic_enemy} visualizes the enemy sprite sheet.
 \begin{figure}[!ht]
   \centering
   \includegraphics[height=0.07\textwidth]{./6_game/figs/game_design_mechanic_enemy.png}
@@ -121,7 +121,7 @@ Two levels that use the game mechanic of movable blocks, as described previously
 The first level introduces the player to the game.
 The player learns how the game mechanics work and how to command the moveable blocks out of the path to the collectable object.
 In the second level the player has to align the moveable blocks such that by jumping upon them higher plateaus can be reached.
-The levels are both shown in \rfig{game_design_level}.
+Both levels are shown in \rfig{game_design_level}.
 \begin{figure}[!ht]
   \centering
   \subfigure[Level One]{\includegraphics[width=0.48\textwidth]{./6_game/figs/game_design_level_one_start.png}}

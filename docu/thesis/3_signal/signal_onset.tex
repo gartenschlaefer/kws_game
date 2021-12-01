@@ -60,7 +60,7 @@ Note that the beginning of the striding window marks the onset if it contains th
     \quad
     \subfigure[down]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_onset_showcase_down0.png}}
     \subfigure[go]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_onset_showcase_go0.png}}
-  \caption{Onsets (vertical colored lines) obtained from the maximum of either the sample energy or first MFCC coefficient energy method with an analytic window length of \SI{500}{\milli\second}.}
+  \caption{Onsets obtained by either the sample energy or MFCC onset method with an analytic window length of \SI{500}{\milli\second}. The onsets and their corresponding end position of the analytic window are marked as vertical colored lines.}
   \label{fig:signal_onset_showcase}
 \end{figure}
 \FloatBarrier
@@ -84,6 +84,6 @@ Mathematically the onset $o(\bm{x}) \in \{0, 1\}$ of an input chunk $\bm{x} \in 
     0, & \text{otherwise} 
   \end{cases},
 \end{equation}
-where the output value of $1$ represents the presence of an onset, $n$ is the total sample number of the input chunk, and $\alpha$ the energy threshold.
-Its recommended to integrate an adjustable energy threshold in order to adapt to the microphone and amplifier set-up of any user.
+where the output value of \enquote{1} represents the presence of an onset, $n$ is the total sample number of the input chunk, and $\alpha$ the energy threshold.
+Its recommended to use an adjustable energy threshold in order to adapt to the microphone and amplifier set-up of any user.
 For instance, as described in \rsec{game_design_menu}, this can be achieved through an option menu in terms of video games.

@@ -24,7 +24,7 @@ They map the sum of the weighted input values from nodes in a previous layer to 
 \begin{equation}\label{eq:nn_theory_acti}
   z = h(\bm{w}^T \bm{x}),
 \end{equation}
-where $h$ is the activation function, $\bm{w} \in \R^n$ is a weight vector and $\bm{x} \in \R^n$ an input vector representing the connections from a total number of $n$ nodes in the previous layer.
+where $h$ is the activation function, $\bm{w} \in \R^n$ is a weight vector, and $\bm{x} \in \R^n$ an input vector representing the connections from a total number of $n$ nodes in the previous layer.
 The constraint of an activation function is that a computable derivative has to exist.
 This allows the backpropagation of gradients from the activation function.
 
@@ -75,17 +75,17 @@ A FC layer containing 3 nodes is illustrated in \rfig{nn_theory_fc}.
 \FloatBarrier
 \noindent
 Mathematically one node $i$ performs the following calculation:
-\begin{equation}
+\begin{equation}\label{eq:nn_theory_fc_single}
   z_i = h(\bm{w_i}^T \bm{x} + b_i)
 \end{equation}
 with the same notations as described in \req{nn_theory_acti} and an additional bias term $b_i \in \R$.
-For all nodes in a current layer, the equation of a single node can be summarized in a weight matrix $W \in \R^{m \times n}$, where $m$ is the total amount of nodes in the current layer and $n$ is the total number of nodes from the previous layer.
+For all nodes in a current layer the equation \req{nn_theory_fc_single} can be summarized in a weight matrix $W \in \R^{m \times n}$, where $m$ is the total amount of nodes in the current layer and $n$ is the total number of nodes from the previous layer.
 Through this weight matrix, a FC layer can be defined by
 \begin{equation}
   \bm{z} = h(W \bm{x} + \bm{b}),
 \end{equation}
 where $\bm{b} \in \R^m$ are the bias terms and $\bm{z} \in \R^m$ the outputs of all nodes in the current layer.
-Subsequently it is straight forward to obtain the number of training parameters and amount of operations needed for a FC layer.
+Subsequently, it is straight forward to obtain the number of training parameters and amount of operations needed for a FC layer.
 The amount of parameters is $m \cdot n$ for $W$ and $m$ for $\bm{b}$, so in total this results in $m \cdot n + m$ parameters.
 The amount of operations includes the matrix vector multiplication with approximated amounts of multiplication and additions, plus the additive bias terms.
 By disregarding the activation function, this leads to an amount of operations of approximately
@@ -100,12 +100,12 @@ which would give, for example, with $n = 128$ and $m = 64$ roughly $\mathcal{T}(
 
 \subsection{Convolutional Layers}\label{sec:nn_theory_cnn}
 Convolutional layers are the fundamental building block of every CNN, as already discussed in \rsec{prev_nn_cnn}.
-Convolutional filters are applied on small areas of the input data to retrieve spatial information, where the input data may consist of multiple channels or input maps.
+Convolutional filters are applied on small areas of the input data to retrieve spatial information, where the input data may consist of multiple channels.
 Those convolutional filters are also referred to as kernels $k$.
-The kernels have the same dimensional axes as the input maps on which they operate on.
+The kernels have the same dimensional axes as the input data on which they operate on.
 In the case of 2 dimensional input maps, the kernel is a map of width $d_{k_w}$ and height $d_{k_h}$ that is typically smaller than the input maps.
 The \emph{stride} $s$ of a kernel specifies the number of shifts a kernel moves on a specific axis over an input map to perform the next convolution operation.
-There are limited amounts of possible kernel strides over an input map in any specific axis, which determines the dimension of the output map on that axis.
+There are limited amounts of possible kernel strides in any specific axis, which determines the dimension of the output map on that axis.
 The length $d_{o_z}$ of an output map of axis $z$ is computed from an input map of length $d_{x_z}$ with a kernel stride $s_z$ along axis $z$ and kernel size $d_{k_z}$ for that axis as follows:
 \begin{equation}\label{eq:nn_theory_cnn_dim}
   d_{o_z} = \floor*{\frac{d_{x_z} + p_z - d_{k_z}}{s_z} + 1},
@@ -115,7 +115,7 @@ Usually these appended values are zeros, such as applied in \emph{zero-padding}.
 To provide an example of \req{nn_theory_cnn_dim}, the convolution of a $16 \times 16$ image by a $5 \times 5$ kernel with stride $1$ in each direction and without any padding terms results in an output image of dimensions $12 \times 12$.
 
 A convolutional layer is therefore defined by the amount of input maps and resulting output channels (feature maps), the kernel size, the stride of the kernel, and some other specialties like padding and dilation.
-Although it is not immediately clear from those parameters, how many convolutional filters are applied, and how the output feature maps are calculated in detail.
+Although it is not immediately clear from those parameters how many convolutional filters are applied and how the output feature maps are calculated in detail.
 The number of convolutional filters $\#k$ is in most practical cases always
 \begin{equation}\label{eq:nn_theory_n_filters}
   \#k = \#i \cdot \#j,
@@ -155,7 +155,7 @@ For the example in \rfig{nn_theory_cnn_basics}, this would result in $\mathcal{T
 % loss functions
 
 \subsection{Loss Functions and Softmax}
-Loss functions, also known as cost functions, are used to determine the difference between the predicted label $\hat{y}_i$ for class $i$ and the actual or ground truth label $y$ of one specific training data example.
+Loss functions, also known as cost functions, are used in order to determine the difference between the predicted label $\hat{y}_i$ for class $i$ and the actual or ground truth label $y$ of one specific training data example.
 The predicted labels are usually presented by the output nodes in the last layer of a neural network.
 Therefore, $\hat{\bm{y}} = [\hat{y_0}, \hat{y_1}, \dots, \hat{y_L}]^T$ has the dimension of the number of labels or classes $L$.
 Often it is preferred that $\hat{\bm{y}} \in \R^L$ provides a probability distribution such that
@@ -193,7 +193,7 @@ Note that $x_i[.]$ is expressed as indexing of $x_i$ of its class dimension $L$.
 \subsection{Dropout}
 Dropout \cite{Hinton2012} is a method to improve generalization and training of neural networks.
 The idea is to set the output of randomly selected nodes within a layer for one training step to zero so that only the other nodes are updated.
-This can be done by multiplying all outputs of a current layer with a vector containing a specified number of zeros and ones placed at random positions within the vector.
+This can be achieved by multiplying all outputs of a current layer with a vector containing a specified number of zeros and ones placed at random positions within the vector.
 The amount of zeros compared to ones can be sampled from a Bernoulli distribution by setting a probability value $p$.
 For instance, $p=0.2$ means that there are \SI{20}{\percent} zeros and \SI{80}{\percent} ones randomly placed within the vector.
 
@@ -203,10 +203,10 @@ For instance, $p=0.2$ means that there are \SI{20}{\percent} zeros and \SI{80}{\
 
 \subsection{Training of a Neural Network}
 The training of a neural network is usually done by updating each parameter of the model with backpropagated gradients from the obtained loss at the output nodes.
-The loss is calculated by a specific loss function comparing the predicted labels to the targets of the actual training samples.
+The loss is calculated by a specific loss function comparing the predicted labels to the ground truth labels of the actual training samples.
 To update the parameters of the network, an update rule, such as Stochastic Gradient Descend (SGD) or Adam \cite{Kingma2015} is applied.
 Note that a single update step is usually not performed on the whole dataset, unless it is a very small dataset. 
-In the normal case, the update is performed on small chunks of the dataset called \emph{batches}.
+In the normal case, the update is performed on small chunks of the dataset, referred to as \emph{batches}.
 One training iteration is therefore the update of parameters for a single batch.
 The run over all batches of a dataset is defined as \emph{epoch}.
 Note that the training of neural networks may take over thousands of epochs until convergence is reached.

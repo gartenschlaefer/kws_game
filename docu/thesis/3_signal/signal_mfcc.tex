@@ -13,17 +13,14 @@ Moreover, a normalization technique for an improved visualization of MFCCs is pr
 The processing scheme of MFCCs \cite{Mermelstein1980} is as follows:
 Raw audio samples are transformed into the frequency domain with the STFT.
 Afterwards the power spectrum of the STFT is computed and segmented into frequency bands through equidistantly spaced triangular window functions on the Mel scale.
-The unit of \enquote{Mel} shares a non-linear relationship to the frequency scale and is described in detail in \rsec{signal_mfcc_pipeline}.
-The Mel scale was developed in psycho-acoustic experiments, where researchers learned that high frequency sounds (above approximately \SI{500}{\hertz}) are perceived lower than they are in the musical or mathematical sense of a pitch.
-In the musical or mathematical sense, a pitch interval of an octave is the doubling of a fundamental frequency.
-However, human hearing is different in its perception and frequency doubling does not necessarily mean a doubling of the perceived pitch, at least not in high frequency regions.
-The Mel scale is therefore suited to the perception of human hearing of pitch.
-Separating the frequency space into equidistant Mel bands is therefore, a reasonable approach.
+The Mel scale was developed in psycho-acoustic experiments, where researchers learned that high frequency sounds (above approximately \SI{500}{\hertz}) are perceived lower than they actually are.
+Consequently, the Mel scale shares a non-linear relationship with the frequency scale and is further described in \rsec{signal_mfcc_pipeline}.
+Note that the Mel scale is suited to the perception of pitch and that separating the frequency space into equidistant Mel bands is therefore reasonable.
 
-Another important processing step is the logarithmic scaling of the power spectrum's value space that is motivated by the logarithmic perception of loudness of humans.
+Another important processing step is the logarithmic scaling of the power spectrum's value space motivated by the logarithmic perception of loudness of humans.
 The last step is to apply the Discrete Cosine Transform (DCT) to the individual filter bands.
 Note that the DCT is a widely used technique in image processing and compression.
-In the applications of MFCCs, it is some kind of a decorrelation process to mix together filter bands in different constellations.
+In the applications of MFCCs, it is some kind of decorrelation process of the filter bands.
 
 The mentioned processing steps to compute MFCCs seem rather complicated but are nothing more than consecutive steps of appropriate scaling and data compression.
 
@@ -65,7 +62,7 @@ The Mel scale plotted against the frequency scale is illustrated in \rfig{signal
 \noindent
 Note that the maximum frequency of the filter bands is $\SI{8}{\kilo\hertz}$ corresponding to the half of the sampling frequency $f_s = \SI{16}{\kilo\hertz}$.
 The creation of those filter bands is not described mathematically because the graphical showcase is much more intuitive and easier to comprehend.
-For further calculations, those filter bands are notated in a weight matrix $W_m \in \R^{B \times K}$, where $B$ is the amount of filter bands and $K$ the amount of frequency bins of the DFT transformed input signal.
+For further calculations, those filter bands are collected in a weight matrix $W_m \in \R^{B \times K}$, where $B$ is the amount of filter bands and $K$ the amount of frequency bins of the DFT transformed input signal.
 
 % dct
 The DCT is very similar to the Fourier transform and projects the input signal to a set of sinusoidal basis functions. 
@@ -74,8 +71,8 @@ Different types of DCT formulations exist but most commonly the \enquote{type 2}
 \begin{equation}\label{eq:signal_mfcc_dct}
   \hat{x}[c] = \sum_{n=0}^{N-1} x[n] \cos{\left[ \frac{\pi}{N} \left( n + \frac{1}{2} \right) c \right]},
 \end{equation}
-where $c$ is the DCT coefficient index and $n$ the sample index of a signal vector $\bm{x} \in \R^N$ with total length of $N$.
-Again this can be conveniently written in matrix notation with a total number of $C$ DCT coefficients as
+where $c$ is the cepstral index and $n$ the sample index of a signal vector $\bm{x} \in \R^N$ with total length of $N$.
+Again this can be conveniently written in matrix notation with a total number of $C$ cepstral coefficients as
 \begin{equation}\label{eq:signal_mfcc_dct_matrix}
   \begin{aligned}
     \hat{\bm{x}} = \mathcal{D} \bm{x} \quad \mathrm{with} 
@@ -103,10 +100,10 @@ Note that the rows of $U$ represent the cepstral coefficients and the columns th
 The required parameters for the computations of MFCCs are therefore the amount of filter bands $B$ and the amount of cepstral coefficients $C$.
 
 Another important aspect is the visualization of MFCC features.
-MFCCs computed as described above, are not well suited for visualization purposes because their individual coefficients value space differs strongly from each other.
+MFCCs computed as described above, are not well suited for visualization purposes because their individual coefficient's value space differs strongly from each other.
 For example, the first coefficient equals a summation of all filter bands of the spectrogram and is therefore some kind of energy measure while the other coefficients are differently weighted sum combinations of the filter bands.
 Furthermore, the most of the energy in speech signals is located in the lower frequency bands, which impacts the value space of the coefficients with strongly weighted low frequency bands.
-The differences in the value space lead to a problem in the visualization with a linear color scheme such that the changes of some coefficients cannot be presented appropriately.
+The differences in the value space lead to a problem in the visualization with a linear color scheme such that the changes of some coefficients cannot be presented properly.
 A solution to this problem is to normalize the feature vectors over their frame dimension by
 \begin{equation}\label{eq:signal_mfcc_norm}
   U[c, m] \gets \frac{U[c, m] + \vert \underset{m \in \mathcal{M}}{\min} \bm{u}_c \vert}{\norm{\bm{u}_c + \vert \underset{m \in \mathcal{M}}{\min} \bm{u}_c \vert}_\infty} \quad \forall \, c, m = (0, 1, \dots, C - 1), (0, 1, \dots, M - 1),
@@ -128,7 +125,7 @@ A visualization of MFCC features with 32 filter bands, 32 cepstral coefficients,
 \end{figure}
 \FloatBarrier
 \noindent
-The frame-based normalization is an interesting technique to improve the visualization of MFCC features.
+The frame-based normalization is an interesting technique in order to improve the visualization of MFCC features.
 Nevertheless, this normalization technique can be critical. 
 A normalization that operates only in one dimension changes valuable structures within the other dimensions, and it cannot be answered yet, whether this is a problem for the classification task in the later sections.
 One more research question arises here: Is it possible to use frame-based normalized MFCC features as inputs to neural network models and what is the impact on the classification accuracy?
@@ -148,11 +145,11 @@ The deltas are computed as frame difference of the MFCCs by
 where $u_c[m]$ is the c-th MFCC coefficient at frame $m$, where $m = 0, 1, \dots, M$ is the frame index of a total number of $M$ frames.
 Note that the computation of the deltas at the edges $m=0$ and $m=M$ is not possible and that the same value is obtained from the neighbor at this specific positions.
 The second derivative of MFCC features, known as double deltas, are the frame differences of the deltas and likewise computed as in \req{signal_mfcc_delta}.
-Another enhancement is the computation of an energy feature vector of the MFCCs expressed by
+Another enhancement is the computation of an energy feature vector $\bm{e} \in \R^M$ that can be computed with
 \begin{equation}
-  e[m] = \bm{u}[m]^T \bm{u}[m],
+  e[m] = \bm{u}[m]^T \bm{u}[m]
 \end{equation}
-where $\bm{u}[m] \in \R^C$ is the MFCC feature vector of frame $m$.
+for all frames $m$.
 The same energy computation may also be applied to the deltas and double deltas.
 
 A concatenation of all features vectors and their enhancements into a single feature matrix is usually performed by simply stacking the MFCCs, their deltas, double deltas, and energy vectors at top of each other.
@@ -161,13 +158,12 @@ In this thesis the stacking of features and enhancements is done in following co
     \item 12 MFCCs,
     \item 1 energy feature of the 12 MFCCs,
     \item 12 deltas,
-    \item 1 energy feature of the 12 deltas,
+    \item 1 energy feature vector of the 12 deltas,
     \item 12 double deltas, and
-    \item 1 energy feature of the 12 Double Deltas,
+    \item 1 energy feature vector of the 12 double deltas,
 \end{enumerate}
-which sums up to a 39-dimensional feature vector widely used in the literature.
-Many papers do not explicitly explain how the 39 MFCCs are calculated in detail, in most cases however, this constellation is applied.
-\rfig{signal_mfcc_showcase_mfcc39} visualizes the 39 MFCCs from the showcase examples.
+which sums up to a 39-dimensional feature vector, referred to as MFCC-39.
+\rfig{signal_mfcc_showcase_mfcc39} visualizes the MFCC-39 from the showcase examples.
 \begin{figure}[!ht]
   \centering
     \subfigure[left]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_mfcc_showcase_mfcc39_left0.png}}
@@ -187,7 +183,7 @@ Many papers do not explicitly explain how the 39 MFCCs are calculated in detail,
 
 \subsection{Computational Complexity}\label{sec:signal_mfcc_complexity}
 The energy consumption is related to the computational complexity but much harder to define as it depends on many parameters and actual hardware implementations, which is especially relevant to handheld devices.
-In this thesis it is sufficient to determine the computational complexity evaluated on the amount of operations required to process a specific computational task, such as the feature extraction of MFCCs.
+In this thesis however, it is sufficient to determine the computational complexity evaluated on the amount of operations required to process a specific computational task, such as the feature extraction of MFCCs.
 The amount of operations is composed of the total number of additions and multiplications that are required to fulfill this specific task.
 Further, it provides a comparison to the benchmark models mentioned in \rsec{prev_kws_benchmark}.
 The computational complexity for the extraction of MFCC features is the amount of operations required to process a \SI{1}{\second} time signal sampled with $f_s = \SI{16}{\kilo\hertz}$.
@@ -232,8 +228,8 @@ The summary of the estimated operations is listed in \rtab{signal_mfcc_operation
 
 \subsection{Criticism}
 MFCC are widely used for speech recognition tasks and perform very well upon them. 
-Still the processing pipeline of MFCCs leave some disadvantages.
-One disadvantage is, as already mentioned, that MFCCs are not intended for visualization because of their broad value space of individual MFCC coefficients.
+However, the processing pipeline of MFCCs leave some disadvantages.
+One disadvantage is, as already mentioned in \rsec{signal_mfcc_pipeline}, that MFCCs are not intended for visualization because of their broad value space of individual MFCC coefficients.
 Another disadvantage is that MFCC are not directly invertible to raw audio samples because of the computation of the spectrogram and its Mel band weighting.
 Inversion techniques for MFCCs exist, such as described in \cite{Boucheron2008}.
 However, it is still very difficult to obtain good approximations when the phase information of the original signal is missing.

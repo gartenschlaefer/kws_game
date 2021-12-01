@@ -18,12 +18,12 @@ Nevertheless, those questions are stated and some solution concepts discussed.
 % signal
 
 \subsection{Signal Processing and Feature Extraction Research Questions}\label{sec:intro_rq_signal}
-It is essential for neural networks to input meaningful features that are extracted from the speech signals. 
-The speech signals are represented by raw audio samples from a microphone input stream in a specific time interval.
-Note that the retrieved features are further input to a neural network for the classification of speech commands.
-The following Questions arise here:
+It is essential for neural networks applied in KWS tasks to input meaningful features extracted from speech signals. 
+The speech signals are represented by raw audio samples obtained from a microphone input stream of a specific time interval.
+The microphone captures the speech commands of a player of a KWS video game.
+The following questions arise here:
 \begin{enumerate}[label={Q.1.\alph*)}, leftmargin=1.75cm]
-  \item Which time interval should be used to capture a speech command?\label{it:q1-a}
+  \item Which time interval should be used in order to capture a speech command?\label{it:q1-a}
   \item Does the signal processing of speech signals have to be invariant to background noise and especially to game sounds?\label{it:q1-b}
   \item What are meaningful features for speech recognition?\label{it:q1-c}
 \end{enumerate}
@@ -41,9 +41,9 @@ Ideally the time interval to represent a speech command would be flexible but th
 \textbf{Question \ref{it:q1-b}:}
 Usually the presence of weak background noise should not be a problem for neural networks trained on a sufficiently large data set. 
 The game sounds might present a more difficult problem when turned up too loud without the use of headphones. 
-Therefore, the microphone will not only capture the voice of a speaker but also a fair amount of game sounds. 
+Therefore, the microphone will not only capture the voice of a player but also a fair amount of game sounds. 
 This problem seems to be theoretically solvable as the shape of the nuisance is known and the amount of game sound in the audio stream could be attenuated.
-In practice this might be hard to solve without critically disturbing the signal of interest.
+In practice, this might be hard to solve without critically disturbing the signal of interest.
 A solution to this problem would probably take too much time and effort and is therefore not evaluated within this thesis. 
 However, playing a video game without game sound is unsatisfying and it would be a great contribution to tackle this problem in future work.
 
@@ -62,11 +62,11 @@ Why MFCCs present reasonable features for speech is described in detail in \rsec
 
 \subsection{Neural Network Research Questions}\label{sec:intro_rq_nn}
 Neural networks for video games should present a low computational footprint and provide accurate classifications of input features.
-The vocabulary in a KWS task has to be specified for the individual game and chosen from all class labels available in the dataset.
+The vocabulary in a KWS task has to be specified for the individual game and keywords chosen from the class labels of a dataset.
 Each keyword in the vocabulary is presented by one output node of the neural network architecture.
-Following Questions can be stated in general:
+Following questions can be stated in general:
 \begin{enumerate}[label={Q.2.\alph*)}, leftmargin=1.75cm]
-  \item Is there an appropriate dataset suited for the training of neural networks that are intended for KWS video games available?\label{it:q2-a}
+  \item Is there an appropriate dataset available that is suited for the training of neural networks used for KWS video games?\label{it:q2-a}
   \item What happens when a spoken keyword is not in the vocabulary (unknown keyword) and how should this exception be handled?\label{it:q2-b}
   \item What is the best neural network architecture regarding classification accuracy and computational efficiency in video games?\label{it:q2-c}
   \begin{enumerate}[label=(\roman*)]
@@ -117,7 +117,7 @@ The unnecessary processing of meaningless input data should be avoided as much a
 Ideally the keyword classification should be activated when there is actually a speech command present, which however is not always trivial.
 One possibility is to indicate the presence of a keyword by performing the relatively efficient calculation of an energy value within a certain time interval of the raw input data stream and let a threshold value decide whether a speech command is available.
 To avoid the consecutive triggering of onsets at each energy measure, the microphone and amplifier noise floor and the background sound (including the game sound) have to be less energy intensive than the speech signal obtained from the player.
-Another approach, similar to the push and talk principle, is to indicate the onset of a keyword through the click of a certain button on the keyboard.
+Another approach similar to the push and talk principle, is to indicate the onset of a keyword through the click of a certain button on the keyboard.
 The player is therefore able to control the exact onset of a keyword and its length but requires an additional hardware based input channel.
 
 \textbf{Question \ref{it:q3-b}:}

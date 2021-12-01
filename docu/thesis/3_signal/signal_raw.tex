@@ -3,8 +3,8 @@
 
 \section{Raw Audio Waveforms}\label{sec:signal_raw}
 Physical acoustic waves can be recorded by microphones through the translation of mechanical vibrations to electrical signals. 
-Those electrical signals can be further stored in discrete representation in \emph{audio files} using a specific audio format, for example the \texttt{.wav} format.
-Apart from any compression technique, the most important storage details are the bit resolution, for instance, \SI{24}{\bit} floating point and the sample rate $f_s$.
+Those electrical signals can be further stored in discrete representation in \emph{audio files} using a specific audio file format, for example \texttt{.wav}.
+Apart from any compression technique the most important storage details are the bit resolution, for instance, \SI{24}{\bit} floating point and the sample rate $f_s$.
 The sample rate defines the frequency range in the discrete representation of any continuous audio signal.
 The limit of the frequency range is given by the Nyquist-Shannon sampling theorem, where the maximum frequency of the signal $f_{x_{max}}$ should not exceed the half of the sampling frequency
 \begin{equation}\label{eq:signal_raw_nyquist}
@@ -14,7 +14,7 @@ in order to avoid aliasing effects in the sampled signal.
 For that reason, the compact disc (CD) format uses a sampling frequency of \SI{44.1}{\kilo\hertz} resulting in a maximum frequency of \SI{22.05}{\kilo\hertz} in the discrete time signal.
 This exploits the fact that humans do not hear above \SI{20}{\kilo\hertz} frequencies.
 However, in many practical applications of speech signals it is affordable to go far beyond the \SI{44.1}{\kilo\hertz} sampling frequency. 
-For instance, the telephone systems use a sampling rate of \SI{8}{\kilo\hertz}.
+For instance, telephone systems use a sampling rate of \SI{8}{\kilo\hertz}.
 Speech signals usually do not require such a high sampling frequency to result in sufficient quality and being perceived as distinguishable.
 Music on the other hand, requires a high sampling frequency for being enjoyable to listen to.
 
@@ -26,8 +26,8 @@ where $n$ is the total number of samples.
 The recorded audio files provided in the speech commands dataset \cite{Warden2018}, which are further applied in the experiments in \rsec{exp}, are sampled with a sampling rate of \SI{16}{\kilo\hertz} and usually have a time duration of \SI{1}{\second}.
 
 For evaluation and visualization purpose, the author of this thesis has recorded examples of the speech commands \{\enquote{left}, \enquote{right}, \enquote{up}, \enquote{down}, \enquote{go}\} with a simple consumer Lavalier microphone.
-One example of each of those speech commands is contained in the showcase examples visualized in \rfig{signal_raw_showcase} in raw audio format.
-This showcase examples will be used to illustrate the whole feature extraction process in the following sections.
+One example of each of those speech commands is contained in the showcase examples visualized in \rfig{signal_raw_showcase}.
+This showcase examples will be used in order to illustrate the whole feature extraction process in the following sections.
 \begin{figure}[!ht]
   \centering
     \subfigure[left]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_raw_showcase_left0.png}}
@@ -37,7 +37,7 @@ This showcase examples will be used to illustrate the whole feature extraction p
     \quad
     \subfigure[down]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_raw_showcase_down0.png}}
     \subfigure[go]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_raw_showcase_go0.png}}
-  \caption{Self recorded showcase examples of speech commands presented in the raw audio waveform format. Phoneme onsets are marked by vertical dashed lines.}
+  \caption{Self recorded showcase examples of speech commands presented in raw audio waveforms. Phoneme onsets are marked by vertical dashed lines.}
   \label{fig:signal_raw_showcase}
 \end{figure}
 \FloatBarrier
@@ -45,8 +45,8 @@ This showcase examples will be used to illustrate the whole feature extraction p
 From the shown recordings it can be estimated how long a speech command out of this vocabulary may take in terms of duration.
 The observation of those examples suggests that usually a duration of \SI{1}{\second} is too much.
 The pronunciation of words can of course strongly deviate in duration.
-But usually when using commands words, it is preferred to speak shortly and well pronounced.
-When a time interval of \SI{500}{\milli\second} is used to capture a speech command (this time interval is used in the feature extraction stage in the experiments), it might happen that not every phoneme of the spoken words is captured.
+But usually when using commands words it is preferred to speak quickly.
+When a time interval of \SI{500}{\milli\second} is used in order to capture a speech command (this time interval is used in the feature extraction stage in the experiments), it might happen that not every phoneme of the spoken words is captured.
 Often this might occur for words with glottal stops before consonants, for example, the phoneme \enquote{t} in \enquote{left} or \enquote{right}.
 Hence the input features may only contain information of the first phonemes and miss the \enquote{t}.
 However, since KWS is limited by its vocabulary and no similar words are contained within, it should be no problem in distinguishing them.
@@ -55,7 +55,7 @@ Another important aspect is to detect an appropriate onset (beginning of the key
 This is useful to fit the keyword examples into a smaller time interval that should represent most of the keyword's information.
 In \rfig{signal_raw_showcase}, the spotting of the beginning and ending of the showcase examples is not demanding but note that usually not all recordings are as clean as those.
 There might be a large noise floor, imminent background sound, or cut off signals present in the recordings.
-This leads to difficulties in the detection of the correct onset position for the \SI{500}{\milli\second} time interval within the \SI{1}{\second} recordings.
+Further, this may lead to difficulties in the detection of the correct onset position for the \SI{500}{\milli\second} time interval within the \SI{1}{\second} recordings.
 The applied onset detection methods are therefore, separately discussed in \rsec{signal_onset}.
 
 Moreover, it is worth mentioning that the value range of audio recordings heavily depends on the used microphone, amplifier, and post processing stage.

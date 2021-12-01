@@ -16,16 +16,17 @@ The amount of parameters and operations for each architecture are listed to prov
 % CNNs
 
 \subsection{Convolutional Neural Networks}\label{sec:nn_arch_cnn}
-Three different CNN designs were evaluated with focus on their striding (shifting) properties of the convolutional filters.
+Three different CNN designs were evaluated with focus on the striding (shifting) properties of their convolutional filters.
 Note that the convolutional filters are also referred to as kernels.
-The \texttt{conv-fstride} model has a kernel size adjusted to the length of the frame (time) dimension of the input features and is therefore striding only in the cepstral (frequency) dimension.
-In contrast the \texttt{conv-jim} model has a kernel size adjusted to the feature dimension and therefore strides only in the frame dimension.
+The \texttt{conv-fstride} model has its kernel size of the first convolutional layer adjusted to the length of the horizontal dimension of the input features.
+This dimension is presented by the frames of the MFCCs and therefore the \texttt{conv-fstride} model strides only in the vertical (cepstral / \enquote{frequency}) dimension.
+In contrast, the \texttt{conv-jim} model has its kernel size adjusted to the vertical dimension and therefore strides only in the horizontal (frame / \enquote{time}) dimension.
 Furthermore, a traditional model named \texttt{conv-trad} is used and performs the striding of the convolutional filters in both dimensions.
 The mentioned models summarizes as:
 \begin{itemize}
 	\item \texttt{conv-trad}: from \cite{Sainath2015} a traditional CNN, striding in both dimensions.
-	\item \texttt{conv-fstride}: from \cite{Sainath2015} (fstride4), striding only in frequency dimension.
-	\item \texttt{conv-jim}: self designed model, striding only in frame dimension.
+	\item \texttt{conv-fstride}: from \cite{Sainath2015} (fstride4), striding only in vertical dimension.
+	\item \texttt{conv-jim}: self designed model, striding only in horizontal dimension.
 \end{itemize}
 The naming of the \texttt{conv-trad} and \texttt{conv-fstride} comes from their original papers, and the self defined network \texttt{conv-jim} was named bluntly after the astronaut avatar that is used for the deployed video game in this thesis.
 
@@ -47,27 +48,27 @@ The last FC layer has $L$ nodes corresponding to $L$ output class labels dependi
 Assuming that the input will be of shape $d_x = (1 \times 12 \times 50)$ the resulting dimensions, amount of parameters, and operations for each layer are listed in \rtab{nn_arch_cnn_trad}.
 \input{./4_nn/tables/tab_nn_arch_cnn_trad.tex}
 
-The \texttt{conv-fstride} has the kernel size adapted to the input frame size and is therefore striding only in the frequency dimension.
-The kernel height of 8 and vertical stride of 4 produces only two output dimensions in the vertical direction for an input size of $(1 \times 12 \times 50)$, which is remarkably efficient.
+The first convolutional layer of the \texttt{conv-fstride} uses a kernel height of 8 and vertical stride of 4.
+This produces only two output dimensions in the vertical direction for an input size of $(1 \times 12 \times 50)$, which is remarkably efficient.
 \rfig{nn_arch_cnn_fstride} shows the \texttt{conv-fstride} model and \rtab{nn_arch_cnn_fstride} lists its footprint.
 \begin{figure}[!ht]
   \centering
     \includegraphics[height=0.23\textwidth]{./4_nn/figs/nn_arch_cnn_fstride.pdf}
-  \caption{Frequency striding CNN design from \cite{Sainath2015} named \texttt{conv-fstride}.}
+  \caption{Vertically striding CNN design from \cite{Sainath2015} named \texttt{conv-fstride}.}
   \label{fig:nn_arch_cnn_fstride}
 \end{figure}
 \FloatBarrier
 \noindent
 \input{./4_nn/tables/tab_nn_arch_cnn_fstride.tex}
 
-The self designed \texttt{conv-jim} consists of two convolutional layers, where the first layer applies an adaptive kernel size in the feature (frequency) dimension and is therefore striding only in frame dimension.
+The self designed \texttt{conv-jim} consists of two convolutional layers striding in the horizontal dimension.
 The kernel width in the first convolutional layer is set to $20$, similarly as in the \texttt{conv-trad} model.
 The convolutional filters of the second layer have a width of $5$ intended for temporal variations.
 The \texttt{conv-jim} model is shown in \rfig{nn_arch_cnn_jim} with footprint listed in \rtab{nn_arch_cnn_jim}.
 \begin{figure}[!ht]
   \centering
     \includegraphics[height=0.23\textwidth]{./4_nn/figs/nn_arch_cnn_jim.pdf}
-  \caption{Self designed frame (time) striding CNN named \texttt{conv-jim}.}
+  \caption{Self designed horizontally striding CNN named \texttt{conv-jim}.}
   \label{fig:nn_arch_cnn_jim}
 \end{figure}
 \FloatBarrier
@@ -75,7 +76,7 @@ The \texttt{conv-jim} model is shown in \rfig{nn_arch_cnn_jim} with footprint li
 \input{./4_nn/tables/tab_nn_arch_cnn_jim.tex}
 
 Note that the computational footprints of all three CNN models are different.
-The model with the lowest amount of computations is the \texttt{conv-fstride} model because of its stride of 4 only in the frequency dimension.
+The model with the lowest amount of computations is the \texttt{conv-fstride} model because of its stride of 4 in the vertical dimension.
 The second lowest footprint is given by the \texttt{conv-jim} model, while the \texttt{conv-trad} model requires the highest amount of operations.
 
 
@@ -111,7 +112,7 @@ Both models are illustrated in \rfig{nn_arch_adv_d_jim} and \rfig{nn_arch_adv_g_
 \noindent
 Note that the number of operations are the same as in \rtab{nn_arch_cnn_jim} except for the fully-connected layers.
 The \texttt{adv-g-jim} model uses either the sigmoid or an identity (same output as input) activation function depending on whether the MFCC are frame-based normalized or not.
-If the MFCCs are frame-based normalized, the sigmoid activation function is used to produce outputs in the range of $[0, 1]$.
+If the MFCCs are frame-based normalized, the sigmoid activation function is selected and produces outputs in the range of $[0, 1]$.
 This enhances the model training speed since the Generator model is able to produce convincing fakes sooner.
 
 
@@ -148,7 +149,7 @@ The whole Wavenet architecture is composed of several consecutive Wavenet residu
 \end{figure}
 \FloatBarrier
 \noindent
-Note that the last convolutional layer in the sample prediction has a total amount of feature maps, which is selected to the quantized audio representation of 256 possible values.
+Note that the output of the last convolutional layer in the sample prediction represents the quantized audio estimation with 256 possible values.
 More details about the used quantization technique is described in \cite{Oord2016}.
 The computational footprint of the whole Wavenet model is listed in \rtab{nn_arch_wavenet_whole}.
 \input{./4_nn/tables/tab_nn_arch_wavenet_whole}

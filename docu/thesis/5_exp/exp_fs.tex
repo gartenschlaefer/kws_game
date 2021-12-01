@@ -8,7 +8,7 @@ Unfortunately, it is not always clear which feature are contributing in the enha
 In this section, only MFCCs and their enhancements, as described in \rsec{signal_mfcc}, are the focus in the experiments.
 A feature selection for raw audio samples, such as used in the Wavenet architecture, would not make any sense because each sample is a strongly uncorrelated feature itself.
 Another important aspect in the feature selection experiments, is the evaluation of the proposed frame-based normalization \req{signal_mfcc_norm} originally intended to improve the visualization of MFCCs and making the Generator network of GANs easier and faster to train.
-However, frame-based normalization might be critical because this normalization applies only on the frame (time) dimension and disregards the frequency dimension.
+However, frame-based normalization might be critical because this normalization applies only on the frame (time) dimension and disregards the cepstral dimension.
 
 Two experiments are performed on the MFCC feature selection and evaluate on the one hand the impact on the amount of cepstral coefficients and on the other hand the impact on the enhancements of MFCCs.
 For saving training time and computations, those experiments were performed on 500 examples per label, as noted in \rsec{exp_details_training}.
@@ -23,7 +23,7 @@ Note that the experiments in this sections are not meant for comparison to the b
 % cepstral
 
 \subsection{Impact on the Amount of Cepstral Coefficients}
-The experiment on the impact of the amount of cepstral coefficients evaluates the accuracies of different CNN models using a number of either 12 or 32 cepstral coefficients from the extracted MFCCs.
+This experiment evaluates the accuracies of different CNN models using a number of either 12 or 32 cepstral coefficients from the extracted MFCCs.
 Note that a number of 12 coefficients with enhancements is commonly applied in many papers.
 The experiments were performed once with and once without frame-based normalization.
 Further, the trained models were evaluated regarding their noise and shift invariance, as described in \rsec{exp_details_tb}.
@@ -43,7 +43,7 @@ Note that the normalization is active if the table lists a \enquote{1} in the \e
 \end{figure}
 \FloatBarrier
 \noindent
-From the provided results, it can be observed that the usage of 32 cepstral coefficients does not improve the accuracies compared to the 12 coefficients.
+From the provided results, it can be observed that the use of 32 cepstral coefficients does not improve the accuracies compared to the 12 coefficients.
 Also the overfitting effects are more prominent when 32 coefficients are applied.
 Moreover, they show that frame-based normalization usually achieves a lower accuracy and requires more epochs until convergence is reached.
 
@@ -144,7 +144,7 @@ This experiment fixes the amount of cepstral coefficients (c) to 12 and enhances
 Note that a \enquote{1} in the columns of the cepstral coefficients and enhancements means it is included in the input features, otherwise it is denoted as \enquote{0}.
 \input{./5_exp/tables/tab_exp_fs_mfcc_l12.tex}
 The best two feature enhancements were the full MFCC-39 features (c1d1dd1e1) and the (c1d1dd0e1) features without double deltas.
-Those were used to examine the accuracy on the validation set during training, which is shown in \rfig{exp_fs_mfcc_tb_acc_conv-jim}.
+Further, they were selected in order to examine the accuracy on the validation set during training, which is shown in \rfig{exp_fs_mfcc_tb_acc_conv-jim}.
 The noise and shift invariance tests are provided in \rfig{exp_fs_mfcc_tb_noise_conv-jim} and \rfig{exp_fs_mfcc_tb_shift_conv-jim}, respectively.
 \begin{figure}[!ht]
   \centering
@@ -174,4 +174,5 @@ The noise and shift invariance tests are provided in \rfig{exp_fs_mfcc_tb_noise_
 \end{figure}
 \FloatBarrier
 \noindent
-The experiments show that the enhancements of the MFCC features can improve the classification results significantly yet also increases the amount of computations for each model.
+The experiments conclude that the enhancements of the MFCC features can improve the classification results significantly.
+However, they also increases the amount of computations for each model.

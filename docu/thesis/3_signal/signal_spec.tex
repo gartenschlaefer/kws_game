@@ -3,7 +3,7 @@
 
 \section{Spectral Features}\label{sec:signal_spec}
 Spectral features of audio signals usually incorporate frequency information and are therefore the most intuitive form to represent them.
-Often the first approach when analyzing speech signals is to visualize its spectrogram.
+The first approach when analyzing speech signals is often to visualize its spectrogram.
 This allows the observation of active energy regions of certain frequency bands at consecutive time chunks and may, for example, provide hints of certain phonemes in speech signals.
 Methodically, the time chunks of a spectrogram are expressed by shifting an \emph{analytic window} of time span $t_N$ on the time axis.
 The time shifting of the analytic window is performed through a fixed time step, denoted as \emph{hop time} $t_{h}$.
@@ -15,11 +15,11 @@ Both time parameters $t_N$ and $t_h$ can also be presented in samples through a 
   \end{split}
 \end{equation}
 Note that shifting an analytic window of sample size $N$ with hop size $h$ will create a new resolution on the time axis, referred to as \emph{frames}.
-The transformation of the audio signal $x[n]$ with sample index $n$, which is contained by the analytic window of size $N$, to the frequency space, can be achieved through the Discrete Fourier Transform (DFT) defined by
+The transformation of the audio signal $x[n]$ to the frequency space can be achieved through the Discrete Fourier Transform (DFT) defined by
 \begin{equation}\label{eq:signal_spec_dtft}
   \hat{x}[k] = \sum_{n=0}^{N-1} x[n] \, e^{-j\frac{2 \pi n}{N}k},
 \end{equation}
-where $\hat{x}[k] \in \C$ is the transformed signal with frequency index $k$.
+where $\hat{x}[k] \in \C$ is the transformed signal with $k$ as frequency index, $n$ is the sample index, and $N$ the size of the analytic window which contains the audio signal.
 More conveniently, \req{signal_spec_dtft} can be written in matrix notation with the DFT operator denoted as $\mathcal{F} \in \C^{K \times N}$ with $K$ Fourier coefficients and a total number of $N$ samples of the input signal $\bm{x} \in \R^N$  as follows:
 \begin{equation}\label{eq:signal_spec_dtft_matrix}
   \begin{aligned}
@@ -32,24 +32,25 @@ Note that $k$ and $n$ are row and column indices in the transformation matrix $\
 
 The length of the analytic window in samples $N$ is essential for the frequency resolution and the lowest frequency that can be represented.
 For example, the time duration of a periodic signal with frequency $f=\SI{20}{\hertz}$ is $t=\frac{1}{f} = \SI{50}{\milli\second}$.
-To represent a waveform, it is necessary to have at least a quarter of its wavelength captured.
+To represent a waveform it is necessary to have at least a quarter of its wavelength captured.
 Within this thesis, the length of the analytic window is selected to \SI{25}{\milli\second}, which is adequate for speech signals.
 
-The \emph{hop size} $h$ in samples of the hop time $t_h$ by which the analytical window is shifted on the time axis, indicates the resolution in time and is especially important for sequential changes within the audio data.
-In applications like speech processing the hop time should be selected so that the fastest pronounced phonemes and its transitions to other phonemes are captured with sufficient resolution.
-Usually a hop time of $t_{h}=\SI{10}{\milli\second}$ is chosen for speech recognition tasks (also used within this thesis) but an extension to $t_{h}=\SI{20}{\milli\second}$ is also possible, as demonstrated by \cite{Peter2020}.
+The \emph{hop size} $h$ in samples of the hop time $t_h$ by which the analytical window is shifted on the time axis indicates the resolution in time and is especially important for sequential changes within the audio data.
+In applications like speech processing, the hop time should be selected so that the fastest pronounced phonemes and its transitions to other phonemes are captured with sufficient resolution.
+Usually a hop time of $t_{h}=\SI{10}{\milli\second}$ is chosen for speech recognition tasks, which is also used within this thesis.
+However, an extension to $t_{h}=\SI{20}{\milli\second}$ is also possible, as demonstrated by \cite{Peter2020}.
 
 With the hop size $h$ in samples and $N$ the length of the analytical window, the Short-Time Fourier Transform (STFT) for discrete time signals can be defined by
 \begin{equation}\label{eq:signal_spec_stft}
-  \tilde{X}[k, m] = \sum_{n=0}^{N-1} x[n + m h] \, w[n] \, e^{-j\frac{2 \pi n}{N}k}, \qquad m = 0, 1, \dots, M
+  \tilde{X}[k, m] = \sum_{n=0}^{N-1} x[n + m h] \, w[n] \, e^{-j\frac{2 \pi n}{N}k}, \qquad m = 0, 1, \dots, M,
 \end{equation}
-so that $\tilde{X}[k, m] \in \C$ is the STFT of frequency coefficient $k$ and frame $m$.
+where $\tilde{X}[k, m] \in \C$ is the STFT with frequency coefficient $k$ and frame $m$.
 Further, $n$ is the summation index, $w$ a window function, such as the \emph{Hanning} window, $h$ is the hop size, and $M$ is the maximum number of frames.
-The maximum number of frames $M$ is the total number of shifts of an analytical window of size $N$ by the hop size $h$ and can therefore be determined by
+The maximum number of frames $M$ is the total number of shifts of an analytical window of size $N$ by the hop size $h$ on a signal $\bm{x}$ and can therefore be determined by
 \begin{equation}\label{eq:signal_spec_hop}
   M = \ceil*{\frac{\norm{\bm{x}}_0-N}{h}},
 \end{equation}
-where $\norm{\bm{x}}_0$ refers to the length of the signal vector $\bm{x}$.
+where $\norm{\bm{x}}_0$ refers to the length of the signal vector.
 The calculation of the STFT can be written in matrix notation if the input chunks from the shifting of the analytic window is formulated as vector
 \begin{equation}
   \bm{x}_m = [x_{m h}, \dots, x_{m h+N}]^T,
@@ -92,7 +93,7 @@ For instance, this can be achieved by the calculation of the decibel scale of th
 \begin{equation}\label{eq:signal_spec_log}
   P_{DB} = 10 \cdot \log_{10}{P}.
 \end{equation}
-\rfig{signal_spec_log_showcase} visualizes the showcase examples of the logarithmically scaled spectrogram and log scaled frequency space, where it is possible to observe some interesting structures and movements in certain frequency bands over time.
+\rfig{signal_spec_log_showcase} visualizes the showcase examples of the logarithmically scaled spectrogram, where it is possible to observe some interesting structures and movements in certain frequency bands over time.
 \begin{figure}[!ht]
   \centering
     \subfigure[left]{\includegraphics[width=0.45\textwidth]{./3_signal/figs/signal_spec-log_showcase_left0.png}}

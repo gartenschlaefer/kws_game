@@ -4,7 +4,7 @@
 \section{Implementation and Experiment Details}\label{sec:exp_details}
 The implementation details describe the used software tools in the experiments, such as the programming language and packages for the source code.
 The experiment details are separated into training details of the used neural networks and evaluation details of the trained models.
-The training details provide the used sets of hyperparameters for training the neural networks on the speech commands dataset.
+The training details provide the used sets of hyperparameters for the training of the neural networks on the speech commands dataset.
 Note that the training details can vary in different experiments.
 If they do so, they are usually noted in the description of the corresponding experiment, otherwise the parameters listed are used.
 The evaluation details describe how the trained models are evaluated in regards of accuracy performance and noise and shift invariance.
@@ -22,7 +22,7 @@ A path variable to the downloaded dataset has to be specified in the \texttt{con
 More information about how to run the project is described in the \texttt{README.txt} file.
 The training and implementation of all used neural networks were done with the \texttt{Pytorch} \cite{Pytorch} framework of version $>1.7.0$. 
 The feature extraction of MFCCs was self implemented but used already existing and efficient code for signal transformations, such as the STFT or DCT provided by the \texttt{Scipy} package.
-All matrix-vector computations were done with the well known \texttt{Numpy} package or with \texttt{Pytorch}.
+All matrix-vector computations were processed with the well known \texttt{Numpy} package or with \texttt{Pytorch}.
 Several other \texttt{Python} packages were used within the project but are not named explicitly.
 They can be looked up in the open source repository of the project, if requested.
 
@@ -42,8 +42,8 @@ Furthermore, the pre-training details describe a separate training of GANs to us
 % feature
 
 \subsubsection{Feature Extraction Parameters}
-During the feature selection experiments in \rsec{exp_fs}, the feature extraction parameters for cepstral coefficients with enhancements were varying.
-If not other stated, the feature extraction parameters in \rtab{exp_details_params_feature} were used.
+The feature extraction parameters used in order to process MFCCs, are listed in \rtab{exp_details_params_feature}.
+Note that some parameters can vary in the experiments.
 \input{./5_exp/tables/tab_exp_details_params_feature}
 
 
@@ -63,7 +63,7 @@ Note that in order to reduce computations in some experiments, the number of exa
 \rtab{exp_details_params_dataset} lists the L12 labels and their number of examples per label used for training.
 \input{./5_exp/tables/tab_exp_details_params_dataset}
 Note that the actions set of the deployed video game in \rsec{game} uses only a subset of the L12 labels, namely the set: \{\enquote{left},  \enquote{right}, \enquote{up}, \enquote{down}, \enquote{go}, \enquote{\_mixed}, \enquote{\_noise}\}.
-Still the video game operates with the models trained on the L12 labels and thus might increase the change in confusing keywords.
+Still the video game operates with the models trained on the L12 labels and thus might increase the chance in confusing keywords.
 
 
 % --
@@ -73,7 +73,7 @@ Still the video game operates with the models trained on the L12 labels and thus
 \rtab{exp_details_params_train} shows the hyperparameters for the training of the used CNNs models, described in \rsec{nn_arch}.
 \input{./5_exp/tables/tab_exp_details_params_train}
 From the following experiments, it can be observed that epochs of 2000 yield into small overfitting effects regarding certain models.
-This might result into a decrease of the accuracy performance if the set of parameters is used at the last epoch and no early stopping mechanism was applied.
+This might decrease the accuracy performance if the set of parameters is used at the last epoch and no early stopping mechanism is applied.
 The batch size of 32 is selected to a low number because it worked well on the KWS task of speech commands.
 Further, the amount of classes is at maximum 12 (L12 labels) and therefore a batch size of 32 would include most of the individual labels.
 Note that the hyperparameters for the Wavenet model are described in the corresponding experiment section.
@@ -124,7 +124,7 @@ In the following, the shift and noise invariance tests are explained in more det
 
 \subsubsection{Shift Invariance}
 Shift invariance is a very important property in speech recognition tasks. 
-For instance, a waveform of a command word should still be classified to the same label regardless of little shifts in time, as long as the analytic window includes sufficiently valuable information of this command word.
+For instance, a waveform of a speech command should still be classified to the same label regardless of little shifts in time as long as the analytic window includes sufficiently valuable information of this speech command.
 However, the analytical window size of merely \SI{500}{\milli\second} might increase the difficulty in this task.
 Not all relevant information of the speech signals can be captured by the analytic window, like the \enquote{t} in \enquote{left} or \enquote{right} is often missed when the speaker prolongs those words.
 An example of the application of the shift invariance test is shown in \rfig{exp_details_tb_shift_left} with a beginning, middle, and end frame shift.
@@ -150,9 +150,9 @@ The figures in this section present a correct classification with a colored pixe
 \FloatBarrier
 \noindent
 The purpose of the shift invariance test is not to achieve a full classification score upon each test example because this is hardly possible if not all of a keyword's information is captured within the shifted frame.
-Conversely, the shift invariance test analyzes whether there are consecutive correct classifications within a certain region on the shift index.
+Conversely, the shift invariance test analyzes whether there are consecutive correct classifications within a certain region of shift indices.
 Holes in this region are not a good indicator for the trained model.
-If one example could not be classified at all, it does not necessarily imply that the trained model performs poorly but that this specific example is not recognized with this specific model.
+If one example could not be classified at all, it does not necessarily imply that the trained model performs poorly but that this specific example is not recognized with this specific training instance of the model.
 A well performing model usually has a wide region of correct classifications with no holes in it.
 
 
@@ -161,7 +161,7 @@ A well performing model usually has a wide region of correct classifications wit
 
 \subsubsection{Noise Invariance}
 The classification of speech signals often requires noise invariance.
-This is because a significant amount of noise may be added from the use of poor microphones or recording set-ups and therefore might disturb the classification accuracy.
+This is because a significant amount of noise added, for instance, through the use of poor microphones or recording set-ups, might disturb the classification accuracy.
 To construct a test upon noise invariance, AWGN is added to the test signal $\bm{x} \in \R^n$ by
 \begin{equation}
   \bm{\tilde{x}} = \bm{x} + \bm{v}, \quad \bm{v} \sim \mathcal{N}(\mu, \sigma),

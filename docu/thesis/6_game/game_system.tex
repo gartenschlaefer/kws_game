@@ -15,7 +15,7 @@ More detailed descriptions of the individual sub systems are provided below.
 
 \subsection{Online System}
 The online system is mainly composed of a FIFO queue for input data storage and an energy onset detection method.
-The length of the FIFO queue has to be at least as long as the sample length of the speech command examples used to train the neural networks for classification.
+The length of the FIFO queue has to be at least as long as the sample length of the speech command examples that were used in the training of the neural network models.
 The recorded files in the speech commands dataset have a time duration of \SI{1}{\second}. 
 Using this time duration however, would have made the classification of keywords very slow and influenced the gaming experience.
 In this thesis, the length of a keyword is restricted to \SI{500}{\milli\second} or 8000 samples.
@@ -25,8 +25,8 @@ Ideally, these buffer frames should not be necessary but due to shift invariance
 
 The buffer frames are located prior and posterior to the dedicated keyword frames, where both have a length of 5 frames.
 Essentially, the buffer frames extend the keyword frames but can also be seen as queues by themselves.
-Therefore, the whole FIFO queue consist of three individual queues: the prior buffer queue, the key word queue, and the posterior buffer queue.
-The prior buffer queue consecutively collects the frames from the audio stream but does not feed the output to the key word queue as long as there is no keyword onset detected.
+Therefore, the whole FIFO queue consist of three individual queues: the prior buffer queue, the keyword queue, and the posterior buffer queue.
+The prior buffer queue consecutively collects the frames from the audio stream but does not feed the output to the keyword queue as long as there is no keyword onset detected.
 Each input chunk or frame is used for the detection of an online onset, as described in \rsec{signal_onset_online}.
 If an onset is detected from one of those frames, subsequently the whole FIFO queue will be filled up to its full size including the posterior buffer frames.
 Afterwards, the frames contained in the FIFO queue are read out and passed to the feature extraction module, which is already located in the classification system.
@@ -49,7 +49,7 @@ The classification system consists of a feature extractor and a classifier.
 The classifier further composes of a neural network architecture for the classification of the keywords it was trained for.
 The feature extractor computes the MFCCs according to its provided feature extraction parameters and determines the highest energy onset, as described in \rsec{signal_onset_kw}.
 The feature extraction parameters provide information about the exact constellation of features used during training, for instance 12 MFCC coefficients with frame-based normalization and no feature enhancements.
-This ensures the same feature extraction process for new data frames from the online system as used in the training of the corresponding neural network model.
+This ensures that the same feature extraction process is applied to new data frames from the online system as was used in the training of the corresponding neural network model.
 
 The classifier requires the unique name of the trained neural network model, such as \texttt{conv-jim}, the parameters of this model, and the class dictionary.
 The trained weights of the  models are stored in the \texttt{.pth} format used within the \texttt{Pytorch} framework and can be loaded by a corresponding model.
