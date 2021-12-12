@@ -1,0 +1,14 @@
+# bookbinding
+
+# Back:
+Master's Thesis: C. Walter, 12/2021
+
+# row nr. 1
+Keyword Spotting for Video Games
+with Neural Networks
+
+# row nr. 6
+Master's Thesis written by Christian Walter
+
+# colored pages
+1,23,42,46-51,53,57,60-61,63,66-68,70-72,75-77,81-82,85-86,92,94,97-100,102,104,106-109,112-118,129-131
