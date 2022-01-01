@@ -9,27 +9,28 @@ Historical remarks on neural networks are presented as well as a brief overview 
 % prev history
 
 \subsection{Historical Remarks on Neural Networks}\label{sec:prev_nn_history}
-The first great advance towards computational neural networks, as they are known today, was the introduction of the so called \enquote{Perceptron} \cite{Rosenblatt1958} by Rosenblatt. 
+The first great advance towards artificial neural networks, as they are known today, was the introduction of the so called \enquote{Perceptron} \cite{Rosenblatt1958} by Rosenblatt. 
 The idea of the Perceptron emerged from physiologists trying to model a physiological neural network in computational terms. 
 This first model was based on the information processing of the retina (input nodes), which passes through several physiological neural networks (hidden nodes) and finally elicit an action or decision (output nodes).
-With the perceptron implemented in an actual computer system (at those times computers were huge boxes), Rosenblatt initiated the domain of computational learning systems regarding neural networks.
+With the Perceptron implemented in an actual computer system, Rosenblatt initiated the domain of computational learning systems with neural networks.
 
-Another great advance in the history of neural networks was the introduction of a very famous learning algorithm known as \enquote{backpropagation} evolved by several authors at the same time: \cite{LeCun1986} and \cite{Rumelhart1986}. 
-Even nowadays, 35 years after introducing backpropagation, it is still the \emph{de facto} standard in training neural networks.
+% check this
+Another great advance in the history of neural networks was the application of a very famous learning algorithm known as \enquote{backpropagation} used by several authors at the same time: \cite{LeCun1986} and \cite{Rumelhart1986}.
+Even nowadays, 35 years after the introducing of backpropagation for neural networks, it is still the \emph{de facto} standard in training them.
 In recent times, backpropagation is implemented in every machine learning framework for neural networks as its core element.
 Such frameworks are, for instance, \texttt{Pytorch} \cite{Pytorch} or \texttt{Tensorflow} \cite{Tensorflow}, which are capable of handling the gradient calculation (automatic differentiation) and backpropagation algorithm of those gradients in the background.
 
 The neural network reputation during the time until now was not always seen that splendid.
 The general problems of handling overfitting (models learn data samples by heart) and generalization on unseen data, are still present in many applications.
 Some mathematicians that are working in the field of statistical methods in learning theory for pattern recognition regard neural networks as being not meaningful in the advance of learning theory.
-Such as one quote from \cite{Vapnik1995} of Vapnik's book about natural learning theory states:
+Such as one quote of Vapnik's book about natural learning theory states \cite{Vapnik1995}:
 \begin{quote}
 ...In spite of important achievements in some specific applications using neural networks, the theoretical results obtained did not contribute much to general learning theory...
 \end{quote}
 This quote is true in the sense of that the complexity of neural networks consisting of many layers makes the tracing of the learning process very difficult.
 No concrete formulas apart from the calculation of gradients can exactly explain what neural networks are learning.
 Therefore, many researchers remained using the classical statistical learning methods, such as the famous Support Vector Machines (SVM) \cite{Cortes1995}.
-Over a long time, SVMs were preferred over neural networks because they were better understood due to their profound mathematical formulations and their achievements of state of the art performances by applying sophisticated feature extraction stages in between.
+Over a long time, SVMs were preferred over neural networks because they were better understood due to their profound mathematical formulations and their achievements of state of the art performances.
 Not until 2012, neural networks gained more popularity again by scoring new benchmarks in image classification tasks with the famous paper \cite{Krizhevsky2012}, where the previous benchmark of the best statistical method was bested by a significant score.
 Deep Learning was the new key to success, where the neural network architectures consist of many layers and large amounts of parameters to train.
 Also in audio and language processing tasks, such as KWS, ASR, and Natural Language Processing (NLP), the famous Hidden Markov Models (HMM) and other statistical methods get more and more replaced by neural networks.
@@ -54,55 +55,40 @@ More details about convolutional layers and how they transform input images to f
 
 
 % --
-% recurrent neural networks
-
-\subsection{Recurrent Neural Networks}\label{sec:prev_nn_rnn}
-Recurrent Neural Networks (RNN) are a type of neural networks that are using feedback loops from the output of each node back to its input.
-With those feedback loops it is possible to accumulate information of sequential input data and therefore allows to overcome the restriction of fixed sized input data.
-Although RNNs are known to be hard to train because of the well known \emph{exploding or vanishing gradients} problem.
-This problem can be solved by using so called Long Short Time Memory (LSTM) that are applying integrated gates regarding the information storage in each cell. 
-However, the LSTM cell also increases the amount of parameters to train and backpropagation over a large amount of time steps becomes computationally intensive.
-
-Through their design to capture sequential data, RNNs are commonly applied in speech recognition tasks.
-Note that RNNs are not subject of evaluation in this thesis due to their usually high computational footprint.
-The interested reader is referred to the summary presented in \cite{Staudenmeyer2019} including further references upon the mentioned problems and architecture types.
-
-
-% --
 % wavenets
 
 \subsection{Wavenets}\label{sec:prev_nn_wavenet}
-Processing raw audio data as inputs to neural networks seemed to be difficult for a long time.
-This was mainly due to the fact that audio waveforms consist of a huge amount of samples, hence input dimensions, for even short time intervals.
+Using raw audio data as input to neural networks seemed to be difficult for a long time.
+This was mainly due to the fact that audio waveforms consist of a huge amount of samples even for short time intervals, leading to high-dimensional input.
 Recently, neural network architectures emerged with the ability to process raw audio samples.
 One very prominent architecture, originally intended for natural speech generation, is the so called \emph{Wavenet} \cite{Oord2016}.
 
 With the application of \emph{dilated convolutions} and a quantization of the audio sample values Wavenets can afford to process a huge amount of input dimensions and at the same time extract relevant information.
-The implementation of Wavenets is regarded as being more efficient compared to LSTMs, such as the quote from \cite{Oord2016} states:
+The implementation of Wavenets is regarded as being more efficient compared to LSTMs, such as the quote states \cite{Oord2016}:
 \begin{quote}
   ...With WaveNets we have shown that layers of dilated convolutions allow the receptive field to grow longer in a much cheaper way than using LSTM units...
 \end{quote}
-Note that research on audio classification tasks with Wavenets is very uncommon and rare to be found.
-Nevertheless, \cite{Zhang2020} presents a classification of musical pieces to corresponding music artists by using a Wavenet model.
-Regarding this thesis, it is questionable whether Wavenets are suited for the KWS task of speech commands.
-Especially, by considering only energy efficient solutions.
+Note that research on audio classification tasks with Wavenets is very uncommon.
+Nevertheless, \cite{Zhang2020} proposes a model for a classification of musical pieces with regard to corresponding music artists based on a Wavenet model.
+Regarding this thesis, it is questionable whether Wavenets are suited for the KWS task, in particular, when considering energy efficient solutions.
 
 
 % --
 % adversarial nets
 
 \subsection{Generative Adversarial Neural Networks}\label{sec:prev_nn_adv}
-GANs \cite{Goodfellow2014} emerged from Goodfellow et al. and were initially motivated by \enquote{Game Theory} regarding a two player zero-sum game with the Min-Max-Theorem as solution concept \cite{VonNeumann1944}.
+GANs \cite{Goodfellow2014} were introduced by Goodfellow et al. and were initially motivated from \enquote{Game Theory} regarding a two player zero-sum game with the Min-Max-Theorem as solution concept \cite{VonNeumann1944}.
 The game in terms of GANs is as follows: Two neural networks try to outperform the other in an adversary task, where the task of one network, denoted as Generator (G), is to counterfeit fake images, while the other network, denoted as Discriminator (D), has the task to discriminate whether its been given real or fake images.
 In \cite{Radford2016} some practical guidelines for designing and training deep GAN architectures are provided by applying the Deep Convolutional Generative Adversarial Network (DCGAN) model.
 Note that DCGANs were designed for image data and not speech signals yet they were the first starting point for developing GANs in this thesis.
 
-Note that G has to perform a so called \emph{transposed convolution}, \emph{up-convolution}, or \emph{de-convolution} for upsampling the low-dimensional image to the desired output dimensions of real sample images from a dataset.
+Note that G has to perform a so called \emph{transposed convolution}, \emph{up-convolution}, or \emph{de-convolution} in order to up-sample a latent representation to the desired output dimensions of real sample images from a dataset.
 The transposed convolution and some problems regarding GANs are described in \cite{Durall2020}.
 
+% check this
 GANs are not the only application of adversarial neural networks. 
-In \cite{Oezdenizci2020} it is shown how an adversarial network improves generalization over invariance of subject specific samples from Electroencephalogram (EEG) data.
+In \cite{Oezdenizci2020} it is shown how an adversarial network improves the generalization of subject specific samples from Electroencephalogram (EEG) data.
 The adversarial network in this paper is connected to a convolutional encoder network, which is also input to a classifier network.
 The update of the encoder network is therefore done via the adversarial network and the classifier network at the same time and specified in a collective loss function.
 
-In this thesis, the concept of GANs is used in order to pre-train convolutional filter weights that are transferred to an equivalent CNN to improve its generalization and performance capabilities.
+In this thesis, the concept of GANs is used in order to pre-train convolutional filter weights that are transferred to an equivalent CNN to improve its generalization capabilities and classification performance.

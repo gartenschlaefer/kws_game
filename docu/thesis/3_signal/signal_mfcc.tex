@@ -20,7 +20,7 @@ Note that the Mel scale is suited to the perception of pitch and that separating
 Another important processing step is the logarithmic scaling of the power spectrum's value space motivated by the logarithmic perception of loudness of humans.
 The last step is to apply the Discrete Cosine Transform (DCT) to the individual filter bands.
 Note that the DCT is a widely used technique in image processing and compression.
-In the applications of MFCCs, it is some kind of decorrelation process of the filter bands.
+In the applications of MFCCs, the DCT is applied as decorrelation process of the filter bands.
 
 The mentioned processing steps to compute MFCCs seem rather complicated but are nothing more than consecutive steps of appropriate scaling and data compression.
 
@@ -101,7 +101,8 @@ The required parameters for the computations of MFCCs are therefore the amount o
 
 Another important aspect is the visualization of MFCC features.
 MFCCs computed as described above, are not well suited for visualization purposes because their individual coefficient's value space differs strongly from each other.
-For example, the first coefficient equals a summation of all filter bands of the spectrogram and is therefore some kind of energy measure while the other coefficients are differently weighted sum combinations of the filter bands.
+For example, the first coefficient is calculated as summation of all filter bands of the spectrogram and therefore equals an energy measure.
+The other coefficients on the other hand, are differently weighted sum combinations of the filter bands.
 Furthermore, the most of the energy in speech signals is located in the lower frequency bands, which impacts the value space of the coefficients with strongly weighted low frequency bands.
 The differences in the value space lead to a problem in the visualization with a linear color scheme such that the changes of some coefficients cannot be presented properly.
 A solution to this problem is to normalize the feature vectors over their frame dimension by
@@ -128,7 +129,7 @@ A visualization of MFCC features with 32 filter bands, 32 cepstral coefficients,
 The frame-based normalization is an interesting technique in order to improve the visualization of MFCC features.
 Nevertheless, this normalization technique can be critical. 
 A normalization that operates only in one dimension changes valuable structures within the other dimensions, and it cannot be answered yet, whether this is a problem for the classification task in the later sections.
-One more research question arises here: Is it possible to use frame-based normalized MFCC features as inputs to neural network models and what is the impact on the classification accuracy?
+One more research question arises here: Is it possible to use frame-based normalized MFCC features as input to neural network models and what is the impact on the classification accuracy?
 
 
 % --
@@ -142,8 +143,8 @@ The deltas are computed as frame difference of the MFCCs by
 \begin{equation}\label{eq:signal_mfcc_delta}
   \Delta u_c[m] = \frac{u_c[m - 1] + u_c[m + 1]}{2},
 \end{equation}
-where $u_c[m]$ is the c-th MFCC coefficient at frame $m$, where $m = 0, 1, \dots, M$ is the frame index of a total number of $M$ frames.
-Note that the computation of the deltas at the edges $m=0$ and $m=M$ is not possible and that the same value is obtained from the neighbor at this specific positions.
+where $u_c[m]$ is the c-th MFCC coefficient at frame $m$, where $m = 0, 1, \dots, M - 1$ is the frame index of a total number of $M$ frames.
+Note that the computation of the deltas at the edges $m=0$ and $m=M - 1$ is not possible and that the same value is obtained from the neighbor at this specific positions.
 The second derivative of MFCC features, known as double deltas, are the frame differences of the deltas and likewise computed as in \req{signal_mfcc_delta}.
 Another enhancement is the computation of an energy feature vector $\bm{e} \in \R^M$ that can be computed with
 \begin{equation}

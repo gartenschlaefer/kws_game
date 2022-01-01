@@ -13,7 +13,7 @@ Finally, this section presents possible future work.
 \section{Features and Onsets}
 In the experiments in \rsec{exp_fs}, certain constellations of MFCC features and enhancements were evaluated.
 It was observed that 12 cepstral coefficients were performing better than 32 cepstral coefficients on the used models and therefore the experiments were continued with 12 cepstral coefficients.
-The enhancements of the MFCC features with delta and energy vectors did improve the classification accuracies but were not further considered because of the additional computational footprint they require in the feature extraction stage and neural network model inference.
+The enhancements of the MFCC features with delta and energy vectors did improve the classification accuracy but were not further considered because of the additional computational footprint they require in the feature extraction stage and neural network model inference.
 The frame-based normalization yielded worse accuracy scores on the test and validation set but increased the noise invariance upon the test signals and reduced overfitting effects.
 
 The energy onset detection for keywords applied on the first cepstral coefficient of the MFCC features was an efficient and accurate method for the detection of keyword onsets within the speech signal.
@@ -25,20 +25,20 @@ If there is no loud disturbance on the left or right hand-side of the energy piv
 
 \section{Neural Networks}
 The use of CNN models with low computational footprint and few layers, allows researchers to investigate the processing of input features by observing the learned filters of the convolutional layers.
-Although those models could not reach the high accuracy achievements obtained by the sophisticated benchmark models listed in \rsec{prev_kws_benchmark}.
+Although those models could not reach the high recognition accuracy achievements as obtained by the sophisticated benchmark models listed in \rsec{prev_kws_benchmark}.
 Still the evaluated models, apart from the Wavenet model, performed sufficiently well in the prediction of keywords when applied in a video game with integrated KWS system.
 The preferred CNN model was the self designed \texttt{conv-jim} model with strides only in the frame dimension.
-It provided a well balanced trade-off between accuracy and computational footprint.
+It provided a well balanced trade-off between classification accuracy and computational footprint.
 The traditional model \texttt{conv-trad} achieved the best accuracy scores but also required the most computational effort of all three models and it was more prone to overfitting effects during training.
 The \texttt{conv-fstride} also performed well despite its very small computational footprint yet often struggled with shift invariance.
 
 It was shown that GANs could be valuable for obtaining initial pre-trained weights for an equivalent CNN classifier.
 The weights from the Generator network were useful even though an up-convolution instead of a normal convolution was performed.
 The trade-off is that a normalization scheme such as the frame-based normalization has to be applied in order to make the weights of G applicable.
-Nevertheless, by applying the pre-trained weights from G it was possible to increase the accuracies slightly.
+Nevertheless, by applying the pre-trained weights from G it was possible to increase the recognition accuracy slightly.
 
-In comparison to the benchmark models, the obtained accuracies on the test set were significantly lower of about \SI{10}{\percent}.
-But considering the lower amount of computations and the restricted time interval of the speech commands, the obtained accuracies were acceptable although a \SI{100}{\percent} score on the \enquote{my dataset} would have been desirable.
+In comparison to the benchmark models, the obtained classification accuracies on the test set were significantly lower of about \SI{10}{\percent}.
+But considering the lower amount of computations and the restricted time interval of the speech commands, they were acceptable although a \SI{100}{\percent} score on the \enquote{my dataset} would have been desirable.
 
 
 % --
@@ -65,11 +65,11 @@ Yet as a proof of concept, the two levels with moveable blocks are a good starti
 % future work
 
 \section{Future Work}
-The goal to find the most computationally efficient model that obtains at the same time satisfying accuracies in the KWS task of speech commands, is still a topic for future research.
+The goal to find the most computationally efficient model that obtains at the same time satisfying classification accuracy in the KWS task of speech commands, is still a topic for future research.
 Even though \cite{Zhang2017} and \cite{Peter2020} already provide excellent solutions to this problem, it is important to further elaborate on it and derive a minimal model so that each layer can be analyzed and understood by the researchers.
 Furthermore, it is worth to evaluate the increase of the hop time from the used \SI{10}{\milli\second} to \SI{20}{\milli\second}, as applied in \cite{Peter2020}.
 This would reduce the computations approximately by half (both for the feature extraction and the classifier).
-Further, it would be interesting to evaluate an even smaller time interval that should represent a keyword below \SI{500}{\milli\second} for a fast paced gaming experience.
+Further, it would be interesting to evaluate an even smaller time interval that contains a keyword below \SI{500}{\milli\second} for a fast paced gaming experience.
 Also it might be preferable to switch from a fixed sized input to a flexible one so that no spoken keyword will be missed regardless of its duration.
 This would enable the game to respond faster and allow the speaker to pronounce the keywords with a shorter time interval.
 
@@ -77,7 +77,7 @@ Further research can be conducted on the value of the obtained weights from the 
 An adversarial training scheme, as presented in \cite{Oezdenizci2020}, that consists of both a G and a classical CNN model operating on the very same convolutional layers, would be extremely interesting. 
 However, one problem is the up-convolution performed by G so that weight sharing is difficult to implement in this task.
 
-Much future work need to be done on the construction of a Wavenet architecture for classification that is computationally lightweight and achieves acceptable accuracy performances, if that is even possible on raw audio samples.
+Much future work can be done in finding a Wavenet architecture for speech recognition tasks that is computationally lightweight and achieves acceptable recognition accuracy, if that is even possible on raw audio samples.
 Also the influence of game sounds during playing the video game was not evaluated and could be problematic if a high amount of audio feedback feeds into the microphone input stream and alters the speech commands or even elicits them unintentionally.
 
 Regarding video game designs with KWS, only the imagination restricts its possibilities and there are most certainly countless great game ideas that can bring such a technique to use.

@@ -1,7 +1,7 @@
 % --
 % Intro to neural networks
 
-\section{Notes on Neural Networks}\label{sec:intro_nn}
+\section{Neural Networks}\label{sec:intro_nn}
 Neural networks enable computers to automatically learn from data in order to solve tasks like pattern recognition in images or audio.
 The \emph{training} of a neural network with a specific dataset, is the learning process of all parameters within its architecture.
 The examples or samples from the input data can be paired with annotations, denoted as \emph{labels} or \emph{classes}.
@@ -15,22 +15,22 @@ This huge amount of input features is even difficult for neural networks to lear
 Therefore, usually a feature extraction stage is placed in between to reduce the input dimension of data.
 For instance, the computation of MFCCs with 12 coefficients and a time duration of \SI{0.5}{s} with a time shift of \SI{10}{\milli\second} reduces the input feature size dramatically to $12 \times 50 = 600$, which is still a high number of input features but much more affordable and faster to train.
 
-Neural networks are able to learn own feature representations, selection, and interpretation, rather than using hand-crafted ones created by humans with expertise in the research field.
+Neural networks are able to learn their own feature representations, rather than using hand-crafted ones created by humans with domain expertise.
 Note that hand-crafting features of complex recognition tasks is in most cases not even possible or extremely cumbersome.
 So researchers prefer neural networks because of their advantageous deployment scheme and state of the art performances.
 Furthermore, it enables everyone capable of using neural network tools to find solutions to rather complex problems, given there is a sufficient amount of data and processing power available.
-This causes that elaborate feature extraction stages become less relevant to the users, which may lead to some extend into the ignorance of the actual classification problem and more \enquote{try and error} approaches of different neural network architectures and training parameters.
+This causes that elaborate feature extraction stages become less relevant to the users.
 
-The energy consumption required to train Deep Neural Networks (DNN) with many parameters on a huge training dataset shall not be ignored, especially in times of climatic change.
-Reusing pre-trained weights from renowned network architectures is an excellent method to reduce computations required in training to find an optimal classifier for an already widely examined classification task.
+The energy consumption required to train Deep Neural Networks (DNN) with many parameters on a huge training dataset shall not be ignored, especially in times of climate change.
+Reusing pre-trained weights from renowned network architectures is an excellent method to reduce computations required for training.
 The re-usability of pre-trained weights is often referred to as \emph{transfer learning}.
 A short overview on it can be found in \cite{TransferLearning}.
 
 Nevertheless, the potential of neural networks are vast in research.
 The observation on how neural networks learn from data and what recognition patterns are obtained after training might allow researchers to extract valuable information about the problem or gain a different viewpoint on it.
-Especially the use of CNNs allow researchers to visualize the learned filters and interpret their results.
-A very interesting example of investigating learned CNN filters is shown by Zeiler et al. \cite{Zeiler2013}.
-Other exciting subjects in research are generative models, such as GANs \cite{Goodfellow2014}, which are able to produce convincing samples from the learned data distribution.
+Especially the use of CNNs allows researchers to visualize the learned filters and interpret their results.
+A very interesting example in this direction is shown by Zeiler et al. \cite{Zeiler2013}.
+Another exciting research topic is research on generative models, such as GANs \cite{Goodfellow2014}, which are able to produce convincing samples from the learned data distribution.
 
 Neural network architectures for speech recognition are somewhat different from image recognition, mainly because of the sequential nature of time signals.
 However, if time signals are restricted in time, which implies that they are constrained to a fixed number of samples, and frequency features are extracted over that time span, then speech signals can be represented in 2D space (frequency and time) and classified like images.

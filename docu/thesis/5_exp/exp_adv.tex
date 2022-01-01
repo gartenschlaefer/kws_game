@@ -19,11 +19,11 @@ Also no overfitting mechanism was applied in this experiments.
 The adversarial label training experiments on the \texttt{conv-jim} architecture with obtained weights from either \texttt{adv-g-jim} or \texttt{adv-d-jim} are presented in \rtab{exp_adv_label_l12}.
 \input{./5_exp/tables/tab_exp_adv_label_l12}
 It can be observed that the weights from the Generator network achieves better performances than the weights from the Discriminator network.
-\rfig{exp_adv_label_acc_conv-jim} shows the best performing models in one single accuracy plot.
+\rfig{exp_adv_label_acc_conv-jim} shows the classification accuracies of the best performing models.
 \begin{figure}[!ht]
   \centering
   \includegraphics[width=0.48\textwidth]{./5_exp/figs/exp_adv_label_acc_conv-jim.png}
-  \caption{Accuracies of the \texttt{conv-jim} model with different adversarial label training and frame-based normalization. The results were smoothed with a 10 epoch average filter.}
+  \caption{Classification accuracies of the \texttt{conv-jim} model with different adversarial label training and frame-based normalization. The results were smoothed with a 10 epoch average filter.}
   \label{fig:exp_adv_label_acc_conv-jim}
 \end{figure}
 \FloatBarrier
@@ -59,6 +59,6 @@ In many experiments the noise and shift invariance show improvements when advers
 The adversarial dual training experiments were similar to the adversarial label train ones but without choosing subsets of labels and simply using the same convolutional layer structure for the Generator and Discriminator model like the CNN.
 The experiments are presented in \rtab{exp_adv_dual_l12}.
 \input{./5_exp/tables/tab_exp_adv_dual_l12}
-The dual experiments achieved worse accuracies for the transfer of Discriminator weights compared to the initializing of the target model with random weights.
-The Generator weights however, could increase the average accuracy by at least \SI{1}{\percent}.
-The dual training is not further evaluated regarding noise and shift invariance because the adv-label training performed better.
+The dual experiments achieved worse classification accuracies for the transfer of Discriminator weights compared to the initialization of the target model with random weights.
+The Generator weights, however, could increase the average accuracy score by at least \SI{1}{\percent}.
+The dual training is not further evaluated regarding noise and shift invariance because the adv-label training performed significantly better.

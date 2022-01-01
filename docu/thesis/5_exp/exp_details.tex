@@ -7,7 +7,7 @@ The experiment details are separated into training details of the used neural ne
 The training details provide the used sets of hyperparameters for the training of the neural networks on the speech commands dataset.
 Note that the training details can vary in different experiments.
 If they do so, they are usually noted in the description of the corresponding experiment, otherwise the parameters listed are used.
-The evaluation details describe how the trained models are evaluated in regards of accuracy performance and noise and shift invariance.
+The evaluation details describe how the trained models are evaluated with respect to classification accuracy and noise and shift invariance.
 
 
 % --
@@ -23,7 +23,7 @@ More information about how to run the project is described in the \texttt{README
 The training and implementation of all used neural networks were done with the \texttt{Pytorch} \cite{Pytorch} framework of version $>1.7.0$. 
 The feature extraction of MFCCs was self implemented but used already existing and efficient code for signal transformations, such as the STFT or DCT provided by the \texttt{Scipy} package.
 All matrix-vector computations were processed with the well known \texttt{Numpy} package or with \texttt{Pytorch}.
-Several other \texttt{Python} packages were used within the project but are not named explicitly.
+Several other \texttt{Python} packages were used within the project but are not explicitly mentioned.
 They can be looked up in the open source repository of the project, if requested.
 
 
@@ -73,7 +73,7 @@ Still the video game operates with the models trained on the L12 labels and thus
 \rtab{exp_details_params_train} shows the hyperparameters for the training of the used CNNs models, described in \rsec{nn_arch}.
 \input{./5_exp/tables/tab_exp_details_params_train}
 From the following experiments, it can be observed that epochs of 2000 yield into small overfitting effects regarding certain models.
-This might decrease the accuracy performance if the set of parameters is used at the last epoch and no early stopping mechanism is applied.
+This might decrease the recognition accuracy if the set of parameters is used at the last epoch and no early stopping mechanism is applied.
 The batch size of 32 is selected to a low number because it worked well on the KWS task of speech commands.
 Further, the amount of classes is at maximum 12 (L12 labels) and therefore a batch size of 32 would include most of the individual labels.
 Note that the hyperparameters for the Wavenet model are described in the corresponding experiment section.
@@ -93,9 +93,9 @@ The selection of the epochs is important, as it was already pointed out in \rsec
 % evaluation details
 
 \subsection{Evaluation Details}\label{sec:exp_details_tb}
-The main evaluation score of the trained models is the accuracy performance on the test sets.
+The main evaluation score of the trained models is the classification accuracy on the test sets.
 The accuracy is obtained by counting all correct classifications and dividing it by the number of classified samples $n$.
-A score function $c(\hat{y}_i, y_i)$ for the accuracy can be defined by
+A score function $c(\hat{y}_i, y_i)$ can be defined as
 \begin{equation}
   c(\hat{y}_i, y_i) = 
   \begin{cases}
@@ -103,8 +103,8 @@ A score function $c(\hat{y}_i, y_i)$ for the accuracy can be defined by
     0, & \text{otherwise} 
   \end{cases},
 \end{equation}
-where $\hat{y}_i \in \mathcal{L} = \{0, 1, \dots, L\} $ is the predicted label and $y_i \in \mathcal{L}$ the actual label of the sample $i$ with a total number of class labels $L$.
-The accuracy $a \in [0, 1]$ therefore formulates as
+where $\hat{y}_i \in \mathcal{L} = \{0, 1, \dots, L - 1\} $ is the predicted label and $y_i \in \mathcal{L}$ the actual label of the sample $i$ with a total number of class labels $L$.
+The classification accuracy $a \in [0, 1]$ therefore formulates as
 \begin{equation}
   a = \frac{1}{n} \sum_{i=0}^n c(\hat{y}_i, y_i).
 \end{equation}
@@ -161,7 +161,7 @@ A well performing model usually has a wide region of correct classifications wit
 
 \subsubsection{Noise Invariance}
 The classification of speech signals often requires noise invariance.
-This is because a significant amount of noise added, for instance, through the use of poor microphones or recording set-ups, might disturb the classification accuracy.
+This is because a significant amount of noise that is added, for instance, through the use of poor microphones or recording set-ups, might disturb the classification accuracy.
 To construct a test upon noise invariance, AWGN is added to the test signal $\bm{x} \in \R^n$ by
 \begin{equation}
   \bm{\tilde{x}} = \bm{x} + \bm{v}, \quad \bm{v} \sim \mathcal{N}(\mu, \sigma),

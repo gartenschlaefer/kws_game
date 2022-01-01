@@ -2,15 +2,16 @@
 % prev keyword spotting
 
 \section{Work on Keyword Spotting with Neural Networks}\label{sec:prev_kws}
-The presented work on KWS with neural networks were selected to either computationally efficient solutions or benchmark networks for the speech commands dataset \cite{Warden2018}.
+The presented work on KWS with neural networks was selected to give an overview over computationally efficient solutions and networks for the speech commands dataset \cite{Warden2018}.
 
 
 % --
 % energy efficient
 
 \subsection{Energy Efficient Solutions}
-One famous paper on low computational footprint of CNNs regarding KWS tasks is presented by Sainath et al. \cite{Sainath2015}.
-Two neural network architectures were chosen from this paper, one is a traditional CNN and the other a limited multipliers CNN striding only in the frequency axis.
+One famous paper on low computational footprint of CNNs regarding KWS tasks is \cite{Sainath2015}.
+Two neural network architectures were chosen from this paper.
+A traditional CNN and a limited multipliers CNN striding only in the frequency axis.
 Both networks are described in detail in \rsec{nn_arch}.
 
 The deployment of a KWS system on microcontrollers was examined in \cite{Zhang2017}.
@@ -25,7 +26,7 @@ This work also showed that a 1-bit quantization of the weights perform nearly as
 % benchmark
 
 \subsection{Benchmark Networks for this Thesis}\label{sec:prev_kws_benchmark}
-First it is to mention that the speech commands dataset \cite{Warden2018} exists in two versions (\texttt{v0.01} and \texttt{v0.02}) and consists of raw audio data in the \texttt{.wav} format.
+The speech commands dataset \cite{Warden2018} exists in two versions (\texttt{v0.01} and \texttt{v0.02}) and consists of raw audio data in the \texttt{.wav} format.
 Furthermore, there is no pre-processing or feature extraction done beforehand.
 Also it is up to the users to select the labels for the vocabulary in a KWS task.
 However, the intended concept is to choose the so-called \emph{core keywords} as classification labels and add an \enquote{unknown} label for the \emph{auxiliary keywords}.

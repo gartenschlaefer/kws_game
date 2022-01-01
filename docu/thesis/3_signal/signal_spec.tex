@@ -5,9 +5,9 @@
 Spectral features of audio signals usually incorporate frequency information and are therefore the most intuitive form to represent them.
 The first approach when analyzing speech signals is often to visualize its spectrogram.
 This allows the observation of active energy regions of certain frequency bands at consecutive time chunks and may, for example, provide hints of certain phonemes in speech signals.
-Methodically, the time chunks of a spectrogram are expressed by shifting an \emph{analytic window} of time span $t_N$ on the time axis.
-The time shifting of the analytic window is performed through a fixed time step, denoted as \emph{hop time} $t_{h}$.
-Both time parameters $t_N$ and $t_h$ can also be presented in samples through a multiplication with the sampling frequency $f_s$, such as
+Methodically, the time chunks of a spectrogram are expressed by shifting an \emph{analytic window} of time span $t_N$ on the time axis, where $N$ is the total number of samples of the analytic window.
+The time shifting of the analytic window is performed through a fixed time step, denoted as \emph{hop time} $t_{h}$, where $h$ represents the stride in samples.
+Both time parameters $t_N$ and $t_h$ can be converted into their sample representation through a multiplication with the sampling frequency $f_s$, such as
 \begin{equation}
   \begin{split}
     N &= t_N f_s, \\
@@ -15,7 +15,7 @@ Both time parameters $t_N$ and $t_h$ can also be presented in samples through a 
   \end{split}
 \end{equation}
 Note that shifting an analytic window of sample size $N$ with hop size $h$ will create a new resolution on the time axis, referred to as \emph{frames}.
-The transformation of the audio signal $x[n]$ to the frequency space can be achieved through the Discrete Fourier Transform (DFT) defined by
+The transformation of the audio signal $x[n]$ to the frequency space can be achieved through the Discrete Fourier Transform (DFT) defined as
 \begin{equation}\label{eq:signal_spec_dtft}
   \hat{x}[k] = \sum_{n=0}^{N-1} x[n] \, e^{-j\frac{2 \pi n}{N}k},
 \end{equation}
@@ -25,7 +25,7 @@ More conveniently, \req{signal_spec_dtft} can be written in matrix notation with
   \begin{aligned}
     \hat{\bm{x}} = \mathcal{F} \bm{x} \quad \mathrm{with} 
     \quad &\mathcal{F}[k, n] = e^{-j\frac{2 \pi n}{N} k},\\
-    &k, n = (0, 1, \dots, K-1), (0, 1 \dots, N-1).
+    &k, n = (0, 1, \dots, K-1), (0, 1, \dots, N-1).
   \end{aligned}
 \end{equation}
 Note that $k$ and $n$ are row and column indices in the transformation matrix $\mathcal{F}$ and $\hat{\bm{x}} \in \C^K$ is the transformed signal in vector notation.
@@ -40,9 +40,9 @@ In applications like speech processing, the hop time should be selected so that 
 Usually a hop time of $t_{h}=\SI{10}{\milli\second}$ is chosen for speech recognition tasks, which is also used within this thesis.
 However, an extension to $t_{h}=\SI{20}{\milli\second}$ is also possible, as demonstrated by \cite{Peter2020}.
 
-With the hop size $h$ in samples and $N$ the length of the analytical window, the Short-Time Fourier Transform (STFT) for discrete time signals can be defined by
+With the hop size $h$ in samples and $N$ the length of the analytical window, the Short-Time Fourier Transform (STFT) for discrete time signals can be defined as
 \begin{equation}\label{eq:signal_spec_stft}
-  \tilde{X}[k, m] = \sum_{n=0}^{N-1} x[n + m h] \, w[n] \, e^{-j\frac{2 \pi n}{N}k}, \qquad m = 0, 1, \dots, M,
+  \tilde{X}[k, m] = \sum_{n=0}^{N-1} x[n + m h] \, w[n] \, e^{-j\frac{2 \pi n}{N}k}, \qquad m = 0, 1, \dots, M - 1,
 \end{equation}
 where $\tilde{X}[k, m] \in \C$ is the STFT with frequency coefficient $k$ and frame $m$.
 Further, $n$ is the summation index, $w$ a window function, such as the \emph{Hanning} window, $h$ is the hop size, and $M$ is the maximum number of frames.
@@ -67,7 +67,7 @@ where $\diag{\bm{w}}$ is a diagonal matrix of weight vectors with a realization 
 The matrix $\tilde{X} \in \C^{K \times M}$ represents the whole STFT, where the rows correspond to Fourier coefficients and the columns to frames.
 The used STFT parameters for this thesis are listed in \rtab{signal_spec_stft}.
 \input{./3_signal/tables/tab_signal_spec_stft.tex}
-A spectrogram $P \in \R^{K \times M}$ is the power spectrum of the STFT $\tilde{X} \in \C^{K \times M}$ and can be defined by
+A spectrogram $P \in \R^{K \times M}$ is the power spectrum of the STFT $\tilde{X} \in \C^{K \times M}$ and can be defined as
 \begin{equation}\label{eq:signal_spec_spec}
   P = \abs{\tilde{X}}^2.
 \end{equation}

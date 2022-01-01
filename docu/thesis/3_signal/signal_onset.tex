@@ -27,8 +27,7 @@ Further, the onset sample number $o \in \mathcal{M}$ with the highest energy reg
 for all windowed signal energies $e[m]$.
 Note that it is assumed that most of the information of a keyword in each signal is captured by the window length $N$ and that no noise peaks are present before and after the keyword. 
 Otherwise the onset $o$ would be shifted to either the left or right-hand side of the actual keyword onset depending on where the noise peak was located.
-It has to be considered that this onset detection is not the most reliable one. 
-Yet it is the simplest and most computationally efficient method that performs on raw audio data.
+Note that this onset detection is not the most reliable one, yet it is the simplest and most computationally efficient method that performs on raw audio data.
 
 A better approach is to use energy values from the frequency response of the signal.
 Since the MFCCs are extracted to obtain features for neural networks, it is straight forward to use them for onset detection as well.

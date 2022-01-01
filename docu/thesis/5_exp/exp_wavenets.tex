@@ -4,16 +4,16 @@
 \section{Experiments on Wavenets}\label{exp_wavenet}
 Very few experiments were performed on the Wavenet architecture because of its complex model structure and heavy computational footprint, as already mentioned in \rsec{nn_arch_wavenet}.
 The Wavenet model requires a generous amount of computations for very few training epochs.
-Furthermore, the experiments showed poor results on the accuracy of classifying speech commands.
+Furthermore, the experiments showed poor results on the recognition accuracy of speech commands.
 This architecture is therefore left for future research.
 Nevertheless, this section presents the best performing Wavenet model on the KWS task.
-The training details for this model were 500 examples per each one of the L12 labels, 100 epochs, a learning rate of $0.001$ for 10 epochs that changes aftwerwards to $0.0001$, and a batch size of 32.
-\rfig{exp_wavenet_acc} shows the accuracy score for the training and \rfig{exp_wavenet_confusion} provides the confusion matrix on the test set.
-However, the best achieved accuracy on the test set is merely \SI{38.83}{\percent}.
+The training details for this model were 500 examples per each one of the L12 labels, 100 epochs, a learning rate of $0.001$ for 10 epochs that changes afterwards to $0.0001$, and a batch size of 32.
+\rfig{exp_wavenet_acc} and \rfig{exp_wavenet_confusion} show the classification accuracy for the training and the confusion matrix on the test set, respectively.
+Note that the best achieved classification accuracy on the test set is merely \SI{38.83}{\percent}.
 \begin{figure}[!ht]
   \centering
   \includegraphics[width=0.48\textwidth]{./5_exp/figs/exp_wavenet_acc.png}
-  \caption{Accuracies on the validation set during the training of the Wavenet model with classification extension.}
+  \caption{Classification accuracies on the validation set during the training of the Wavenet model.}
   \label{fig:exp_wavenet_acc}
 \end{figure}
 \begin{figure}[!ht]

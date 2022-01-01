@@ -89,7 +89,7 @@ Note that the histograms are logarithmically (log) scaled.
 The histogram of the energy measure has one main lobe, which implies that there are no clusters of extremely silent or loud files.
 For comparison, if silent files were extracted from the given background files, the energy of some of those would be in a range of $10^{-7} \dots 10^{-6}$.
 The sample length histogram shows that most of the files consist of 16000 samples but many others have a smaller number of samples. 
-This is relevant and has to be considered in the pre-processing of audio files because inputs to neural networks often have to be prepared to fixed size inputs if no sequential neural networks, such as RNNs, are used.
+This is relevant and has to be considered in the pre-processing of audio files, because input data to neural networks often have to be prepared to a fixed size if no sequential neural networks, such as Recurrent Neural Networks (RNNs), are used.
 
 
 % --
@@ -112,7 +112,7 @@ The conclusions drawn from listening to the examples in the dataset were as foll
   However, the bias is laid on American English, as noted in the paper.
   \item No children speakers were found.
 \end{itemize}
-Due to data privacy issues, the information of individual speakers is not displayed.
+Due to data privacy issues, the information on individual speakers is not displayed.
 Therefore, it is not clear whether the dataset consists of an equal amount of male and female speakers and whether there are any children speakers included.
 The last would be especially interesting for video games intended for children.
 
@@ -132,12 +132,12 @@ Finally, it has to be acknowledged that the dataset is published under the creat
 % dataset structure
 
 \subsubsection{Dataset Structure}\label{sec:exp_dataset_structure}
-The speech command examples are stored in separate folders named after each individual keyword.
-The folder named as \texttt{\_background\_noise\_} contains six different background noise files, such as \texttt{white\_noise.wav} or \texttt{doing\_the\_dishes.wav}, with a duration of more than one minute each and altogether summing up to a duration of about \SI{400}{s}.
+The speech command examples are stored in separate folders, which are named after each individual keyword.
+The folder \texttt{\_background\_noise\_} contains six different background noise files, such as \texttt{white\_noise.wav} or \texttt{doing\_the\_dishes.wav}, with a duration of more than one minute each and altogether summing up to a duration of about \SI{400}{s}.
 To extract noise examples from those files with a sufficient number of examples of over 3500, those noise files have to be extracted by a striding window of \SI{1}{\second} length shifted by \SI{0.110}{\second}.
 The noise examples were assigned to the label \enquote{\_noise}.
 
-Each waveform file from the keyword folders is named by an 8-digit hexadecimal hash code for the speaker identification and followed by the utterance number, for instance, \texttt{3b4f8f24\_nohash\_0.wav}.
+Each waveform file from the keyword folders is named with an 8-digit hexadecimal hash code for the speaker identification and followed by the utterance number, for instance, \texttt{3b4f8f24\_nohash\_0.wav}.
 With the speaker identification code known, it is possible to distinguish between different speakers.
 However, as mentioned above, no further information about the speakers is provided due to data privacy issues.
 
@@ -206,11 +206,11 @@ It is difficult to examine why exactly this single example is wrongly classified
 
 \subsection{Data Preparation for Neural Networks}\label{sec:exp_data_prep}
 The neural network architectures are trained through supervised learning.
-This implies that a class label $y_i \in \{0, 1, \dots, L\}$ correspondence to each data example $x_i \in \mathcal{X}$ exists, where $L$ is the total number of classes and $\mathcal{X}$ is the input space of the data example.
+This implies that a class label $y_i \in \{0, 1, \dots, L - 1\}$ correspondence to each data example $x_i \in \mathcal{X}$ exists, where $L$ is the total number of classes and $\mathcal{X}$ is the input space of the data example.
 The input space for MFCC features is, for example, $\mathcal{X} = \R^{C \times M}$ with $C$ cepstral coefficients and $M$ frames.
 Selected examples including their labels form a set $S$, for example for training or testing, which can be written as
 \begin{equation}\label{eq:exp_dataset}
-  S = \{ (x_i, y_i) \mid i = 0, 1, \dots, n \},
+  S = \{ (x_i, y_i) \mid i = 0, 1, \dots, n - 1 \},
 \end{equation}
 where $n$ is the total number of examples within this set.
 Class labels $y_i$ are usually translated to integer numbers that refer to indices in a class dictionary (enumerated vocabulary).

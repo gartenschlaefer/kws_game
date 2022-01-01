@@ -6,7 +6,7 @@ The most basic element in neural networks is referred to as \emph{node}, an abst
 The edges of the connections from and to a node represents a multiplication with a scalar value, denoted as \emph{weight}.
 Each node usually includes an additive term, referred to as \emph{bias term}.
 All weights and bias terms are forming the parameters of a network and can be trained through backpropagation.
-The output of a node is a scalar computed from all inputs and mapped with a non-linear function, denoted as \emph{activation function}.
+The output of a node is a scalar computed from all values of the input connections and mapped with a non-linear function, denoted as \emph{activation function}.
 A neural network can consist of thousand of nodes in each possible constellation of connections.
 The structure of a neural network is defined by its layers.
 A layer is a set of nodes with specific connection properties that receives input connections from the previous layer and outputs connections to the next layer.
@@ -80,7 +80,7 @@ Mathematically one node $i$ performs the following calculation:
 \end{equation}
 with the same notations as described in \req{nn_theory_acti} and an additional bias term $b_i \in \R$.
 For all nodes in a current layer the equation \req{nn_theory_fc_single} can be summarized in a weight matrix $W \in \R^{m \times n}$, where $m$ is the total amount of nodes in the current layer and $n$ is the total number of nodes from the previous layer.
-Through this weight matrix, a FC layer can be defined by
+Through this weight matrix, a FC layer can be defined as
 \begin{equation}
   \bm{z} = h(W \bm{x} + \bm{b}),
 \end{equation}
@@ -179,11 +179,11 @@ with the training pair $(x_i, y_i)$, where $x_i \in \R^{N \times 1}$ is the feat
 During the training procedure a whole batch with a total number of $N$ examples is used for one update step.
 However, the loss function should provide only a single output value, which can be achieved by calculating the mean value of all $l_i$, where $i = 0, \dots, N$ is the index of the examples in the actual batch.
 
-The multi-class variant of the cross-entropy is defined by
+The multi-class variant of the cross-entropy is defined as
 \begin{equation}
   l(x_i, y_i) = - x_i[y_i] + \log{\left( \sum_{j=0}^{L} \exp{x_i[j]} \right)}
 \end{equation}
-with dimensions of the training pair $x_i \in \R^{N \times L}$ and $y_i \in \{0, 1, \dots, L\}^N$, and a total number of $L$ classes.
+with dimensions of the training pair $x_i \in \R^{N \times L}$ and $y_i \in \{0, 1, \dots, L - 1\}^N$, and a total number of $L$ classes.
 Note that $x_i[.]$ is expressed as indexing of $x_i$ of its class dimension $L$. 
 
 
@@ -219,7 +219,7 @@ The interesting elements are therefore only the neural network architecture desi
 
 \subsection{Generative Adversarial Neural Network Game}\label{sec:nn_theory_gan}
 GANs, as already mentioned in \rsec{prev_nn_adv} consist of two neural networks: a Generator network for generating fake images and a Discriminator network for discriminating between fake and real images.
-The min-max game both networks are playing is defined by
+The min-max game both networks are playing is defined as
 \begin{equation}\label{eq:nn_theory_gan}
   \underset{G}{\min} \, \underset{D}{\max} \, V(D, G) = \E_{\bm{x} \sim p_{data}(\bm{x})}\left[ \log D(\bm{x}) \right] + 
     \E_{\bm{z} \sim p_{\bm{z}}(\bm{z})}\left[ \log (1 - D(G(\bm{z}))) \right],
