@@ -35,14 +35,14 @@ The training details and parameters of the used neural networks can be split int
 The feature extraction parameters provide information about the extraction of MFCC features.
 The dataset parameters are specified by the selected labels and the number of examples per labels for training.
 The training part lists hyperparameters, such as the learning rate or the batch size.
-Furthermore, the pre-training details describe a separate training of GANs to use the obtained weights for transfer learning on an equivalent CNN.
+Finally, the pre-training details describe a separate training of GANs to use the obtained weights for transfer learning on an equivalent CNN.
 
 
 % --
 % feature
 
 \subsubsection{Feature Extraction Parameters}
-The feature extraction parameters used in order to process MFCCs, are listed in \rtab{exp_details_params_feature}.
+The MFCC feature extraction parameters are listed in \rtab{exp_details_params_feature}.
 Note that some parameters can vary in the experiments.
 \input{./5_exp/tables/tab_exp_details_params_feature}
 
@@ -58,7 +58,7 @@ The maximum number of examples per label for training and evaluation is given by
 This is provided by the label \enquote{go} with following amount of examples in the sets: \{train: 2948, test: 425, validation: 350 \} from \rtab{exp_dataset_all_labels}.
 Hence, the validation set consists of 350 examples of the label \enquote{go}.
 By considering a \SI{10}{\percent} split of both test and validation set, this gives a maximum amount of 3500 examples per label to represent the whole dataset.
-Therefore, the number of examples per label should not exceed the value 3500, otherwise the equal amount of examples per label is not provided.
+Therefore, the number of examples per label should not exceed the value 3500, otherwise the equal amount of examples per label is not given.
 Note that in order to reduce computations in some experiments, the number of examples were reduced to only 500 per label.
 \rtab{exp_details_params_dataset} lists the L12 labels and their number of examples per label used for training.
 \input{./5_exp/tables/tab_exp_details_params_dataset}
@@ -72,7 +72,7 @@ Still the video game operates with the models trained on the L12 labels and thus
 \subsubsection{Training Hyperparameters}
 \rtab{exp_details_params_train} shows the hyperparameters for the training of the used CNNs models, described in \rsec{nn_arch}.
 \input{./5_exp/tables/tab_exp_details_params_train}
-From the following experiments, it can be observed that epochs of 2000 yield into small overfitting effects regarding certain models.
+From the following experiments, it can be observed that epochs of 2000 result into small overfitting effects regarding certain models.
 This might decrease the recognition accuracy if the set of parameters is used at the last epoch and no early stopping mechanism is applied.
 The batch size of 32 is selected to a low number because it worked well on the KWS task of speech commands.
 Further, the amount of classes is at maximum 12 (L12 labels) and therefore a batch size of 32 would include most of the individual labels.
@@ -106,7 +106,7 @@ A score function $c(\hat{y}_i, y_i)$ can be defined as
 where $\hat{y}_i \in \mathcal{L} = \{0, 1, \dots, L - 1\} $ is the predicted label and $y_i \in \mathcal{L}$ the actual label of the sample $i$ with a total number of class labels $L$.
 The classification accuracy $a \in [0, 1]$ therefore formulates as
 \begin{equation}
-  a = \frac{1}{n} \sum_{i=0}^n c(\hat{y}_i, y_i).
+  a = \frac{1}{n} \sum_{i=0}^{n-1} c(\hat{y}_i, y_i).
 \end{equation}
 Another, more unconventional evaluation technique, is the evaluation upon noise and shift invariance of dedicated test signals.
 For this, one example of each class label was taken from the self recorded files of the \enquote{my dataset} and used as test signal.

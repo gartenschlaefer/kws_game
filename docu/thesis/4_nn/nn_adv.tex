@@ -4,9 +4,9 @@
 \section{Adversarial Pre-Training}\label{sec:nn_adv}
 In adversarial neural network training, two separate neural networks are competing against each other in an adversary task.
 This competition of the two networks motivates them to improve their performance and beat the other network.
-The application of GANs, as already explained in \rsec{prev_nn_adv} and \rsec{nn_theory_gan}, is an interesting subject in research and the questions whether the obtained weights from the separate training of the Generator and Discriminator network can contribute to better the performances in equivalent models arises.
+GANs are one kind of adversarial networks, as were already explained in \rsec{prev_nn_adv} and \rsec{nn_theory_gan}, and consist of a Generator (G) and a Discriminator (D) network.
 
-This thesis evaluates the transfer of trained filter weights of the convolutional layers from either G or D to initialize an equivalent CNN by using two different pre-training methods.
+This section is concerned with the transfer of trained filter weights of the convolutional layers from either G or D to initialize an equivalent CNN by using two different pre-training methods.
 As already mentioned in \rsec{prev_nn_adv}, the convolutional layer structure, such as the filter size and striding properties, of G and D has to be the same as in the target CNN, however, the amounts of filters in those layers can vary.
 One method, denoted as \emph{adversarial dual train}, is to let G and D have the same amount of filters as the target CNN and to consider all available class labels in the vocabulary for training.
 The other method, referred to as \emph{adversarial label train}, applies several separate training instances of G and D on small subsets of class labels, where G and D gets fewer amounts of filters compared to the target CNN.
@@ -49,7 +49,7 @@ However, it is more appealing to update D for a certain numbers of training step
 This will give either D or G some update steps to improve in their specific adversarial task of either discriminating or generating.
 In this thesis, the training steps for updating either D or G are 2 epochs for each model.
 Note that an epoch consists of several training steps depending on the batch size and amount of data.
-This can vary in the experiments but does not influence the overall end results dramatically.
+This can vary in the experiments but does not dramatically influence the overall end results.
 
 
 % --

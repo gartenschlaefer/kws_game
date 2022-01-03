@@ -15,8 +15,9 @@ This first model was based on the information processing of the retina (input no
 With the Perceptron implemented in an actual computer system, Rosenblatt initiated the domain of computational learning systems with neural networks.
 
 % check this
-Another great advance in the history of neural networks was the application of a very famous learning algorithm known as \enquote{backpropagation} used by several authors at the same time: \cite{LeCun1986} and \cite{Rumelhart1986}.
-Even nowadays, 35 years after the introducing of backpropagation for neural networks, it is still the \emph{de facto} standard in training them.
+Another great advance in the history of neural networks was the application of a very famous learning algorithm known as \enquote{backpropagation}.
+Backpropagation was examined for neural networks by several authors at the same time: \cite{LeCun1986} and \cite{Rumelhart1986}.
+Even nowadays, 35 years later, it is still the \emph{de facto} standard for training.
 In recent times, backpropagation is implemented in every machine learning framework for neural networks as its core element.
 Such frameworks are, for instance, \texttt{Pytorch} \cite{Pytorch} or \texttt{Tensorflow} \cite{Tensorflow}, which are capable of handling the gradient calculation (automatic differentiation) and backpropagation algorithm of those gradients in the background.
 
@@ -47,7 +48,7 @@ Spatial information is very important in images, where neighboring pixels are st
 Convolutional filters are very commonly applied in image processing tasks, such as denoising and other enhancements.
 A classical application of convolutional filters in audio processing, is a simple average filter applied on the signal's energy representation over time to determine onsets, such as the start of a speech signal.
 
-Still it took remarkably long until convolutional filters were a common and a widely used asset in neural network architectures.
+Still it took remarkably long until convolutional filters were a widely used asset in neural network architectures.
 The general concepts of CNNs were examined by LeCun et al. on handwritten postal codes \cite{LeCun1989_Generalization}.
 Further research and experiments on the famous MNIST dataset of handwritten digits \cite{LeCun1998} asserted the success of CNNs.
 A classical convolutional layer in CNNs consists of multiple convolutional filters followed by a non-linear activation function applied to the computed feature maps.

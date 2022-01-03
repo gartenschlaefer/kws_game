@@ -5,11 +5,11 @@
 All neural network architectures evaluated on the KWS task of speech commands are presented here.
 The fundamental neural network architecture types were CNNs, GANs, and Wavenets.
 CNNs were used for the classification of MFCC features and are therefore the main architecture type within this thesis.
-Generative models, such as GANs, were evaluated in regards of their ability to generate samples from the data distribution.
+Generative models, such as GANs, were evaluated in regards of their ability to generate samples from the data distribution of the speech command dataset.
 Further, the trained weights from the convolutional layers of GANs were applied as pre-trained weights to initialize the weights of CNNs with the same convolutional layer structure.
 In contrast to CNNs, Wavenets are using raw audio samples as input features and do not require to extract MFCC features, which saves those computations.
-However, it will be shown that the overall computations are quite high because of the complexity of Wavenets.
-The amount of parameters and operations for each architecture are listed to provide a comparison between the used models regarding their computational footprint.
+However, it will be shown that the overall computations are still quite high because of the complexity of Wavenets.
+The amount of parameters and operations for each architecture are listed in order to provide a comparison between their computational footprints.
 
 
 % --
@@ -22,13 +22,13 @@ The \texttt{conv-fstride} model has its kernel size of the first convolutional l
 This dimension is presented by the frames of the MFCCs and therefore the \texttt{conv-fstride} model strides only in the vertical (cepstral / \enquote{frequency}) dimension.
 In contrast, the \texttt{conv-jim} model has its kernel size adjusted to the vertical dimension and therefore strides only in the horizontal (frame / \enquote{time}) dimension.
 Furthermore, a traditional model named \texttt{conv-trad} is used and performs the striding of the convolutional filters in both dimensions.
-The mentioned models summarizes as:
+The mentioned CNN models summarize as follows:
 \begin{itemize}
 	\item \texttt{conv-trad}: from \cite{Sainath2015} a traditional CNN, striding in both dimensions.
-	\item \texttt{conv-fstride}: from \cite{Sainath2015} (fstride4), striding only in vertical dimension.
-	\item \texttt{conv-jim}: self designed model, striding only in horizontal dimension.
+	\item \texttt{conv-fstride}: from \cite{Sainath2015} (fstride4), striding only in the vertical dimension.
+	\item \texttt{conv-jim}: self designed model, striding only in the horizontal dimension.
 \end{itemize}
-The naming of the \texttt{conv-trad} and \texttt{conv-fstride} comes from their original papers, and the self defined network \texttt{conv-jim} was named bluntly after the astronaut avatar that is used for the deployed video game in this thesis.
+The naming of the \texttt{conv-trad} and \texttt{conv-fstride} comes from their original paper, and the self defined network \texttt{conv-jim} was named bluntly after the astronaut avatar that is used for the deployed video game in this thesis.
 
 \rfig{nn_arch_cnn_trad} shows the network architecture of the traditional network (\texttt{conv-trad}).
 \begin{figure}[!ht]
@@ -41,7 +41,7 @@ The naming of the \texttt{conv-trad} and \texttt{conv-fstride} comes from their 
 \noindent
 The \texttt{conv-trad} network consists of 2 convolutional layers and one max pooling layer in between.
 The architecture was adapted from \cite{Sainath2015} as a baseline network with slightly modified kernel sizes to adapt on reduced input feature sizes.
-A length of 20 frames in the first convolutional layer is reasonable and corresponds approximately to the length of a vowel sound.
+A length of 20 frames in the first convolutional layer is reasonable and approximately corresponds to the length of a vowel sound.
 Note that the \enquote{Flatten} layer reduces the output tensor of the last convolutional layer to one dimension in order to append consecutive FC layers.
 The first two FC layers use Dropout to improve generalization in training.
 The last FC layer has $L$ nodes corresponding to $L$ output class labels depending on the amount of chosen keywords in the vocabulary.
@@ -92,7 +92,7 @@ The convolutional layer parameters of both D and G can be transferred, even thou
 However, it is preferred to use a normalization technique, such as the frame-based normalization. 
 Otherwise the transferring of weights might be disadvantageous for the classifier network.
 
-The GAN model used for adversarial pre-training consists of the same convolutional layer structure as the \texttt{conv-jim} network and is therefore named as \texttt{adv-d-jim} for the D model and \texttt{adv-g-jim} for the G model. 
+The GAN model used for adversarial pre-training consists of the same convolutional layer structure as the \texttt{conv-jim} network and is therefore named as \texttt{adv-d-jim} for the D model and \texttt{adv-g-jim} for the G model.
 Both models are illustrated in \rfig{nn_arch_adv_d_jim} and \rfig{nn_arch_adv_g_jim}.
 \begin{figure}[!ht]
   \centering
@@ -113,7 +113,7 @@ Both models are illustrated in \rfig{nn_arch_adv_d_jim} and \rfig{nn_arch_adv_g_
 Note that the number of operations are the same as in \rtab{nn_arch_cnn_jim} except for the fully-connected layers.
 The \texttt{adv-g-jim} model uses either the sigmoid or an identity (same output as input) activation function depending on whether the MFCC are frame-based normalized or not.
 If the MFCCs are frame-based normalized, the sigmoid activation function is selected and produces outputs in the range of $[0, 1]$.
-This enhances the model training speed since the Generator model is able to produce convincing fakes sooner.
+This enhances the training speed of G, since it is able to produce convincing fakes sooner than without normalization.
 
 
 % --

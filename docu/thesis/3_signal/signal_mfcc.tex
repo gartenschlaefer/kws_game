@@ -126,7 +126,7 @@ A visualization of MFCC features with 32 filter bands, 32 cepstral coefficients,
 \end{figure}
 \FloatBarrier
 \noindent
-The frame-based normalization is an interesting technique in order to improve the visualization of MFCC features.
+The frame-based normalization is an interesting technique that improves the visualization of MFCC features.
 Nevertheless, this normalization technique can be critical. 
 A normalization that operates only in one dimension changes valuable structures within the other dimensions, and it cannot be answered yet, whether this is a problem for the classification task in the later sections.
 One more research question arises here: Is it possible to use frame-based normalized MFCC features as input to neural network models and what is the impact on the classification accuracy?
@@ -144,7 +144,7 @@ The deltas are computed as frame difference of the MFCCs by
   \Delta u_c[m] = \frac{u_c[m - 1] + u_c[m + 1]}{2},
 \end{equation}
 where $u_c[m]$ is the c-th MFCC coefficient at frame $m$, where $m = 0, 1, \dots, M - 1$ is the frame index of a total number of $M$ frames.
-Note that the computation of the deltas at the edges $m=0$ and $m=M - 1$ is not possible and that the same value is obtained from the neighbor at this specific positions.
+Note that the computation of the deltas at the edges $m=0$ and $m=M - 1$ is not possible and that the same value is obtained from the neighbor at this specific locations.
 The second derivative of MFCC features, known as double deltas, are the frame differences of the deltas and likewise computed as in \req{signal_mfcc_delta}.
 Another enhancement is the computation of an energy feature vector $\bm{e} \in \R^M$ that can be computed with
 \begin{equation}

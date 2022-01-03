@@ -46,13 +46,13 @@ The scheme of the online system with integrated FIFO queue is illustrated in \rf
 
 \subsection{Classification System}
 The classification system consists of a feature extractor and a classifier.
-The classifier further composes of a neural network architecture for the classification of the keywords it was trained for.
+The classifier is composed of a neural network architecture for the classification of keywords.
 The feature extractor computes the MFCCs according to its provided feature extraction parameters and determines the highest energy onset, as described in \rsec{signal_onset_kw}.
 The feature extraction parameters provide information about the exact constellation of features used during training, for instance 12 MFCC coefficients with frame-based normalization and no feature enhancements.
 This ensures that the same feature extraction process is applied to new data frames from the online system as was used in the training of the corresponding neural network model.
 
 The classifier requires the unique name of the trained neural network model, such as \texttt{conv-jim}, the parameters of this model, and the class dictionary.
-The trained weights of the  models are stored in the \texttt{.pth} format used within the \texttt{Pytorch} framework and can be loaded by a corresponding model.
+The trained weights of the  models are stored in the \texttt{.pth} format used within the \texttt{Pytorch} framework and can be loaded by a model with the same network structure.
 The class dictionary describes which output node of the neural network corresponds to which speech command and is especially important for the video game to trigger correct actions.
 After loading the parameters, the classifier performs an inference to the most probable keyword in its class dictionary.
 
