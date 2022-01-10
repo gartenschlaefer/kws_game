@@ -15,11 +15,9 @@ With the abstract formulation
 	\hat{s} = \underset{s_i \in S}{\arg \min} \, \mathcal{D}(t, s_i),
 \end{equation}
 the most probable keyword $\hat{s}$ can be predicted, where $\mathcal{D}$ is some distance measure between two words.
-% check this
 The formulation in \req{intro_kws_task} merely considers words but KWS in computer systems have to cope with various transformations of raw input samples of speech signals to extract sufficient information to represent words.
 An inference from audio data to output class probabilities $\bm{y} \in \R^L$ can, for example, be achieved by the use of a neural network containing a softmax function at its last layer (transforming the output of the last layer to probability values).
 The most probable keyword can therefore be picked by
-% check this
 \begin{equation}\label{eq:intro_kws_class}
 	%\hat{s} = \{s_i \mid \underset{i = 0, 1, \dots, L - 1}{\arg \max} \, y_i\},
 	\hat{s} = s_{\underset{i = 0, 1, \dots, L - 1}{\arg \max} \, y_i},

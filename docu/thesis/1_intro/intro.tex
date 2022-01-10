@@ -4,7 +4,6 @@
 \chapter{Introduction}\label{sec:intro}
 Controlling video games by using the voice of players in order to render certain actions within the game, is an interdisciplinary challenge between speech signal processing, machine learning, and game design.
 A microphone is required to capture the voice of a player providing a speech signal of a potential command for the video game.
-% check this
 A pre-processing stage extracts meaningful features of the speech signal, such as the Mel Frequency Cepstral Coefficients (MFCCs).
 Further, the extracted features are used as input to a Keyword Spotting (KWS) system, which predicts the most probable keyword.
 Ideally, the use of a KWS systems in video games enhances and extends the gaming experience of the players.
@@ -17,9 +16,7 @@ A simple schematic of the whole KWS process is illustrated in \rfig{intro_kws}.
 \end{figure}
 \FloatBarrier
 \noindent
-% check this
-For a fast paced video game, the controlling of game objects through voice is preferably done by using short command words, which are referred to as \emph{speech commands}.
-%From a semantic perspective, the controlling of game objects should be short, clear, and best done with single command words, which are referred to as \emph{speech commands}.
+For a fast paced video game, the control of game objects through voice is preferably done by using short command words, which are referred to as \emph{speech commands}.
 Single words can be identified more easily than long sentences.
 For instance, it is easier to recognize the word \enquote{left} than the sentence \enquote{missile target on position x, y}.
 The feature extracted speech commands can then be classified through a KWS system composed of a neural network.
