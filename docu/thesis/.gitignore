@@ -4,6 +4,12 @@
 # my stuff
 *.ps
 thesis.pdf
+thesis_presentation.pdf
+
+# add those manually from tugraz
+/presentation/background.png
+/presentation/beamerthemetugraz2013.sty
+/presentation/logo.pdf
 
 ## Core latex/pdflatex auxiliary files:
 *.aux
