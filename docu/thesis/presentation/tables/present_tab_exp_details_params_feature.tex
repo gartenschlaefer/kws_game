@@ -1,0 +1,23 @@
+\begin{table}[ht!]
+\scriptsize
+\begin{center}
+\begin{tabular}{ M{4cm}  M{1.5cm} M{1.5cm}}
+\toprule
+\textbf{Parameter} & \textbf{Value} & \textbf{Varying} \\
+\midrule
+Speech signal length & \SI{500}{\milli\second} & - \\
+Analytic window size & \SI{25}{\milli\second} & -\\
+Hop size & \SI{10}{\milli\second} & -\\
+Window Function & Hanning & -\\
+\midrule
+Number of filter bands & 32 & -\\
+Number of cepstral coefficients & 12 & yes\\
+Delta features & no & yes \\
+Double delta features & no & yes \\
+Energy features & no 	& yes \\
+Frame based normalization & yes & yes\\
+\bottomrule
+\label{tab:exp_details_params_feature}
+\end{tabular}
+\end{center}
+\end{table}

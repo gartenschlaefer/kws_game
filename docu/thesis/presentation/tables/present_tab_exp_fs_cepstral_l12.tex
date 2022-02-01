@@ -1,0 +1,26 @@
+\begin{table}[ht!]
+\scriptsize
+\begin{center}
+\begin{tabular}{ M{1.8cm}  M{1.5cm}  M{1cm}  M{2.2cm}  M{2.2cm} }
+\toprule
+\multirow{2}{1.8cm}{\centering\textbf{Model Name}} & \multirow{2}{1.5cm}{\centering\textbf{\# MFCC Coeffs.}} & \multirow{2}{*}{\centering\textbf{Norm.}} & \multicolumn{2}{c}{\textbf{Accuracy [\%]}}\\
+&  &  & Test set & My dataset \\
+\midrule
+conv-trad & 12 & 0 & $80.57 \pm 0.34$ & $75.20 \pm 6.40$ \\
+conv-trad & 12 & 1 & $76.17 \pm 1.02$ & $85.60 \pm 4.80$ \\
+conv-trad & 32 & 0 & $79.77 \pm 1.56$ & $72.80 \pm 4.66$ \\
+conv-trad & 32 & 1 & $74.63 \pm 1.13$ & $78.40 \pm 3.20$ \\
+\midrule
+conv-fstride & 12 & 0 & $72.03 \pm 1.94$ & $78.40 \pm 1.96$ \\
+conv-fstride & 12 & 1 & $64.53 \pm 1.32$ & $72.00 \pm 2.53$ \\
+conv-fstride & 32 & 0 & $70.73 \pm 1.42$ & $72.00 \pm 5.66$ \\
+conv-fstride & 32 & 1 & $62.63 \pm 1.79$ & $69.60 \pm 4.80$ \\
+\midrule
+conv-jim & 12 & 0 & $78.70 \pm 1.38$ & $76.00 \pm 8.76$ \\
+conv-jim & 12 & 1 & $72.90 \pm 1.85$ & $64.00 \pm 8.39$ \\
+conv-jim & 32 & 0 & $76.40 \pm 3.22$ & $77.60 \pm 5.43$ \\
+conv-jim & 32 & 1 & $65.83 \pm 1.29$ & $65.60 \pm 5.43$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{table}

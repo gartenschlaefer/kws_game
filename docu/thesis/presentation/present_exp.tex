@@ -3,6 +3,131 @@
 
 \section{Experiments}
 \sectionheader{Experiments}
+
 \begin{frame}
-  \frametitle{Experiments}
+  \frametitle{Speech Commands Dataset \texttt{v0.02}.}
+  \input{./tables/present_tab_exp_dataset_hard_facts.tex}
 \end{frame}
+
+\begin{frame}
+  \frametitle{Dataset Examples}
+  \vspace{-0.75cm}
+  \begin{figure}[!ht]
+    \centering
+      \includegraphics[width=0.60\textwidth]{../5_exp/figs/exp_dataset_speech_cmd_wav_grid.png}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Feature Extracted Examples}
+  \vspace{-0.75cm}
+  \begin{itemize}
+    \item MFCC features of \enquote{right} examples.
+  \end{itemize}
+  \begin{figure}[!ht]
+    \centering
+    \includegraphics[width=1.0\textwidth]{../5_exp/figs/exp_dataset_speech_cmd_mfcc_right.png}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \frametitle{My Dataset}
+  \vspace{-0.75cm}
+  \begin{itemize}
+    \item vocabulary: \{\enquote{left}, \enquote{right}, \enquote{up}, \enquote{down}, \enquote{go}\}
+    \item 5 examples per label
+    \item used as additional test set
+  \end{itemize}
+  \begin{figure}[!ht]
+    \centering
+    %\includegraphics[width=0.4\textwidth]{../5_exp/figs/exp_dataset_my_wav_grid.png}
+    \subfigure[audio]{\includegraphics[width=0.29\textwidth]{../5_exp/figs/exp_dataset_my_wav_grid.png}}
+    \subfigure[MFCC]{\includegraphics[width=0.69\textwidth]{../5_exp/figs/exp_dataset_my_mfcc.png}}
+  \end{figure}
+\end{frame}
+
+% \begin{frame}
+%   \frametitle{My Dataset}
+%   \begin{figure}[!ht]
+%     \centering
+%     \includegraphics[width=1.0\textwidth]{../5_exp/figs/exp_dataset_my_mfcc.png}
+%   \end{figure}
+% \end{frame}
+
+\begin{frame}
+  \frametitle{Feature Extraction Details for CNNs}
+  \input{./tables/present_tab_exp_details_params_feature.tex}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Dataset Details}
+  \input{./tables/present_tab_exp_details_params_dataset.tex}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Trainings Details for CNNs}
+  \input{./tables/present_tab_exp_details_params_train.tex}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Pre-Trainings Details for CNNs}
+  \input{./tables/present_tab_exp_details_params_pre_train.tex}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Experiment: Feature Selection Cepstral Coeff.}
+  \vspace{-1cm}
+  % \begin{itemize}
+  %   \item Amount of Cepstral Coefficients
+  % \end{itemize}
+  \input{./tables/present_tab_exp_fs_cepstral_l12.tex}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Experiment: MFCC Enhancements}
+  \vspace{-1cm}
+  % \begin{itemize}
+  %   \item Amount of Cepstral Coefficients
+  % \end{itemize}
+  \input{./tables/present_tab_exp_fs_mfcc_l12.tex}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Experiment: Adversarial Label Train}
+  %\vspace{-1cm}
+  % \begin{itemize}
+  %   \item Amount of Cepstral Coefficients
+  % \end{itemize}
+  \input{./tables/present_tab_exp_adv_label_l12.tex}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Experiment: Final}
+  %\vspace{-1cm}
+  % \begin{itemize}
+  %   \item Amount of Cepstral Coefficients
+  % \end{itemize}
+  \input{./tables/present_tab_exp_final_l12.tex}
+\end{frame}
+
+
+% \begin{frame}
+%   \frametitle{Feature}
+%   \begin{itemize}
+%      \item nothing
+%   \end{itemize}
+% \end{frame}
+
+% \begin{frame}
+%   \frametitle{Feature}
+%   \begin{itemize}
+%      \item nothing
+%   \end{itemize}
+% \end{frame}
+
+% \begin{frame}
+%   \frametitle{Feature}
+%   \begin{itemize}
+%      \item nothing
+%   \end{itemize}
+% \end{frame}

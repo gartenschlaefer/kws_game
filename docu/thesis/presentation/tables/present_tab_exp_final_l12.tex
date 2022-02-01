@@ -1,0 +1,22 @@
+\begin{table}[ht!]
+\scriptsize
+\begin{center}
+\begin{tabular}{ M{2cm}  M{1cm}  M{2cm}  M{1.75cm}  M{1.75cm} }
+\toprule
+\multirow{2}{*}{\centering\textbf{Model Name}} & \multirow{2}{*}{\centering\textbf{Norm.}} & \multirow{2}{*}{\centering\textbf{Pre-Train}} & \multicolumn{2}{c}{\textbf{Accuracy [\%]}}\\
+& & & Test set & My dataset\\
+\midrule
+conv-trad & 0 & - & $84.52$ & $92.00$ \\
+conv-fstride & 0 & - & $79.76$ & $80.00$ \\
+conv-jim & 0 & - & $87.14$ & $88.00$ \\
+\midrule
+conv-trad & 1 & - & $83.79$ & $88.00$ \\
+conv-fstride & 1 & - & $78.71$ & $92.00$ \\
+conv-jim & 1 & - & $82.36$ & $88.00$ \\
+\midrule
+conv-jim & 1 & adv-label-100 & $84.62$ & $92.00$ \\
+\bottomrule
+\label{tab:exp_final_l12}
+\end{tabular}
+\end{center}
+\end{table}
