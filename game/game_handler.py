@@ -35,8 +35,8 @@ class GameHandler():
     self.screen_capturer = ScreenCapturer(self.screen, self.cfg['game'])
 
     # menues
-    self.main_menu = MainMenu(self.cfg['game'], self.screen)
-    self.help_menu = HelpMenu(self.cfg['game'], self.screen)
+    self.main_menu = MainMenu(self.cfg['game'], self.screen, self.mic)
+    self.help_menu = HelpMenu(self.cfg['game'], self.screen, self.mic)
     self.option_menu = OptionMenu(self.cfg['game'], self.screen, self.mic)
 
     # game loop
@@ -90,7 +90,6 @@ class GameHandler():
 
     # level creation
     levels = [Level_01(self.screen, self.cfg['game']['screen_size'], self.mic), Level_02(self.screen, self.cfg['game']['screen_size'], self.mic), LevelCredits(self.screen, self.cfg['game']['screen_size'])]
-    #levels = [Level_01(self.screen, self.cfg['game']['screen_size'], self.mic)]
 
     # level handler
     level_handler = LevelHandler(levels=levels, start_level=0)

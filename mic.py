@@ -147,10 +147,12 @@ class Mic():
     Input Stream Callback
     """
 
-    # debug
-    if status: print(status)
-
-    #self.q.put(indata[:, 0].copy())
+    # print("in data: ", indata.shape)
+    # print("in data sub: ", indata[::self.downsample, 0].shape)
+    # print("time: ", time)
+    # print("frames: ", frames)
+    # print("status: ", status)
+    # stop
 
     # add to queue with primitive downsampling
     self.q.put(indata[::self.downsample, 0].copy())
@@ -162,17 +164,31 @@ class Mic():
     """
 
     # process data
-    for i in range(self.q.qsize()):
+    if self.q.qsize():
 
-      # get chunk
-      x = self.q.get()
+      # init
+      x_collect = np.empty(shape=(0), dtype=np.float32)
+      e_collect = np.empty(shape=(0), dtype=np.float32)
 
-      # onset and energy archiv
-      e, _ = self.onset_energy_level(x, alpha=self.energy_thresh)
+      # process data
+      for i in range(self.q.qsize()):
+
+        # get chunk
+        x = self.q.get()
+
+        # append chunk
+        x_collect = np.append(x_collect, x.copy())
+
+        # append energy level
+        e_collect = np.append(e_collect, 1)
+
+      # detect onset
+      e_onset, is_onset = self.onset_energy_level(x_collect, alpha=self.energy_thresh)
 
       # update collector
-      self.collector.x_all = np.append(self.collector.x_all, x)
-      self.collector.e_all = np.append(self.collector.e_all, e)
+      if self.collector.is_audio_record:
+        self.collector.x_all = np.append(self.collector.x_all, x_collect)
+        self.collector.e_all = np.append(self.collector.e_all, e_collect.copy()*e_onset)
 
 
   def read_mic_data(self):
@@ -180,15 +196,12 @@ class Mic():
     reads the input from the queue
     """
 
-    # init
-    x_collect = np.empty(shape=(0), dtype=np.float32)
-    e_collect = np.empty(shape=(0), dtype=np.float32)
-
-    # onset flag
-    is_onset = False
-
     # process data
     if self.q.qsize():
+
+      # init
+      x_collect = np.empty(shape=(0), dtype=np.float32)
+      e_collect = np.empty(shape=(0), dtype=np.float32)
 
       for i in range(self.q.qsize()):
 
@@ -207,7 +220,9 @@ class Mic():
       # collection update
       self.collector.update_collect(x_collect.copy(), e=e_collect.copy()*e_onset, on=is_onset)
 
-    return is_onset
+      return is_onset
+
+    return False
 
 
   def onset_energy_level(self, x, alpha=0.01):
@@ -263,7 +278,7 @@ class Mic():
     return (self.collector.x_all.shape[0] >= (time_duration * self.feature_params['fs'])) and self.is_audio_record
 
 
-  def save_audio_file(self):
+  def save_audio_file(self, file):
     """
     saves collection to audio file
     """
@@ -274,7 +289,8 @@ class Mic():
       return
 
     # save audio
-    soundfile.write('{}out_audio.wav'.format(self.plot_path), self.collector.x_all, self.feature_params['fs'], subtype=None, endian=None, format=None, closefd=True)
+    soundfile.write(file, self.collector.x_all, self.feature_params['fs'], subtype=None, endian=None, format=None, closefd=True)
+
 
 
 if __name__ == '__main__':
@@ -323,4 +339,4 @@ if __name__ == '__main__':
   plot_waveform(mic.collector.x_all, cfg['feature_params']['fs'], e=mic.collector.e_all * 10, hop=mic.hop, onset_frames=mic.collector.on_all, title='input stream', ylim=(-1, 1), plot_path=None, name='None', show_plot=True)
 
   # save audio
-  mic.save_audio_file()
+  mic.save_audio_file('./out_record.wav')

@@ -14,6 +14,7 @@ from mic_bar import MicBar
 from things import Spaceship, SpaceshipSprite
 from character import JimSprite, BubbleSprite
 from enemy import EnemySprite
+from input_handler import InputMicHandler
 
 
 class Canvas(Interactable):
@@ -101,13 +102,16 @@ class CanvasMainMenu(Canvas):
   main menu canvas
   """
 
-  def __init__(self, screen):
+  def __init__(self, screen, mic=None):
 
     # Parent init
     super().__init__(screen)
 
-    # add text
-    #self.interactable_dict.update({'text': Text(self.canvas_surf, message='main menu', position=(0, 0), font_size='small', color=self.color_bag.text_menu)})
+    # mic
+    self.mic = mic
+
+    # add mic handler (for audio record)
+    if mic is not None: self.interactable_dict.update({'input_mic_handler': InputMicHandler(objs=[], mic=self.mic)})
 
     # update canvas objects
     self.interactable_dict.update({'start_button': StartButton(self.canvas_surf, position=(30, 75), scale=(3, 3)), 'help_button': HelpButton(self.canvas_surf, position=(30, 175), scale=(3, 3)), 'option_button': OptionButton(self.canvas_surf, position=(30, 275), scale=(3, 3)), 'end_button': EndButton(self.canvas_surf, position=(30, 375), scale=(3, 3))})
@@ -186,8 +190,6 @@ class CanvasOptionMenu(Canvas):
     self.interactable_dict.update({'text': Text(self.canvas_surf, message='Options', position=(270, 20), font_size='small', color=self.color_bag.text_menu)})
 
     # mic bar
-    #mic_bar = MicBar(self.canvas_surf, self.mic, position=(540, 225), bar_size=(30, 150), scale_margin=(50, 40))
-    #self.interactable_dict.update({'mic_bar': MicBar(self.canvas_surf, self.mic, position=(545, 100), bar_size=(20, 250), scale_margin=(50, 40))})
     self.interactable_dict.update({'mic_bar': MicBar(self.canvas_surf, self.mic, position=(545, 100), bar_size=(20, 250), scale_margin=(50, 40))})
 
     # device canvas

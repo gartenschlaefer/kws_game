@@ -21,11 +21,12 @@ class Menu(Interactable):
   menu class
   """
 
-  def __init__(self, cfg_game, screen):
+  def __init__(self, cfg_game, screen, mic):
 
     # arguments
     self.cfg_game = cfg_game
     self.screen = screen
+    self.mic = mic
 
     # colors
     self.color_bag = ColorBag()
@@ -102,9 +103,6 @@ class Menu(Interactable):
     """
     reset menu
     """
-
-    # reset run loop
-    #self.game_logic.reset()
     [interactable.reset() for interactable in self.interactable_dict.values()]
 
 
@@ -113,9 +111,6 @@ class Menu(Interactable):
     event update
     """
     [interactable.event_update(event) for interactable in self.interactable_dict.values()]
-
-    # game logic
-    #self.game_logic.event_update(event)
 
 
   def update(self):
@@ -200,142 +195,8 @@ class Menu(Interactable):
     # add clock
     clock = pygame.time.Clock()
 
-    # game loop
-    while self.game_logic.run_loop:
-      for event in pygame.event.get():
-
-        # input handling
-        self.event_update(event)
-        if screen_capture is not None: screen_capture.event_update(event)
-
-      # update menu
-      self.update()
-      if screen_capture is not None: screen_capture.update()
-
-      # update display
-      pygame.display.flip()
-
-      # reduce framerate
-      clock.tick(self.cfg_game['fps'])
-
-    # action at ending loop
-    action = (self.state_action_dict[self.button_state] if not self.game_logic.esc_key_exit else self.state_action_dict[self.button_state_dict['end_button']]) if not self.game_logic.quit_game else 'exit'
-
-    # reset game logic
-    self.game_logic.reset()
-
-    return action
-
-
-
-class MainMenu(Menu):
-  """
-  main menu
-  """
-
-  def __init__(self, cfg_game, screen):
-
-    # Parent init
-    super().__init__(cfg_game, screen)
-
-    # canvas
-    self.canvas = CanvasMainMenu(self.screen)
-
-    # set button active
-    self.canvas.interactable_dict['start_button'].button_press()
-
-
-  def define_state_dicts(self):
-    """
-    state dictionaries
-    """
-
-    # button dict, selection: button in canvas
-    button_state_dict = {'start_button': 0, 'help_button': 1, 'option_button': 2, 'end_button': 3}
-
-    # action dict
-    state_action_dict = {0: 'start_game', 1: 'open_help_menu', 2: 'open_option_menu', 3: 'exit'}
-
-    return button_state_dict, state_action_dict, button_state_dict['start_button']
-
-
-
-class HelpMenu(Menu):
-  """
-  main menu
-  """
-
-  def __init__(self, cfg_game, screen):
-
-    # Parent init
-    super().__init__(cfg_game, screen)
-
-    # canvas
-    self.canvas = CanvasHelpMenu(self.screen)
-
-    # set button active
-    self.canvas.interactable_dict['end_button'].button_press()
-
-
-  def define_state_dicts(self):
-    """
-    state dictionaries
-    """
-
-    # button dict, selection: button in canvas
-    button_state_dict = {'end_button': 0}
-
-    # action dict
-    state_action_dict = {0: 'open_main_menu', 1: 'exit'}
-
-    return button_state_dict, state_action_dict, button_state_dict['end_button']
-
-
-
-class OptionMenu(Menu):
-  """
-  main menu
-  """
-
-  def __init__(self, cfg_game, screen, mic):
-
-    # Parent init
-    super().__init__(cfg_game, screen)
-
-    # arguments
-    self.mic = mic
-
-    # canvas
-    self.canvas = CanvasOptionMenu(self.screen, self.mic)
-
-    # set button active
-    self.canvas.interactable_dict['end_button'].button_press()
-
-    # menu buttons selection enable
-    self.menu_button_sel_enable = True
-
-
-  def define_state_dicts(self):
-    """
-    state dictionaries
-    """
-
-    # button dict, selection: button in canvas
-    button_state_dict = {'cmd_button': 0, 'thresh_button': 1, 'device_button': 2, 'end_button': 3}
-
-    # action dict
-    state_action_dict = {3: 'open_main_menu', 4: 'exit'}
-
-    return button_state_dict, state_action_dict, button_state_dict['end_button']
-
-
-  def menu_loop(self, screen_capture=None):
-    """
-    menu loop
-    """
-
-    # add clock
-    clock = pygame.time.Clock()
+    # hack for recording: can be removed later
+    self.mic.change_device_flag = True
 
     while self.game_logic.run_loop:
 
@@ -373,6 +234,105 @@ class OptionMenu(Menu):
     self.game_logic.reset()
 
     return action
+
+
+
+class MainMenu(Menu):
+  """
+  main menu
+  """
+
+  def __init__(self, cfg_game, screen, mic):
+
+    # Parent init
+    super().__init__(cfg_game, screen, mic)
+
+    # canvas
+    self.canvas = CanvasMainMenu(self.screen, self.mic)
+
+    # set button active
+    self.canvas.interactable_dict['start_button'].button_press()
+
+
+  def define_state_dicts(self):
+    """
+    state dictionaries
+    """
+
+    # button dict, selection: button in canvas
+    button_state_dict = {'start_button': 0, 'help_button': 1, 'option_button': 2, 'end_button': 3}
+
+    # action dict
+    state_action_dict = {0: 'start_game', 1: 'open_help_menu', 2: 'open_option_menu', 3: 'exit'}
+
+    return button_state_dict, state_action_dict, button_state_dict['start_button']
+
+
+
+class HelpMenu(Menu):
+  """
+  main menu
+  """
+
+  def __init__(self, cfg_game, screen, mic):
+
+    # Parent init
+    super().__init__(cfg_game, screen, mic)
+
+    # canvas
+    self.canvas = CanvasHelpMenu(self.screen)
+
+    # set button active
+    self.canvas.interactable_dict['end_button'].button_press()
+
+
+  def define_state_dicts(self):
+    """
+    state dictionaries
+    """
+
+    # button dict, selection: button in canvas
+    button_state_dict = {'end_button': 0}
+
+    # action dict
+    state_action_dict = {0: 'open_main_menu', 1: 'exit'}
+
+    return button_state_dict, state_action_dict, button_state_dict['end_button']
+
+
+
+class OptionMenu(Menu):
+  """
+  main menu
+  """
+
+  def __init__(self, cfg_game, screen, mic):
+
+    # Parent init
+    super().__init__(cfg_game, screen, mic)
+
+    # canvas
+    self.canvas = CanvasOptionMenu(self.screen, self.mic)
+
+    # set button active
+    self.canvas.interactable_dict['end_button'].button_press()
+
+    # menu buttons selection enable
+    self.menu_button_sel_enable = True
+
+
+  def define_state_dicts(self):
+    """
+    state dictionaries
+    """
+
+    # button dict, selection: button in canvas
+    button_state_dict = {'cmd_button': 0, 'thresh_button': 1, 'device_button': 2, 'end_button': 3}
+
+    # action dict
+    state_action_dict = {3: 'open_main_menu', 4: 'exit'}
+
+    return button_state_dict, state_action_dict, button_state_dict['end_button']
 
 
   def enter_key(self):

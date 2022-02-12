@@ -106,13 +106,14 @@ class ScreenCapturer(Interactable):
     [pygame.image.save(pygame.image.fromstring(frame, (self.screen_size[0], self.screen_size[1]), 'RGB'), '{}{}{}.png'.format(self.paths['frame_path'], self.frame_name, i)) for i, frame in enumerate(self.frame_container)]
 
     # save audio
-    if mic is not None: soundfile.write('{}out_audio.wav'.format(self.paths['capture_path']), mic.collector.x_all, mic.feature_params['fs'], subtype=None, endian=None, format=None, closefd=True)
+    if mic is not None: mic.save_audio_file('{}out_audio.wav'.format(self.paths['capture_path']))
 
     # convert to video format
     try:
       os.system("ffmpeg -framerate {} -start_number 0 -i {}%d.png -i {}out_audio.wav -vcodec mpeg4 {}.avi".format(self.fps // self.downsample, self.paths['frame_path'] + self.frame_name, self.paths['capture_path'], self.paths['capture_path'] + 'out'))
     except:
       print("***Problem with conversions of frames to video")
+
 
 
 if __name__ == '__main__':

@@ -12,7 +12,7 @@
       \bm{x} = [x_0, x_1, \dots, x_{N-1}]^T
     \end{equation*}
   \end{itemize}
-  \begin{figure} \includegraphics[width=0.8\textwidth]{../3_signal/figs/signal_raw_showcase_right0.png} \end{figure}
+  \begin{figure} \includegraphics[width=0.65\textwidth]{../3_signal/figs/signal_raw_showcase_right0.png} \end{figure}
 \end{frame}
 
 \begin{frame}
@@ -51,7 +51,7 @@
       P = \abs{\tilde{X}}^2
     \end{equation*}
   \end{itemize}
-  \begin{figure} \includegraphics[width=0.8\textwidth]{../3_signal/figs/signal_spec-lin_showcase_right0.png} \end{figure}
+  \begin{figure} \includegraphics[width=0.65\textwidth]{../3_signal/figs/signal_spec-lin_showcase_right0.png} \end{figure}
 \end{frame}
 
 \begin{frame}
@@ -64,7 +64,7 @@
       P_{DB} = 10 \cdot \log_{10}{P}
     \end{equation*}
   \end{itemize}
-  \begin{figure} \includegraphics[width=0.8\textwidth]{../3_signal/figs/signal_spec-log_showcase_right0.png} \end{figure}
+  \begin{figure} \includegraphics[width=0.65\textwidth]{../3_signal/figs/signal_spec-log_showcase_right0.png} \end{figure}
 \end{frame}
 
 \begin{frame}
@@ -88,7 +88,7 @@
   \frametitle{MFCC Features}
   \vspace{-1cm}
   \begin{itemize}
-    \item frame based normalization:
+    \item Frame based normalization:
     \begin{equation*}
       \scriptsize
       \begin{aligned}
@@ -98,30 +98,50 @@
     \end{equation*}
   \end{itemize}
   \vspace{-0.25cm}
-  \begin{figure} \includegraphics[width=0.8\textwidth]{../3_signal/figs/signal_mfcc_showcase_mfcc32_right0.png} \end{figure}
+  \begin{figure} \includegraphics[width=0.65\textwidth]{../3_signal/figs/signal_mfcc_showcase_mfcc32_right0.png} \end{figure}
 \end{frame}
 
 \begin{frame}
   \frametitle{MFCC Feature Enhancements}
   \vspace{-1cm}
   \begin{itemize}
-    \item Delta- and Double Delta Features:
-    \begin{equation*}\label{eq:signal_mfcc_delta}
+    \item Delta- and Double Delta features:
+    \begin{equation*}
       \scriptsize
       \Delta u_c[m] = \frac{u_c[m - 1] + u_c[m + 1]}{2}
     \end{equation*}
-    \item Energy Features:
+    \item Energy features:
     \begin{equation*}
       \scriptsize
       e[m] = \bm{u}[m]^T \bm{u}[m]
     \end{equation*}
   \end{itemize}
-  \begin{figure} \includegraphics[width=0.6\textwidth]{../3_signal/figs/signal_mfcc_showcase_mfcc39_right0.png} \end{figure}
+  \begin{figure} \includegraphics[width=0.65\textwidth]{../3_signal/figs/signal_mfcc_showcase_mfcc39_right0.png} \end{figure}
+\end{frame}
+
+\begin{frame}
+  \frametitle{MFCC Computations}
+  \vspace{-1cm}
+  \begin{itemize}
+    \item Signal: \SI{1}{\second} with $f_s = \SI{16}{\kilo\hertz}$.
+    \item STFT and MFCC:
+    \vspace{-0.1cm}
+    \begin{itemize}
+      \footnotesize
+      \item \SI{25}{\milli\second} Analytical window with \SI{10}{\milli\second} hop,
+      \item $K = 400$ Fourier coefficients,
+      \item $B = 32$ filter bands and 
+      \item $C=12$ cepstral coefficients.
+    \end{itemize}
+  \end{itemize}
+  \vspace{-0.5cm}
+  \include{./tables/present_tab_signal_mfcc_operations.tex}
 \end{frame}
 
 
 \begin{frame}
   \frametitle{Onset Detection}
+  \vspace{-0.75cm}
   \begin{itemize}
     \item Two kinds of onset detection method:
     \begin{itemize}
@@ -133,6 +153,14 @@
       \item Online onset detection:
         \begin{itemize}
           \item applied in the game to indicate whether a keyword is present.
+          \begin{equation*}
+          %\scriptsize
+            o(\bm{x}) = 
+            \begin{cases}
+              1, & \text{if } \frac{1}{n} \bm{x}^T \bm{x} > \alpha\\
+              0, & \text{otherwise} 
+            \end{cases},
+          \end{equation*}
         \end{itemize}
     \end{itemize}
   \end{itemize}
@@ -140,7 +168,14 @@
 
 \begin{frame}
   \frametitle{Keyword Onset Detection}
-  \vspace{-0.5cm}
-  \begin{figure} \includegraphics[width=0.8\textwidth]{../3_signal/figs/signal_onset_window.pdf} \end{figure}
-  \begin{figure} \includegraphics[width=0.8\textwidth]{../3_signal/figs/signal_onset_showcase_right0.png} \end{figure}
+  \vspace{-1cm}
+  \begin{equation*}
+  \scriptsize
+    \begin{aligned}
+      e[m] &= \sum_{i=0}^{N-1} \abs{x[m + i]}^2, \quad \mathrm{or} \quad e[m] = \sum_{i=0}^{N-1} u_0[m + i],\\
+      o &= \underset{m \in \mathcal{M}}{\arg \max} \, e[m]
+    \end{aligned}
+  \end{equation*}
+  \begin{figure} \hspace{0.75cm} \includegraphics[width=0.55\textwidth]{../3_signal/figs/signal_onset_window.pdf} \end{figure}
+  \begin{figure} \includegraphics[width=0.55\textwidth]{../3_signal/figs/signal_onset_showcase_right0.png} \end{figure}
 \end{frame}
