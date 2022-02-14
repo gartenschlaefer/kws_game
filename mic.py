@@ -82,6 +82,15 @@ class Mic():
     # steam active
     self.stream_active = False
 
+    # audio capture file
+    self.audio_record_file = './ignore/capture/audio_record.txt'
+
+    # delete audio capture file
+    if os.path.isfile(self.audio_record_file): os.remove(self.audio_record_file)
+
+    # mic callback function
+    self.mic_stream_callback = self.callback_mic if not self.is_audio_record else self.callback_mic_record
+
 
   def load_user_settings(self, user_settings_file):
     """
@@ -110,7 +119,7 @@ class Mic():
     if load_user_settings_file: self.load_user_settings(self.user_settings_file)
 
     # init stream
-    self.stream = sd.InputStream(device=self.device, samplerate=self.mic_params['fs_device'], blocksize=int(self.hop * self.downsample), channels=self.mic_params['channels'], callback=self.callback_mic) if enable_stream else contextlib.nullcontext()
+    self.stream = sd.InputStream(device=self.device, samplerate=self.mic_params['fs_device'], blocksize=int(self.hop * self.downsample), channels=self.mic_params['channels'], callback=self.mic_stream_callback) if enable_stream else contextlib.nullcontext()
     
     # flags
     self.change_device_flag = False
@@ -142,20 +151,26 @@ class Mic():
     return {i:dev for i, dev in enumerate(sd.query_devices()) if dev['max_input_channels']}
 
 
-  def callback_mic(self, indata, frames, time, status):
+  def callback_mic(self, indata, frames, t, status):
     """
     Input Stream Callback
     """
+    self.q.put(indata[::self.downsample, 0].copy())
 
-    # print("in data: ", indata.shape)
-    # print("in data sub: ", indata[::self.downsample, 0].shape)
-    # print("time: ", time)
-    # print("frames: ", frames)
-    # print("status: ", status)
-    # stop
+
+  def callback_mic_record(self, indata, frames, t, status):
+    """
+    Input Stream Callback with record
+    """
+
+    # primitive downsampling
+    chunk = indata[::self.downsample, 0].copy()
 
     # add to queue with primitive downsampling
-    self.q.put(indata[::self.downsample, 0].copy())
+    self.q.put(chunk)
+    
+    # write record to file
+    with open(self.audio_record_file, 'a') as f: [f.write('{:.5e},'.format(i)) for i in chunk]
 
 
   def clear_mic_queue(self):
@@ -185,10 +200,10 @@ class Mic():
       # detect onset
       e_onset, is_onset = self.onset_energy_level(x_collect, alpha=self.energy_thresh)
 
-      # update collector
-      if self.collector.is_audio_record:
-        self.collector.x_all = np.append(self.collector.x_all, x_collect)
-        self.collector.e_all = np.append(self.collector.e_all, e_collect.copy()*e_onset)
+      # # update collector
+      # if self.collector.is_audio_record:
+      #   self.collector.x_all = np.append(self.collector.x_all, x_collect)
+      #   self.collector.e_all = np.append(self.collector.e_all, e_collect.copy()*e_onset)
 
 
   def read_mic_data(self):

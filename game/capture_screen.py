@@ -2,6 +2,7 @@
 screen capture for video presentation
 """
 
+import numpy as np
 import pygame
 import os
 import soundfile
@@ -85,9 +86,9 @@ class ScreenCapturer(Interactable):
     if self.downsample_count >= self.downsample:
       self.frame_container.append(pygame.image.tostring(self.screen, 'RGB'))
       self.downsample_count = 0
+      self.actual_frame_num += 1
 
     # update frame number
-    self.actual_frame_num += 1
     self.downsample_count += 1
 
 
@@ -105,8 +106,9 @@ class ScreenCapturer(Interactable):
     # save frames
     [pygame.image.save(pygame.image.fromstring(frame, (self.screen_size[0], self.screen_size[1]), 'RGB'), '{}{}{}.png'.format(self.paths['frame_path'], self.frame_name, i)) for i, frame in enumerate(self.frame_container)]
 
-    # save audio
-    if mic is not None: mic.save_audio_file('{}out_audio.wav'.format(self.paths['capture_path']))
+    # save audio file
+    if os.path.isfile(mic.audio_record_file):
+      with open(mic.audio_record_file, 'r') as f: soundfile.write('{}out_audio.wav'.format(self.paths['capture_path']), np.array(f.read().split(','))[:-1].astype(np.float), mic.feature_params['fs'], subtype=None, endian=None, format=None, closefd=True)
 
     # convert to video format
     try:

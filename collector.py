@@ -71,11 +71,11 @@ class Collector:
     # put conditions
     if not self.q.full(): self.q.put(x)
 
-    # save all for audio record
-    if self.is_audio_record:
-      self.x_all = np.append(self.x_all, x)
-      self.e_all = np.append(self.e_all, e)
-      if on: self.on_all = np.append(self.on_all, len(self.x_all) / self.hop)
+    # # save all for audio record
+    # if self.is_audio_record:
+    #   self.x_all = np.append(self.x_all, x)
+    #   self.e_all = np.append(self.e_all, e)
+    #   if on: self.on_all = np.append(self.on_all, len(self.x_all) / self.hop)
 
 
   def reset_collection_all(self):
