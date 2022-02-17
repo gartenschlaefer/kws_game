@@ -100,15 +100,15 @@ class ScreenCapturer(Interactable):
     # save screenshots
     [pygame.image.save(pygame.image.fromstring(frame, (self.screen_size[0], self.screen_size[1]), 'RGB'), '{}{}{}.png'.format(self.paths['screenshot_path'], self.screenshot_name, i)) for i, frame in enumerate(self.screenshot_container)]
 
+    # save audio file
+    if (self.cfg_game['capture_enabled'] or self.cfg_game['audio_capture']) and os.path.isfile(mic.audio_record_file):
+      with open(mic.audio_record_file, 'r') as f: soundfile.write('{}out_audio.wav'.format(self.paths['capture_path']), np.array(f.read().split(','))[:-1].astype(np.float), mic.feature_params['fs'], subtype=None, endian=None, format=None, closefd=True)
+
     # return if deactivated
     if not self.cfg_game['capture_enabled']: return
 
     # save frames
     [pygame.image.save(pygame.image.fromstring(frame, (self.screen_size[0], self.screen_size[1]), 'RGB'), '{}{}{}.png'.format(self.paths['frame_path'], self.frame_name, i)) for i, frame in enumerate(self.frame_container)]
-
-    # save audio file
-    if os.path.isfile(mic.audio_record_file):
-      with open(mic.audio_record_file, 'r') as f: soundfile.write('{}out_audio.wav'.format(self.paths['capture_path']), np.array(f.read().split(','))[:-1].astype(np.float), mic.feature_params['fs'], subtype=None, endian=None, format=None, closefd=True)
 
     # convert to video format
     try:

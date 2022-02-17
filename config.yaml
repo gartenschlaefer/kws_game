@@ -484,8 +484,11 @@ game:
   # size of display
   screen_size: [640, 480]
 
-  # enabled flag
+  # enabled flag (both screen and audio: still problems with synch)
   capture_enabled: False
+
+  # only audio capture
+  audio_capture: False
 
   # capture path
   paths:

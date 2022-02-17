@@ -28,7 +28,7 @@ if __name__ == '__main__':
   classifier = Classifier(cfg_classifier=cfg['classifier'])
 
   # create mic instance
-  mic = Mic(classifier=classifier, mic_params=cfg['mic_params'], is_audio_record=cfg['game']['capture_enabled'])
+  mic = Mic(classifier=classifier, mic_params=cfg['mic_params'], is_audio_record=cfg['game']['capture_enabled'] or cfg['game']['audio_capture'])
 
   # game handler
   game_handler = GameHandler(cfg, mic)

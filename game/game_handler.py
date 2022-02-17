@@ -31,6 +31,12 @@ class GameHandler():
     # init display
     self.screen = pygame.display.set_mode(self.cfg['game']['screen_size'])
 
+    # use this for full screen
+    #self.screen = pygame.display.set_mode(self.cfg['game']['screen_size'], pygame.RESIZABLE | pygame.SCALED)
+
+    # set title
+    pygame.display.set_caption("KWS Game")
+
     # screen capturer
     self.screen_capturer = ScreenCapturer(self.screen, self.cfg['game'])
 
