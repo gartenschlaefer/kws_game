@@ -11,7 +11,7 @@ Several low computational Convolutional Neural Networks (CNN) in the fashion of 
 A pre-training method using Generative Adversarial Networks (GAN) [3] was used to increase the accuracies.
 Wavenets [4] were extended with a classification of speech commands.
 
-![alt text](https://raw.githubusercontent.com/chrisworld/kws_game/master/docu/screenshots/main_menu.png)
+![alt text](https://raw.githubusercontent.com/chrisworld/kws_game/master/docu/screenshots/menu_main.png)
 
 The gameplay video can be found in the folder "docs/gameplay.mp4"
 
@@ -28,12 +28,12 @@ Further, a microphone is necessary to play the game.
 
 ## Usage
 
-To play the game you have to open a terminal in the project path and type: 'python kws_main.py'
+To play the game you have to open a terminal in the project path and type: ´python kws_main.py´
 
 
 ## Screenshots
 
-![alt text](https://raw.githubusercontent.com/chrisworld/kws_game/master/docu/screenshots/menu_option_help.png)
+![alt text](https://raw.githubusercontent.com/chrisworld/kws_game/master/docu/screenshots/menu_help.png)
 ![alt text](https://raw.githubusercontent.com/chrisworld/kws_game/master/docu/screenshots/menu_option_kws.png)
 ![alt text](https://raw.githubusercontent.com/chrisworld/kws_game/master/docu/screenshots/menu_option_e.png)
 ![alt text](https://raw.githubusercontent.com/chrisworld/kws_game/master/docu/screenshots/menu_option_device.png)
@@ -41,6 +41,7 @@ To play the game you have to open a terminal in the project path and type: 'pyth
 ![alt text](https://raw.githubusercontent.com/chrisworld/kws_game/master/docu/screenshots/level1-2.png)
 ![alt text](https://raw.githubusercontent.com/chrisworld/kws_game/master/docu/screenshots/level2-2.png)
 ![alt text](https://raw.githubusercontent.com/chrisworld/kws_game/master/docu/screenshots/level2-2.png)
+![alt text](https://raw.githubusercontent.com/chrisworld/kws_game/master/docu/screenshots/credits.png)
 
 
 ## References
