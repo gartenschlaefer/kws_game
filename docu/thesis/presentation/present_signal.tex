@@ -86,9 +86,11 @@
 
 \begin{frame}
   \frametitle{MFCC Features}
-  \vspace{-1cm}
+  \vspace{-0.75cm}
   \begin{itemize}
+    \small
     \item Frame based normalization:
+    \vspace{0.2cm}
     \begin{equation*}
       \scriptsize
       \begin{aligned}
@@ -103,17 +105,23 @@
 
 \begin{frame}
   \frametitle{MFCC Feature Enhancements}
-  \vspace{-1cm}
+  \vspace{-0.75cm}
   \begin{itemize}
+    \small
     \item Delta- and Double Delta features:
+    \vspace{0.2cm}
     \begin{equation*}
       \scriptsize
-      \Delta u_c[m] = \frac{u_c[m - 1] + u_c[m + 1]}{2}
+      \begin{aligned}
+        \Delta u_c[m] = \frac{u_c[m - 1] + u_c[m + 1]}{2}
+      \end{aligned}
     \end{equation*}
     \item Energy features:
     \begin{equation*}
       \scriptsize
-      e[m] = \bm{u}[m]^T \bm{u}[m]
+      \begin{aligned}
+        e[m] = \bm{u}[m]^T \bm{u}[m]
+      \end{aligned}
     \end{equation*}
   \end{itemize}
   \begin{figure} \includegraphics[width=0.65\textwidth]{../3_signal/figs/signal_mfcc_showcase_mfcc39_right0.png} \end{figure}
@@ -121,8 +129,9 @@
 
 \begin{frame}
   \frametitle{MFCC Computations}
-  \vspace{-1cm}
+  \vspace{-0.75cm}
   \begin{itemize}
+    \small
     \item Signal: \SI{1}{\second} with $f_s = \SI{16}{\kilo\hertz}$.
     \item STFT and MFCC:
     \vspace{-0.1cm}

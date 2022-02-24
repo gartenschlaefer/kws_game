@@ -196,7 +196,7 @@ class Menu(Interactable):
     clock = pygame.time.Clock()
 
     # hack for recording: can be removed later
-    self.mic.change_device_flag = True
+    #self.mic.change_device_flag = True
 
     while self.game_logic.run_loop:
 
