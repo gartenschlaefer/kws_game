@@ -6,10 +6,6 @@
 thesis.pdf
 thesis_presentation.pdf
 
-# add those manually from tugraz
-/presentation/background.png
-/presentation/beamerthemetugraz2013.sty
-/presentation/logo.pdf
 
 ## Core latex/pdflatex auxiliary files:
 *.aux
@@ -29,10 +25,6 @@ thesis_presentation.pdf
 *.dvi
 *.xdv
 *-converted-to.*
-# these rules might exclude image files for figures etc.
-# *.ps
-# *.eps
-# *.pdf
 
 ## Generated if empty string is given at "Please type another file name for output:"
 .pdf
@@ -54,7 +46,6 @@ thesis_presentation.pdf
 *.pdfsync
 
 ## Build tool directories for auxiliary files
-# latexrun
 latex.out/
 
 ## Auxiliary and intermediate files from other packages:

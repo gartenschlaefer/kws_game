@@ -88,7 +88,6 @@
   \frametitle{MFCC Features}
   \vspace{-0.75cm}
   \begin{itemize}
-    \small
     \item Frame based normalization:
     \vspace{0.2cm}
     \begin{equation*}
@@ -107,7 +106,6 @@
   \frametitle{MFCC Feature Enhancements}
   \vspace{-0.75cm}
   \begin{itemize}
-    \small
     \item Delta- and Double Delta features:
     \vspace{0.2cm}
     \begin{equation*}
@@ -131,7 +129,6 @@
   \frametitle{MFCC Computations}
   \vspace{-0.75cm}
   \begin{itemize}
-    \small
     \item Signal: \SI{1}{\second} with $f_s = \SI{16}{\kilo\hertz}$.
     \item STFT and MFCC:
     \vspace{-0.1cm}
@@ -177,14 +174,33 @@
 
 \begin{frame}
   \frametitle{Keyword Onset Detection}
-  \vspace{-1cm}
-  \begin{equation*}
-  \scriptsize
-    \begin{aligned}
-      e[m] &= \sum_{i=0}^{N-1} \abs{x[m + i]}^2, \quad \mathrm{or} \quad e[m] = \sum_{i=0}^{N-1} u_0[m + i],\\
-      o &= \underset{m \in \mathcal{M}}{\arg \max} \, e[m]
-    \end{aligned}
-  \end{equation*}
-  \begin{figure} \hspace{0.75cm} \includegraphics[width=0.55\textwidth]{../3_signal/figs/signal_onset_window.pdf} \end{figure}
-  \begin{figure} \includegraphics[width=0.55\textwidth]{../3_signal/figs/signal_onset_showcase_right0.png} \end{figure}
+  \vspace{-0.75cm}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \begin{itemize}
+        \item energy $e$ of each frame $m$:
+        \begin{equation*}
+          \scriptsize
+          \begin{aligned}
+            e[m] &= \sum_{i=0}^{N-1} \abs{x[m + i]}^2, \quad \mathrm{or}\\
+            e[m] &= \sum_{i=0}^{N-1} u_0[m + i],\\
+          \end{aligned}
+        \end{equation*}
+
+         \item onset $o$:
+        \begin{equation*}
+          \scriptsize
+          \begin{aligned}
+            o &= \underset{m \in \mathcal{M}}{\arg \max} \, e[m]
+          \end{aligned}
+        \end{equation*}
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \centering
+      \begin{figure} \hspace{0.75cm} \includegraphics[width=1.0\textwidth]{../3_signal/figs/signal_onset_window.pdf} \end{figure}
+      \begin{figure} \includegraphics[width=1.0\textwidth]{../3_signal/figs/signal_onset_showcase_right0.png} \end{figure}
+      \vfill
+    \end{column}
+  \end{columns}
 \end{frame}
