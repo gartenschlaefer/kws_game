@@ -4,11 +4,11 @@
 \section{Signal Processing and Feature Extraction}
 \sectionheader{Signal Processing and Feature Extraction}
 \begin{frame}
-  \frametitle{Speech Signal}
+  \frametitle{Speech Signals}
   \begin{itemize}
-    \item Signal with $N$ samples
+    \item Recorded with sample rate $f_s$
+    \item Speech signal with $N$ samples:
     \begin{equation*}\label{eq:signal_raw_x}
-      \footnotesize
       \bm{x} = [x_0, x_1, \dots, x_{N-1}]^T
     \end{equation*}
   \end{itemize}
@@ -17,7 +17,6 @@
 
 \begin{frame}
   \frametitle{Spectral Features}
-  \vspace{-0.5cm}
   \begin{itemize}
     \item Discrete Fourier Transform (DFT):
     \begin{equation*}\label{eq:signal_spec_dtft_matrix}
@@ -43,37 +42,37 @@
 
 \begin{frame}
   \frametitle{Spectral Features}
-  \vspace{-0.5cm}
-  \begin{itemize}
-    \item Spectrogram:
-    \begin{equation*}
-      \footnotesize
-      P = \abs{\tilde{X}}^2
-    \end{equation*}
-  \end{itemize}
-  \begin{figure} \includegraphics[width=0.65\textwidth]{../3_signal/figs/signal_spec-lin_showcase_right0.png} \end{figure}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Spectral Features}
-  \vspace{-0.5cm}
-  \begin{itemize}
-    \item logarithmic Spectrogram:
-    \begin{equation*}
-      \footnotesize
-      P_{DB} = 10 \cdot \log_{10}{P}
-    \end{equation*}
-  \end{itemize}
-  \begin{figure} \includegraphics[width=0.65\textwidth]{../3_signal/figs/signal_spec-log_showcase_right0.png} \end{figure}
+  \begin{columns}
+    % lin
+    \begin{column}{0.5\textwidth}
+      \begin{itemize}
+        \item linear Spectrogram:
+        \begin{equation*}
+          P = \abs{\tilde{X}}^2
+        \end{equation*}
+      \end{itemize}
+      \begin{figure} \includegraphics[width=1.0\textwidth]{../3_signal/figs/signal_spec-lin_showcase_right0.png} \end{figure}
+    \end{column}
+    % log
+    \begin{column}{0.5\textwidth}
+      \begin{itemize}
+        \item logarithmic Spectrogram:
+        \vspace{0.25cm}
+        \begin{equation*}
+          P_{DB} = 10 \cdot \log_{10}{P}
+        \end{equation*}
+      \end{itemize}
+      \vspace{0.08cm}
+      \begin{figure} \includegraphics[width=1.0\textwidth]{../3_signal/figs/signal_spec-log_showcase_right0.png} \end{figure}
+    \end{column}
+  \end{columns}
 \end{frame}
 
 \begin{frame}
   \frametitle{MFCC Features}
-  \vspace{-0.5cm}
   \begin{itemize}
-    \item MFCC:
+    \item Mel Frequency Cepstral Coefficient (MFCC):
     \begin{equation*}
-      \footnotesize
       U = \mathcal{D} \log{ \left( W_m   P \right) }
     \end{equation*}
   \end{itemize}
@@ -86,7 +85,6 @@
 
 \begin{frame}
   \frametitle{MFCC Features}
-  \vspace{-0.75cm}
   \begin{itemize}
     \item Frame based normalization:
     \vspace{0.2cm}
@@ -104,7 +102,6 @@
 
 \begin{frame}
   \frametitle{MFCC Feature Enhancements}
-  \vspace{-0.75cm}
   \begin{itemize}
     \item Delta- and Double Delta features:
     \vspace{0.2cm}
@@ -127,13 +124,11 @@
 
 \begin{frame}
   \frametitle{MFCC Computations}
-  \vspace{-0.75cm}
   \begin{itemize}
     \item Signal: \SI{1}{\second} with $f_s = \SI{16}{\kilo\hertz}$.
     \item STFT and MFCC:
     \vspace{-0.1cm}
     \begin{itemize}
-      \footnotesize
       \item \SI{25}{\milli\second} Analytical window with \SI{10}{\milli\second} hop,
       \item $K = 400$ Fourier coefficients,
       \item $B = 32$ filter bands and 
@@ -147,40 +142,40 @@
 
 \begin{frame}
   \frametitle{Onset Detection}
-  \vspace{-0.75cm}
   \begin{itemize}
+    \item Detect the start of keywords
     \item Two kinds of onset detection method:
     \begin{itemize}
       \item Keyword onset detection:
-        \begin{itemize}
-          \item used in order to find exact start of keyword in audiofile
-          \item applied for the extraction of data examples of restricted time length (\SI{500}{\milli\second}).
-        \end{itemize}
+      \begin{itemize}
+        \item find exact start of keyword in audiofile
+        \item extraction of data examples with restricted time length (\SI{500}{\milli\second}).
+      \end{itemize}
+      \vspace{0.25cm}
       \item Online onset detection:
-        \begin{itemize}
-          \item applied in the game to indicate whether a keyword is present.
-          \begin{equation*}
-          %\scriptsize
-            o(\bm{x}) = 
-            \begin{cases}
-              1, & \text{if } \frac{1}{n} \bm{x}^T \bm{x} > \alpha\\
-              0, & \text{otherwise} 
-            \end{cases},
-          \end{equation*}
-        \end{itemize}
+      \begin{itemize}
+        \item applied in the game to indicate whether a keyword is present.
+      \end{itemize}
+      \vspace{0.25cm}
+      \begin{equation*}
+        o(\bm{x}) = 
+        \begin{cases}
+          1, & \text{if } \frac{1}{n} \bm{x}^T \bm{x} > \alpha\\
+          0, & \text{otherwise} 
+        \end{cases},
+      \end{equation*}
     \end{itemize}
   \end{itemize}
 \end{frame}
 
 \begin{frame}
   \frametitle{Keyword Onset Detection}
-  \vspace{-0.75cm}
   \begin{columns}
     \begin{column}{0.5\textwidth}
       \begin{itemize}
         \item energy $e$ of each frame $m$:
         \begin{equation*}
-          \scriptsize
+          \footnotesize
           \begin{aligned}
             e[m] &= \sum_{i=0}^{N-1} \abs{x[m + i]}^2, \quad \mathrm{or}\\
             e[m] &= \sum_{i=0}^{N-1} u_0[m + i],\\
@@ -189,7 +184,7 @@
 
          \item onset $o$:
         \begin{equation*}
-          \scriptsize
+          \footnotesize
           \begin{aligned}
             o &= \underset{m \in \mathcal{M}}{\arg \max} \, e[m]
           \end{aligned}

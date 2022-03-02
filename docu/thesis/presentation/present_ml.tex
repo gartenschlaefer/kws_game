@@ -6,41 +6,45 @@
 
 \begin{frame}
   \frametitle{Fully Connected Layer}
-  \vspace{-0.75cm}
   \begin{columns}
-    \begin{column}{0.5\textwidth}
+    \begin{column}{0.45\textwidth}
       \begin{itemize}
-        \item Math. formulation:
+        \item Output with activation $h$:
         \begin{equation*}
           \footnotesize
-          \bm{z} = h(W \bm{x} + \bm{b})
+          \begin{aligned}
+            \bm{z} = h(W \bm{x} + \bm{b})
+          \end{aligned}
         \end{equation*}
-        {\footnotesize with $\bm{x} \in \R^n$, $\bm{z} \in \R^m$, $\bm{b} \in \R^m$.}
+        {\scriptsize with $\bm{x} \in \R^n$, $\bm{z} \in \R^m$, $\bm{b} \in \R^m$.}
         \vspace{0.2cm}
         \item Amount of Params:
         \begin{equation*}
           \footnotesize
-          m \cdot n + m
+          \begin{aligned}
+            m \cdot n + m
+          \end{aligned}
         \end{equation*}
         \item Amount of Operations:
         \begin{equation*}
           \footnotesize
-          \mathcal{T}(W \bm{x} + \bm{b}) \approx 2 (m \cdot n) + m
+          \begin{aligned}
+            \mathcal{T}(W \bm{x} + \bm{b}) \approx 2 (m \cdot n) + m
+          \end{aligned}
         \end{equation*}     
       \end{itemize}
     \end{column}
-    \begin{column}{0.5\textwidth}
+    \begin{column}{0.55\textwidth}
       \vspace{0.75cm}
       \centering
-      \begin{figure} \includegraphics[width=0.6\textwidth]{../4_nn/figs/nn_theory_fc.pdf} \end{figure}
+      \begin{figure} \includegraphics[width=0.55\textwidth]{../4_nn/figs/nn_theory_fc.pdf} \end{figure}
       \vfill
     \end{column}
   \end{columns}
 \end{frame}
 
 \begin{frame}
-  \frametitle{Convolutional Neural Networks}
-  \vspace{-0.75cm}
+  \frametitle{Convolutional Layer}
   \begin{columns}
     \begin{column}{0.5\textwidth}
       \begin{itemize}
@@ -62,13 +66,12 @@
 \end{frame}
 
 \begin{frame}
-  \frametitle{Convolutional Neural Networks Example}
+  \frametitle{Convolutional Layer Example}
   \begin{figure} \includegraphics[width=0.8\textwidth]{../4_nn/figs/nn_theory_cnn_basics.pdf} \end{figure}
 \end{frame}
 
 \begin{frame}
   \frametitle{Traditional Network (conv-trad)}
-  \vspace{-0.5cm}
   \begin{itemize}
     \item Layer Structure: Conv.: 2 + 1 max. pool, FC: 3 
     \item Num. Params: \textbf{\num{68396}}
@@ -79,7 +82,6 @@
 
 \begin{frame}
   \frametitle{Frequency Striding Network (conv-fstride)}
-  \vspace{-0.5cm}
   \begin{itemize}
     \item Layer Structure: Conv.: 1, FC: 4
     \item Num. Params: \textbf{\num{47426}} 
@@ -90,7 +92,6 @@
 
 \begin{frame}
   \frametitle{Time Striding Network(conv-jim)}
-  \vspace{-0.5cm}
   \begin{itemize}
     \item Layer Structure: Conv.: 2, FC: 3
     \item Num. Params: \textbf{\num{29804}}
@@ -102,7 +103,6 @@
 
 \begin{frame}
   \frametitle{GANs}
-  \vspace{-0.5cm}
   \begin{itemize}
     \item consist of two adversarial networks:
     \begin{itemize}
@@ -124,7 +124,6 @@
 
 \begin{frame}
   \frametitle{Adversarial Label Training}
-  \vspace{-0.5cm}
   \begin{itemize}
     \item Version of conv-jim:
   \end{itemize}
@@ -134,7 +133,6 @@
 
 \begin{frame}
   \frametitle{Wavenet Residual block}
-  \vspace{-0.5cm}
   \begin{itemize}
     \item Residual block
   \end{itemize}
@@ -143,7 +141,6 @@
 
 \begin{frame}
   \frametitle{Wavenet Architecture}
-  \vspace{-0.5cm}
   \begin{itemize}
     \item Num. Params: \textbf{\num{33509}}
     \item Num. Operations: \textbf{\SI{36695.02}{\kilo\ops}}

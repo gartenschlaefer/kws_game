@@ -24,10 +24,12 @@
 \usepackage{pgfmorepages}
 \usepackage{soul}
 
-%% Basic Style definitions
+% styles
 \changefontsizes{11pt}
 \useinnertheme[shadow=true]{rounded}
-\definecolor{tug}{rgb}{0.96862,0.14509,0.27450}
+\definecolor{tug}{rgb}{0.96862, 0.14509, 0.27450}
+
+% beamer colors
 \setbeamercolor{normal text}{fg=black!65}
 \setbeamercolor{frametitle}{fg=black!65}
 \setbeamercolor{title}{fg=tug}
@@ -44,13 +46,10 @@
 \setbeamerfont{date}{size=\tiny}
 
 % title fontsize
-%\setbeamerfont{title}{size*={25}{26}}
 \setbeamerfont{title}{size*={18}{20}}
-
 \setbeamerfont{author}{size*={10}{12},series=\bfseries}
 
 % part fontsize
-%\setbeamerfont{part page}{size*={22}{22}}
 \setbeamerfont{part page}{size*={16}{18}}
 
 \setbeamertemplate{section in toc}{\hskip0.7em\inserttocsectionnumber.\hskip1ex\inserttocsection}
@@ -74,12 +73,9 @@
 \setbeamertemplate{bibliography item}[text]
 
 % itemize sizes
-%\setbeamerfont*{itemize/enumerate body}{size*={12}{14}}
-\setbeamerfont*{itemize/enumerate body}{size*={11}{13}}
-%\setbeamerfont*{itemize/enumerate subbody}{size*={12}{14}}
-\setbeamerfont*{itemize/enumerate subbody}{size*={10}{12}}
-%\setbeamerfont*{itemize/enumerate subsubbody}{size*={10}{12}}
-\setbeamerfont*{itemize/enumerate subsubbody}{size*={9}{11}}
+\setbeamerfont*{itemize/enumerate body}{size*={10}{12}}
+\setbeamerfont*{itemize/enumerate subbody}{size*={9}{11}}
+\setbeamerfont*{itemize/enumerate subsubbody}{size*={8}{10}}
 
 \setbeamertemplate{navigation symbols}{}
 \definecolor{gray}{rgb}{0.8,0.8,0.8}
@@ -114,7 +110,6 @@
 % --
 % user commands
 
-
 % special command for title frame due to distinct background image
 \newcommand{\titleframe}[1][~]{
   {
@@ -136,39 +131,18 @@
 
 % special command for intermediate frame starting a new section
 \newcommand{\sectionheader}[2][\empty]{
-\begin{frame}
-  \begin{minipage}[c][\textheight]{\textwidth}
-    \begin{center}
-      \usebeamerfont{part page}\usebeamercolor[fg]{part page}
-      #2\\[0.5em]
-      \fontsize{13}{13}\selectfont
-      #1
-    \end{center}
-  \end{minipage}
-  \note{~}
-\end{frame}
+  \begin{frame}
+    \begin{minipage}[c][\textheight]{\textwidth}
+      \begin{center}
+        \usebeamerfont{part page}\usebeamercolor[fg]{part page}
+        #2\\[0.5em]
+        \fontsize{12}{12}\selectfont
+        #1
+      \end{center}
+    \end{minipage}
+    \note{~}
+  \end{frame}
 }
-
-
-% special command for graphic slide filling whole screen automatically
-% \newcommand{\fullscreengraphic}[1]{
-%   \newlength\imageheight
-%   \newlength\imagewidth
-%   \settoheight\imageheight{\includegraphics{#1}}
-%   \settowidth\imagewidth{\includegraphics{#1}}
-%   \begin{frame}[plain]
-%     \begin{tikzpicture}[remember picture,overlay]
-%       \node at (current page.center){
-%         \begin{tikzpicture}[remember picture, overlay]
-%           \node[inner sep=0pt] at (0,0) {
-%             \ifthenelse{\lengthtest{\imagewidth > \imageheight}}{\includegraphics[height=\paperheight,keepaspectratio]{#1}}{\includegraphics[width=\paperwidth,keepaspectratio]{#1}}
-%           };
-%         \end{tikzpicture}
-%       };
-%     \end{tikzpicture}
-%   \end{frame}
-% }
-
 
 
 % --
@@ -180,8 +154,8 @@
   \begin{tikzpicture}[remember picture,overlay]
       \node at (-1.13,0.65){
         \begin{tikzpicture}[remember picture, overlay]
-          \draw[line width=0.5pt](1,-0.705) -- ($({\paperwidth-0.31cm},-0.705)$);
-          \node[inner sep=0pt, anchor=east] at ($({\paperwidth-0.31cm},-0.3525)$) {\includegraphics[width=12.1mm]{logo.pdf}};
+          \draw[line width=0.5pt](1,-0.705) -- ($({\paperwidth-0.31cm}, -0.705)$);
+          \node[inner sep=0pt, anchor=east] at ($({\paperwidth-0.31cm}, -0.3525)$) {\includegraphics[width=12.1mm]{logo.pdf}};
           \fill[tug] (0,-0.705) rectangle (0.705, -1.41);
           \node[inner sep=0pt] at (0.353, -1.05) {\fontsize{6}{6}\selectfont\color{white}\insertframenumber};
           \node[inner sep=0pt, anchor=north west] at (1,-0.35) {
@@ -192,7 +166,7 @@
       };
 
       \node at (-1.13,-\paperheight){
-        \begin{tikzpicture}[remember picture, overlay,yshift=6.3mm,xshift=0mm]
+        \begin{tikzpicture}[remember picture, overlay, yshift=6.3mm, xshift=0mm]
           \draw[fill, black!15] (0, 0) rectangle (\paperwidth, 0.705);
         \end{tikzpicture}
       };
@@ -220,10 +194,9 @@
   {
     \usebeamercolor[fg]{frametitle}
     \vskip 6pt
-    \begin{minipage}[t][1.62cm][t]{11.5cm}
-      %\fontsize{16}{20}\selectfont\insertframetitle
+    %\begin{minipage}[t][1.62cm][t]{11.5cm}
+    \begin{minipage}[t][0.0cm][t]{11.5cm}
       \fontsize{14}{12}\selectfont\insertframetitle
-      \ifx\insertframesubtitle\empty\else\par\insertframesubtitle\fi
     \end{minipage}
   }
   \vspace*{-15pt}
@@ -475,8 +448,9 @@
   }
 }
 
-\DeclareOption{minimal}{
-  %% do not draw institute logo in the "minimal" design
+\DeclareOption{minimal}
+{
+  % do not draw institute logo in the "minimal" design
   \def\drawinstitutelogo{}  
 
   % "minimal" headerline
@@ -498,7 +472,6 @@
       };
     \end{tikzpicture}
   }
-  
 }
 
 \DeclareOption{notes}{

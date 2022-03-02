@@ -6,6 +6,7 @@
 
 \begin{frame}
   \frametitle{KWS Game Pipeline}
+  \vfill
   \begin{figure} \includegraphics[width=0.9\textwidth]{../1_intro/figs/intro_kws.pdf} \end{figure}
   \scriptsize
   \vspace{0.3cm}
@@ -25,12 +26,12 @@
   \begin{itemize}
     \item vocabulary with $L$ words:
     \begin{equation*}\label{eq:intro_kws_dict}
-      S \coloneqq \{s_i \mid i = 0, 1, \dots, L - 1\},
+      S \coloneqq \{s_i \mid i = 0, 1, \dots, L - 1\}
     \end{equation*}
 
     \item closest word for target word $t$:
     \begin{equation*}\label{eq:intro_kws_task}
-      \hat{s} = \underset{s_i \in S}{\arg \min} \, \mathcal{D}(t, s_i),
+      \hat{s} = \underset{s_i \in S}{\arg \min} \, \mathcal{D}(t, s_i)
     \end{equation*}
 
     \item word prediction with neural network outputs $y_i$:
