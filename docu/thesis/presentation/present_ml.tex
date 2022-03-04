@@ -5,6 +5,26 @@
 \sectionheader{Neural Networks for KWS}
 
 \begin{frame}
+  \frametitle{Neural Network approaches}
+  \begin{itemize}
+    \item Convolutional Neural Networks (CNNs)
+    \begin{itemize}
+      \item MFCCs as input features
+      \item simple network architecutures with different striding properties
+    \end{itemize}
+    \item Generative Adversarial Neural Networks (GANs)
+    \begin{itemize}
+      \item used to improve the classification performance of equivalent CNN models
+    \end{itemize}
+    \item Wavenets
+    \begin{itemize}
+      \item raw audio data as input features
+      \item no feature extraction
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
   \frametitle{Fully Connected Layer}
   \begin{columns}
     \begin{column}{0.45\textwidth}
@@ -107,18 +127,65 @@
     \item consist of two adversarial networks:
     \begin{itemize}
       \footnotesize
-      \item Discriminator (D) for binary classification of fake / real input
-      \item Generator (G) to create image from the training dataset
+      \item Discriminator (D): classify images to fake or real  $D: \mathcal{X} \mapsto [0, 1]$ .
+      \item Generator (G): produce new data examples $G: \mathcal{Z} \mapsto \mathcal{X}$.
     \end{itemize}
+    \begin{tikzpicture} 
+      \node at (0, 0) (g) {\includegraphics[width=0.4\textwidth]{../4_nn/figs/nn_arch_adv_g_jim.pdf}};
+      \node at (g.east)[yshift=0.1cm] (vs) [anchor=west, font=\bf] {vs.};
+      \node at (vs.east)[yshift=-0.2cm] (d) [anchor=west] {\includegraphics[width=0.35\textwidth]{../4_nn/figs/nn_arch_adv_d_jim.pdf}};
+      \node at (vs.south)[yshift=-0.3cm] (sample) [anchor=north, rectangle, draw=blue!25!black, inner sep=2pt, line width=1pt] {\includegraphics[width=0.10\textwidth]{./figs/nn_adv_generated_sample.png}};
+      % lines
+      \draw [<-] [color=blue!25!black, line width=0.5pt] (sample.west) -- ++(-0.20cm, 0cm) -- ++(0, 0.4cm);
+      \draw [->] [color=blue!25!black, line width=0.5pt] (sample.east) -- ++(0.20cm, 0cm) -- ++(0, 0.4cm);
+      % text above
+      \node at (g.north west) [xshift=0.6cm, yshift=-0.1cm, anchor=north east] {\scriptsize G};
+      \node at (d.north west) [xshift=0.6cm, yshift=0.1cm, anchor=north east] {\scriptsize D};
+    \end{tikzpicture}
+    \vspace{0.2cm}
     \item Min-Max Solution for the Game between G and D:
   \end{itemize}
   \begin{equation*}
     \footnotesize
     \begin{aligned}
-      \underset{G}{\min} \, \underset{D}{\max} \, V(D, G) = & \E_{\bm{x} \sim p_{data}(\bm{x})}\left[ \log D(\bm{x}) \right] + \\
+      \underset{G}{\min} \, \underset{D}{\max} \, V(D, G) = \quad & \E_{\bm{x} \sim p_{data}(\bm{x})}\left[ \log D(\bm{x}) \right] + \\
       & \E_{\bm{z} \sim p_{\bm{z}}(\bm{z})}\left[ \log (1 - D(G(\bm{z}))) \right],
     \end{aligned}
   \end{equation*}
+\end{frame}
+
+\begin{frame}
+  \frametitle{GAN training losses}
+  \begin{itemize}
+    \item binary cross entropy loss $l$:
+    \begin{equation*}
+      \footnotesize
+      \begin{aligned}
+        l(x_i, y_i) = y_i \cdot \log x_i + (1 - y_i) \cdot \log (1 - x_i)
+      \end{aligned}
+    \end{equation*}
+    \item loss of D ($y_r$: real-, $y_f$: fake-label):
+    \begin{equation*}
+      \footnotesize
+      \begin{aligned}
+        l_D(x_i, z_i, G) = l(D(x_i), y_r) + l(D(G(z_i)), y_f)
+      \end{aligned}
+    \end{equation*}
+    \item loss of G:
+    \begin{equation*}
+      \footnotesize
+      \begin{aligned}
+        l_G(z_i, D) =  l(D(G(z_i)), y_r)
+      \end{aligned}
+    \end{equation*}
+    \item loss of G with similarity term ($s$ is cosine similarity):
+    \begin{equation*}
+      \footnotesize
+      \begin{aligned}
+        l_G(x_i, z_i, D) =  l(D(G(z_i)), y_r) + \lambda \left(1 - \frac{1}{C} \sum_{c=0}^{C} s(\hat{\bm{e}}_c^T x_i , \hat{\bm{e}}_c^T G(z_i)) \right),
+      \end{aligned}
+    \end{equation*}
+  \end{itemize}
 \end{frame}
 
 
@@ -132,11 +199,17 @@
 
 
 \begin{frame}
-  \frametitle{Wavenet Residual block}
+  \frametitle{Wavenets}
   \begin{itemize}
-    \item Residual block
+    \item Perform  on raw audio data ($\SI{1}{\second}$ = 16000 features)
+    \item Key Techniques: 
+    \begin{itemize}
+      \item dilated convolutions
+      \item quantization
+    \end{itemize}
+    \item Residual block schematic:
   \end{itemize}
-  \begin{figure} \includegraphics[height=0.45\textheight]{../4_nn/figs/nn_arch_wavenet_block.pdf} \end{figure}
+  \begin{figure} \includegraphics[height=0.35\textheight]{../4_nn/figs/nn_arch_wavenet_block.pdf} \end{figure}
 \end{frame}
 
 \begin{frame}

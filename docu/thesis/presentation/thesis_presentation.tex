@@ -6,7 +6,8 @@
 
 
 % subfigures
-\usepackage{subfigure}
+\usepackage{subfig}
+\usepackage{caption}
 
 % quotes
 \usepackage[autostyle=true]{csquotes}
@@ -36,6 +37,9 @@
 % tikz
 \usepackage{tikz}
 
+
+% no subscript under subfloat (new subfigure)
+\captionsetup[subfigure]{labelformat=empty}
 
 % tables
 \newcolumntype{M}[1]{>{\centering\arraybackslash}m{#1}}
