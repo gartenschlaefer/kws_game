@@ -57,7 +57,10 @@
 
 \begin{frame}
   \frametitle{Dataset Details}
-  \centering \vfill
+  \begin{itemize}
+    \item 500 examples per label for basic experiments
+    \item 3500 examples per label for the final experiment
+  \end{itemize}
   \input{./tables/present_tab_exp_details_params_dataset.tex}
 \end{frame}
 
@@ -108,7 +111,7 @@
 \begin{frame}
   \frametitle{Experiment: MFCC Enhancements}
   \begin{itemize}
-    \item run on conv-jim model with frame-based normalization
+    \item run on conv-jim model with frame-based normalization and 12 MFCC
     \item evaluation of
     \begin{itemize}
      \item different enhancements (c: cepstral, d: delta, dd: double delta, e: energy vector(s))
@@ -118,7 +121,7 @@
   \vspace{-0.5cm}
   \begin{figure}[!ht]
     \centering
-    \subfloat[conv-jim]{\includegraphics[width=0.48\textwidth]{../5_exp/figs/exp_fs_mfcc_acc_conv-jim.png}}
+    \subfloat{\includegraphics[width=0.48\textwidth]{../5_exp/figs/exp_fs_mfcc_acc_conv-jim.png}}
   \end{figure}
 \end{frame}
 
@@ -130,10 +133,10 @@
 \begin{frame}
   \frametitle{Experiment: Adversarial Label Train}
   \begin{itemize}
-    \item run on conv-jim model with frame-based normalization
+    \item run on conv-jim model with frame-based normalization and 12 MFCC
     \item evaluation of
     \begin{itemize}
-     \item adversarial label train
+     \item adversarial label train with different training epochs
      \item usage of either D or G filter weights
     \end{itemize}
     \item validation accuracy:
@@ -152,9 +155,22 @@
 \end{frame}
 
 \begin{frame}
+  \frametitle{Experiment: Wavenet}
+  \begin{itemize}
+    \item unfortunately poor classification results:
+  \end{itemize}
+  \vspace{-0.5cm}
+  \begin{figure}[!ht]
+    \centering
+    \subfloat[validation accuracy]{\includegraphics[width=0.45\textwidth]{../5_exp/figs/exp_wavenet_acc.png}}
+    \subfloat[test confusion matrix]{\includegraphics[width=0.45\textwidth]{../5_exp/figs/exp_wavenet_confusion_test.png}}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
   \frametitle{Experiment: Final}
   \begin{itemize}
-    \item run on all CNN models
+    \item run on all CNN models the whole dataset
     \item evaluation of
     \begin{itemize}
      \item frame-based normalization
@@ -174,4 +190,13 @@
   \frametitle{Experiment: Final}
   \centering \vfill
   \input{./tables/present_tab_exp_final_l12.tex}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Experiment: Final}
+  \begin{itemize}
+      \item chosen model: conv-jim, frame-based normalized, adv-label-train
+      \item confusion matrix on test set:
+  \end{itemize}
+  \begin{figure}[!ht] \includegraphics[width=0.45\textwidth]{../5_exp/figs/exp_final_confusion.png} \end{figure}
 \end{frame}
