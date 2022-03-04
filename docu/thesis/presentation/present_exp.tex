@@ -24,13 +24,13 @@
 \end{frame}
 
 \begin{frame}
-  \frametitle{Dataset Examples}
-  \begin{itemize}
-    \item MFCC features of \enquote{right} examples.
-  \end{itemize}
+  \frametitle{MFCC Extracted Dataset Examples}
+  \vspace{-0.5cm}
   \begin{figure}[!ht]
     \centering
-    \includegraphics[width=0.9\textwidth]{../5_exp/figs/exp_dataset_speech_cmd_mfcc_right.png}
+    \subfloat[left]{\includegraphics[width=0.8\textwidth]{../5_exp/figs/exp_dataset_speech_cmd_mfcc_left.png}}\\
+    \vspace{-0.1cm}
+    \subfloat[right]{\includegraphics[width=0.8\textwidth]{../5_exp/figs/exp_dataset_speech_cmd_mfcc_right.png}}
   \end{figure}
 \end{frame}
 
@@ -41,6 +41,7 @@
     \item 5 examples per label
     \item used as additional test set
   \end{itemize}
+  \vspace{-0.3cm}
   \begin{figure}[!ht]
     \centering
     \subfloat[audio]{\includegraphics[width=0.29\textwidth]{../5_exp/figs/exp_dataset_my_wav_grid.png}}
@@ -101,7 +102,6 @@
 
 \begin{frame}
   \frametitle{Experiment: Feature Selection Cepstral Coeff.}
-  \centering \vfill
   \input{./tables/present_tab_exp_fs_cepstral_l12.tex}
 \end{frame}
 
@@ -124,7 +124,6 @@
 
 \begin{frame}
   \frametitle{Experiment: MFCC Enhancements}
-  \centering \vfill
   \input{./tables/present_tab_exp_fs_mfcc_l12.tex}
 \end{frame}
 

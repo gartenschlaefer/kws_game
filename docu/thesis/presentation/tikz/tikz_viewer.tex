@@ -1,0 +1,49 @@
+% --
+% Master's Thesis presentation
+
+% document style
+\documentclass{beamer}
+
+% tikz
+\usepackage{tikz}
+
+\usetikzlibrary{calc, positioning}
+
+\definecolor{shovelorange}{RGB}{255, 152, 0}
+\definecolor{sgreen}{RGB}{115, 111, 76}
+\definecolor{lachsred}{RGB}{175, 100, 88}
+\definecolor{violeta}{RGB}{133, 92, 117}
+\definecolor{neonlightblue}{RGB}{118, 215, 255}
+
+% --
+% document
+
+\begin{document}
+\begin{frame}
+\begin{tikzpicture}
+  \node at (0, 0) (ktrad) [inner sep=0] {\includegraphics[width=0.5\textwidth]{../figs/real_right_sample.png}};
+  \node [below=of ktrad, inner sep=0] (kfstride) {\includegraphics[width=0.5\textwidth]{../figs/real_right_sample.png}};
+  \node [below=of kfstride, inner sep=0] (kjim) {\includegraphics[width=0.5\textwidth]{../figs/real_right_sample.png}};
+
+  % fstride
+  \draw [color=neonlightblue, line width=1.5pt] (ktrad.north west) rectangle ++(62pt, -0.45cm);
+  \draw [->, line width=1.0pt, color=neonlightblue] ($(ktrad.west) + (65pt, 13pt)$) -- ++(8pt, 0);
+  \draw [->, line width=1.0pt, color=neonlightblue] ($(ktrad.south) + (-48pt, 0.8cm)$) -- ++(0, -8pt);
+
+  % fstride
+  \draw [color=neonlightblue, line width=1.5pt] (kfstride.north west) rectangle ($(kfstride.north east) + (0, -0.9cm)$);
+  \draw [->, line width=1.0pt, color=neonlightblue] ($(kfstride.south) + (0, 0.35cm)$) -- ++(0, -8pt);
+
+  % fstride
+  \draw [color=neonlightblue, line width=1.5pt] (kjim.north west) rectangle ($(kjim.south west) + (62pt, 0)$);
+  \draw [->, line width=1.0pt, color=neonlightblue] ($(kjim.west) + (65pt, 0)$) -- ++(8pt, 0);
+
+  % text
+  \node at (ktrad.west) [xshift=-2pt, anchor=east] {conv-trad};
+  \node at (kfstride.west) [xshift=-2pt, anchor=east] {conv-fstride};
+  \node at (kjim.west) [xshift=-2pt, anchor=east] {conv-jim};
+\end{tikzpicture}
+\end{frame}
+
+\end{document}
+

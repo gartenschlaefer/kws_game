@@ -87,7 +87,42 @@
 
 \begin{frame}
   \frametitle{Convolutional Layer Example}
+  \vspace{0.2cm}
   \begin{figure} \includegraphics[width=0.8\textwidth]{../4_nn/figs/nn_theory_cnn_basics.pdf} \end{figure}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Striding properties of CNNs}
+  \begin{itemize}
+    \item striding of the conv. filters (kernels) from the first conv. layers of all three CNN models:
+  \end{itemize}
+  \hspace{1cm}
+  \scalebox{0.75}
+  {
+    \begin{tikzpicture}
+      \node at (0, 0) (ktrad) [inner sep=0] {\includegraphics[width=0.5\textwidth]{./figs/real_right_sample.png}};
+      \node [below=of ktrad, inner sep=0] (kfstride) {\includegraphics[width=0.5\textwidth]{./figs/real_right_sample.png}};
+      \node [below=of kfstride, inner sep=0] (kjim) {\includegraphics[width=0.5\textwidth]{./figs/real_right_sample.png}};
+
+      % fstride
+      \draw [color=neonlightblue, line width=1.5pt] (ktrad.north west) rectangle ++(62pt, -0.45cm);
+      \draw [->, line width=1.0pt, color=neonlightblue] ($(ktrad.west) + (65pt, 13pt)$) -- ++(8pt, 0);
+      \draw [->, line width=1.0pt, color=neonlightblue] ($(ktrad.south) + (-48pt, 0.8cm)$) -- ++(0, -8pt);
+
+      % fstride
+      \draw [color=neonlightblue, line width=1.5pt] (kfstride.north west) rectangle ($(kfstride.north east) + (0, -0.9cm)$);
+      \draw [->, line width=1.0pt, color=neonlightblue] ($(kfstride.south) + (0, 0.35cm)$) -- ++(0, -8pt);
+
+      % fstride
+      \draw [color=neonlightblue, line width=1.5pt] (kjim.north west) rectangle ($(kjim.south west) + (62pt, 0)$);
+      \draw [->, line width=1.0pt, color=neonlightblue] ($(kjim.west) + (65pt, 0)$) -- ++(8pt, 0);
+
+      % text
+      \node at (ktrad.west) [xshift=-2pt, anchor=east] {conv-trad};
+      \node at (kfstride.west) [xshift=-2pt, anchor=east] {conv-fstride};
+      \node at (kjim.west) [xshift=-2pt, anchor=east] {conv-jim};
+    \end{tikzpicture}
+  }
 \end{frame}
 
 \begin{frame}
@@ -192,9 +227,9 @@
 \begin{frame}
   \frametitle{Adversarial Label Training}
   \begin{itemize}
-    \item Version of conv-jim:
+    \item individual training instances on label subsets:
   \end{itemize}
-  \begin{figure} \includegraphics[height=0.5\textheight]{../4_nn/figs/nn_adv_label_scheme.pdf} \end{figure}
+  \begin{figure} \includegraphics[height=0.7\textheight]{../4_nn/figs/nn_adv_label_scheme.pdf} \end{figure}
 \end{frame}
 
 
@@ -209,6 +244,7 @@
     \end{itemize}
     \item Residual block schematic:
   \end{itemize}
+  \vspace{-0.2cm}
   \begin{figure} \includegraphics[height=0.35\textheight]{../4_nn/figs/nn_arch_wavenet_block.pdf} \end{figure}
 \end{frame}
 
@@ -218,5 +254,6 @@
     \item Num. Params: \textbf{\num{33509}}
     \item Num. Operations: \textbf{\SI{36695.02}{\kilo\ops}}
   \end{itemize}
-  \begin{figure} \includegraphics[height=0.5\textheight]{../4_nn/figs/nn_arch_wavenet_all.pdf} \end{figure}
+  \vspace{-0.2cm}
+  \begin{figure} \includegraphics[height=0.6\textheight]{../4_nn/figs/nn_arch_wavenet_all.pdf} \end{figure}
 \end{frame}
