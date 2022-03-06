@@ -5,12 +5,14 @@ machine learning
 import numpy as np
 import os
 import logging
+import re
 
 from glob import glob
 
 # my stuff
 from common import s_to_hms_str, create_folder, check_files_existance
 from plots import plot_train_score, plot_confusion_matrix, plot_mfcc_only, plot_grid_images, plot_mfcc_anim
+from PIL import Image, ImageDraw, ImageFont
 
 
 class ML():
@@ -41,8 +43,8 @@ class ML():
     # create batch archive
     self.batch_archive = SpeechCommandsBatchArchive(feature_file_dict={**self.audio_dataset.feature_file_dict, **self.audio_dataset_my.feature_file_dict}, batch_size_dict={'train': self.train_params['batch_size'], 'test': 5, 'validation': 5, 'my': 1}, shuffle=True) if audio_dataset_my is not None else SpeechCommandsBatchArchive(feature_file_dict=self.audio_dataset.feature_file_dict, batch_size_dict={'train': self.train_params['batch_size'], 'test': 5, 'validation': 5, 'my': 1}, shuffle=True)
 
-    # create batches
-    self.batch_archive.create_batches() if not self.nn_arch.startswith('adv') else self.batch_archive.create_batches(selected_labels=['left'])
+    # create batches (select a single label for adv test networks)
+    self.batch_archive.create_batches() if not self.nn_arch.startswith('adv') else self.batch_archive.create_batches(selected_labels=['right'])
 
     # net handler
     self.net_handler = NetHandler(nn_arch=self.nn_arch, class_dict=self.batch_archive.class_dict, data_size=self.batch_archive.data_size, feature_params=self.audio_dataset.feature_params, encoder_model=self.encoder_model, decoder_model=self.decoder_model, use_cpu=self.cfg_ml['use_cpu'])
@@ -188,7 +190,7 @@ class ML():
     print("\nTraining on nn_arch: {}\naudio set params string: {}\ntrain params string: {}\nmodel path: {}".format(self.nn_arch, self.audio_dataset.param_path, self.param_path_ml, self.model_path))
 
     # train
-    train_score = self.net_handler.train_nn(train_params=train_params, batch_archive=self.batch_archive, callback_f=self.image_collect)
+    train_score = self.net_handler.train_nn(train_params=train_params, batch_archive=self.batch_archive, callback_f=self.image_collect, collect_epoch=self.cfg_ml['collect_epoch'])
 
     # training info
     if log_on: logging.info('Training on arch: [{}], audio set param string: [{}], param_string: [{}] train_params: {}, device: [{}], time: {}'.format(self.cfg_ml['nn_arch'], self.audio_dataset.param_path, self.param_string, train_params, self.net_handler.device, s_to_hms_str(train_score.score_dict['time_usage'])))
@@ -344,19 +346,54 @@ class ML():
     """
     from glob import glob
 
+    # get collected files
     collection_files = glob(self.model_path_folders['train_collections'] + '*.pth')
+    if not len(collection_files): return
 
-    # get specific model files
-    g_model_files = [f for f in collection_files if 'g_model' in f]
-    d_model_files = [f for f in collection_files if 'd_model' in f]
-
-    # load models
-    g_d1 = [torch.load(g)['conv_decoder.deconv_layers.1.weight'] for g in g_model_files]
-    d_c1 = [torch.load(d)['conv_encoder.conv_layers.0.weight'] for d in d_model_files]
+    # load model weights
+    g_d1 = [torch.load(g)['deconv_layer1.weight'] for g in [f for f in collection_files if 'g_model' in f]]
+    d_c1 = [torch.load(d)['conv_layer0.weight'] for d in [f for f in collection_files if 'd_model' in f]]
 
     # plot models
-    for i, x in enumerate(g_d1): plot_grid_images(x.cpu(), context='weight0', num_cols=8, color_balance=True, title='', plot_path=self.model_path_folders['train_collections'], name='g' + str(i))
-    for i, x in enumerate(d_c1): plot_grid_images(x.cpu(), context='weight0', num_cols=8, color_balance=True, title='', plot_path=self.model_path_folders['train_collections'], name='d' + str(i))
+    [plot_grid_images(x.cpu(), context='weight0', num_cols=8, color_balance=True, title='', plot_path=self.model_path_folders['train_collections'], name='g_weights_{:0>5}'.format(i * self.cfg_ml['collect_epoch'])) for i, x in enumerate(g_d1)]
+    [plot_grid_images(x.cpu(), context='weight0', num_cols=8, color_balance=True, title='', plot_path=self.model_path_folders['train_collections'], name='d_weights_{:0>5}'.format(i * self.cfg_ml['collect_epoch'])) for i, x in enumerate(d_c1)]
+    
+    # save collected images
+    [plot_mfcc_only(x[0, :], fs=16000, hop=160, cmap=None, context='mfcc', plot_path=self.model_path_folders['train_collections'], name='generated_sample_{:0>5}'.format(i * self.cfg_ml['collect_epoch']), show_plot=False, close_plot=True) for i, x in enumerate(self.img_list)]
+
+    # merge images
+    image_files = sorted(glob(self.model_path_folders['train_collections'] + '*.png'))
+
+    out_folder = self.model_path_folders['train_collections'] + 'out/'
+    
+    # create out folder
+    create_folder([out_folder])
+
+    # run through all image files and merge
+    for i, (g, d, s) in enumerate(zip([f for f in image_files if 'g_weights_' in f], [f for f in image_files if 'd_weights_' in f], [f for f in image_files if 'generated_sample_' in f])):
+
+      # extract epoch from filename
+      epoch = re.sub(r'(_)|(\.png)', '', re.findall(r'_[0-9]*.png', g)[0])
+
+      # new image
+      new_img = Image.new('RGB', (800, 600), (255, 255, 255))
+
+      # open images
+      new_img.paste(Image.open(g), (0, 0))
+      new_img.paste(Image.open(d), (0, 100))
+      new_img.paste(Image.open(s), (0, 250))
+
+      # add text
+      ImageDraw.Draw(new_img).text((10, 30), 'G', (0, 0, 0), font=ImageFont.truetype('./ignore/fonts/open-sans/OpenSans-Regular.ttf', 25))
+      ImageDraw.Draw(new_img).text((10, 130), 'D', (0, 0, 0), font=ImageFont.truetype('./ignore/fonts/open-sans/OpenSans-Regular.ttf', 25))
+      ImageDraw.Draw(new_img).text((260, 320), 'Generated Sample', (0, 0, 0), font=ImageFont.truetype('./ignore/fonts/open-sans/OpenSans-Regular.ttf', 25))
+      ImageDraw.Draw(new_img).text((260, 240), 'Epoch: {}'.format(epoch), (0, 0, 0), font=ImageFont.truetype('./ignore/fonts/open-sans/OpenSans-Regular.ttf', 30))
+
+      # save image
+      new_img.save(out_folder + 'adv{:0>4}.png'.format(i), 'PNG')
+
+    # convert to video format
+    os.system("ffmpeg -framerate 2 -start_number 0 -i {}adv%4d.png -vcodec mpeg4 {}adv_out.avi".format(out_folder, out_folder))
 
 
   def create_anim(self):

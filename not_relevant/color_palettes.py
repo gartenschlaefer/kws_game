@@ -191,7 +191,7 @@ if __name__ == '__main__':
   import sys
   sys.path.append("../")
 
-  from plots import plot_mfcc_only, plot_grid_images, plot_waveform, plot_val_acc, plot_train_loss, plot_adv_train_loss, plot_histogram
+  from plots import plot_grid_images, plot_waveform, plot_val_acc, plot_train_loss, plot_adv_train_loss, plot_histogram
   from audio_dataset import AudioDataset
   from batch_archive import SpeechCommandsBatchArchive
   from net_handler import NetHandler

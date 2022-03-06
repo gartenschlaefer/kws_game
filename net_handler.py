@@ -162,9 +162,9 @@ class NetHandler():
     # safety check
     if len(model_files) != len(self.models): print("***save models failed: len of model file names is not equal length of models"), sys.exit()
 
-    # model names from files
-    f_model_name_dict = {re.sub(r'(model\.pth)|(_)', '', re.findall(r'[\w _]*model\.pth', mf)[0]): mf for mf in model_files}
-
+    # model names from files -> to naming convention, e.g. cnn, or g, d, etc
+    f_model_name_dict = {re.sub(r'(model)|(_)|(ep\-[0-9]*)|(\.pth)', '', mn): mf for mn, mf in zip(re.findall(r'[\w _]*model[_ep\-0-9]*\.pth', '|'.join(model_files)), model_files)}
+    
     # legacy
     f_model_name_dict = legacy_model_file_naming(f_model_name_dict)
 
@@ -186,7 +186,7 @@ class NetHandler():
     pass
 
 
-  def train_nn(self, train_params, batch_archive, callback_f=None):
+  def train_nn(self, train_params, batch_archive, callback_f=None, collect_epoch=100):
     """
     train interface
     """
@@ -302,7 +302,7 @@ class CnnHandler(NetHandler):
     self.optimizer = torch.optim.Adam(self.models['cnn'].parameters(), lr=train_params['lr'], betas=(train_params['beta'], 0.999))
 
 
-  def train_nn(self, train_params, batch_archive, callback_f=None):
+  def train_nn(self, train_params, batch_archive, callback_f=None, collect_epoch=100):
     """
     training of the neural network train_params: {'num_epochs': [], 'lr': [], 'momentum': []}
     """
@@ -443,7 +443,7 @@ class AdversarialNetHandler(NetHandler):
     self.actual_d_epoch = train_params['k_update_d']
 
 
-  def train_nn(self, train_params, batch_archive, callback_f=None, callback_act_epochs=10):
+  def train_nn(self, train_params, batch_archive, callback_f=None, collect_epoch=100):
     """
     train adversarial nets
     """
@@ -467,7 +467,7 @@ class AdversarialNetHandler(NetHandler):
         train_score = self.update_models(x, y, epoch, mini_batch, train_score, train_params)
 
       # check progess after epoch with callback function
-      if callback_f is not None and not epoch % callback_act_epochs: callback_f(self.generate_samples(noise=fixed_noise, to_np=True), epoch)
+      if callback_f is not None and not epoch % collect_epoch: callback_f(self.generate_samples(noise=fixed_noise, to_np=True), epoch)
 
     # finish train score
     train_score.finish()
@@ -730,7 +730,7 @@ class HybridNetHandler(NetHandler):
     self.actual_d_epoch = train_params['k_update_d']
 
 
-  def train_nn(self, train_params, batch_archive, callback_f=None, callback_act_epochs=10):
+  def train_nn(self, train_params, batch_archive, callback_f=None, collect_epoch=100):
     """
     train adversarial nets
     """
@@ -760,7 +760,7 @@ class HybridNetHandler(NetHandler):
       train_score.score_dict['val_loss'][epoch], train_score.score_dict['val_acc'][epoch] = eval_score.loss, eval_score.acc
 
       # check progess after epoch with callback function
-      if callback_f is not None and not epoch % callback_act_epochs: callback_f(self.generate_samples(noise=fixed_noise, to_np=True), epoch)
+      if callback_f is not None and not epoch % collect_epoch: callback_f(self.generate_samples(noise=fixed_noise, to_np=True), epoch)
 
     # finish train score
     train_score.finish()
@@ -997,7 +997,7 @@ class HybridGNetHandler(NetHandler):
     self.optimizer_d = torch.optim.Adam(self.models['d'].parameters(), lr=train_params['lr_d'], betas=(train_params['beta_d'], 0.999))
 
 
-  def train_nn(self, train_params, batch_archive, callback_f=None, callback_act_epochs=10):
+  def train_nn(self, train_params, batch_archive, callback_f=None, collect_epoch=100):
     """
     train adversarial nets
     """
@@ -1024,7 +1024,7 @@ class HybridGNetHandler(NetHandler):
       train_score.score_dict['val_loss'][epoch], train_score.score_dict['val_acc'][epoch] = eval_score.loss, eval_score.acc
 
       # check progess after epoch with callback function
-      if callback_f is not None and not epoch % callback_act_epochs: callback_f(self.generate_samples(to_np=True), epoch)
+      if callback_f is not None and not epoch % collect_epoch: callback_f(self.generate_samples(to_np=True), epoch)
 
     # finish train score
     train_score.finish()
@@ -1203,7 +1203,7 @@ class WavenetHandler(NetHandler):
       self.optimizer = torch.optim.Adam(self.models['wav'].parameters(), lr=train_params['lr2'], betas=(train_params['beta'], 0.999))
 
 
-  def train_nn(self, train_params, batch_archive, callback_f=None, lam=2.0):
+  def train_nn(self, train_params, batch_archive, callback_f=None, collect_epoch=100, lam=2.0):
     """
     wavenet training
     """

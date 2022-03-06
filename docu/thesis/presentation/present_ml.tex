@@ -10,13 +10,13 @@
     \item Convolutional Neural Networks (CNNs)
     \begin{itemize}
       \item MFCCs as input features
-      \item simple network architecutures with different striding properties
+      \item simple network architecutures with different striding properties adapted from \cite{Sainath2015}
     \end{itemize}
-    \item Generative Adversarial Neural Networks (GANs)
+    \item Generative Adversarial Neural Networks (GANs) \cite{Goodfellow2014}
     \begin{itemize}
       \item used to improve the classification performance of equivalent CNN models
     \end{itemize}
-    \item Wavenets
+    \item Wavenets \cite{Oord2016}
     \begin{itemize}
       \item raw audio data as input features
       \item no feature extraction
@@ -231,6 +231,38 @@
   \end{itemize}
   \begin{figure} \includegraphics[height=0.7\textheight]{../4_nn/figs/nn_adv_label_scheme.pdf} \end{figure}
 \end{frame}
+
+
+\begin{frame}
+  \frametitle{Adversarial Label Training}
+  \begin{itemize}
+    \item training on label \enquote{right} without similarity term:
+  \end{itemize}
+    \begin{tikzpicture} 
+      \node at (0, 0) (a) {\includegraphics[width=0.4\textwidth]{./figs/adv_experimental_ep-10}};
+      \node at (a.east)[xshift=0.2cm] (b) [anchor=west] {\includegraphics[width=0.4\textwidth]{./figs/adv_experimental_ep-990}};
+      \node at (a.south) (c) [anchor=north] {\includegraphics[width=0.4\textwidth]{./figs/adv_experimental_loss}};
+      % lines
+      \draw [->] [color=blue!25!black, line width=1.5pt] (a.east) -- ++(6pt, 0cm);
+    \end{tikzpicture}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Adversarial Label Training}
+  \begin{itemize}
+    \item training on label \enquote{right} with similarity term:
+  \end{itemize}
+    \begin{tikzpicture} 
+      \node at (0, 0) (a) {\includegraphics[width=0.4\textwidth]{./figs/adv_conv-jim_ep-10}};
+      \node at (a.east)[xshift=0.2cm] (b) [anchor=west] {\includegraphics[width=0.4\textwidth]{./figs/adv_conv-jim_ep-990}};
+      \node at (a.south) (c) [anchor=north] {\includegraphics[width=0.4\textwidth]{./figs/adv_conv-jim_loss}};
+      % lines
+      \draw [->] [color=blue!25!black, line width=1.5pt] (a.east) -- ++(6pt, 0cm);
+    \end{tikzpicture}
+\end{frame}
+
+
+
 
 
 \begin{frame}

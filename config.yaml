@@ -287,22 +287,22 @@ ml:
   #nn_arch: conv-experimental
   #nn_arch: conv-fstride
   #nn_arch: conv-trad
-  #nn_arch: conv-jim
+  nn_arch: conv-jim
   #nn_arch: adv-experimental
   #nn_arch: adv-jim
   #nn_arch: adv-jim-label
   #nn_arch: hyb-jim
   #nn_arch: hyb-jim-g
-  nn_arch: wavenet
+  #nn_arch: wavenet
 
   # params
   train_params:
 
     # training params for cnn architectures
-    cnn: {'batch_size': 32, 'num_epochs': 2000, 'lr': 0.0001, 'beta': 0.9}
+    cnn: {'batch_size': 32, 'num_epochs': 100, 'lr': 0.0001, 'beta': 0.9}
 
     # adv
-    adv: {'batch_size': 32, 'num_epochs': 1000, 'lr_d': 0.0001, 'lr_g': 0.0001, 'beta_d': 0.9, 'beta_g': 0.9, 'k_update_d': -1, 'k_update_g': -1}
+    adv: {'batch_size': 32, 'num_epochs': 2000, 'lr_d': 0.0001, 'lr_g': 0.0001, 'beta_d': 0.9, 'beta_g': 0.9, 'k_update_d': -1, 'k_update_g': -1}
 
     # pre adv dual
     adv_dual: {'batch_size': 32, 'num_epochs': 100, 'lr_d': 0.0001, 'lr_g': 0.0001, 'beta_d': 0.9, 'beta_g': 0.9, 'k_update_d': 2, 'k_update_g': 2}
@@ -349,13 +349,14 @@ ml:
   logging_enabled: True
 
   # use cpu
-  use_cpu: False
+  use_cpu: True
 
   # animation
   create_animation: False
 
   # collections
   create_collections: False
+  collect_epoch: 10
 
   # paths
   paths:

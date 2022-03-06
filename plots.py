@@ -1089,7 +1089,7 @@ def plot_mfcc_profile(x, fs, N, hop, mfcc, sep_features=True, diff_plot=False, c
   if close_plot: plt.close()
 
 
-def plot_mfcc_only(mfcc, fs=16000, hop=160, cmap=None, context='mfcc', plot_path=None, name='mfcc_only', show_plot=False, close_plot=True):
+def plot_mfcc_only(mfcc, fs=16000, hop=160, cmap=None, context='mfcc', plot_path=None, name='mfcc_only', title='', show_plot=False, close_plot=True):
   """
   plot mfcc extracted features only (no time series)
   """
@@ -1097,6 +1097,9 @@ def plot_mfcc_only(mfcc, fs=16000, hop=160, cmap=None, context='mfcc', plot_path
   # get cmap
   if cmap is None: cmap = get_colormap_from_context(context=context)
 
+  # squeeze if necessary
+  mfcc = np.squeeze(mfcc)
+  
   # get shape
   m, l = mfcc.shape
 
@@ -1114,8 +1117,8 @@ def plot_mfcc_only(mfcc, fs=16000, hop=160, cmap=None, context='mfcc', plot_path
 
   else:
     sel_coefs = [np.arange(0, mfcc.shape[0])]
-    titles = ['']
-    n_rows, n_cols, n_im_rows = 20, 20, 8
+    titles = [title]
+    n_rows, n_cols, n_im_rows = 20, 20, 15
 
   # grid
   gs = plt.GridSpec(n_rows, n_cols, wspace=0.4, hspace=0.3)
@@ -1125,23 +1128,28 @@ def plot_mfcc_only(mfcc, fs=16000, hop=160, cmap=None, context='mfcc', plot_path
 
     # row start and stop
     rs = (i) * n_im_rows + 2
-    re = (i+1) * n_im_rows
+    re = (i + 1) * n_im_rows
 
     # specify grid pos
     ax = fig.add_subplot(gs[rs:re, :n_cols-2])
 
     # plot selected mfcc
-    im = ax.imshow(mfcc[c], aspect='auto', extent=[0, t[-1], c[-1], c[0]], cmap=cmap)
-    #im = ax.imshow(mfcc[c], aspect='equal', interpolation='none', extent=[0, t[-1], c[-1], c[0]], cmap=cmap)
+    #im = ax.imshow(mfcc[c], aspect='auto', extent=[0, t[-1], c[-1], c[0]], cmap=cmap)
+    im = ax.imshow(mfcc[c], aspect='equal', interpolation='none', cmap=cmap)
+
+    # tick settings
+    ax.tick_params(axis='both', which='major', labelsize=get_fontsize('axis_tick_major', add_size=0)), ax.tick_params(axis='both', which='minor', labelsize=get_fontsize('axis_tick_minor', add_size=0))
+
+    # ticks
+    ax.set_xticks(np.arange(-0.5, l-0.5, 5)), ax.set_xticklabels(np.arange(0, l, 5))
 
     # some labels
     if len(titles[i]): ax.set_title(titles[i])
     ax.set_ylabel("cepstrum coeff")
-    if i == len(sel_coefs) - 1: ax.set_xlabel("time [s]")
-    ax.set_xlim(left=0)
+    if i == len(sel_coefs) - 1: ax.set_xlabel("time [ms]")
 
     # add colorbar
-    ax = fig.add_subplot(gs[rs:re, n_cols-1])
+    ax = fig.add_subplot(gs[rs+2:re-2, n_cols-1])
     add_colorbar(fig, im, cax=ax)
 
   # plot the fig
@@ -1505,9 +1513,8 @@ if __name__ == '__main__':
   
   import torch
 
-  for x in [torch.randn(8, 1, 13, 20).numpy(), torch.randn(40, 1, 13, 20).numpy(), torch.randn(40, 1, 39, 20).numpy(), torch.randn(1000, 1, 13, 20).numpy()]: 
-    # image plot
-    plot_grid_images(x, padding=1, num_cols=8,  show_plot=False)
+  plot_mfcc_only(torch.randn(12, 50), fs=16000, hop=160, cmap=None, context='mfcc', plot_path=None, name='mfcc_only', title='epoch: 1', show_plot=True, close_plot=True)
 
-  plt.show()
+  # grid plot
+  #for x in [torch.randn(8, 1, 13, 20).numpy(), torch.randn(40, 1, 13, 20).numpy(), torch.randn(40, 1, 39, 20).numpy(), torch.randn(1000, 1, 13, 20).numpy()]: plot_grid_images(x, padding=1, num_cols=8,  show_plot=False)
   

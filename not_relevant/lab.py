@@ -5,6 +5,8 @@ import yaml
 import matplotlib.pyplot as plt
 import numpy as np
 import time
+import re
+import os
 
 import sys
 sys.path.append("../")
@@ -12,6 +14,7 @@ sys.path.append("../")
 from audio_dataset import AudioDataset
 from feature_extraction import FeatureExtractor
 from classifier import Classifier
+from glob import glob
 
 
 def params():
@@ -139,6 +142,44 @@ def time_measure_callable(x, callback_f, n_samples=100):
   print("f: [{}] mean time: [{:.4e}]".format(callback_f.__name__, np.mean(delta_time_list)))
 
 
+def adv_image_merge():
+  """
+  merge images in adversarial training
+  """
+
+  from PIL import Image, ImageDraw, ImageFont
+
+  # merge images
+  image_files = glob('./ignore/adv_img/*.png')
+
+  # run through all image files and merge
+  for i, (g, d, s) in enumerate(zip([f for f in image_files if 'g_weights_' in f], [f for f in image_files if 'd_weights_' in f], [f for f in image_files if 'generated_sample_' in f])):
+
+    # extract epoch from filename
+    epoch = re.sub(r'(_)|(\.png)', '', re.findall(r'_[0-9]*.png', g)[0])
+
+    # new image
+    new_img = Image.new('RGB', (800, 600), (255, 255, 255))
+
+    # open images
+    new_img.paste(Image.open(g), (0, 0))
+    new_img.paste(Image.open(d), (0, 100))
+    new_img.paste(Image.open(s), (0, 250))
+
+    # add text
+    ImageDraw.Draw(new_img).text((10, 30), 'G', (0, 0, 0), font=ImageFont.truetype('./ignore/fonts/open-sans/OpenSans-Regular.ttf', 25))
+    ImageDraw.Draw(new_img).text((10, 130), 'D', (0, 0, 0), font=ImageFont.truetype('./ignore/fonts/open-sans/OpenSans-Regular.ttf', 25))
+    ImageDraw.Draw(new_img).text((260, 320), 'Generated Sample', (0, 0, 0), font=ImageFont.truetype('./ignore/fonts/open-sans/OpenSans-Regular.ttf', 25))
+    ImageDraw.Draw(new_img).text((260, 240), 'Epoch: {:0>5}'.format(epoch), (0, 0, 0), font=ImageFont.truetype('./ignore/fonts/open-sans/OpenSans-Regular.ttf', 30))
+
+    # save image
+    new_img.save('./ignore/adv_img/out/adv{}.png'.format(i), 'PNG')
+
+  # convert to video format
+  #os.system("ffmpeg -framerate 1 -start_number 0 -i ./ignore/adv_img/out/adv%d.png -vcodec mpeg4 ./ignore/adv_img/out/adv_out.avi")
+
+
+
 if __name__ == '__main__':
   """
   lab main
@@ -149,17 +190,20 @@ if __name__ == '__main__':
   # yaml config file
   cfg = yaml.safe_load(open("../config.yaml"))
 
+  # image merging
+  adv_image_merge()
+
   # init feature extractor
-  feature_extractor = FeatureExtractor(cfg['feature_params'])
+  #feature_extractor = FeatureExtractor(cfg['feature_params'])
 
   #cfg['classifier']['model_path'] = 'models/conv-fstride/v3_c-5_n-2000/bs-32_it-1000_lr-1e-05/'
   #cfg['classifier']['model_path'] = 'models/conv-fstride/v5_c12n1m1_n-3500_r1-5_mfcc32-12_c1d0d0e0_norm1_f-1x12x50/bs-32_it-2000_lr-0p0001/'
   #cfg['classifier']['model_path'] = 'models/conv-trad/v5_c12n1m1_n-3500_r1-5_mfcc32-12_c1d0d0e0_norm1_f-1x12x50/bs-32_it-2000_lr-0p0001/'
-  cfg['classifier']['model_path'] = 'models/conv-jim/v5_c12n1m1_n-3500_r1-5_mfcc32-12_c1d0d0e0_norm1_f-1x12x50/bs-32_it-2000_lr-0p0001_adv-pre_bs-32_it-100_lr-d-0p0001_lr-g-0p0001_label_model-g/'
+  #cfg['classifier']['model_path'] = 'models/conv-jim/v5_c12n1m1_n-3500_r1-5_mfcc32-12_c1d0d0e0_norm1_f-1x12x50/bs-32_it-2000_lr-0p0001_adv-pre_bs-32_it-100_lr-d-0p0001_lr-g-0p0001_label_model-g/'
 
 
   # create classifier
-  classifier = Classifier(cfg_classifier=cfg['classifier'], root_path='../')
+  #classifier = Classifier(cfg_classifier=cfg['classifier'], root_path='../')
 
 
   # similarity test
@@ -174,7 +218,7 @@ if __name__ == '__main__':
   # time_measure_callable(1, num_compare, n_samples=1000)
 
   # time feature extraction
-  time_measure_callable(x=np.random.randn(16000), callback_f=feature_extractor.extract_audio_features, n_samples=1000)
-  time_measure_callable(x= np.random.randn(classifier.net_handler.data_size[0], classifier.net_handler.data_size[1], classifier.net_handler.data_size[2]), callback_f=classifier.classify, n_samples=1000)
+  #time_measure_callable(x=np.random.randn(16000), callback_f=feature_extractor.extract_audio_features, n_samples=1000)
+  #time_measure_callable(x= np.random.randn(classifier.net_handler.data_size[0], classifier.net_handler.data_size[1], classifier.net_handler.data_size[2]), callback_f=classifier.classify, n_samples=1000)
 
 

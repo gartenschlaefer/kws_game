@@ -16,7 +16,7 @@ from audio_dataset import AudioDataset, SpeechCommandsDataset, MyRecordingsDatas
 from batch_archive import SpeechCommandsBatchArchive
 from test_bench import TestBench
 from legacy import legacy_adjustments_net_params
-from plots import plot_train_score, plot_train_loss, plot_confusion_matrix, plot_mfcc_only, plot_grid_images, plot_mfcc_anim, plot_val_acc_multiple, plot_adv_train_loss
+from plots import plot_train_score, plot_train_loss, plot_confusion_matrix, plot_grid_images, plot_mfcc_anim, plot_val_acc_multiple, plot_adv_train_loss
 
 
 class MetricsRevisit():

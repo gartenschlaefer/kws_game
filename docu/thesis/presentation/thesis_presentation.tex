@@ -4,6 +4,18 @@
 % document style
 \documentclass{beamer}
 
+% --
+% bib
+
+% biblatex with biber
+\usepackage[backend=biber,style=alphabetic]{biblatex}
+
+% add my bib
+\addbibresource{../bibl.bib}
+
+% small font
+\renewcommand*{\bibfont}{\scriptsize}
+
 
 % subfigures
 \usepackage{subfig}
@@ -116,6 +128,32 @@
 
 % conclusion
 \input{./present_conclusion.tex}
+
+% --
+% bib
+
+\sectionheader{Bibliography}
+
+\begin{frame}
+  \frametitle{Bibliography}
+  \printbibliography[heading=bibintoc]
+\end{frame}
+
+% end frame
+\begin{frame}
+  \Large
+  \centering
+  \vfill
+  Thank you for your Attention
+  \begin{quote}
+    \scriptsize
+    \vspace{1cm}
+    \enquote{It is trivial to design a machine that learns very quickly, does not generalize, and requires an enormous amount of hardware.\\
+    In fact this learning machine has already been built and is called a Random Access Memory.}\\
+    \vspace{0.25cm}
+    Y. LeCun
+  \end{quote}
+\end{frame}
 
 
 \end{document}

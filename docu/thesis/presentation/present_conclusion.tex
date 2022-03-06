@@ -4,12 +4,25 @@
 \section{Conclusion}
 \sectionheader{Conclusion}
 \begin{frame}
-  \frametitle{Signal Processing and Features}
+  \frametitle{Conclusion}
   \begin{itemize}
-    \item Conclusion based on the experiments of MFCC with CNNs:
+    \item Conclusions on Signal length:
     \begin{itemize}
-      \item 32 MFCC coeff. were often worse than 12 MFCC coeff.
-      \item frame-based normalization decreases the classification, but improves noise invariance as for selected conv-jim models:
+      \item reducing the speech signal to \SI{500}{\milli\second} was required to ensure a fast playing experience
+      \item the energy onset detection method on the first cepstral coeff. was an efficient and accurate choice to detect the start of the keywords of the dataset examples.
+      \item disadvantage: high possibility that not each phoneme of long words are captured.
+    \end{itemize}
+    \begin{figure} \includegraphics[width=0.6\textwidth]{../3_signal/figs/signal_onset_window.pdf} \end{figure}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Conclusion}
+  \begin{itemize}
+    \item Conclusions based on the experiments of MFCC with CNNs:
+    \begin{itemize}
+      \item 32 MFCC coeff. are often worse than 12 MFCC coeff. for the tested models
+      \item frame-based normalization decreases the classification accuracy, but improves noise invariance as for selected conv-jim models:
       \vspace{-0.5cm}
       \begin{figure}[!ht]
         \centering
@@ -17,28 +30,19 @@
         \qquad
         \subfloat[\#MFCC: 12, Norm.: 1]{\includegraphics[width=0.3\textwidth]{../5_exp/figs/exp_fs_cepstral_tb_noise_conv-jim_mfcc12_norm1.png}}
       \end{figure}
-      \item feature enhancements can improve the classification results, but double delta features are not really necessary.
+      \item feature enhancements can improve the classification results, however, double delta features often worsens them.
     \end{itemize}
   \end{itemize}
 \end{frame}
 
-
 \begin{frame}
-  \frametitle{Neural Network Models}
-  Based on the Experiments one can conclude:
-\end{frame}
-
-\begin{frame}
-  \Large
-  \centering
-  \vfill
-  Thank you for your Attention
-  \begin{quote}
-    \scriptsize
-    \vspace{1cm}
-    \enquote{It is trivial to design a machine that learns very quickly, does not generalize, and requires an enormous amount of hardware.\\
-    In fact this learning machine has already been built and is called a Random Access Memory.}\\
-    \vspace{0.25cm}
-    Y. LeCun
-  \end{quote}
+  \frametitle{Conclusion}
+  \begin{itemize}
+  \item Conclusions based on the adversarial label train:
+    \begin{itemize}
+      \item frame-based normalization is required
+      \item slight improvement of the classification accuracy by applying the weights of the Generator model
+      \item focusing of individual labels to train a specific amount of conv. filters is often better than training on the whole label set
+    \end{itemize}
+  \end{itemize}
 \end{frame}
