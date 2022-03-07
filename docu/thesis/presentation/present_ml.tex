@@ -10,7 +10,7 @@
     \item Convolutional Neural Networks (CNNs)
     \begin{itemize}
       \item MFCCs as input features
-      \item simple network architecutures with different striding properties adapted from \cite{Sainath2015}
+      \item simple network architectures with different striding properties adapted from \cite{Sainath2015}
     \end{itemize}
     \item Generative Adversarial Neural Networks (GANs) \cite{Goodfellow2014}
     \begin{itemize}
@@ -25,11 +25,11 @@
 \end{frame}
 
 \begin{frame}
-  \frametitle{Fully Connected Layer}
+  \frametitle{*Fully Connected Layer}
   \begin{columns}
     \begin{column}{0.45\textwidth}
       \begin{itemize}
-        \item Output with activation $h$:
+        \item output $z$ with activation $h$:
         \begin{equation*}
           \footnotesize
           \begin{aligned}
@@ -38,20 +38,20 @@
         \end{equation*}
         {\scriptsize with $\bm{x} \in \R^n$, $\bm{z} \in \R^m$, $\bm{b} \in \R^m$.}
         \vspace{0.2cm}
-        \item Amount of Params:
+        \item amount of parameters:
         \begin{equation*}
           \footnotesize
           \begin{aligned}
             m \cdot n + m
           \end{aligned}
         \end{equation*}
-        \item Amount of Operations:
+        \item amount of operations:
         \begin{equation*}
           \footnotesize
           \begin{aligned}
             \mathcal{T}(W \bm{x} + \bm{b}) \approx 2 (m \cdot n) + m
           \end{aligned}
-        \end{equation*}     
+        \end{equation*}
       \end{itemize}
     \end{column}
     \begin{column}{0.55\textwidth}
@@ -64,10 +64,17 @@
 \end{frame}
 
 \begin{frame}
-  \frametitle{Convolutional Layer}
+  \frametitle{*Convolutional Layer}
+  \vspace{-0.5cm}
   \begin{columns}
-    \begin{column}{0.5\textwidth}
+    \begin{column}{0.6\textwidth}
       \begin{itemize}
+        \item output dimension through kernel stride:
+        \begin{equation*}\label{eq:nn_theory_cnn_dim}
+        d_{o_z} = \floor*{\frac{d_{x_z} + p_z - d_{k_z}}{s_z} + 1},
+        \end{equation*}
+        {\footnotesize
+        with $z$: dimensional axis, $d_{x}$: input dim, $p$: padding, $k$: kernel size, $s$: stride}.
         \item j-th output channel $o_j$:
         \begin{equation*}
           \footnotesize
@@ -77,10 +84,9 @@
         with $x_i$ as i-th input channel and $k_{i, j}$ as kernel.   
       \end{itemize}
     \end{column}
-    \begin{column}{0.5\textwidth}
-      \centering
-      \begin{figure} \includegraphics[width=0.45\textwidth]{./figs/nn_theory_cnn_scheme.pdf} \end{figure}
-      \vfill
+    \begin{column}{0.4\textwidth}
+      \vspace{1cm}
+      \begin{figure} \includegraphics[width=0.5\textwidth]{./figs/nn_theory_cnn_scheme.pdf} \end{figure}
     \end{column}
   \end{columns}
 \end{frame}
@@ -88,7 +94,7 @@
 \begin{frame}
   \frametitle{Convolutional Layer Example}
   \vspace{0.2cm}
-  \begin{figure} \includegraphics[width=0.8\textwidth]{../4_nn/figs/nn_theory_cnn_basics.pdf} \end{figure}
+  \begin{figure} \includegraphics[width=0.8\textwidth]{./figs/nn_theory_cnn_basics.png} \end{figure}
 \end{frame}
 
 \begin{frame}
@@ -118,43 +124,42 @@
       \draw [->, line width=1.0pt, color=neonlightblue] ($(kjim.west) + (65pt, 0)$) -- ++(8pt, 0);
 
       % text
-      \node at (ktrad.west) [xshift=-2pt, anchor=east] {conv-trad};
-      \node at (kfstride.west) [xshift=-2pt, anchor=east] {conv-fstride};
-      \node at (kjim.west) [xshift=-2pt, anchor=east] {conv-jim};
+      \node at (ktrad.west) [xshift=-2pt, anchor=east] {\texttt{conv-trad}};
+      \node at (kfstride.west) [xshift=-2pt, anchor=east] {\texttt{conv-fstride}};
+      \node at (kjim.west) [xshift=-2pt, anchor=east] {\texttt{conv-jim}};
     \end{tikzpicture}
   }
 \end{frame}
 
 \begin{frame}
-  \frametitle{Traditional Network (conv-trad)}
+  \frametitle{Traditional Network (\texttt{conv-trad})}
   \begin{itemize}
-    \item Layer Structure: Conv.: 2 + 1 max. pool, FC: 3 
-    \item Num. Params: \textbf{\num{68396}}
-    \item Num. Operations: \textbf{\SI{3770.98}{\kilo\ops}}
+    \item layer structure: conv.: 2 + 1 max. pool, FC: 3
+    \item num. parameters: \textbf{\num{68396}}
+    \item num. operations: \textbf{\SI{3770.98}{\kilo\ops}}
   \end{itemize}
   \begin{figure} \includegraphics[height=0.35\textheight]{../4_nn/figs/nn_arch_cnn_trad.pdf} \end{figure}
 \end{frame}
 
 \begin{frame}
-  \frametitle{Frequency Striding Network (conv-fstride)}
+  \frametitle{Frequency Striding Network (\texttt{conv-fstride})}
   \begin{itemize}
-    \item Layer Structure: Conv.: 1, FC: 4
-    \item Num. Params: \textbf{\num{47426}} 
-    \item Num. Operations: \textbf{\SI{137.75}{\kilo\ops}}
+    \item layer structure: conv.: 1, FC: 4
+    \item num. parameters: \textbf{\num{47426}} 
+    \item num. operations: \textbf{\SI{137.75}{\kilo\ops}}
   \end{itemize}
   \begin{figure} \includegraphics[height=0.35\textheight]{../4_nn/figs/nn_arch_cnn_fstride.pdf} \end{figure}
 \end{frame}
 
 \begin{frame}
-  \frametitle{Time Striding Network(conv-jim)}
+  \frametitle{Time Striding Network (\texttt{conv-jim})}
   \begin{itemize}
-    \item Layer Structure: Conv.: 2, FC: 3
-    \item Num. Params: \textbf{\num{29804}}
-    \item Num. Operations: \textbf{\SI{862.40}{\kilo\ops}}
+    \item layer structure: conv.: 2, FC: 3
+    \item num. parameters: \textbf{\num{29804}}
+    \item num. operations: \textbf{\SI{862.40}{\kilo\ops}}
   \end{itemize}
   \begin{figure} \includegraphics[height=0.35\textheight]{../4_nn/figs/nn_arch_cnn_jim.pdf} \end{figure}
 \end{frame}
-
 
 \begin{frame}
   \frametitle{GANs}
@@ -178,7 +183,7 @@
       \node at (d.north west) [xshift=0.6cm, yshift=0.1cm, anchor=north east] {\scriptsize D};
     \end{tikzpicture}
     \vspace{0.2cm}
-    \item Min-Max Solution for the Game between G and D:
+    \item Min-Max solution for the game between G and D:
   \end{itemize}
   \begin{equation*}
     \footnotesize
@@ -190,7 +195,7 @@
 \end{frame}
 
 \begin{frame}
-  \frametitle{GAN training losses}
+  \frametitle{*GAN training losses}
   \begin{itemize}
     \item binary cross entropy loss $l$:
     \begin{equation*}
@@ -223,7 +228,6 @@
   \end{itemize}
 \end{frame}
 
-
 \begin{frame}
   \frametitle{Adversarial Label Training}
   \begin{itemize}
@@ -231,7 +235,6 @@
   \end{itemize}
   \begin{figure} \includegraphics[height=0.7\textheight]{../4_nn/figs/nn_adv_label_scheme.pdf} \end{figure}
 \end{frame}
-
 
 \begin{frame}
   \frametitle{Adversarial Label Training}
@@ -261,20 +264,16 @@
     \end{tikzpicture}
 \end{frame}
 
-
-
-
-
 \begin{frame}
-  \frametitle{Wavenets}
+  \frametitle{*Wavenets}
   \begin{itemize}
-    \item Perform  on raw audio data ($\SI{1}{\second}$ = 16000 features)
-    \item Key Techniques: 
+    \item perform  on raw audio data ($\SI{1}{\second}$ = 16000 features)
+    \item key techniques: 
     \begin{itemize}
       \item dilated convolutions
-      \item quantization
+      \item quantization of audio samples (256 values)
     \end{itemize}
-    \item Residual block schematic:
+    \item residual block schematic:
   \end{itemize}
   \vspace{-0.2cm}
   \begin{figure} \includegraphics[height=0.35\textheight]{../4_nn/figs/nn_arch_wavenet_block.pdf} \end{figure}
@@ -283,8 +282,8 @@
 \begin{frame}
   \frametitle{Wavenet Architecture}
   \begin{itemize}
-    \item Num. Params: \textbf{\num{33509}}
-    \item Num. Operations: \textbf{\SI{36695.02}{\kilo\ops}}
+    \item num. parameters: \textbf{\num{33509}}
+    \item num. operations: \textbf{\SI{36695.02}{\kilo\ops}}
   \end{itemize}
   \vspace{-0.2cm}
   \begin{figure} \includegraphics[height=0.6\textheight]{../4_nn/figs/nn_arch_wavenet_all.pdf} \end{figure}

@@ -6,7 +6,7 @@
 \begin{frame}
   \frametitle{Conclusion}
   \begin{itemize}
-    \item Conclusions on Signal length:
+    \item conclusions on the signal length and onset detection:
     \begin{itemize}
       \item reducing the speech signal to \SI{500}{\milli\second} was required to ensure a fast playing experience
       \item the energy onset detection method on the first cepstral coeff. was an efficient and accurate choice to detect the start of the keywords of the dataset examples.
@@ -19,10 +19,10 @@
 \begin{frame}
   \frametitle{Conclusion}
   \begin{itemize}
-    \item Conclusions based on the experiments of MFCC with CNNs:
+    \item conclusions based on the experiments of MFCC with CNNs:
     \begin{itemize}
       \item 32 MFCC coeff. are often worse than 12 MFCC coeff. for the tested models
-      \item frame-based normalization decreases the classification accuracy, but improves noise invariance as for selected conv-jim models:
+      \item frame-based normalization decreases the classification accuracy, but improves noise invariance as for selected \texttt{conv-jim} models:
       \vspace{-0.5cm}
       \begin{figure}[!ht]
         \centering
@@ -38,11 +38,31 @@
 \begin{frame}
   \frametitle{Conclusion}
   \begin{itemize}
-  \item Conclusions based on the adversarial label train:
+  \item conclusions based on the adversarial label train:
     \begin{itemize}
       \item frame-based normalization is required
       \item slight improvement of the classification accuracy by applying the weights of the Generator model
-      \item focusing of individual labels to train a specific amount of conv. filters is often better than training on the whole label set
+      \item focusing of individual labels to train a specific amount of conv. filters is usually better than training on the whole label set
+      \item filter weights are often more utilized:
+    \end{itemize}
+    \vspace{-0.25cm}
+    \begin{figure}[!ht]
+      \centering
+      \subfloat[Norm.: 1]{\includegraphics[width=0.45\textwidth]{../5_exp/figs/exp_final_weights_conv-jim_norm1_div_conv_layer0.png}}
+      \subfloat[Norm.: 1, adv-label-g-100]{\includegraphics[width=0.45\textwidth]{../5_exp/figs/exp_final_weights_conv-jim_norm1_adv-label-g-100_div_conv_layer0.png}}
+    \end{figure}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Conclusion}
+  \begin{itemize}
+  \item conclusions based on evaluated models:
+    \begin{itemize}
+      \item \texttt{conv-trad}: best results, but high computational effort
+      \item \texttt{conv-fstride}: worse results, but extremely lightweight
+      \item \texttt{conv-jim}: good trade-off between classification accuracy and computational effort
+      \item Wavenet: left for future research
     \end{itemize}
   \end{itemize}
 \end{frame}

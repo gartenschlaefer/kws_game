@@ -4,7 +4,7 @@
 \section{Signal Processing and Feature Extraction}
 \sectionheader{Signal Processing and Feature Extraction}
 \begin{frame}
-  \frametitle{Speech Signals}
+  \frametitle{*Speech Signals}
   \begin{itemize}
     \item Recorded with sample rate $f_s$
     \item Speech signal with $N$ samples:
@@ -16,7 +16,7 @@
 \end{frame}
 
 \begin{frame}
-  \frametitle{Spectral Features}
+  \frametitle{*Spectral Features}
   \begin{itemize}
     \item Discrete Fourier Transform (DFT):
     \begin{equation*}\label{eq:signal_spec_dtft_matrix}
@@ -69,7 +69,7 @@
 \end{frame}
 
 \begin{frame}
-  \frametitle{MFCC Features}
+  \frametitle{*MFCC Features}
   \begin{itemize}
     \item Mel Frequency Cepstral Coefficient (MFCC):
     \begin{equation*}
@@ -86,7 +86,7 @@
 \begin{frame}
   \frametitle{MFCC Features}
   \begin{itemize}
-    \item Frame based normalization:
+    \item frame-based normalization:
     \vspace{0.2cm}
     \begin{equation*}
       \scriptsize
@@ -101,7 +101,7 @@
 \end{frame}
 
 \begin{frame}
-  \frametitle{MFCC Feature Enhancements}
+  \frametitle{*MFCC Feature Enhancements}
   \begin{itemize}
     \item Delta- and Double Delta features:
     \vspace{0.2cm}
@@ -123,13 +123,13 @@
 \end{frame}
 
 \begin{frame}
-  \frametitle{MFCC Computations}
+  \frametitle{*MFCC Computations}
   \begin{itemize}
-    \item Signal: \SI{1}{\second} with $f_s = \SI{16}{\kilo\hertz}$.
+    \item signal: \SI{1}{\second} with $f_s = \SI{16}{\kilo\hertz}$.
     \item STFT and MFCC:
     \vspace{-0.1cm}
     \begin{itemize}
-      \item \SI{25}{\milli\second} Analytical window with \SI{10}{\milli\second} hop,
+      \item \SI{25}{\milli\second} analytical window with \SI{10}{\milli\second} hop,
       \item $K = 400$ Fourier coefficients,
       \item $B = 32$ filter bands and 
       \item $C=12$ cepstral coefficients.
@@ -139,20 +139,19 @@
   \include{./tables/present_tab_signal_mfcc_operations.tex}
 \end{frame}
 
-
 \begin{frame}
   \frametitle{Onset Detection}
   \begin{itemize}
-    \item Detect the start of keywords
-    \item Two kinds of onset detection method:
+    \item detect the start of keywords
+    \item two kinds of onset detection method:
     \begin{itemize}
-      \item Keyword onset detection:
+      \item keyword onset detection:
       \begin{itemize}
-        \item find exact start of keyword in audiofile
+        \item find exact start of keyword in the audio file
         \item extraction of data examples with restricted time length (\SI{500}{\milli\second}).
       \end{itemize}
       \vspace{0.25cm}
-      \item Online onset detection:
+      \item online onset detection:
       \begin{itemize}
         \item applied in the game to indicate whether a keyword is present.
       \end{itemize}

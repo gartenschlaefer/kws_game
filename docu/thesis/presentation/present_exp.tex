@@ -69,12 +69,12 @@
 \end{frame}
 
 \begin{frame}
-  \frametitle{Feature Extraction Details for CNNs}
+  \frametitle{*Feature Extraction Details for CNNs}
   \input{./tables/present_tab_exp_details_params_feature.tex}
 \end{frame}
 
 \begin{frame}
-  \frametitle{Dataset Details}
+  \frametitle{*Dataset Details}
   \begin{itemize}
     \item 500 examples per label for basic experiments
     \item 3500 examples per label for the final experiment
@@ -83,19 +83,19 @@
 \end{frame}
 
 \begin{frame}
-  \frametitle{Trainings Details for CNNs}
+  \frametitle{*Trainings Details for CNNs}
   \input{./tables/present_tab_exp_details_params_train.tex}
 \end{frame}
 
 \begin{frame}
-  \frametitle{Pre-Trainings Details with GANs}
+  \frametitle{*Pre-Trainings Details with GANs}
   \input{./tables/present_tab_exp_details_params_pre_train.tex}
 \end{frame}
 
 \begin{frame}
   \frametitle{Experiment: Feature Selection Cepstral Coeff.}
   \begin{itemize}
-    \item run on all three CNN models
+    \item 5 runs (simple statistics) on all three CNN models
     \item evaluation of
     \begin{itemize}
      \item amount of cepstral coeffs
@@ -106,8 +106,8 @@
   \vspace{-0.5cm}
   \begin{figure}[!ht]
     \centering
-    \subfloat[conv-trad]{\includegraphics[width=0.48\textwidth]{../5_exp/figs/exp_fs_cepstral_acc_conv-trad.png}}
-    \subfloat[conv-fstride]{\includegraphics[width=0.48\textwidth]{../5_exp/figs/exp_fs_cepstral_acc_conv-fstride.png}}
+    \subfloat[\texttt{conv-trad}]{\includegraphics[width=0.48\textwidth]{../5_exp/figs/exp_fs_cepstral_acc_conv-trad.png}}
+    \subfloat[\texttt{conv-fstride}]{\includegraphics[width=0.48\textwidth]{../5_exp/figs/exp_fs_cepstral_acc_conv-fstride.png}}
   \end{figure}
 \end{frame}
 
@@ -115,7 +115,7 @@
   \frametitle{Experiment: Feature Selection Cepstral Coeff.}
   \begin{figure}[!ht]
     \centering
-    \subfloat[conv-jim]{\includegraphics[width=0.75\textwidth]{../5_exp/figs/exp_fs_cepstral_acc_conv-jim.png}}
+    \subfloat[\texttt{conv-jim}]{\includegraphics[width=0.75\textwidth]{../5_exp/figs/exp_fs_cepstral_acc_conv-jim.png}}
   \end{figure}
 \end{frame}
 
@@ -127,7 +127,7 @@
 \begin{frame}
   \frametitle{Experiment: MFCC Enhancements}
   \begin{itemize}
-    \item run on conv-jim model with frame-based normalization and 12 MFCC
+    \item 5 runs on \texttt{conv-jim} with frame-based normalization and 12 MFCC
     \item evaluation of
     \begin{itemize}
      \item different enhancements (c: cepstral, d: delta, dd: double delta, e: energy vector(s))
@@ -149,7 +149,7 @@
 \begin{frame}
   \frametitle{Experiment: Adversarial Label Train}
   \begin{itemize}
-    \item run on conv-jim model with frame-based normalization and 12 MFCC
+    \item 5 runs on \texttt{conv-jim} with frame-based normalization and 12 MFCC
     \item evaluation of
     \begin{itemize}
      \item adversarial label train with different training epochs
@@ -178,6 +178,7 @@
   \begin{figure}[!ht]
     \centering
     \subfloat[validation accuracy]{\includegraphics[width=0.45\textwidth]{../5_exp/figs/exp_wavenet_acc.png}}
+    \quad
     \subfloat[test confusion matrix]{\includegraphics[width=0.45\textwidth]{../5_exp/figs/exp_wavenet_confusion_test.png}}
   \end{figure}
 \end{frame}
@@ -185,7 +186,7 @@
 \begin{frame}
   \frametitle{Experiment: Final}
   \begin{itemize}
-    \item run on all CNN models the whole dataset
+    \item single run on all CNN models on the whole dataset
     \item evaluation of
     \begin{itemize}
      \item frame-based normalization
@@ -209,8 +210,14 @@
 \begin{frame}
   \frametitle{Experiment: Final}
   \begin{itemize}
-      \item chosen model: conv-jim, frame-based normalized, adv-label-train
-      \item confusion matrix on test set:
+      \item chosen model: \texttt{conv-jim}, frame-based normalized, adv-label-train
+      \item confusion matrix on test sets:
   \end{itemize}
-  \begin{figure}[!ht] \includegraphics[width=0.45\textwidth]{../5_exp/figs/exp_final_confusion.png} \end{figure}
+  \vspace{-0.5cm}
+  \begin{figure}[!ht]
+    \centering
+    \subfloat[Test set]{\includegraphics[width=0.45\textwidth]{../5_exp/figs/exp_final_confusion.png}}
+    \qquad
+    \subfloat[My dataset]{\includegraphics[width=0.43\textwidth]{./figs/final_confusion_my.png}}
+  \end{figure}
 \end{frame}
