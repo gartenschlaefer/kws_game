@@ -179,6 +179,20 @@ def adv_image_merge():
   #os.system("ffmpeg -framerate 1 -start_number 0 -i ./ignore/adv_img/out/adv%d.png -vcodec mpeg4 ./ignore/adv_img/out/adv_out.avi")
 
 
+def binary_game():
+  """
+  game equation
+  """
+  x = np.linspace(0, 1, 100)
+
+  y = np.log(x)
+  y = np.log(x) + (np.log(1-x))
+
+  plt.figure()
+  plt.plot(y)
+  plt.show()
+
+
 
 if __name__ == '__main__':
   """
@@ -191,7 +205,9 @@ if __name__ == '__main__':
   cfg = yaml.safe_load(open("../config.yaml"))
 
   # image merging
-  adv_image_merge()
+  #adv_image_merge()
+
+  binary_game()
 
   # init feature extractor
   #feature_extractor = FeatureExtractor(cfg['feature_params'])
