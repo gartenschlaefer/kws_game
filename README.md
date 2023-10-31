@@ -39,7 +39,7 @@ To play the game you have to open a terminal in the project path and type: ´pyt
 ![alt text](https://raw.githubusercontent.com/chrisworld/kws_game/master/docu/screenshots/menu_option_device.png)
 ![alt text](https://raw.githubusercontent.com/chrisworld/kws_game/master/docu/screenshots/level1-1.png)
 ![alt text](https://raw.githubusercontent.com/chrisworld/kws_game/master/docu/screenshots/level1-2.png)
-![alt text](https://raw.githubusercontent.com/chrisworld/kws_game/master/docu/screenshots/level2-2.png)
+![alt text](https://raw.githubusercontent.com/chrisworld/kws_game/master/docu/screenshots/level2-1.png)
 ![alt text](https://raw.githubusercontent.com/chrisworld/kws_game/master/docu/screenshots/level2-2.png)
 ![alt text](https://raw.githubusercontent.com/chrisworld/kws_game/master/docu/screenshots/credits.png)
 
