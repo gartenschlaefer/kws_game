@@ -245,7 +245,7 @@ class FeatureExtractor():
     return mfcc
 
 
-  def calc_spectogram(self, x):
+  def calc_spectrogram(self, x):
     """
     spectrogram (power spectrum)
     """
