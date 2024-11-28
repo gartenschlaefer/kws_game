@@ -14,7 +14,7 @@
   publisher = {GitHub},
   journal = {GitHub repository},
   howpublished = {\url{https://github.com/chrisworld/kws_game}},
-  commit = {26ba289}
+  commit = {26ba289},
 }
 
 
@@ -22,69 +22,63 @@
 % history
 
 % perceptron I
-@ARTICLE{Rosenblatt1958,
+@article{Rosenblatt1958,
   author = {F. Rosenblatt},
   title = {The Perceptron: A Probabilistic Model for Information Storage and Organization in The Brain},
   journal = {Psychological Review},
+  pages = {65--386},
   year = {1958},
-  pages = {65--386}
 }
 
 % perceptron II
 @book{Rosenblatt1962,
-  author        = "Rosenblatt, Frank",
-  title         = "{Principles of neurodynamics: perceptions and the theory of brain mechanisms}",
-  publisher     = "Spartan",
-  address       = "Washington, DC",
-  year          = "1962",
-  url           = "https://cds.cern.ch/record/239697"
+  author = {Rosenblatt, Frank},
+  title = {{Principles of neurodynamics: perceptions and the theory of brain mechanisms}},
+  publisher = {Spartan},
+  year = {1962},
+}
+
+% backprop
+@inbook{Rumelhart1986,
+  author = {Rumelhart, David E. and McClelland, James L.},
+  title = {Learning Internal Representations by Error Propagation}, 
+  booktitle = {Parallel Distributed Processing: Explorations in the Microstructure of Cognition: Foundations}, 
+  year = {1987},
+  pages = {318-362},
+  publisher = {MIT Press},
 }
 
 % backpropagation
-@inproceedings{Rumelhart1986,
-  title={Learning internal representations by error propagation},
-  author={D. Rumelhart and Geoffrey E. Hinton and R. J. Williams},
-  year={1986}
-}
-
-% backpropagation
-@InProceedings{LeCun1986,
-  author="Le Cun, Yann",
-  editor="Bienenstock, E.
-  and Souli{\'e}, F. Fogelman
-  and Weisbuch, G.",
-  title="Learning Process in an Asymmetric Threshold Network",
-  booktitle="Disordered Systems and Biological Organization",
-  year="1986",
-  publisher="Springer Berlin Heidelberg",
-  address="Berlin, Heidelberg",
-  pages="233--240",
-  abstract="Threshold functions and related operators are widely used as basic elements of adaptive and associative networks [Nakano 72, Amari 72, Hopfield 82]. There exist numerous learning rules for finding a set of weights to achieve a particular correspondence between input-output pairs. But early works in the field have shown that the number of threshold functions (or linearly separable functions) in N binary variables is small compared to the number of all possible boolean mappings in N variables, especially if N is large. This problem is one of the main limitations of most neural networks models where the state is fully specified by the environment during learning: they can only learn linearly separable functions of their inputs. Moreover, a learning procedure which requires the outside world to specify the state of every neuron during the learning session can hardly be considered as a general learning rule because in real-world conditions, only a partial information on the ``ideal'' network state for each task is available from the environment. It is possible to use a set of so-called ``hidden units'' [Hinton,Sejnowski,Ackley. 84], without direct interaction with the environment, which can compute intermediate predicates. Unfortunately, the global response depends on the output of a particular hidden unit in a highly non-linear way, moreover the nature of this dependence is influenced by the states of the other cells.",
-  isbn="978-3-642-82657-3"
+@inproceedings{LeCun1986,
+  author = {Le Cun, Yann},
+  title = {Learning Process in an Asymmetric Threshold Network},
+  booktitle = {Disordered Systems and Biological Organization},
+  editor = {Bienenstock, E. and Souli{\'e}, F. Fogelman and Weisbuch, G.},
+  year = {1986},
+  publisher = {Springer Berlin Heidelberg},
+  pages = {233--240},
 }
 
 % good intro to neural nets
-@ARTICLE{LeCun1998,  
-  author={Y. {Lecun} and L. {Bottou} and Y. {Bengio} and P. {Haffner}},  
-  journal={Proceedings of the IEEE},   
-  title={Gradient-based learning applied to document recognition},  
-  year={1998},  
-  volume={86},  
-  number={11},  
-  pages={2278-2324},  
-  doi={10.1109/5.726791}
+@article{LeCun1998,
+  author = {Y. {Lecun} and L. {Bottou} and Y. {Bengio} and P. {Haffner}},
+  title = {Gradient-based learning applied to document recognition},
+  journal = {Proceedings of the IEEE}, 
+  year = {1998},
+  volume = {86},
+  number = {11},
+  pages = {2278-2324},
 }
 
-% mfcc basic
-@ARTICLE{Mermelstein1980,
-  author={Davis, S. and Mermelstein, P.},
-  journal={IEEE Transactions on Acoustics, Speech, and Signal Processing}, 
-  title={Comparison of parametric representations for monosyllabic word recognition in continuously spoken sentences}, 
-  year={1980},
-  volume={28},
-  number={4},
-  pages={357-366},
-  doi={10.1109/TASSP.1980.1163420}
+% mfcc foundation
+@article{Davis1980MFCC,
+  author = {Davis, S. and Mermelstein, P.},
+  title = {Comparison of parametric representations for monosyllabic word recognition in continuously spoken sentences}, 
+  journal = {IEEE Transactions on Acoustics, Speech, and Signal Processing}, 
+  year = {1980},
+  volume = {28},
+  number = {4},
+  pages = {357-366},
 }
 
 % plp
@@ -96,9 +90,6 @@
   number = {4},
   pages = {1738-1752},
   year = {1990},
-  doi = {10.1121/1.399423},
-  URL = {https://doi.org/10.1121/1.399423},
-  eprint = {https://doi.org/10.1121/1.399423}
 }
 
 % plp vs mfcc
@@ -108,23 +99,23 @@
   booktitle = {{INTERSPEECH} 2005 - Eurospeech, 9th European Conference on Speech Communication and Technology, Lisbon, Portugal, September 4-8, 2005},
   pages = {2997--3000},
   publisher = {{ISCA}},
-  year  = {2005},
+  year = {2005},
   url = {http://www.isca-speech.org/archive/interspeech\_2005/i05\_2997.html},
   timestamp = {Sun, 13 Mar 2011 19:32:30 +0100},
   biburl = {https://dblp.org/rec/conf/interspeech/HonigSHB05.bib},
-  bibsource = {dblp computer science bibliography, https://dblp.org}
+  bibsource = {dblp computer science bibliography, https://dblp.org},
 }
 
 % mfcc inversion
-@INPROCEEDINGS{Boucheron2008,
-  author={Boucheron, Laura E. and De Leon, Phillip L.},
-  booktitle={2008 International Conference on Signals and Electronic Systems}, 
-  title={On the inversion of Mel-frequency cepstral coefficients for speech enhancement applications}, 
-  year={2008},
-  volume={},
-  number={},
-  pages={485-488},
-  doi={10.1109/ICSES.2008.4673475}
+@inproceedings{Boucheron2008,
+  author = {Boucheron, Laura E. and De Leon, Phillip L.},
+  booktitle = {2008 International Conference on Signals and Electronic Systems}, 
+  title = {On the inversion of Mel-frequency cepstral coefficients for speech enhancement applications}, 
+  year = {2008},
+  volume = {},
+  number = {},
+  pages = {485-488},
+  doi = {10.1109/ICSES.2008.4673475},
 }
 
 % statistical learning
@@ -134,57 +125,55 @@
   year = {1995},
   isbn = {0387945598},
   publisher = {Springer-Verlag},
-  address = {Berlin, Heidelberg}
+  address = {Berlin, Heidelberg},
 }
 
 % svm
 @article{Cortes1995,
   author = {Cortes, Corinna and Vapnik, Vladimir},
   title = {Support-Vector Networks},
-  year = {1995},
-  issue_date = {Sept. 1995},
   publisher = {Kluwer Academic Publishers},
+  year = {1995},
   address = {USA},
   volume = {20},
   number = {3},
   issn = {0885-6125},
   url = {https://doi.org/10.1023/A:1022627411411},
   doi = {10.1023/A:1022627411411},
-  abstract = {The support-vector network is a new learning machine for two-group classification problems. The machine conceptually implements the following idea: input vectors are non-linearly mapped to a very high-dimension feature space. In this feature space a linear decision surface is constructed. Special properties of the decision surface ensures high generalization ability of the learning machine. The idea behind the support-vector network was previously implemented for the restricted case where the training data can be separated without errors. We here extend this result to non-separable training data.High generalization ability of support-vector networks utilizing polynomial input transformations is demonstrated. We also compare the performance of the support-vector network to various classical learning algorithms that all took part in a benchmark study of Optical Character Recognition.},
   journal = {Mach. Learn.},
-  month = sep,
   pages = {273–297},
   numpages = {25},
-  keywords = {efficient learning algorithms, radial basis function classifiers, polynomial classifiers, pattern recognition, neural networks}
+  keywords = {efficient learning algorithms, radial basis function classifiers, polynomial classifiers, pattern recognition, neural networks},
+  abstract = {The support-vector network is a new learning machine for two-group classification problems. The machine conceptually implements the following idea: input vectors are non-linearly mapped to a very high-dimension feature space. In this feature space a linear decision surface is constructed. Special properties of the decision surface ensures high generalization ability of the learning machine. The idea behind the support-vector network was previously implemented for the restricted case where the training data can be separated without errors. We here extend this result to non-separable training data.High generalization ability of support-vector networks utilizing polynomial input transformations is demonstrated. We also compare the performance of the support-vector network to various classical learning algorithms that all took part in a benchmark study of Optical Character Recognition.},
 }
 
 % deep learning imagenet
 @inproceedings{Krizhevsky2012,
   author = {Krizhevsky, Alex and Sutskever, Ilya and Hinton, Geoffrey E.},
   title = {ImageNet Classification with Deep Convolutional Neural Networks},
+  booktitle = {Proceedings of the 25th International Conference on Neural Information Processing Systems - Volume 1},
   year = {2012},
   publisher = {Curran Associates Inc.},
   address = {Red Hook, NY, USA},
-  booktitle = {Proceedings of the 25th International Conference on Neural Information Processing Systems - Volume 1},
   pages = {1097–1105},
   numpages = {9},
   location = {Lake Tahoe, Nevada},
-  series = {NIPS'12}
+  series = {NIPS'12},
 }
 
 % rnn
 @article{Staudenmeyer2019,
-  author    = {Ralf C. Staudemeyer and Eric Rothstein Morris},
-  title     = {Understanding {LSTM} - a tutorial into Long Short-Term Memory Recurrent Neural Networks},
-  journal   = {CoRR},
-  volume    = {abs/1909.09586},
-  year      = {2019},
-  url       = {http://arxiv.org/abs/1909.09586},
+  author = {Ralf C. Staudemeyer and Eric Rothstein Morris},
+  title = {Understanding {LSTM} - a tutorial into Long Short-Term Memory Recurrent Neural Networks},
+  journal = {CoRR},
+  volume = {abs/1909.09586},
+  year = {2019},
+  url = {http://arxiv.org/abs/1909.09586},
   archivePrefix = {arXiv},
-  eprint    = {1909.09586},
+  eprint = {1909.09586},
   timestamp = {Tue, 24 Sep 2019 11:33:51 +0200},
-  biburl    = {https://dblp.org/rec/journals/corr/abs-1909-09586.bib},
-  bibsource = {dblp computer science bibliography, https://dblp.org}
+  biburl = {https://dblp.org/rec/journals/corr/abs-1909-09586.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org},
 }
 
 % --
@@ -192,78 +181,71 @@
 
 % dropout
 @article{Hinton2012,
-  author    = {Geoffrey E. Hinton and
-               Nitish Srivastava and
-               Alex Krizhevsky and
-               Ilya Sutskever and
-               Ruslan Salakhutdinov},
-  title     = {Improving neural networks by preventing co-adaptation of feature detectors},
-  journal   = {CoRR},
-  volume    = {abs/1207.0580},
-  year      = {2012},
-  url       = {http://arxiv.org/abs/1207.0580},
+  author = {Geoffrey E. Hinton and Nitish Srivastava and Alex Krizhevsky and Ilya Sutskever and Ruslan Salakhutdinov},
+  title = {Improving neural networks by preventing co-adaptation of feature detectors},
+  journal = {CoRR},
+  volume = {abs/1207.0580},
+  year = {2012},
+  url = {http://arxiv.org/abs/1207.0580},
   archivePrefix = {arXiv},
-  eprint    = {1207.0580},
+  eprint = {1207.0580},
   timestamp = {Mon, 13 Aug 2018 16:46:10 +0200},
-  biburl    = {https://dblp.org/rec/journals/corr/abs-1207-0580.bib},
-  bibsource = {dblp computer science bibliography, https://dblp.org}
+  biburl = {https://dblp.org/rec/journals/corr/abs-1207-0580.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org},
 }
 
 % adam optimizer
 @inproceedings{Kingma2015,
-  author    = {Diederik P. Kingma and
-               Jimmy Ba},
-  editor    = {Yoshua Bengio and
-               Yann LeCun},
-  title     = {Adam: {A} Method for Stochastic Optimization},
-  booktitle = {3rd International Conference on Learning Representations, {ICLR} 2015,
-               San Diego, CA, USA, May 7-9, 2015, Conference Track Proceedings},
-  year      = {2015},
-  url       = {http://arxiv.org/abs/1412.6980},
-  timestamp = {Thu, 25 Jul 2019 14:25:37 +0200},
-  biburl    = {https://dblp.org/rec/journals/corr/KingmaB14.bib},
-  bibsource = {dblp computer science bibliography, https://dblp.org}
+  author = {Diederik P. Kingma and Jimmy Ba},
+  editor = {Yoshua Bengio and Yann LeCun},
+  title = {Adam: {A} Method for Stochastic Optimization},
+  booktitle = {3rd International Conference on Learning Representations (ICLR 2015)},
+  year = {2015},
+  %url = {http://arxiv.org/abs/1412.6980},
+  %timestamp = {Thu, 25 Jul 2019 14:25:37 +0200},
+  %biburl = {https://dblp.org/rec/journals/corr/KingmaB14.bib},
+  %bibsource = {dblp computer science bibliography, https://dblp.org},
 }
 
 % goodfellow deep learning book
 @book{Goodfellow2016,
-  title={Deep Learning},
-  author={Ian Goodfellow and Yoshua Bengio and Aaron Courville},
-  publisher={MIT Press},
-  note={\url{http://www.deeplearningbook.org}},
-  year={2016}
+  title = {Deep Learning},
+  author = {Ian Goodfellow and Yoshua Bengio and Aaron Courville},
+  publisher = {MIT Press},
+  note = {\url{http://www.deeplearningbook.org}},
+  year = {2016},
 }
 
 % energy based learning lecun
 @inbook{LeCun2006,
-  title = "A tutorial on energy-based learning",
-  author = "Yann Lecun and Sumit Chopra and Raia Hadsell and Ranzato, {Marc Aurelio} and Huang, {Fu Jie}",
-  year = "2006",
-  language = "English (US)",
-  editor = "G. Bakir and T. Hofman and B. Scholkopt and A. Smola and B. Taskar",
-  booktitle = "Predicting structured data",
-  publisher = "MIT Press"
+  title = {A tutorial on energy-based learning},
+  author = {Yann Lecun and Sumit Chopra and Raia Hadsell and Ranzato, {Marc Aurelio} and Huang, {Fu Jie}},
+  year = {2006},
+  language = {English (US)},
+  editor = {G. Bakir and T. Hofman and B. Scholkopt and A. Smola and B. Taskar},
+  booktitle = {Predicting structured data},
+  publisher = {MIT Press},
 }
 
 % deep learning lecun
 @online{DeepLearning, 
-    author = {Yann LeCun and Alfredo Canziani and Mark Goldstein and Zeming Lin},
-    title = {Deep Learning},
-    year = 2021,
-    url = {https://atcold.github.io/pytorch-Deep-Learning/},
-    urldate = {2021-07-27}
+ author = {Yann LeCun and Alfredo Canziani and Mark Goldstein and Zeming Lin},
+ title = {Deep Learning},
+ year = 2021,
+ url = {https://atcold.github.io/pytorch-Deep-Learning/},
+ urldate = {2021-07-27},
 }
 
 % relu
-@INPROCEEDINGS{Zeiler2013_relu, 
-  author={Zeiler, M.D. and Ranzato, M. and Monga, R. and Mao, M. and Yang, K. and Le, Q.V. and Nguyen, P. and Senior, A. and Vanhoucke, V. and Dean, J. and Hinton, G.E.},
-  booktitle={2013 IEEE International Conference on Acoustics, Speech and Signal Processing}, 
-  title={On rectified linear units for speech processing},
-  year={2013},
-  volume={},
-  number={},
-  pages={3517-3521},
-  doi={10.1109/ICASSP.2013.6638312}
+@inproceedings{Zeiler2013_relu, 
+  author = {Zeiler, M.D. and Ranzato, M. and Monga, R. and Mao, M. and Yang, K. and Le, Q.V. and Nguyen, P. and Senior, A. and Vanhoucke, V. and Dean, J. and Hinton, G.E.},
+  booktitle = {2013 IEEE International Conference on Acoustics, Speech and Signal Processing}, 
+  title = {On rectified linear units for speech processing},
+  year = {2013},
+  volume = {},
+  number = {},
+  pages = {3517-3521},
+  doi = {10.1109/ICASSP.2013.6638312},
 }
 
 % --
@@ -271,30 +253,29 @@
 
 % first paper about cnns
 @inbook{LeCun1989_Generalization,
-  title = "Generalization and network design strategies",
-  author = "Yann Lecun",
-  year = "1989",
-  language = "English (US)",
-  editor = "R. Pfeifer and Z. Schreter and F. Fogelman and L. Steels",
-  booktitle = "Connectionism in perspective",
-  publisher = "Elsevier"
+  title = {Generalization and network design strategies},
+  author = {Yann Lecun},
+  year = {1989},
+  language = {English (US)},
+  editor = {R. Pfeifer and Z. Schreter and F. Fogelman and L. Steels},
+  booktitle = {Connectionism in perspective},
+  publisher = {Elsevier},
 }
 
 % understanding CNNs
 
 @article{Zeiler2013,
-  author    = {Matthew D. Zeiler and
-               Rob Fergus},
-  title     = {Visualizing and Understanding Convolutional Networks},
-  journal   = {CoRR},
-  volume    = {abs/1311.2901},
-  year      = {2013},
-  url       = {http://arxiv.org/abs/1311.2901},
+  author = {Matthew D. Zeiler and Rob Fergus},
+  title = {Visualizing and Understanding Convolutional Networks},
+  journal = {CoRR},
+  volume = {abs/1311.2901},
+  year = {2013},
+  url = {http://arxiv.org/abs/1311.2901},
   archivePrefix = {arXiv},
-  eprint    = {1311.2901},
+  eprint = {1311.2901},
   timestamp = {Mon, 13 Aug 2018 16:48:37 +0200},
-  biburl    = {https://dblp.org/rec/journals/corr/ZeilerF13.bib},
-  bibsource = {dblp computer science bibliography, https://dblp.org}
+  biburl = {https://dblp.org/rec/journals/corr/ZeilerF13.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org},
 }
 
 
@@ -303,11 +284,11 @@
 
 % speech commands set
 @article{Warden2018,
-  title={Speech Commands: A Dataset for Limited-Vocabulary \\Speech Recognition},
-  author={Pete Warden},
-  journal={ArXiv},
-  year={2018},
-  volume={abs/1804.03209}
+  title = {Speech Commands: A Dataset for Limited-Vocabulary \\Speech Recognition},
+  author = {Pete Warden},
+  journal = {ArXiv},
+  year = {2018},
+  volume = {abs/1804.03209},
 }
 
 
@@ -316,21 +297,21 @@
 
 % benchmark list
 @online{PaperswithcodeKWS, 
-    author = {Papers with Code},
-    title = {keyword-spotting-on-google-speech-commands},
-    year = 2021,
-    url = {https://paperswithcode.com/sota/keyword-spotting-on-google-speech-commands},
-    urldate = {2021-06-02}
+ author = {Papers with Code},
+ title = {keyword-spotting-on-google-speech-commands},
+ year = 2021,
+ url = {https://paperswithcode.com/sota/keyword-spotting-on-google-speech-commands},
+ urldate = {2021-06-02},
 }
 
 % transformer network -> highes accuracy
 @misc{Berg2021,
-  title={Keyword Transformer: A Self-Attention Model for Keyword Spotting}, 
-  author={Axel Berg and Mark O'Connor and Miguel Tairum Cruz},
-  year={2021},
-  eprint={2104.00769},
-  archivePrefix={arXiv},
-  primaryClass={eess.AS}
+  title = {Keyword Transformer: A Self-Attention Model for Keyword Spotting}, 
+  author = {Axel Berg and Mark O'Connor and Miguel Tairum Cruz},
+  year = {2021},
+  eprint = {2104.00769},
+  archivePrefix = {arXiv},
+  primaryClass = {eess.AS},
 }
 
 
@@ -339,69 +320,65 @@
 
 % sainath small footprint
 @inproceedings{Sainath2015,
-  title={Convolutional neural networks for small-footprint keyword spotting},
-  author={Tara N. Sainath and Carolina Parada},
-  booktitle={INTERSPEECH},
-  year={2015}
+  title = {Convolutional neural networks for small-footprint keyword spotting},
+  author = {Tara N. Sainath and Carolina Parada},
+  booktitle = {INTERSPEECH},
+  year = {2015},
 }
 
 % edge
 @article{Zhang2017,
-  author    = {Yundong Zhang and Naveen Suda and Liangzhen Lai and Vikas Chandra},
-  title     = {Hello Edge: Keyword Spotting on Microcontrollers},
-  journal   = {CoRR},
-  volume    = {abs/1711.07128},
-  year      = {2017},
-  url       = {http://arxiv.org/abs/1711.07128},
+  author = {Yundong Zhang and Naveen Suda and Liangzhen Lai and Vikas Chandra},
+  title = {Hello Edge: Keyword Spotting on Microcontrollers},
+  journal = {CoRR},
+  volume = {abs/1711.07128},
+  year = {2017},
+  url = {http://arxiv.org/abs/1711.07128},
   archivePrefix = {arXiv},
-  eprint    = {1711.07128},
+  eprint = {1711.07128},
   timestamp = {Wed, 10 Mar 2021 18:03:11 +0100},
-  biburl    = {https://dblp.org/rec/journals/corr/abs-1711-07128.bib},
-  bibsource = {dblp computer science bibliography, https://dblp.org}
+  biburl = {https://dblp.org/rec/journals/corr/abs-1711-07128.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org},
 }
 
 % tu graz, resource efficient: https://arxiv.org/abs/2012.10138
 @misc{Peter2020,
-  title={Resource-efficient DNNs for Keyword Spotting using Neural Architecture Search and Quantization}, 
-  author={David Peter and Wolfgang Roth and Franz Pernkopf},
-  year={2020},
-  eprint={2012.10138},
-  archivePrefix={arXiv},
-  primaryClass={eess.AS}
+  title = {Resource-efficient DNNs for Keyword Spotting using Neural Architecture Search and Quantization}, 
+  author = {David Peter and Wolfgang Roth and Franz Pernkopf},
+  year = {2020},
+  eprint = {2012.10138},
+  archivePrefix = {arXiv},
+  primaryClass = {eess.AS},
 }
 
 % deep residual
 @article{Tang2017,
-  author    = {Raphael Tang and Jimmy Lin},
-  title     = {Deep Residual Learning for Small-Footprint Keyword Spotting},
-  journal   = {CoRR},
-  volume    = {abs/1710.10361},
-  year      = {2017},
-  url       = {http://arxiv.org/abs/1710.10361},
+  author = {Raphael Tang and Jimmy Lin},
+  title = {Deep Residual Learning for Small-Footprint Keyword Spotting},
+  journal = {CoRR},
+  volume = {abs/1710.10361},
+  year = {2017},
+  url = {http://arxiv.org/abs/1710.10361},
   archivePrefix = {arXiv},
-  eprint    = {1710.10361},
+  eprint = {1710.10361},
   timestamp = {Mon, 13 Aug 2018 16:46:58 +0200},
-  biburl    = {https://dblp.org/rec/journals/corr/abs-1710-10361.bib},
-  bibsource = {dblp computer science bibliography, https://dblp.org}
+  biburl = {https://dblp.org/rec/journals/corr/abs-1710-10361.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org},
 }
 
 % power consumption
 @article{Tang2018,
-  author    = {Raphael Tang and
-               Weijie Wang and
-               Zhucheng Tu and
-               Jimmy Lin},
-  title     = {An Experimental Analysis of the Power Consumption of Convolutional
-               Neural Networks for Keyword Spotting},
-  journal   = {CoRR},
-  volume    = {abs/1711.00333},
-  year      = {2017},
-  url       = {http://arxiv.org/abs/1711.00333},
+  author = {Raphael Tang and Weijie Wang and Zhucheng Tu and Jimmy Lin},
+  title = {An Experimental Analysis of the Power Consumption of Convolutional Neural Networks for Keyword Spotting},
+  journal = {CoRR},
+  volume = {abs/1711.00333},
+  year = {2017},
+  url = {http://arxiv.org/abs/1711.00333},
   archivePrefix = {arXiv},
-  eprint    = {1711.00333},
+  eprint = {1711.00333},
   timestamp = {Mon, 13 Aug 2018 16:46:07 +0200},
-  biburl    = {https://dblp.org/rec/journals/corr/abs-1711-00333.bib},
-  bibsource = {dblp computer science bibliography, https://dblp.org}
+  biburl = {https://dblp.org/rec/journals/corr/abs-1711-00333.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org},
 }
 
 
@@ -412,7 +389,7 @@
   title = {Theory of Games and Economic Behavior},
   author = {John von Neumann and Oskar Morgenstern},
   year = {1944},
-  publisher = {Princeton University Press}
+  publisher = {Princeton University Press},
 }
 
 % --
@@ -420,60 +397,52 @@
 
 % adv paper I
 @misc{Goodfellow2014,
-  title={Generative Adversarial Networks}, 
-  author={Ian J. Goodfellow and Jean Pouget-Abadie and Mehdi Mirza and Bing Xu and David Warde-Farley and Sherjil Ozair and Aaron Courville and Yoshua Bengio},
-  year={2014},
-  eprint={1406.2661},
-  archivePrefix={arXiv},
-  primaryClass={stat.ML}
+  title = {Generative Adversarial Networks}, 
+  author = {Ian J. Goodfellow and Jean Pouget-Abadie and Mehdi Mirza and Bing Xu and David Warde-Farley and Sherjil Ozair and Aaron Courville and Yoshua Bengio},
+  year = {2014},
+  eprint = {1406.2661},
+  archivePrefix = {arXiv},
+  primaryClass = {stat.ML},
 }
 
 % radford dcgan pytorch tutorial
 @inproceedings{Radford2016,
-  author    = {Alec Radford and
-               Luke Metz and
-               Soumith Chintala},
-  editor    = {Yoshua Bengio and
-               Yann LeCun},
-  title     = {Unsupervised Representation Learning with Deep Convolutional Generative
-               Adversarial Networks},
-  booktitle = {4th International Conference on Learning Representations, {ICLR} 2016,
-               San Juan, Puerto Rico, May 2-4, 2016, Conference Track Proceedings},
-  year      = {2016},
-  url       = {http://arxiv.org/abs/1511.06434},
+  author = {Alec Radford and Luke Metz and Soumith Chintala},
+  editor = {Yoshua Bengio and Yann LeCun},
+  title = {Unsupervised Representation Learning with Deep Convolutional Generative Adversarial Networks},
+  booktitle = {4th International Conference on Learning Representations (ICLR 2016)},
+  year = {2016},
+  url = {http://arxiv.org/abs/1511.06434},
   timestamp = {Thu, 25 Jul 2019 14:25:38 +0200},
-  biburl    = {https://dblp.org/rec/journals/corr/RadfordMC15.bib},
-  bibsource = {dblp computer science bibliography, https://dblp.org}
+  biburl = {https://dblp.org/rec/journals/corr/RadfordMC15.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org},
 }
 
 % eeg adversarial
-@ARTICLE{Oezdenizci2020,
-  author={Özdenizci, Ozan and Wang, Ye and Koike-Akino, Toshiaki and Erdoğmuş, Deniz},
-  journal={IEEE Access}, 
-  title={Learning Invariant Representations From EEG via Adversarial Inference}, 
-  year={2020},
-  volume={8},
-  number={},
-  pages={27074-27085},
-  doi={10.1109/ACCESS.2020.2971600}
+@article{Oezdenizci2020,
+  author = {Özdenizci, Ozan and Wang, Ye and Koike-Akino, Toshiaki and Erdoğmuş, Deniz},
+  journal = {IEEE Access}, 
+  title = {Learning Invariant Representations From EEG via Adversarial Inference}, 
+  year = {2020},
+  volume = {8},
+  number = {},
+  pages = {27074-27085},
+  doi = {10.1109/ACCESS.2020.2971600},
 }
 
 % durall up-convolution, transposed convolution, etc.
 @article{Durall2020,
-  author    = {Ricard Durall and
-               Margret Keuper and
-               Janis Keuper},
-  title     = {Watch your Up-Con\-vo\-lu\-tion: {CNN} Based Generative Deep Neural Networks
-               are Failing to Reproduce Spectral Distributions},
-  journal   = {CoRR},
-  volume    = {abs/2003.01826},
-  year      = {2020},
-  url       = {https://arxiv.org/abs/2003.01826},
+  author = {Ricard Durall and Margret Keuper and Janis Keuper},
+  title = {Watch your Up-Con\-vo\-lu\-tion: {CNN} Based Generative Deep Neural Networks are Failing to Reproduce Spectral Distributions},
+  journal = {CoRR},
+  volume = {abs/2003.01826},
+  year = {2020},
+  url = {https://arxiv.org/abs/2003.01826},
   archivePrefix = {arXiv},
-  eprint    = {2003.01826},
+  eprint = {2003.01826},
   timestamp = {Tue, 10 Mar 2020 13:33:48 +0100},
-  biburl    = {https://dblp.org/rec/journals/corr/abs-2003-01826.bib},
-  bibsource = {dblp computer science bibliography, https://dblp.org}
+  biburl = {https://dblp.org/rec/journals/corr/abs-2003-01826.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org},
 }
 
 
@@ -488,25 +457,17 @@
 
 % original wavenet paper oord
 @article{Oord2016,
-  author    = {A{\"{a}}ron van den Oord and
-               Sander Dieleman and
-               Heiga Zen and
-               Karen Simonyan and
-               Oriol Vinyals and
-               Alex Graves and
-               Nal Kalchbrenner and
-               Andrew W. Senior and
-               Koray Kavukcuoglu},
-  title     = {WaveNet: {A} Generative Model for Raw Audio},
-  journal   = {CoRR},
-  volume    = {abs/1609.03499},
-  year      = {2016},
-  url       = {http://arxiv.org/abs/1609.03499},
+  author = {A{\"{a}}ron van den Oord and Sander Dieleman and Heiga Zen and Karen Simonyan and Oriol Vinyals and Alex Graves and Nal Kalchbrenner and Andrew W. Senior and Koray Kavukcuoglu},
+  title = {WaveNet: {A} Generative Model for Raw Audio},
+  journal = {CoRR},
+  volume = {abs/1609.03499},
+  year = {2016},
+  url = {http://arxiv.org/abs/1609.03499},
   archivePrefix = {arXiv},
-  eprint    = {1609.03499},
+  eprint = {1609.03499},
   timestamp = {Mon, 13 Aug 2018 16:49:15 +0200},
-  biburl    = {https://dblp.org/rec/journals/corr/OordDZSVGKSK16.bib},
-  bibsource = {dblp computer science bibliography, https://dblp.org}
+  biburl = {https://dblp.org/rec/journals/corr/OordDZSVGKSK16.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org},
 }
 
 % pytorch implementation example
@@ -517,17 +478,17 @@
   publisher = {GitHub},
   journal = {GitHub repository},
   howpublished = {\url{https://github.com/vincentherrmann/pytorch-wavenet}},
-  commit = {26ba289}
+  commit = {26ba289},
 }
 
 % wavenet for music
 @misc{Zhang2020,
-  title={Music Artist Classification with WaveNet Classifier for Raw Waveform Audio Data}, 
-  author={Xulong Zhang and Yongwei Gao and Yi Yu and Wei Li},
-  year={2020},
-  eprint={2004.04371},
-  archivePrefix={arXiv},
-  primaryClass={eess.AS}
+  title = {Music Artist Classification with WaveNet Classifier for Raw Waveform Audio Data}, 
+  author = {Xulong Zhang and Yongwei Gao and Yi Yu and Wei Li},
+  year = {2020},
+  eprint = {2004.04371},
+  archivePrefix = {arXiv},
+  primaryClass = {eess.AS},
 }
 
 % fast wavenet
@@ -545,7 +506,7 @@
   title = {Transfer Learning},
   year = 2021,
   url = {https://cs231n.github.io/transfer-learning/},
-  urldate = {2021-07-01}
+  urldate = {2021-07-01},
 }
 
 
@@ -561,44 +522,39 @@
 
 % kws children games
 @inproceedings{Harshavardhan2015,
-  title={Keyword spotting in multi-player voice driven games for children},
-  author={S. Harshavardhan and J. Lehman and Rita Singh},
-  booktitle={INTERSPEECH},
-  year={2015},
-  url={https://www.isca-speech.org/archive/interspeech_2015/i15_1660.html}
+  title = {Keyword spotting in multi-player voice driven games for children},
+  author = {S. Harshavardhan and J. Lehman and Rita Singh},
+  booktitle = {INTERSPEECH},
+  year = {2015},
+  url = {https://www.isca-speech.org/archive/interspeech_2015/i15_1660.html},
 }
 
 % sphinx
-@INPROCEEDINGS{Huggins2006,
-  author={Huggins-Daines, D. and Kumar, M. and Chan, A. and Black, A.W. and Ravishankar, M. and Rudnicky, A.I.},
-  booktitle={2006 IEEE International Conference on Acoustics Speech and Signal Processing Proceedings}, 
-  title={Pocketsphinx: A Free, Real-Time Continuous Speech Recognition System for Hand-Held Devices}, 
-  year={2006},
-  volume={1},
-  number={},
-  pages={I-I},
-  doi={10.1109/ICASSP.2006.1659988}
+@inproceedings{Huggins2006,
+  author = {Huggins-Daines, D. and Kumar, M. and Chan, A. and Black, A.W. and Ravishankar, M. and Rudnicky, A.I.},
+  booktitle = {2006 IEEE International Conference on Acoustics Speech and Signal Processing Proceedings}, 
+  title = {Pocketsphinx: A Free, Real-Time Continuous Speech Recognition System for Hand-Held Devices}, 
+  year = {2006},
+  volume = {1},
+  number = {},
+  pages = {I-I},
+  doi = {10.1109/ICASSP.2006.1659988},
 }
 % also interesting: An overview of the SPHINX speech recognition system
 
 % windows asr
 @article{Xiong2017,
-  author    = {W. Xiong and
-               L. Wu and
-               Fil Alleva and
-               Jasha Droppo and
-               Xuedong Huang and
-               Andreas Stolcke},
-  title     = {The Microsoft 2017 Conversational Speech Recognition System},
-  journal   = {CoRR},
-  volume    = {abs/1708.06073},
-  year      = {2017},
-  url       = {http://arxiv.org/abs/1708.06073},
+  author = {W. Xiong and L. Wu and Fil Alleva and Jasha Droppo and Xuedong Huang and Andreas Stolcke},
+  title = {The Microsoft 2017 Conversational Speech Recognition System},
+  journal = {CoRR},
+  volume = {abs/1708.06073},
+  year = {2017},
+  url = {http://arxiv.org/abs/1708.06073},
   archivePrefix = {arXiv},
-  eprint    = {1708.06073},
+  eprint = {1708.06073},
   timestamp = {Thu, 18 Jun 2020 14:52:42 +0200},
-  biburl    = {https://dblp.org/rec/journals/corr/abs-1708-06073.bib},
-  bibsource = {dblp computer science bibliography, https://dblp.org}
+  biburl = {https://dblp.org/rec/journals/corr/abs-1708-06073.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org},
 }
 
 
@@ -606,15 +562,15 @@
 % signal processing
 
 % fft
-@ARTICLE{Brigham1967,
-  author={Brigham, E. O. and Morrow, R. E.},
-  journal={IEEE Spectrum}, 
-  title={The fast Fourier transform}, 
-  year={1967},
-  volume={4},
-  number={12},
-  pages={63-70},
-  doi={10.1109/MSPEC.1967.5217220}
+@article{Brigham1967,
+  author = {Brigham, E. O. and Morrow, R. E.},
+  journal = {IEEE Spectrum}, 
+  title = {The fast Fourier transform}, 
+  year = {1967},
+  volume = {4},
+  number = {12},
+  pages = {63-70},
+  doi = {10.1109/MSPEC.1967.5217220},
 }
 
 
@@ -630,56 +586,56 @@
   pages = {8024--8035},
   year = {2019},
   publisher = {Curran Associates, Inc.},
-  url = {http://papers.neurips.cc/paper/9015-pytorch-an-imperative-style-high-performance-deep-learning-library.pdf}
+  url = {http://papers.neurips.cc/paper/9015-pytorch-an-imperative-style-high-performance-deep-learning-library.pdf},
 }
 
 % tensorflow
 @misc{Tensorflow,
-  title={ {TensorFlow}: Large-Scale Machine Learning on Heterogeneous Systems},
-  url={https://www.tensorflow.org/},
-  note={Software available from tensorflow.org},
-  author={
-    Mart\'{i}n~Abadi and
-    Ashish~Agarwal and
-    Paul~Barham and
-    Eugene~Brevdo and
-    Zhifeng~Chen and
-    Craig~Citro and
-    Greg~S.~Corrado and
-    Andy~Davis and
-    Jeffrey~Dean and
-    Matthieu~Devin and
-    Sanjay~Ghemawat and
-    Ian~Goodfellow and
-    Andrew~Harp and
-    Geoffrey~Irving and
-    Michael~Isard and
-    Yangqing Jia and
-    Rafal~Jozefowicz and
-    Lukasz~Kaiser and
-    Manjunath~Kudlur and
-    Josh~Levenberg and
-    Dandelion~Man\'{e} and
-    Rajat~Monga and
-    Sherry~Moore and
-    Derek~Murray and
-    Chris~Olah and
-    Mike~Schuster and
-    Jonathon~Shlens and
-    Benoit~Steiner and
-    Ilya~Sutskever and
-    Kunal~Talwar and
-    Paul~Tucker and
-    Vincent~Vanhoucke and
-    Vijay~Vasudevan and
-    Fernanda~Vi\'{e}gas and
-    Oriol~Vinyals and
-    Pete~Warden and
-    Martin~Wattenberg and
-    Martin~Wicke and
-    Yuan~Yu and
-    Xiaoqiang~Zheng},
-  year={2015}
+  title = { {TensorFlow}: Large-Scale Machine Learning on Heterogeneous Systems},
+  url = {https://www.tensorflow.org/},
+  note = {Software available from tensorflow.org},
+  author = {
+ Mart\'{i}n~Abadi and
+ Ashish~Agarwal and
+ Paul~Barham and
+ Eugene~Brevdo and
+ Zhifeng~Chen and
+ Craig~Citro and
+ Greg~S.~Corrado and
+ Andy~Davis and
+ Jeffrey~Dean and
+ Matthieu~Devin and
+ Sanjay~Ghemawat and
+ Ian~Goodfellow and
+ Andrew~Harp and
+ Geoffrey~Irving and
+ Michael~Isard and
+ Yangqing Jia and
+ Rafal~Jozefowicz and
+ Lukasz~Kaiser and
+ Manjunath~Kudlur and
+ Josh~Levenberg and
+ Dandelion~Man\'{e} and
+ Rajat~Monga and
+ Sherry~Moore and
+ Derek~Murray and
+ Chris~Olah and
+ Mike~Schuster and
+ Jonathon~Shlens and
+ Benoit~Steiner and
+ Ilya~Sutskever and
+ Kunal~Talwar and
+ Paul~Tucker and
+ Vincent~Vanhoucke and
+ Vijay~Vasudevan and
+ Fernanda~Vi\'{e}gas and
+ Oriol~Vinyals and
+ Pete~Warden and
+ Martin~Wattenberg and
+ Martin~Wicke and
+ Yuan~Yu and
+ Xiaoqiang~Zheng},
+  year = {2015},
 }
 
 
