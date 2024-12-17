@@ -168,7 +168,7 @@ applied in the last layer, where $x$ represents the output of any specific node.
 
 There are already plenty of different loss functions available for training neural networks, such as described in \cite{LeCun2006}. 
 In this thesis however, only one kind of loss function is applied for all neural network architectures, namely the \emph{cross-entropy loss}, which is in the case of two classes known as \emph{binary cross-entropy loss}.
-The formulation of the cross-entropy loss is similarly expressed as provided in the documentation of its implementation in the \texttt{Pytorch} framework \cite{Pytorch}, which is as follows:
+The formulation of the cross-entropy loss is similarly expressed as provided in the documentation of its implementation in the \texttt{Pytorch} framework \cite{Paszke2019Pytorch}, which is as follows:
 \begin{equation}\label{eq:nn_theory_binary_cross_entropy}
   l(x_i, y_i) = y_i \cdot \log x_i + (1 - y_i) \cdot \log (1 - x_i)
 \end{equation}
