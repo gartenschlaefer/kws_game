@@ -38,7 +38,7 @@ Within this thesis, the length of the analytic window is selected to \SI{25}{\mi
 The \emph{hop size} $h$ in samples of the hop time $t_h$ by which the analytical window is shifted on the time axis indicates the resolution in time and is especially important for sequential changes within the audio data.
 In applications like speech processing, the hop time should be selected so that the fastest pronounced phonemes and its transitions to other phonemes are captured with sufficient resolution.
 Usually a hop time of $t_{h}=\SI{10}{\milli\second}$ is chosen for speech recognition tasks, which is also used within this thesis.
-However, an increase of $t_{h}=\SI{20}{\milli\second}$ is also possible, as demonstrated by \cite{Peter2020}.
+However, an increase of $t_{h}=\SI{20}{\milli\second}$ is also possible, as demonstrated by \cite{Peter2020ResourceEffDNN}.
 
 With the hop size $h$ in samples and $N$ the length of the analytical window, the Short-Time Fourier Transform (STFT) for discrete time signals can be defined as
 \begin{equation}\label{eq:signal_spec_stft}

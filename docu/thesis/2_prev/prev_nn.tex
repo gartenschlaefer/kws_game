@@ -48,7 +48,7 @@ Convolutional filters are very commonly applied in image processing tasks, such 
 A classical application of convolutional filters in audio processing, is a simple average filter applied on the signal's energy representation over time to determine onsets, such as the start of a speech signal.
 
 Still it took remarkably long until convolutional filters were a widely used asset in neural network architectures.
-The general concepts of CNNs were examined by LeCun et al. on handwritten postal codes \cite{LeCun1989_Generalization}.
+The general concepts of CNNs were examined by LeCun et al. on handwritten postal codes \cite{LeCun1989Generalization}.
 Further research and experiments on the famous MNIST dataset of handwritten digits \cite{LeCun1998} asserted the success of CNNs.
 A classical convolutional layer in CNNs consists of multiple convolutional filters followed by a non-linear activation function applied to the computed feature maps.
 More details about convolutional layers and how they transform input images to feature maps is presented in \rsec{nn_theory_cnn}.
@@ -61,15 +61,15 @@ More details about convolutional layers and how they transform input images to f
 Using raw audio data as input to neural networks seemed to be difficult for a long time.
 This was mainly due to the fact that audio waveforms consist of a huge amount of samples even for short time intervals, leading to high-dimensional input.
 Recently, neural network architectures emerged with the ability to process raw audio samples.
-One very prominent architecture, originally intended for natural speech generation, is the so called \emph{Wavenet} \cite{Oord2016}.
+One very prominent architecture, originally intended for natural speech generation, is the so called \emph{Wavenet} \cite{Oord2016Wavenet}.
 
 With the application of \emph{dilated convolutions} and a quantization of the audio sample values Wavenets can afford to process a huge amount of input dimensions and at the same time extract relevant information.
-The implementation of Wavenets is regarded as being more efficient compared to LSTMs, such as the quote states \cite{Oord2016}:
+The implementation of Wavenets is regarded as being more efficient compared to LSTMs, such as the quote states \cite{Oord2016Wavenet}:
 \begin{quote}
   ...With WaveNets we have shown that layers of dilated convolutions allow the receptive field to grow longer in a much cheaper way than using LSTM units...
 \end{quote}
 Note that research on audio classification tasks with Wavenets is very uncommon.
-Nevertheless, \cite{Zhang2020} proposes a model for a classification of musical pieces with regard to corresponding music artists based on a Wavenet model.
+Nevertheless, \cite{Zhang2020WavenetMusic} proposes a model for a classification of musical pieces with regard to corresponding music artists based on a Wavenet model.
 Regarding this thesis, it is questionable whether Wavenets are suited for the KWS task, in particular, when considering energy efficient solutions.
 
 
@@ -77,16 +77,16 @@ Regarding this thesis, it is questionable whether Wavenets are suited for the KW
 % adversarial nets
 
 \subsection{Generative Adversarial Neural Networks}\label{sec:prev_nn_adv}
-GANs \cite{Goodfellow2014} were introduced by Goodfellow et al. and were initially motivated from \enquote{Game Theory} regarding a two player zero-sum game with the Min-Max-Theorem as solution concept \cite{VonNeumann1944}.
+GANs \cite{Goodfellow2014GANs} were introduced by Goodfellow et al. and were initially motivated from \enquote{Game Theory} regarding a two player zero-sum game with the Min-Max-Theorem as solution concept \cite{VonNeumann1944}.
 The game in terms of GANs is as follows: Two neural networks try to outperform the other in an adversary task, where the task of one network, denoted as Generator (G), is to counterfeit fake images, while the other network, denoted as Discriminator (D), has the task to discriminate whether its been given real or fake images.
-In \cite{Radford2016} some practical guidelines for designing and training deep GAN architectures are provided by applying the Deep Convolutional Generative Adversarial Network (DCGAN) model.
+In \cite{Radford2016DCGAN} some practical guidelines for designing and training deep GAN architectures are provided by applying the Deep Convolutional Generative Adversarial Network (DCGAN) model.
 Note that DCGANs were designed for image data and not speech signals yet they were the first starting point for developing GANs in this thesis.
 
 Note that G has to perform a so called \emph{transposed convolution}, \emph{up-convolution}, or \emph{de-convolution} in order to up-sample a latent representation to the desired output dimensions of real sample images from a dataset.
-The transposed convolution and some problems regarding GANs are described in \cite{Durall2020}.
+The transposed convolution and some problems regarding GANs are described in \cite{Durall2020UpConv}.
 
 GANs are not the only application of adversarial neural networks. 
-In \cite{Oezdenizci2020} it is shown how an adversarial network improves the generalization of subject specific samples from Electroencephalogram (EEG) data.
+In \cite{Oezdenizci2020EEG} it is shown how an adversarial network improves the generalization of subject specific samples from Electroencephalogram (EEG) data.
 The adversarial network in this paper is connected to a convolutional encoder network, which is also input to a classifier network.
 The update of the encoder network is therefore done via the adversarial network and the classifier network at the same time and specified in a collective loss function.
 

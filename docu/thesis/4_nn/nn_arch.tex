@@ -24,8 +24,8 @@ In contrast, the \texttt{conv-jim} model has its kernel size adjusted to the ver
 Furthermore, a traditional model named \texttt{conv-trad} is used and performs the striding of the convolutional filters in both dimensions.
 The mentioned CNN models summarize as follows:
 \begin{itemize}
-	\item \texttt{conv-trad}: from \cite{Sainath2015} a traditional CNN, striding in both dimensions.
-	\item \texttt{conv-fstride}: from \cite{Sainath2015} (fstride4), striding only in the vertical dimension.
+	\item \texttt{conv-trad}: from \cite{Sainath2015KWS} a traditional CNN, striding in both dimensions.
+	\item \texttt{conv-fstride}: from \cite{Sainath2015KWS} (fstride4), striding only in the vertical dimension.
 	\item \texttt{conv-jim}: self designed model, striding only in the horizontal dimension.
 \end{itemize}
 The naming of the \texttt{conv-trad} and \texttt{conv-fstride} comes from their original paper, and the self defined network \texttt{conv-jim} was named bluntly after the astronaut avatar that is used for the deployed video game in this thesis.
@@ -34,13 +34,13 @@ The naming of the \texttt{conv-trad} and \texttt{conv-fstride} comes from their 
 \begin{figure}[!ht]
   \centering
     \includegraphics[height=0.23\textwidth]{./4_nn/figs/nn_arch_cnn_trad.pdf}
-  \caption{Traditional CNN design from \cite{Sainath2015} named \texttt{conv-trad}.}
+  \caption{Traditional CNN design from \cite{Sainath2015KWS} named \texttt{conv-trad}.}
   \label{fig:nn_arch_cnn_trad}
 \end{figure}
 \FloatBarrier
 \noindent
 The \texttt{conv-trad} network consists of 2 convolutional layers and one max pooling layer in between.
-The architecture was adapted from \cite{Sainath2015} as a baseline network with slightly modified kernel sizes to adapt on reduced input feature sizes.
+The architecture was adapted from \cite{Sainath2015KWS} as a baseline network with slightly modified kernel sizes to adapt on reduced input feature sizes.
 A length of 20 frames in the first convolutional layer is reasonable and approximately corresponds to the length of a vowel sound.
 Note that the \enquote{Flatten} layer reduces the output tensor of the last convolutional layer to one dimension in order to append consecutive FC layers.
 The first two FC layers use Dropout to improve generalization in training.
@@ -54,7 +54,7 @@ This produces only two output dimensions in the vertical direction for an input 
 \begin{figure}[!ht]
   \centering
     \includegraphics[height=0.23\textwidth]{./4_nn/figs/nn_arch_cnn_fstride.pdf}
-  \caption{Vertically striding CNN design from \cite{Sainath2015} named \texttt{conv-fstride}.}
+  \caption{Vertically striding CNN design from \cite{Sainath2015KWS} named \texttt{conv-fstride}.}
   \label{fig:nn_arch_cnn_fstride}
 \end{figure}
 \FloatBarrier
@@ -120,14 +120,14 @@ This enhances the training speed of G, since it is able to produce convincing fa
 % wavenets
 
 \subsection{Wavenets}\label{sec:nn_arch_wavenet}
-Wavenets, as introduced in \cite{Oord2016}, were originally intended for speech generation.
+Wavenets, as introduced in \cite{Oord2016Wavenet}, were originally intended for speech generation.
 The paper mentions that Wavenets can be applied for ASR tasks as well although it is described very briefly.
 \cite{Herrmann2018} provides a classical implementation of a Wavenet and motivated the following model structure.
 \rfig{nn_arch_wavenet_block} illustrates the residual block, which is one of the fundamental building blocks of the Wavenet architecture.
 \begin{figure}[!ht]
   \centering
     \includegraphics[width=0.75\textwidth]{./4_nn/figs/nn_arch_wavenet_block.pdf}
-  \caption{Wavenet residual block \cite{Oord2016} with an extension of class prediction layers.}
+  \caption{Wavenet residual block \cite{Oord2016Wavenet} with an extension of class prediction layers.}
   \label{fig:nn_arch_wavenet_block}
 \end{figure}
 \FloatBarrier
@@ -150,7 +150,7 @@ The whole Wavenet architecture is composed of several consecutive Wavenet residu
 \FloatBarrier
 \noindent
 Note that the output of the last convolutional layer in the sample prediction represents the quantized audio estimation with 256 possible values.
-More details about the used quantization technique is described in \cite{Oord2016}.
+More details about the used quantization technique is described in \cite{Oord2016Wavenet}.
 The computational footprint of the whole Wavenet model is listed in \rtab{nn_arch_wavenet_whole}.
 \input{./4_nn/tables/tab_nn_arch_wavenet_whole}
 The amount of operations is quite large because the convolutional filters have to be applied on each sample of the audio signal.

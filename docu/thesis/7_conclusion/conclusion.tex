@@ -66,15 +66,15 @@ Yet as a proof of concept, the two levels with moveable blocks are a good starti
 
 \section{Future Work}
 The goal to find the most computationally efficient model that obtains at the same time satisfying classification accuracy in the KWS task of speech commands, is still a topic for future research.
-Even though \cite{Zhang2017} and \cite{Peter2020} already provide excellent solutions to this problem, it is important to further elaborate on it and derive a minimal model so that each layer can be analyzed and understood by researchers.
-Furthermore, it is worth to evaluate the increase of the hop time from the used \SI{10}{\milli\second} to \SI{20}{\milli\second}, as applied in \cite{Peter2020}.
+Even though \cite{Zhang2017HelloEdge} and \cite{Peter2020ResourceEffDNN} already provide excellent solutions to this problem, it is important to further elaborate on it and derive a minimal model so that each layer can be analyzed and understood by researchers.
+Furthermore, it is worth to evaluate the increase of the hop time from the used \SI{10}{\milli\second} to \SI{20}{\milli\second}, as applied in \cite{Peter2020ResourceEffDNN}.
 This would reduce the computations approximately by half (both for the feature extraction and the classifier).
 Further, it would be interesting to evaluate an even smaller time interval that contains a keyword below \SI{500}{\milli\second} for a fast paced gaming experience.
 Also it might be preferable to switch from a fixed sized input to a flexible one so that no spoken keyword will be missed regardless of its duration.
 This would enable the game to respond faster and allow the speaker to pronounce the keywords with a shorter time interval.
 
 Further research can be conducted on the value of the obtained weights from the Generator model of a GAN training. 
-An adversarial training scheme, as presented in \cite{Oezdenizci2020}, that consists of both a G and a classical CNN model operating on the very same convolutional layers, would be extremely interesting. 
+An adversarial training scheme, as presented in \cite{Oezdenizci2020EEG}, that consists of both a G and a classical CNN model operating on the very same convolutional layers, would be extremely interesting. 
 However, one problem is the up-convolution performed by G so that weight sharing is difficult to implement in this task.
 
 Much future work can be done in finding a Wavenet architecture for speech recognition tasks that is computationally lightweight and achieves acceptable recognition accuracy, if that is even possible on raw audio samples.

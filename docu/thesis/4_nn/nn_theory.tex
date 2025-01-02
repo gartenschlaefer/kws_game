@@ -27,7 +27,7 @@ They map the sum of the weighted input values from nodes in a previous layer to 
 where $h$ is the activation function, $\bm{w} \in \R^n$ is a weight vector, and $\bm{x} \in \R^n$ an input vector representing the connections from a total number of $n$ nodes in the previous layer.
 Note that activation functions have to have computable derivatives in order to backpropagate gradients during training.
 
-The most famous activation function nowadays, is the Rectified Linear Unit (ReLU) \cite{Zeiler2013_relu} function
+The most famous activation function nowadays, is the Rectified Linear Unit (ReLU) \cite{Zeiler2013Relu} function
 \begin{equation}\label{eq:nn_theory_relu}
   h(a) = \max{(0, a)}
 \end{equation}
@@ -188,7 +188,7 @@ Note that $x_i[.]$ is expressed as indexing of $x_i$ by its class dimension $L$.
 % dropout
 
 \subsection{Dropout}
-Dropout \cite{Hinton2012} is a method to improve generalization and training of neural networks.
+Dropout \cite{Hinton2012Dropout} is a method to improve generalization and training of neural networks.
 The idea is to set the output of randomly selected nodes within a layer for one training step to zero so that only the other nodes are updated.
 This can be achieved by multiplying all outputs of a current layer with a vector containing a specified number of zeros and ones placed at random positions within the vector.
 The amount of zeros compared to ones can be sampled from a Bernoulli distribution by setting a probability value $p$.
@@ -201,7 +201,7 @@ For instance, $p=0.2$ means that there are \SI{20}{\percent} zeros and \SI{80}{\
 \subsection{Training of a Neural Network}
 The training of a neural network is usually done by updating each parameter of the model with backpropagated gradients from the obtained loss at the output nodes.
 The loss is calculated by a specific loss function comparing the predicted labels to the ground truth labels of the actual training samples.
-To update the parameters of the network, an update rule, such as Stochastic Gradient Descend (SGD) or Adam \cite{Kingma2015} is applied.
+To update the parameters of the network, an update rule, such as Stochastic Gradient Descend (SGD) or Adam \cite{Kingma2015Adam} is applied.
 Note that a single update step is usually not performed on the whole dataset, unless it is a very small dataset.
 In the normal case, the update is performed on small chunks of the dataset, referred to as \emph{batches}.
 One training iteration is therefore the update of parameters for a single batch.

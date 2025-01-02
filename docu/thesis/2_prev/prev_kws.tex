@@ -2,22 +2,22 @@
 % prev keyword spotting
 
 \section{Work on Keyword Spotting with Neural Networks}\label{sec:prev_kws}
-The presented work on KWS with neural networks was selected to give an overview over computationally efficient solutions and networks for the speech commands dataset \cite{Warden2018}.
+The presented work on KWS with neural networks was selected to give an overview over computationally efficient solutions and networks for the speech commands dataset \cite{Warden2018SpeechCommands}.
 
 
 % --
 % energy efficient
 
 \subsection{Energy Efficient Solutions}
-One famous paper on low computational footprint of CNNs regarding KWS tasks is \cite{Sainath2015}.
+One famous paper on low computational footprint of CNNs regarding KWS tasks is \cite{Sainath2015KWS}.
 Two neural network architectures were chosen from this paper: A traditional CNN and a limited multipliers CNN striding only in the frequency axis.
 Both networks are described in detail in \rsec{nn_arch}.
 
-The deployment of a KWS system on microcontrollers was examined in \cite{Zhang2017}.
+The deployment of a KWS system on microcontrollers was examined in \cite{Zhang2017HelloEdge}.
 Different neural network architectures were evaluated regarding their memory usage and operations per inference.
 The work showed that 32-bit to 8-bit quantization does not reduce the classification accuracy and that the depth-wise separable CNN (DS-CNN) was the best choice regarding limited amounts of memory and operations in comparison to the other evaluated models.
 
-Another highly optimized resource efficient Deep Neural Network (DNN) based on CNNs with parameters obtained by a Neural Architecture Search (NAS), is described in \cite{Peter2020}.
+Another highly optimized resource efficient Deep Neural Network (DNN) based on CNNs with parameters obtained by a Neural Architecture Search (NAS), is described in \cite{Peter2020ResourceEffDNN}.
 This work also showed that a 1-bit quantization of the weights perform nearly as well as the 8-bit quantization, which decreases the memory usage even further.
 
 
@@ -25,7 +25,7 @@ This work also showed that a 1-bit quantization of the weights perform nearly as
 % benchmark
 
 \subsection{Benchmark Networks for this Thesis}\label{sec:prev_kws_benchmark}
-The speech commands dataset \cite{Warden2018} exists in two versions (\texttt{v0.01} and \texttt{v0.02}) and consists of raw audio data in the \texttt{.wav} format.
+The speech commands dataset \cite{Warden2018SpeechCommands} exists in two versions (\texttt{v0.01} and \texttt{v0.02}) and consists of raw audio data in the \texttt{.wav} format.
 Furthermore, there is no pre-processing or feature extraction done beforehand.
 Also it is up to the users to select the labels for the vocabulary in a KWS task.
 However, the intended concept is to choose the so-called \emph{core keywords} as classification labels and add an \enquote{unknown} label for the \emph{auxiliary keywords}.
@@ -35,7 +35,7 @@ Further, two labels for \enquote{silence} and \enquote{unknown} were usually add
 The collection of core keywords and the two additional labels is referred to as \texttt{L12}.
 More details about the dataset is presented in \rsec{exp_dataset}.
 
-One benchmark is represented by the work of \cite{Berg2021} introducing a Keyword Transformer (KWT) network.
+One benchmark is represented by the work of \cite{Berg2021KeywordTransformer} introducing a Keyword Transformer (KWT) network.
 A quick overview of continually updated benchmark scores regarding the speech commands dataset is provided in \cite{PaperswithcodeKWS}.
 All benchmark scores from the referenced work in this section are listed in \rtab{prev_kws_bench}.
 \input{./2_prev/tables/tab_prev_kws_bench.tex}

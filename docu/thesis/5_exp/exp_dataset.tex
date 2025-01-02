@@ -2,7 +2,7 @@
 % dataset
 
 \section{Dataset}\label{sec:exp_dataset}
-Two datasets are used within this thesis: The second version of the speech commands dataset \cite{Warden2018} and a self made dataset consisting of merely 5 labels.
+Two datasets are used within this thesis: The second version of the speech commands dataset \cite{Warden2018SpeechCommands} and a self made dataset consisting of merely 5 labels.
 The self made dataset is referred to as \enquote{my dataset} and is used as additional evaluation set.
 The training, validation, and testing of the neural network architectures performs on the speech commands dataset.
 Both datasets consist of raw waveform files in the \texttt{.wav} format without any feature extraction done beforehand.
@@ -14,7 +14,7 @@ Furthermore, the speech commands dataset does not explicitly separate each \text
 % speech commands dataset
 
 \subsection{Speech Commands Dataset}\label{sec:exp_dataset_speech_cmd}
-The speech commands dataset \cite{Warden2018} consists of \SI{1}{\second} speech recordings created by over thousands of individual speakers.
+The speech commands dataset \cite{Warden2018SpeechCommands} consists of \SI{1}{\second} speech recordings created by over thousands of individual speakers.
 As already mentioned in \rsec{prev_kws_benchmark}, the speech commands dataset exists in two versions (\texttt{v0.01} and \texttt{v0.02}).
 The first version was published in 2017 with a total of 30 keywords.
 In 2018 the second version extended the first version by 5 additional keywords \{\enquote{backward}, \enquote{forward}, \enquote{follow}, \enquote{learn}, \enquote{visual}\}.
@@ -24,7 +24,7 @@ In this thesis, the experiments are solely performed on the second version \text
 \input{./5_exp/tables/tab_exp_dataset_hard_facts.tex}
 All available speech commands with their separation into training, test, and validation set, are listed in \rtab{exp_dataset_all_labels}.
 Some keywords have a significantly higher number of examples per class than others.
-This inconsistency of examples per classes emerged from the recording set-up, as described in \cite{Warden2018}, where the main keywords were recorded with a higher number of examples from the same speaker.
+This inconsistency of examples per classes emerged from the recording set-up, as described in \cite{Warden2018SpeechCommands}, where the main keywords were recorded with a higher number of examples from the same speaker.
 For instance, a speaker produces five examples of \enquote{go} and two of \enquote{marvin}.
 This makes the keywords separable into so called \emph{core keywords} and \emph{auxiliary keywords}.
 The core keywords are the main classification objective and each core keyword should correspond to one individual class label.
@@ -94,9 +94,9 @@ This is relevant and has to be considered in the pre-processing of audio files, 
 % recording quality
 
 \subsubsection{Recording Quality and Personal Experience}
-The examples of the speech commands dataset \cite{Warden2018} were not recorded by professionals with high-end recording equipment.
+The examples of the speech commands dataset \cite{Warden2018SpeechCommands} were not recorded by professionals with high-end recording equipment.
 In fact, the recordings had been done in an amateur kind of fashion so that the dataset is more suited to realistic environments intended for user applications.
-This is also noted in the paper \cite{Warden2018}:
+This is also noted in the paper \cite{Warden2018SpeechCommands}:
 \begin{quote}
 ...This meant that the use of studio-captured samples seemed unrealistic, since that audio would lack background noise, would be captured with high-quality microphones, and in a formal setting. 
 Successful models would need to cope with noisy environments, poor quality recording equipment, and people talking in a natural, chatty way...

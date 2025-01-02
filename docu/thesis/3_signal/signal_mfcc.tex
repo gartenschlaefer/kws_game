@@ -204,7 +204,7 @@ The amount of operations, denoted as $\mathcal{T(.)}$, for a trivial DFT transfo
 \end{equation}
 For example, using $N = K = 400$ results in $\mathcal{T}(\mathcal{F} \bm{x}) = \SI{1.28}{\mega\ops}$ for a single DFT.
 This of course, are far too many operations to handle in real time systems.
-Luckily, a more sophisticated Fourier transform can be applied by the Fast Fourier Transform (FFT) algorithm \cite{Brigham1967}, which gives a linear complexity of
+Luckily, a more sophisticated Fourier transform can be applied by the Fast Fourier Transform (FFT) algorithm \cite{Brigham1967FFT}, which gives a linear complexity of
 \begin{equation}
   \mathcal{T}(\mathcal{F} \bm{x}) = 6 (\mathcal{O}(N \cdot \log_2 N)) + 2 (\mathcal{O}(N \cdot \log_2 N)).
 \end{equation}
